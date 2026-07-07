@@ -3,9 +3,9 @@
 #include "train_generator.h"
 #include "logger.h"
 
+#include <nlohmann/json.hpp>
 #include <fstream>
 #include <filesystem>
-#include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;

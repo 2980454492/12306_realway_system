@@ -130,11 +130,20 @@ void registerRoutes(RailwayServer& server) {
 
             // 解析查询参数
             uint32_t from = 0, to = 0;
-            if (req.has_param("from")) {
-                from = std::stoul(req.get_param_value("from"));
-            }
-            if (req.has_param("to")) {
-                to = std::stoul(req.get_param_value("to"));
+            try {
+                if (req.has_param("from")) {
+                    from = std::stoul(req.get_param_value("from"));
+                }
+                if (req.has_param("to")) {
+                    to = std::stoul(req.get_param_value("to"));
+                }
+            } catch (const std::exception&) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "Invalid from/to parameter: must be a valid station ID";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
             }
 
             if (from == 0 || to == 0) {

@@ -46,6 +46,10 @@ set(HEADERS
     src/logger.h
     src/server.h
     src/routes.h
+    src/models.h
+    src/data_store.h
+    src/train_generator.h
+    src/railway_graph.h
     vendor/httplib.h
 )
 

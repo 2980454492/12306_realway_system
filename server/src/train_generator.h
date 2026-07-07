@@ -31,12 +31,4 @@ private:
         std::vector<Train>& out_trains,
         int& train_counter);
 
-    /** 查找站点（按 ID）。不存在则返回 nullptr */
-    static const Station* findStation(uint32_t id, const std::vector<Station>& stations);
-
-    /** 生成该线路的中间停站列表（按地理中间站选择） */
-    static std::vector<uint32_t> getIntermediateStops(uint32_t line_id);
-
-    /** 生成长度为 4 的随机车次号后缀 */
-    static std::string randomNumber();
 };
