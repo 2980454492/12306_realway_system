@@ -180,7 +180,9 @@ else
 fi
 
 # 快速启动测试（检查能否启动到监听状态）
+# 切换到 server/ 目录启动，确保相对路径 config/ data/ 正确
 info "快速启动测试..."
+cd "$SERVER_DIR"
 "$EXECUTABLE" &
 SERVER_PID=$!
 sleep 1

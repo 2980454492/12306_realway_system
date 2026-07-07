@@ -1,0 +1,4462 @@
+[
+  {
+    "id": "G1000",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 600,
+        "platform": 7,
+        "station_id": 1
+      },
+      {
+        "arrival": 622,
+        "departure": 627,
+        "platform": 2,
+        "station_id": 14
+      },
+      {
+        "arrival": 649,
+        "departure": 653,
+        "platform": 7,
+        "station_id": 13
+      },
+      {
+        "arrival": 715,
+        "departure": 719,
+        "platform": 5,
+        "station_id": 4
+      },
+      {
+        "arrival": 741,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1020",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 810,
+        "platform": 2,
+        "station_id": 1
+      },
+      {
+        "arrival": 832,
+        "departure": 834,
+        "platform": 1,
+        "station_id": 14
+      },
+      {
+        "arrival": 856,
+        "departure": 859,
+        "platform": 7,
+        "station_id": 13
+      },
+      {
+        "arrival": 921,
+        "departure": 924,
+        "platform": 5,
+        "station_id": 4
+      },
+      {
+        "arrival": 946,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1040",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1108,
+        "platform": 6,
+        "station_id": 1
+      },
+      {
+        "arrival": 1130,
+        "departure": 1132,
+        "platform": 1,
+        "station_id": 14
+      },
+      {
+        "arrival": 1154,
+        "departure": 1159,
+        "platform": 6,
+        "station_id": 13
+      },
+      {
+        "arrival": 1221,
+        "departure": 1226,
+        "platform": 8,
+        "station_id": 4
+      },
+      {
+        "arrival": 1248,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1060",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1030,
+        "platform": 2,
+        "station_id": 1
+      },
+      {
+        "arrival": 1052,
+        "departure": 1057,
+        "platform": 2,
+        "station_id": 14
+      },
+      {
+        "arrival": 1119,
+        "departure": 1123,
+        "platform": 3,
+        "station_id": 13
+      },
+      {
+        "arrival": 1145,
+        "departure": 1149,
+        "platform": 5,
+        "station_id": 4
+      },
+      {
+        "arrival": 1211,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1080",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1436,
+        "platform": 1,
+        "station_id": 1
+      },
+      {
+        "arrival": 1458,
+        "departure": 1501,
+        "platform": 5,
+        "station_id": 14
+      },
+      {
+        "arrival": 1523,
+        "departure": 1527,
+        "platform": 4,
+        "station_id": 13
+      },
+      {
+        "arrival": 1549,
+        "departure": 1551,
+        "platform": 1,
+        "station_id": 4
+      },
+      {
+        "arrival": 1613,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1038",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 600,
+        "platform": 3,
+        "station_id": 3
+      },
+      {
+        "arrival": 622,
+        "departure": 624,
+        "platform": 4,
+        "station_id": 4
+      },
+      {
+        "arrival": 646,
+        "departure": 648,
+        "platform": 7,
+        "station_id": 13
+      },
+      {
+        "arrival": 710,
+        "departure": 714,
+        "platform": 2,
+        "station_id": 14
+      },
+      {
+        "arrival": 736,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1058",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 816,
+        "platform": 8,
+        "station_id": 3
+      },
+      {
+        "arrival": 838,
+        "departure": 842,
+        "platform": 4,
+        "station_id": 4
+      },
+      {
+        "arrival": 904,
+        "departure": 906,
+        "platform": 7,
+        "station_id": 13
+      },
+      {
+        "arrival": 928,
+        "departure": 932,
+        "platform": 6,
+        "station_id": 14
+      },
+      {
+        "arrival": 954,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1078",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1020,
+        "platform": 1,
+        "station_id": 3
+      },
+      {
+        "arrival": 1042,
+        "departure": 1044,
+        "platform": 8,
+        "station_id": 4
+      },
+      {
+        "arrival": 1106,
+        "departure": 1111,
+        "platform": 8,
+        "station_id": 13
+      },
+      {
+        "arrival": 1133,
+        "departure": 1137,
+        "platform": 7,
+        "station_id": 14
+      },
+      {
+        "arrival": 1159,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1098",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1151,
+        "platform": 1,
+        "station_id": 3
+      },
+      {
+        "arrival": 1213,
+        "departure": 1215,
+        "platform": 2,
+        "station_id": 4
+      },
+      {
+        "arrival": 1237,
+        "departure": 1241,
+        "platform": 2,
+        "station_id": 13
+      },
+      {
+        "arrival": 1303,
+        "departure": 1306,
+        "platform": 6,
+        "station_id": 14
+      },
+      {
+        "arrival": 1328,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1118",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1540,
+        "platform": 4,
+        "station_id": 3
+      },
+      {
+        "arrival": 1602,
+        "departure": 1607,
+        "platform": 1,
+        "station_id": 4
+      },
+      {
+        "arrival": 1629,
+        "departure": 1631,
+        "platform": 8,
+        "station_id": 13
+      },
+      {
+        "arrival": 1653,
+        "departure": 1656,
+        "platform": 3,
+        "station_id": 14
+      },
+      {
+        "arrival": 1718,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1070",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 630,
+        "platform": 7,
+        "station_id": 1
+      },
+      {
+        "arrival": 714,
+        "departure": 717,
+        "platform": 4,
+        "station_id": 15
+      },
+      {
+        "arrival": 801,
+        "departure": 805,
+        "platform": 2,
+        "station_id": 11
+      },
+      {
+        "arrival": 849,
+        "departure": 853,
+        "platform": 5,
+        "station_id": 6
+      },
+      {
+        "arrival": 937,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1090",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 802,
+        "platform": 8,
+        "station_id": 1
+      },
+      {
+        "arrival": 846,
+        "departure": 851,
+        "platform": 7,
+        "station_id": 15
+      },
+      {
+        "arrival": 935,
+        "departure": 938,
+        "platform": 8,
+        "station_id": 11
+      },
+      {
+        "arrival": 1022,
+        "departure": 1025,
+        "platform": 8,
+        "station_id": 6
+      },
+      {
+        "arrival": 1109,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1110",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1118,
+        "platform": 6,
+        "station_id": 1
+      },
+      {
+        "arrival": 1202,
+        "departure": 1207,
+        "platform": 3,
+        "station_id": 15
+      },
+      {
+        "arrival": 1251,
+        "departure": 1253,
+        "platform": 5,
+        "station_id": 11
+      },
+      {
+        "arrival": 1337,
+        "departure": 1339,
+        "platform": 5,
+        "station_id": 6
+      },
+      {
+        "arrival": 1423,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1130",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1521,
+        "platform": 3,
+        "station_id": 1
+      },
+      {
+        "arrival": 1605,
+        "departure": 1610,
+        "platform": 4,
+        "station_id": 15
+      },
+      {
+        "arrival": 1654,
+        "departure": 1658,
+        "platform": 3,
+        "station_id": 11
+      },
+      {
+        "arrival": 1742,
+        "departure": 1746,
+        "platform": 7,
+        "station_id": 6
+      },
+      {
+        "arrival": 1830,
+        "departure": -1,
+        "platform": 5,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1150",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1438,
+        "platform": 8,
+        "station_id": 1
+      },
+      {
+        "arrival": 1522,
+        "departure": 1525,
+        "platform": 5,
+        "station_id": 15
+      },
+      {
+        "arrival": 1609,
+        "departure": 1613,
+        "platform": 3,
+        "station_id": 11
+      },
+      {
+        "arrival": 1657,
+        "departure": 1659,
+        "platform": 3,
+        "station_id": 6
+      },
+      {
+        "arrival": 1743,
+        "departure": -1,
+        "platform": 7,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1108",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 630,
+        "platform": 1,
+        "station_id": 5
+      },
+      {
+        "arrival": 714,
+        "departure": 716,
+        "platform": 8,
+        "station_id": 6
+      },
+      {
+        "arrival": 800,
+        "departure": 803,
+        "platform": 7,
+        "station_id": 11
+      },
+      {
+        "arrival": 847,
+        "departure": 850,
+        "platform": 2,
+        "station_id": 15
+      },
+      {
+        "arrival": 934,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1128",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 800,
+        "platform": 1,
+        "station_id": 5
+      },
+      {
+        "arrival": 844,
+        "departure": 849,
+        "platform": 2,
+        "station_id": 6
+      },
+      {
+        "arrival": 933,
+        "departure": 937,
+        "platform": 6,
+        "station_id": 11
+      },
+      {
+        "arrival": 1021,
+        "departure": 1025,
+        "platform": 7,
+        "station_id": 15
+      },
+      {
+        "arrival": 1109,
+        "departure": -1,
+        "platform": 7,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1148",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1120,
+        "platform": 1,
+        "station_id": 5
+      },
+      {
+        "arrival": 1204,
+        "departure": 1209,
+        "platform": 3,
+        "station_id": 6
+      },
+      {
+        "arrival": 1253,
+        "departure": 1257,
+        "platform": 1,
+        "station_id": 11
+      },
+      {
+        "arrival": 1341,
+        "departure": 1346,
+        "platform": 7,
+        "station_id": 15
+      },
+      {
+        "arrival": 1430,
+        "departure": -1,
+        "platform": 7,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1168",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1348,
+        "platform": 4,
+        "station_id": 5
+      },
+      {
+        "arrival": 1432,
+        "departure": 1435,
+        "platform": 1,
+        "station_id": 6
+      },
+      {
+        "arrival": 1519,
+        "departure": 1521,
+        "platform": 3,
+        "station_id": 11
+      },
+      {
+        "arrival": 1605,
+        "departure": 1608,
+        "platform": 6,
+        "station_id": 15
+      },
+      {
+        "arrival": 1652,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "C1188",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 40,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 80,
+      "second_seats": 300
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1630,
+        "platform": 6,
+        "station_id": 5
+      },
+      {
+        "arrival": 1714,
+        "departure": 1718,
+        "platform": 6,
+        "station_id": 6
+      },
+      {
+        "arrival": 1802,
+        "departure": 1805,
+        "platform": 8,
+        "station_id": 11
+      },
+      {
+        "arrival": 1849,
+        "departure": 1853,
+        "platform": 4,
+        "station_id": 15
+      },
+      {
+        "arrival": 1937,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1140",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 8,
+        "station_id": 3
+      },
+      {
+        "arrival": 812,
+        "departure": 816,
+        "platform": 7,
+        "station_id": 12
+      },
+      {
+        "arrival": 928,
+        "departure": 933,
+        "platform": 6,
+        "station_id": 6
+      },
+      {
+        "arrival": 1045,
+        "departure": -1,
+        "platform": 5,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1160",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 851,
+        "platform": 7,
+        "station_id": 3
+      },
+      {
+        "arrival": 1003,
+        "departure": 1006,
+        "platform": 4,
+        "station_id": 12
+      },
+      {
+        "arrival": 1118,
+        "departure": 1120,
+        "platform": 5,
+        "station_id": 6
+      },
+      {
+        "arrival": 1232,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1180",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1116,
+        "platform": 1,
+        "station_id": 3
+      },
+      {
+        "arrival": 1228,
+        "departure": 1230,
+        "platform": 4,
+        "station_id": 12
+      },
+      {
+        "arrival": 1342,
+        "departure": 1344,
+        "platform": 2,
+        "station_id": 6
+      },
+      {
+        "arrival": 1456,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1200",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1533,
+        "platform": 6,
+        "station_id": 3
+      },
+      {
+        "arrival": 1645,
+        "departure": 1648,
+        "platform": 3,
+        "station_id": 12
+      },
+      {
+        "arrival": 1800,
+        "departure": 1804,
+        "platform": 5,
+        "station_id": 6
+      },
+      {
+        "arrival": 1916,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1220",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1828,
+        "platform": 2,
+        "station_id": 3
+      },
+      {
+        "arrival": 1940,
+        "departure": 1942,
+        "platform": 5,
+        "station_id": 12
+      },
+      {
+        "arrival": 2054,
+        "departure": 2057,
+        "platform": 5,
+        "station_id": 6
+      },
+      {
+        "arrival": 2209,
+        "departure": -1,
+        "platform": 7,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1178",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 2,
+        "station_id": 5
+      },
+      {
+        "arrival": 812,
+        "departure": 817,
+        "platform": 1,
+        "station_id": 6
+      },
+      {
+        "arrival": 929,
+        "departure": 933,
+        "platform": 3,
+        "station_id": 12
+      },
+      {
+        "arrival": 1045,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1198",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 844,
+        "platform": 8,
+        "station_id": 5
+      },
+      {
+        "arrival": 956,
+        "departure": 1001,
+        "platform": 5,
+        "station_id": 6
+      },
+      {
+        "arrival": 1113,
+        "departure": 1118,
+        "platform": 3,
+        "station_id": 12
+      },
+      {
+        "arrival": 1230,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1218",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1018,
+        "platform": 7,
+        "station_id": 5
+      },
+      {
+        "arrival": 1130,
+        "departure": 1133,
+        "platform": 7,
+        "station_id": 6
+      },
+      {
+        "arrival": 1245,
+        "departure": 1247,
+        "platform": 2,
+        "station_id": 12
+      },
+      {
+        "arrival": 1359,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1238",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1533,
+        "platform": 8,
+        "station_id": 5
+      },
+      {
+        "arrival": 1645,
+        "departure": 1649,
+        "platform": 3,
+        "station_id": 6
+      },
+      {
+        "arrival": 1801,
+        "departure": 1806,
+        "platform": 1,
+        "station_id": 12
+      },
+      {
+        "arrival": 1918,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1258",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1508,
+        "platform": 3,
+        "station_id": 5
+      },
+      {
+        "arrival": 1620,
+        "departure": 1625,
+        "platform": 1,
+        "station_id": 6
+      },
+      {
+        "arrival": 1737,
+        "departure": 1740,
+        "platform": 2,
+        "station_id": 12
+      },
+      {
+        "arrival": 1852,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1210",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 1,
+        "station_id": 7
+      },
+      {
+        "arrival": 806,
+        "departure": 811,
+        "platform": 3,
+        "station_id": 19
+      },
+      {
+        "arrival": 917,
+        "departure": 922,
+        "platform": 3,
+        "station_id": 20
+      },
+      {
+        "arrival": 1028,
+        "departure": 1030,
+        "platform": 2,
+        "station_id": 1
+      },
+      {
+        "arrival": 1136,
+        "departure": 1140,
+        "platform": 5,
+        "station_id": 2
+      },
+      {
+        "arrival": 1246,
+        "departure": 1249,
+        "platform": 4,
+        "station_id": 14
+      },
+      {
+        "arrival": 1355,
+        "departure": 1357,
+        "platform": 6,
+        "station_id": 13
+      },
+      {
+        "arrival": 1503,
+        "departure": 1505,
+        "platform": 3,
+        "station_id": 4
+      },
+      {
+        "arrival": 1611,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1230",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 852,
+        "platform": 8,
+        "station_id": 7
+      },
+      {
+        "arrival": 958,
+        "departure": 1000,
+        "platform": 3,
+        "station_id": 19
+      },
+      {
+        "arrival": 1106,
+        "departure": 1108,
+        "platform": 5,
+        "station_id": 20
+      },
+      {
+        "arrival": 1214,
+        "departure": 1218,
+        "platform": 6,
+        "station_id": 1
+      },
+      {
+        "arrival": 1324,
+        "departure": 1327,
+        "platform": 3,
+        "station_id": 2
+      },
+      {
+        "arrival": 1433,
+        "departure": 1435,
+        "platform": 8,
+        "station_id": 14
+      },
+      {
+        "arrival": 1541,
+        "departure": 1544,
+        "platform": 8,
+        "station_id": 13
+      },
+      {
+        "arrival": 1650,
+        "departure": 1652,
+        "platform": 3,
+        "station_id": 4
+      },
+      {
+        "arrival": 1758,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1250",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1130,
+        "platform": 6,
+        "station_id": 7
+      },
+      {
+        "arrival": 1236,
+        "departure": 1239,
+        "platform": 2,
+        "station_id": 19
+      },
+      {
+        "arrival": 1345,
+        "departure": 1348,
+        "platform": 8,
+        "station_id": 20
+      },
+      {
+        "arrival": 1454,
+        "departure": 1456,
+        "platform": 3,
+        "station_id": 1
+      },
+      {
+        "arrival": 1602,
+        "departure": 1606,
+        "platform": 8,
+        "station_id": 2
+      },
+      {
+        "arrival": 1712,
+        "departure": 1716,
+        "platform": 4,
+        "station_id": 14
+      },
+      {
+        "arrival": 1822,
+        "departure": 1824,
+        "platform": 1,
+        "station_id": 13
+      },
+      {
+        "arrival": 1930,
+        "departure": 1933,
+        "platform": 3,
+        "station_id": 4
+      },
+      {
+        "arrival": 2039,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1270",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1421,
+        "platform": 2,
+        "station_id": 7
+      },
+      {
+        "arrival": 1527,
+        "departure": 1531,
+        "platform": 2,
+        "station_id": 19
+      },
+      {
+        "arrival": 1637,
+        "departure": 1641,
+        "platform": 4,
+        "station_id": 20
+      },
+      {
+        "arrival": 1747,
+        "departure": 1750,
+        "platform": 8,
+        "station_id": 1
+      },
+      {
+        "arrival": 1856,
+        "departure": 1900,
+        "platform": 2,
+        "station_id": 2
+      },
+      {
+        "arrival": 2006,
+        "departure": 2010,
+        "platform": 6,
+        "station_id": 14
+      },
+      {
+        "arrival": 2116,
+        "departure": 2118,
+        "platform": 7,
+        "station_id": 13
+      },
+      {
+        "arrival": 2224,
+        "departure": 2227,
+        "platform": 2,
+        "station_id": 4
+      },
+      {
+        "arrival": 2333,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1290",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1724,
+        "platform": 7,
+        "station_id": 7
+      },
+      {
+        "arrival": 1830,
+        "departure": 1833,
+        "platform": 4,
+        "station_id": 19
+      },
+      {
+        "arrival": 1939,
+        "departure": 1943,
+        "platform": 8,
+        "station_id": 20
+      },
+      {
+        "arrival": 2049,
+        "departure": 2053,
+        "platform": 4,
+        "station_id": 1
+      },
+      {
+        "arrival": 2159,
+        "departure": 2203,
+        "platform": 7,
+        "station_id": 2
+      },
+      {
+        "arrival": 2309,
+        "departure": 2311,
+        "platform": 7,
+        "station_id": 14
+      },
+      {
+        "arrival": 2417,
+        "departure": 2422,
+        "platform": 2,
+        "station_id": 13
+      },
+      {
+        "arrival": 2528,
+        "departure": 2531,
+        "platform": 5,
+        "station_id": 4
+      },
+      {
+        "arrival": 2637,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1248",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 1,
+        "station_id": 3
+      },
+      {
+        "arrival": 806,
+        "departure": 811,
+        "platform": 5,
+        "station_id": 4
+      },
+      {
+        "arrival": 917,
+        "departure": 920,
+        "platform": 6,
+        "station_id": 13
+      },
+      {
+        "arrival": 1026,
+        "departure": 1028,
+        "platform": 1,
+        "station_id": 14
+      },
+      {
+        "arrival": 1134,
+        "departure": 1138,
+        "platform": 5,
+        "station_id": 2
+      },
+      {
+        "arrival": 1244,
+        "departure": 1249,
+        "platform": 2,
+        "station_id": 1
+      },
+      {
+        "arrival": 1355,
+        "departure": 1358,
+        "platform": 6,
+        "station_id": 20
+      },
+      {
+        "arrival": 1504,
+        "departure": 1506,
+        "platform": 2,
+        "station_id": 19
+      },
+      {
+        "arrival": 1612,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 7
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1268",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 932,
+        "platform": 4,
+        "station_id": 3
+      },
+      {
+        "arrival": 1038,
+        "departure": 1041,
+        "platform": 5,
+        "station_id": 4
+      },
+      {
+        "arrival": 1147,
+        "departure": 1152,
+        "platform": 7,
+        "station_id": 13
+      },
+      {
+        "arrival": 1258,
+        "departure": 1300,
+        "platform": 6,
+        "station_id": 14
+      },
+      {
+        "arrival": 1406,
+        "departure": 1409,
+        "platform": 6,
+        "station_id": 2
+      },
+      {
+        "arrival": 1515,
+        "departure": 1517,
+        "platform": 2,
+        "station_id": 1
+      },
+      {
+        "arrival": 1623,
+        "departure": 1628,
+        "platform": 5,
+        "station_id": 20
+      },
+      {
+        "arrival": 1734,
+        "departure": 1739,
+        "platform": 6,
+        "station_id": 19
+      },
+      {
+        "arrival": 1845,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 7
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1288",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1040,
+        "platform": 6,
+        "station_id": 3
+      },
+      {
+        "arrival": 1146,
+        "departure": 1148,
+        "platform": 7,
+        "station_id": 4
+      },
+      {
+        "arrival": 1254,
+        "departure": 1259,
+        "platform": 5,
+        "station_id": 13
+      },
+      {
+        "arrival": 1405,
+        "departure": 1409,
+        "platform": 5,
+        "station_id": 14
+      },
+      {
+        "arrival": 1515,
+        "departure": 1518,
+        "platform": 2,
+        "station_id": 2
+      },
+      {
+        "arrival": 1624,
+        "departure": 1629,
+        "platform": 1,
+        "station_id": 1
+      },
+      {
+        "arrival": 1735,
+        "departure": 1740,
+        "platform": 8,
+        "station_id": 20
+      },
+      {
+        "arrival": 1846,
+        "departure": 1850,
+        "platform": 8,
+        "station_id": 19
+      },
+      {
+        "arrival": 1956,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 7
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1308",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1421,
+        "platform": 2,
+        "station_id": 3
+      },
+      {
+        "arrival": 1527,
+        "departure": 1530,
+        "platform": 3,
+        "station_id": 4
+      },
+      {
+        "arrival": 1636,
+        "departure": 1639,
+        "platform": 6,
+        "station_id": 13
+      },
+      {
+        "arrival": 1745,
+        "departure": 1749,
+        "platform": 7,
+        "station_id": 14
+      },
+      {
+        "arrival": 1855,
+        "departure": 1900,
+        "platform": 7,
+        "station_id": 2
+      },
+      {
+        "arrival": 2006,
+        "departure": 2011,
+        "platform": 4,
+        "station_id": 1
+      },
+      {
+        "arrival": 2117,
+        "departure": 2122,
+        "platform": 8,
+        "station_id": 20
+      },
+      {
+        "arrival": 2228,
+        "departure": 2232,
+        "platform": 7,
+        "station_id": 19
+      },
+      {
+        "arrival": 2338,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 7
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1328",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1840,
+        "platform": 2,
+        "station_id": 3
+      },
+      {
+        "arrival": 1946,
+        "departure": 1951,
+        "platform": 8,
+        "station_id": 4
+      },
+      {
+        "arrival": 2057,
+        "departure": 2101,
+        "platform": 5,
+        "station_id": 13
+      },
+      {
+        "arrival": 2207,
+        "departure": 2211,
+        "platform": 1,
+        "station_id": 14
+      },
+      {
+        "arrival": 2317,
+        "departure": 2320,
+        "platform": 1,
+        "station_id": 2
+      },
+      {
+        "arrival": 2426,
+        "departure": 2431,
+        "platform": 6,
+        "station_id": 1
+      },
+      {
+        "arrival": 2537,
+        "departure": 2542,
+        "platform": 1,
+        "station_id": 20
+      },
+      {
+        "arrival": 2648,
+        "departure": 2651,
+        "platform": 2,
+        "station_id": 19
+      },
+      {
+        "arrival": 2757,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 7
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1280",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 4,
+        "station_id": 2
+      },
+      {
+        "arrival": 912,
+        "departure": 916,
+        "platform": 4,
+        "station_id": 15
+      },
+      {
+        "arrival": 1128,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 11
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1300",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1000,
+        "platform": 2,
+        "station_id": 2
+      },
+      {
+        "arrival": 1212,
+        "departure": 1214,
+        "platform": 6,
+        "station_id": 15
+      },
+      {
+        "arrival": 1426,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 11
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1320",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1042,
+        "platform": 4,
+        "station_id": 2
+      },
+      {
+        "arrival": 1214,
+        "departure": 1217,
+        "platform": 2,
+        "station_id": 15
+      },
+      {
+        "arrival": 1429,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 11
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1340",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1309,
+        "platform": 6,
+        "station_id": 2
+      },
+      {
+        "arrival": 1521,
+        "departure": 1525,
+        "platform": 7,
+        "station_id": 15
+      },
+      {
+        "arrival": 1737,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 11
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1360",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1656,
+        "platform": 3,
+        "station_id": 2
+      },
+      {
+        "arrival": 1828,
+        "departure": 1832,
+        "platform": 5,
+        "station_id": 15
+      },
+      {
+        "arrival": 2044,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 11
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1318",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 3,
+        "station_id": 11
+      },
+      {
+        "arrival": 912,
+        "departure": 916,
+        "platform": 3,
+        "station_id": 15
+      },
+      {
+        "arrival": 1128,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1338",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 852,
+        "platform": 5,
+        "station_id": 11
+      },
+      {
+        "arrival": 1024,
+        "departure": 1029,
+        "platform": 8,
+        "station_id": 15
+      },
+      {
+        "arrival": 1241,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1358",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1128,
+        "platform": 8,
+        "station_id": 11
+      },
+      {
+        "arrival": 1340,
+        "departure": 1345,
+        "platform": 6,
+        "station_id": 15
+      },
+      {
+        "arrival": 1517,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1378",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1506,
+        "platform": 3,
+        "station_id": 11
+      },
+      {
+        "arrival": 1718,
+        "departure": 1722,
+        "platform": 6,
+        "station_id": 15
+      },
+      {
+        "arrival": 1934,
+        "departure": -1,
+        "platform": 5,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1398",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1700,
+        "platform": 4,
+        "station_id": 11
+      },
+      {
+        "arrival": 1912,
+        "departure": 1917,
+        "platform": 2,
+        "station_id": 15
+      },
+      {
+        "arrival": 2129,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1350",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 4,
+        "station_id": 3
+      },
+      {
+        "arrival": 1156,
+        "departure": 1159,
+        "platform": 5,
+        "station_id": 9
+      },
+      {
+        "arrival": 1615,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1370",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 939,
+        "platform": 6,
+        "station_id": 3
+      },
+      {
+        "arrival": 1355,
+        "departure": 1357,
+        "platform": 2,
+        "station_id": 9
+      },
+      {
+        "arrival": 1813,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1390",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1250,
+        "platform": 4,
+        "station_id": 3
+      },
+      {
+        "arrival": 1706,
+        "departure": 1711,
+        "platform": 3,
+        "station_id": 9
+      },
+      {
+        "arrival": 2207,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1410",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1530,
+        "platform": 3,
+        "station_id": 3
+      },
+      {
+        "arrival": 2026,
+        "departure": 2030,
+        "platform": 1,
+        "station_id": 9
+      },
+      {
+        "arrival": 2526,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1430",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1836,
+        "platform": 3,
+        "station_id": 3
+      },
+      {
+        "arrival": 2252,
+        "departure": 2255,
+        "platform": 5,
+        "station_id": 9
+      },
+      {
+        "arrival": 2711,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1388",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 8,
+        "station_id": 10
+      },
+      {
+        "arrival": 1156,
+        "departure": 1201,
+        "platform": 7,
+        "station_id": 9
+      },
+      {
+        "arrival": 1657,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1408",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 856,
+        "platform": 3,
+        "station_id": 10
+      },
+      {
+        "arrival": 1312,
+        "departure": 1315,
+        "platform": 2,
+        "station_id": 9
+      },
+      {
+        "arrival": 1811,
+        "departure": -1,
+        "platform": 7,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1428",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1048,
+        "platform": 3,
+        "station_id": 10
+      },
+      {
+        "arrival": 1504,
+        "departure": 1507,
+        "platform": 2,
+        "station_id": 9
+      },
+      {
+        "arrival": 2003,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1448",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1400,
+        "platform": 4,
+        "station_id": 10
+      },
+      {
+        "arrival": 1856,
+        "departure": 1901,
+        "platform": 7,
+        "station_id": 9
+      },
+      {
+        "arrival": 2357,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1468",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1836,
+        "platform": 5,
+        "station_id": 10
+      },
+      {
+        "arrival": 2252,
+        "departure": 2254,
+        "platform": 1,
+        "station_id": 9
+      },
+      {
+        "arrival": 2710,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1420",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 600,
+        "platform": 6,
+        "station_id": 8
+      },
+      {
+        "arrival": 624,
+        "departure": 629,
+        "platform": 3,
+        "station_id": 19
+      },
+      {
+        "arrival": 653,
+        "departure": 655,
+        "platform": 3,
+        "station_id": 20
+      },
+      {
+        "arrival": 719,
+        "departure": -1,
+        "platform": 5,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1440",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 756,
+        "platform": 8,
+        "station_id": 8
+      },
+      {
+        "arrival": 820,
+        "departure": 823,
+        "platform": 6,
+        "station_id": 19
+      },
+      {
+        "arrival": 847,
+        "departure": 852,
+        "platform": 6,
+        "station_id": 20
+      },
+      {
+        "arrival": 916,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1460",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1106,
+        "platform": 6,
+        "station_id": 8
+      },
+      {
+        "arrival": 1130,
+        "departure": 1133,
+        "platform": 5,
+        "station_id": 19
+      },
+      {
+        "arrival": 1157,
+        "departure": 1200,
+        "platform": 3,
+        "station_id": 20
+      },
+      {
+        "arrival": 1224,
+        "departure": -1,
+        "platform": 7,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1480",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1224,
+        "platform": 7,
+        "station_id": 8
+      },
+      {
+        "arrival": 1248,
+        "departure": 1251,
+        "platform": 7,
+        "station_id": 19
+      },
+      {
+        "arrival": 1315,
+        "departure": 1319,
+        "platform": 8,
+        "station_id": 20
+      },
+      {
+        "arrival": 1343,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1500",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1504,
+        "platform": 1,
+        "station_id": 8
+      },
+      {
+        "arrival": 1528,
+        "departure": 1532,
+        "platform": 6,
+        "station_id": 19
+      },
+      {
+        "arrival": 1556,
+        "departure": 1601,
+        "platform": 2,
+        "station_id": 20
+      },
+      {
+        "arrival": 1625,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 1
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1458",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 600,
+        "platform": 6,
+        "station_id": 1
+      },
+      {
+        "arrival": 624,
+        "departure": 627,
+        "platform": 7,
+        "station_id": 20
+      },
+      {
+        "arrival": 651,
+        "departure": 653,
+        "platform": 8,
+        "station_id": 19
+      },
+      {
+        "arrival": 717,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 8
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1478",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 800,
+        "platform": 1,
+        "station_id": 1
+      },
+      {
+        "arrival": 824,
+        "departure": 827,
+        "platform": 5,
+        "station_id": 20
+      },
+      {
+        "arrival": 851,
+        "departure": 853,
+        "platform": 4,
+        "station_id": 19
+      },
+      {
+        "arrival": 917,
+        "departure": -1,
+        "platform": 5,
+        "station_id": 8
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1498",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1102,
+        "platform": 1,
+        "station_id": 1
+      },
+      {
+        "arrival": 1126,
+        "departure": 1129,
+        "platform": 4,
+        "station_id": 20
+      },
+      {
+        "arrival": 1153,
+        "departure": 1155,
+        "platform": 5,
+        "station_id": 19
+      },
+      {
+        "arrival": 1219,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 8
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1518",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1148,
+        "platform": 7,
+        "station_id": 1
+      },
+      {
+        "arrival": 1212,
+        "departure": 1216,
+        "platform": 7,
+        "station_id": 20
+      },
+      {
+        "arrival": 1240,
+        "departure": 1242,
+        "platform": 3,
+        "station_id": 19
+      },
+      {
+        "arrival": 1306,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 8
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "G1538",
+    "seat_config": {
+      "business_seats": 10,
+      "first_seats": 80,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 400
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1212,
+        "platform": 7,
+        "station_id": 1
+      },
+      {
+        "arrival": 1236,
+        "departure": 1239,
+        "platform": 3,
+        "station_id": 20
+      },
+      {
+        "arrival": 1303,
+        "departure": 1307,
+        "platform": 2,
+        "station_id": 19
+      },
+      {
+        "arrival": 1331,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 8
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1490",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 7,
+        "station_id": 2
+      },
+      {
+        "arrival": 952,
+        "departure": 957,
+        "platform": 3,
+        "station_id": 4
+      },
+      {
+        "arrival": 1249,
+        "departure": 1251,
+        "platform": 8,
+        "station_id": 3
+      },
+      {
+        "arrival": 1543,
+        "departure": -1,
+        "platform": 5,
+        "station_id": 9
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1510",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 911,
+        "platform": 1,
+        "station_id": 2
+      },
+      {
+        "arrival": 1203,
+        "departure": 1208,
+        "platform": 1,
+        "station_id": 4
+      },
+      {
+        "arrival": 1500,
+        "departure": 1502,
+        "platform": 5,
+        "station_id": 3
+      },
+      {
+        "arrival": 1754,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 9
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1530",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1138,
+        "platform": 6,
+        "station_id": 2
+      },
+      {
+        "arrival": 1430,
+        "departure": 1434,
+        "platform": 2,
+        "station_id": 4
+      },
+      {
+        "arrival": 1726,
+        "departure": 1730,
+        "platform": 2,
+        "station_id": 3
+      },
+      {
+        "arrival": 2022,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 9
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1550",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1554,
+        "platform": 5,
+        "station_id": 2
+      },
+      {
+        "arrival": 1846,
+        "departure": 1850,
+        "platform": 3,
+        "station_id": 4
+      },
+      {
+        "arrival": 2142,
+        "departure": 2144,
+        "platform": 7,
+        "station_id": 3
+      },
+      {
+        "arrival": 2436,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 9
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1570",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1436,
+        "platform": 4,
+        "station_id": 2
+      },
+      {
+        "arrival": 1728,
+        "departure": 1731,
+        "platform": 6,
+        "station_id": 4
+      },
+      {
+        "arrival": 2023,
+        "departure": 2025,
+        "platform": 3,
+        "station_id": 3
+      },
+      {
+        "arrival": 2317,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 9
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1528",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 8,
+        "station_id": 9
+      },
+      {
+        "arrival": 952,
+        "departure": 954,
+        "platform": 7,
+        "station_id": 3
+      },
+      {
+        "arrival": 1246,
+        "departure": 1249,
+        "platform": 6,
+        "station_id": 4
+      },
+      {
+        "arrival": 1541,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1548",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 907,
+        "platform": 1,
+        "station_id": 9
+      },
+      {
+        "arrival": 1159,
+        "departure": 1201,
+        "platform": 8,
+        "station_id": 3
+      },
+      {
+        "arrival": 1453,
+        "departure": 1455,
+        "platform": 4,
+        "station_id": 4
+      },
+      {
+        "arrival": 1747,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1568",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1042,
+        "platform": 5,
+        "station_id": 9
+      },
+      {
+        "arrival": 1334,
+        "departure": 1336,
+        "platform": 6,
+        "station_id": 3
+      },
+      {
+        "arrival": 1628,
+        "departure": 1630,
+        "platform": 6,
+        "station_id": 4
+      },
+      {
+        "arrival": 1922,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1588",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1245,
+        "platform": 6,
+        "station_id": 9
+      },
+      {
+        "arrival": 1537,
+        "departure": 1542,
+        "platform": 5,
+        "station_id": 3
+      },
+      {
+        "arrival": 1834,
+        "departure": 1838,
+        "platform": 6,
+        "station_id": 4
+      },
+      {
+        "arrival": 2130,
+        "departure": -1,
+        "platform": 5,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1608",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1536,
+        "platform": 5,
+        "station_id": 9
+      },
+      {
+        "arrival": 1828,
+        "departure": 1832,
+        "platform": 4,
+        "station_id": 3
+      },
+      {
+        "arrival": 2124,
+        "departure": 2126,
+        "platform": 2,
+        "station_id": 4
+      },
+      {
+        "arrival": 2418,
+        "departure": -1,
+        "platform": 5,
+        "station_id": 2
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1560",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 2,
+        "station_id": 3
+      },
+      {
+        "arrival": 930,
+        "departure": 935,
+        "platform": 1,
+        "station_id": 4
+      },
+      {
+        "arrival": 1125,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 17
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1580",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 901,
+        "platform": 1,
+        "station_id": 3
+      },
+      {
+        "arrival": 1131,
+        "departure": 1133,
+        "platform": 1,
+        "station_id": 4
+      },
+      {
+        "arrival": 1323,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 17
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1600",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1006,
+        "platform": 3,
+        "station_id": 3
+      },
+      {
+        "arrival": 1236,
+        "departure": 1241,
+        "platform": 8,
+        "station_id": 4
+      },
+      {
+        "arrival": 1431,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 17
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1620",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1215,
+        "platform": 4,
+        "station_id": 3
+      },
+      {
+        "arrival": 1445,
+        "departure": 1447,
+        "platform": 1,
+        "station_id": 4
+      },
+      {
+        "arrival": 1637,
+        "departure": -1,
+        "platform": 7,
+        "station_id": 17
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1640",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1556,
+        "platform": 7,
+        "station_id": 3
+      },
+      {
+        "arrival": 1746,
+        "departure": 1749,
+        "platform": 3,
+        "station_id": 4
+      },
+      {
+        "arrival": 1939,
+        "departure": -1,
+        "platform": 2,
+        "station_id": 17
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1598",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 4,
+        "station_id": 17
+      },
+      {
+        "arrival": 930,
+        "departure": 934,
+        "platform": 4,
+        "station_id": 4
+      },
+      {
+        "arrival": 1124,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1618",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 926,
+        "platform": 8,
+        "station_id": 17
+      },
+      {
+        "arrival": 1116,
+        "departure": 1120,
+        "platform": 8,
+        "station_id": 4
+      },
+      {
+        "arrival": 1350,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1638",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1046,
+        "platform": 3,
+        "station_id": 17
+      },
+      {
+        "arrival": 1236,
+        "departure": 1238,
+        "platform": 6,
+        "station_id": 4
+      },
+      {
+        "arrival": 1428,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1658",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1345,
+        "platform": 5,
+        "station_id": 17
+      },
+      {
+        "arrival": 1535,
+        "departure": 1540,
+        "platform": 5,
+        "station_id": 4
+      },
+      {
+        "arrival": 1730,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1678",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1708,
+        "platform": 2,
+        "station_id": 17
+      },
+      {
+        "arrival": 1938,
+        "departure": 1942,
+        "platform": 1,
+        "station_id": 4
+      },
+      {
+        "arrival": 2132,
+        "departure": -1,
+        "platform": 8,
+        "station_id": 3
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1630",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 8,
+        "station_id": 5
+      },
+      {
+        "arrival": 906,
+        "departure": 908,
+        "platform": 7,
+        "station_id": 6
+      },
+      {
+        "arrival": 1114,
+        "departure": 1118,
+        "platform": 6,
+        "station_id": 12
+      },
+      {
+        "arrival": 1324,
+        "departure": 1329,
+        "platform": 7,
+        "station_id": 3
+      },
+      {
+        "arrival": 1535,
+        "departure": 1539,
+        "platform": 6,
+        "station_id": 9
+      },
+      {
+        "arrival": 1705,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1650",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 922,
+        "platform": 6,
+        "station_id": 5
+      },
+      {
+        "arrival": 1128,
+        "departure": 1130,
+        "platform": 4,
+        "station_id": 6
+      },
+      {
+        "arrival": 1336,
+        "departure": 1341,
+        "platform": 5,
+        "station_id": 12
+      },
+      {
+        "arrival": 1507,
+        "departure": 1512,
+        "platform": 8,
+        "station_id": 3
+      },
+      {
+        "arrival": 1718,
+        "departure": 1722,
+        "platform": 4,
+        "station_id": 9
+      },
+      {
+        "arrival": 1928,
+        "departure": -1,
+        "platform": 7,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1670",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1254,
+        "platform": 6,
+        "station_id": 5
+      },
+      {
+        "arrival": 1420,
+        "departure": 1425,
+        "platform": 2,
+        "station_id": 6
+      },
+      {
+        "arrival": 1631,
+        "departure": 1633,
+        "platform": 3,
+        "station_id": 12
+      },
+      {
+        "arrival": 1839,
+        "departure": 1841,
+        "platform": 2,
+        "station_id": 3
+      },
+      {
+        "arrival": 2007,
+        "departure": 2009,
+        "platform": 4,
+        "station_id": 9
+      },
+      {
+        "arrival": 2215,
+        "departure": -1,
+        "platform": 1,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1690",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1139,
+        "platform": 1,
+        "station_id": 5
+      },
+      {
+        "arrival": 1305,
+        "departure": 1309,
+        "platform": 6,
+        "station_id": 6
+      },
+      {
+        "arrival": 1515,
+        "departure": 1518,
+        "platform": 1,
+        "station_id": 12
+      },
+      {
+        "arrival": 1724,
+        "departure": 1728,
+        "platform": 3,
+        "station_id": 3
+      },
+      {
+        "arrival": 1934,
+        "departure": 1937,
+        "platform": 7,
+        "station_id": 9
+      },
+      {
+        "arrival": 2103,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1710",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1308,
+        "platform": 3,
+        "station_id": 5
+      },
+      {
+        "arrival": 1514,
+        "departure": 1519,
+        "platform": 3,
+        "station_id": 6
+      },
+      {
+        "arrival": 1725,
+        "departure": 1728,
+        "platform": 4,
+        "station_id": 12
+      },
+      {
+        "arrival": 1934,
+        "departure": 1936,
+        "platform": 6,
+        "station_id": 3
+      },
+      {
+        "arrival": 2142,
+        "departure": 2146,
+        "platform": 3,
+        "station_id": 9
+      },
+      {
+        "arrival": 2312,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 10
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1668",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 700,
+        "platform": 8,
+        "station_id": 10
+      },
+      {
+        "arrival": 906,
+        "departure": 908,
+        "platform": 6,
+        "station_id": 9
+      },
+      {
+        "arrival": 1114,
+        "departure": 1117,
+        "platform": 7,
+        "station_id": 3
+      },
+      {
+        "arrival": 1323,
+        "departure": 1328,
+        "platform": 3,
+        "station_id": 12
+      },
+      {
+        "arrival": 1534,
+        "departure": 1538,
+        "platform": 2,
+        "station_id": 6
+      },
+      {
+        "arrival": 1704,
+        "departure": -1,
+        "platform": 4,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1688",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 938,
+        "platform": 5,
+        "station_id": 10
+      },
+      {
+        "arrival": 1104,
+        "departure": 1109,
+        "platform": 5,
+        "station_id": 9
+      },
+      {
+        "arrival": 1315,
+        "departure": 1320,
+        "platform": 6,
+        "station_id": 3
+      },
+      {
+        "arrival": 1526,
+        "departure": 1529,
+        "platform": 2,
+        "station_id": 12
+      },
+      {
+        "arrival": 1735,
+        "departure": 1738,
+        "platform": 3,
+        "station_id": 6
+      },
+      {
+        "arrival": 1904,
+        "departure": -1,
+        "platform": 7,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1708",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1144,
+        "platform": 3,
+        "station_id": 10
+      },
+      {
+        "arrival": 1310,
+        "departure": 1315,
+        "platform": 8,
+        "station_id": 9
+      },
+      {
+        "arrival": 1521,
+        "departure": 1525,
+        "platform": 7,
+        "station_id": 3
+      },
+      {
+        "arrival": 1731,
+        "departure": 1733,
+        "platform": 4,
+        "station_id": 12
+      },
+      {
+        "arrival": 1939,
+        "departure": 1943,
+        "platform": 7,
+        "station_id": 6
+      },
+      {
+        "arrival": 2109,
+        "departure": -1,
+        "platform": 6,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1728",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1454,
+        "platform": 2,
+        "station_id": 10
+      },
+      {
+        "arrival": 1620,
+        "departure": 1622,
+        "platform": 4,
+        "station_id": 9
+      },
+      {
+        "arrival": 1828,
+        "departure": 1833,
+        "platform": 5,
+        "station_id": 3
+      },
+      {
+        "arrival": 2039,
+        "departure": 2043,
+        "platform": 4,
+        "station_id": 12
+      },
+      {
+        "arrival": 2209,
+        "departure": 2214,
+        "platform": 4,
+        "station_id": 6
+      },
+      {
+        "arrival": 2420,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  },
+  {
+    "id": "K1748",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 0,
+      "hard_seat": 400,
+      "hard_sleeper": 200,
+      "no_seat": 100,
+      "second_seats": 0
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 1448,
+        "platform": 8,
+        "station_id": 10
+      },
+      {
+        "arrival": 1614,
+        "departure": 1616,
+        "platform": 4,
+        "station_id": 9
+      },
+      {
+        "arrival": 1822,
+        "departure": 1824,
+        "platform": 1,
+        "station_id": 3
+      },
+      {
+        "arrival": 2030,
+        "departure": 2035,
+        "platform": 8,
+        "station_id": 12
+      },
+      {
+        "arrival": 2241,
+        "departure": 2246,
+        "platform": 1,
+        "station_id": 6
+      },
+      {
+        "arrival": 2412,
+        "departure": -1,
+        "platform": 3,
+        "station_id": 5
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "",
+    "valid_until": ""
+  }
+]

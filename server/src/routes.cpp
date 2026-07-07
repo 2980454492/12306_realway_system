@@ -2,9 +2,12 @@
 #include "routes.h"
 #include "server.h"
 #include "logger.h"
+#include "data_store.h"
+#include "railway_graph.h"
 
 #include <nlohmann/json.hpp>
 #include <chrono>
+#include <sstream>
 
 using json = nlohmann::json;  // 局部 using，非全局
 
@@ -85,5 +88,98 @@ void registerRoutes(RailwayServer& server) {
         )", "text/html; charset=utf-8");
     });
 
-    Logger::instance().info("Routes registered: GET /, GET /health");
+    // ── GET /api/debug/stations — 查看所有站点（调试验证用）──
+    app.Get("/api/debug/stations", [](const httplib::Request& /*req*/, httplib::Response& res) {
+        try {
+            auto& ds = DataStore::instance();
+            if (!ds.isReady()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "DataStore not ready";
+                res.set_content(j.dump(), "application/json");
+                res.status = 503;
+                return;
+            }
+
+            json j;
+            j["ok"] = true;
+            j["count"] = ds.getAllStations().size();
+            j["data"] = ds.getAllStations();
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── GET /api/debug/graph — 查询最短路径（调试验证用）──
+    app.Get("/api/debug/graph", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto& ds = DataStore::instance();
+            if (!ds.isReady()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "DataStore not ready";
+                res.set_content(j.dump(), "application/json");
+                res.status = 503;
+                return;
+            }
+
+            // 解析查询参数
+            uint32_t from = 0, to = 0;
+            if (req.has_param("from")) {
+                from = std::stoul(req.get_param_value("from"));
+            }
+            if (req.has_param("to")) {
+                to = std::stoul(req.get_param_value("to"));
+            }
+
+            if (from == 0 || to == 0) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "Missing from/to parameter (station ID)";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            // 构建图并查询最短路径
+            RailwayGraph graph;
+            graph.build(ds.getAllLines());
+
+            auto path = graph.shortestPath(from, to);
+
+            json j;
+            j["ok"] = true;
+            j["from"] = from;
+            j["to"] = to;
+            j["found"] = path.found;
+            if (path.found) {
+                j["distance_km"] = path.total_distance_km;
+                // 将站点 ID 转为站名，方便阅读
+                json route = json::array();
+                for (auto sid : path.stations) {
+                    auto* station = ds.getStation(sid);
+                    if (station) {
+                        route.push_back({{"id", sid}, {"name", station->name}});
+                    } else {
+                        route.push_back({{"id", sid}, {"name", "unknown"}});
+                    }
+                }
+                j["route"] = route;
+            }
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    Logger::instance().info("Routes registered: GET /, /health, /api/debug/stations, /api/debug/graph");
 }

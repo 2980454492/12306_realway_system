@@ -37,6 +37,9 @@ set(SOURCES
     src/logger.cpp
     src/server.cpp
     src/routes.cpp
+    src/data_store.cpp
+    src/railway_graph.cpp
+    src/train_generator.cpp
 )
 
 set(HEADERS

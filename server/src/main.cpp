@@ -1,8 +1,10 @@
 // main.cpp — 12306 铁路票务系统入口
-// 负责信号处理、服务启动、优雅关闭
+// 负责数据初始化、信号处理、服务启动、优雅关闭
 #include "server.h"
 #include "routes.h"
 #include "logger.h"
+#include "data_store.h"
+#include "railway_graph.h"
 
 #include <csignal>
 #include <atomic>
@@ -32,6 +34,13 @@ int main() {
     // stop() 通过内部机制唤醒，不需要信号中断系统调用
     std::signal(SIGINT, signalHandler);
     std::signal(SIGTERM, signalHandler);
+
+    // ── 初始化数据层 ──
+    // 加载站点/线路/列车种子数据，构建铁路网图
+    if (!DataStore::instance().initialize("config")) {
+        Logger::instance().error("Failed to initialize DataStore");
+        return 1;
+    }
 
     // ── 创建并启动服务 ──
     RailwayServer server;

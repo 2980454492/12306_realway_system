@@ -1,0 +1,22 @@
+[
+  {"id": 1,  "name": "呼和浩特东", "city": "呼和浩特", "type": "HUB",        "latitude": 40.88,  "longitude": 111.76},
+  {"id": 2,  "name": "呼和浩特",   "city": "呼和浩特", "type": "NORMAL",     "latitude": 40.82,  "longitude": 111.66},
+  {"id": 3,  "name": "包头",       "city": "包头",     "type": "HUB",        "latitude": 40.66,  "longitude": 109.84},
+  {"id": 4,  "name": "包头东",     "city": "包头",     "type": "NORMAL",     "latitude": 40.58,  "longitude": 110.03},
+  {"id": 5,  "name": "鄂尔多斯",   "city": "鄂尔多斯", "type": "HUB",        "latitude": 39.61,  "longitude": 109.78},
+  {"id": 6,  "name": "东胜西",     "city": "鄂尔多斯", "type": "NORMAL",     "latitude": 39.81,  "longitude": 109.99},
+  {"id": 7,  "name": "集宁南",     "city": "乌兰察布", "type": "NORMAL",     "latitude": 40.99,  "longitude": 113.11},
+  {"id": 8,  "name": "乌兰察布",   "city": "乌兰察布", "type": "HIGH_SPEED", "latitude": 40.99,  "longitude": 113.15},
+  {"id": 9,  "name": "临河",       "city": "巴彦淖尔", "type": "NORMAL",     "latitude": 40.75,  "longitude": 107.39},
+  {"id": 10, "name": "乌海",       "city": "乌海",     "type": "NORMAL",     "latitude": 39.66,  "longitude": 106.82},
+  {"id": 11, "name": "准格尔",     "city": "鄂尔多斯", "type": "NORMAL",     "latitude": 39.68,  "longitude": 110.87},
+  {"id": 12, "name": "达拉特西",   "city": "鄂尔多斯", "type": "NORMAL",     "latitude": 40.21,  "longitude": 110.00},
+  {"id": 13, "name": "萨拉齐",     "city": "包头",     "type": "NORMAL",     "latitude": 40.55,  "longitude": 110.51},
+  {"id": 14, "name": "察素齐",     "city": "呼和浩特", "type": "NORMAL",     "latitude": 40.68,  "longitude": 111.23},
+  {"id": 15, "name": "托克托东",   "city": "呼和浩特", "type": "HIGH_SPEED", "latitude": 40.28,  "longitude": 111.18},
+  {"id": 16, "name": "土默特右旗", "city": "包头",     "type": "NORMAL",     "latitude": 40.57,  "longitude": 110.52},
+  {"id": 17, "name": "白云鄂博",   "city": "包头",     "type": "NORMAL",     "latitude": 41.77,  "longitude": 109.97},
+  {"id": 18, "name": "乌审旗",     "city": "鄂尔多斯", "type": "NORMAL",     "latitude": 38.62,  "longitude": 108.83},
+  {"id": 19, "name": "卓资东",     "city": "乌兰察布", "type": "HIGH_SPEED", "latitude": 40.90,  "longitude": 112.56},
+  {"id": 20, "name": "旗下营南",   "city": "乌兰察布", "type": "HIGH_SPEED", "latitude": 40.85,  "longitude": 112.20}
+]
