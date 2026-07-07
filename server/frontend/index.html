@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>12306 铁路票务系统</title>
+<link rel="stylesheet" href="/style.css?v=2">
+</head>
+<body>
+
+<!-- ═══ 顶部导航 ═══ -->
+<nav id="top-nav">
+  <span class="logo">12306 铁路票务系统</span>
+  <div class="nav-right">
+    <span id="nav-user" class="nav-user"></span>
+    <button id="btn-logout" class="btn btn-sm" onclick="Auth.logout()" style="display:none">退出</button>
+  </div>
+</nav>
+
+<!-- ═══ 登录页（无侧边栏）═══ -->
+<section id="page-login" class="page active">
+  <div class="login-card">
+    <h1>12306 铁路票务系统</h1>
+    <p class="sub">Railway Ticketing System</p>
+    <form id="login-form" onsubmit="Auth.login(event)">
+      <input type="text" id="login-username" placeholder="用户名" required autofocus>
+      <input type="password" id="login-password" placeholder="密码" required>
+      <button type="submit" class="btn btn-primary btn-block">登 录</button>
+      <p id="login-error" class="error-msg"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ═══ 登录后的布局：侧边栏 + 主区域 ═══ -->
+<div id="app-layout"
+  <!-- 侧边栏 -->
+  <aside id="sidebar">
+    <div class="sidebar-menu">
+      <a class="sidebar-item active" data-page="query" onclick="UI.navTo('query')">
+        <span class="sidebar-icon">🔍</span> 列车查询
+      </a>
+      <a class="sidebar-item" data-page="orders" onclick="UI.navTo('orders')">
+        <span class="sidebar-icon">📋</span> 我的订单
+      </a>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main id="main-content">
+
+    <!-- ═══ 查票页 ═══ -->
+    <section id="page-query" class="page active">
+      <h2>列车查询</h2>
+      <div class="search-bar">
+        <select id="query-from"></select>
+        <span class="arrow">→</span>
+        <select id="query-to"></select>
+        <input type="date" id="query-date">
+        <button class="btn btn-primary" onclick="UI.queryTrains()">查询</button>
+      </div>
+      <div id="query-loading" class="loading" style="display:none">查询中…</div>
+      <div id="query-error" class="error-msg"></div>
+      <div class="tabs">
+        <button class="tab active" onclick="UI.switchTab('direct')">直达 <span id="tab-direct-count"></span></button>
+        <button class="tab" onclick="UI.switchTab('transfer')">换乘 <span id="tab-transfer-count"></span></button>
+      </div>
+      <div id="query-results" class="train-list"></div>
+    </section>
+
+    <!-- ═══ 购票页 ═══ -->
+    <section id="page-order-form" class="page">
+      <button class="btn btn-back" onclick="UI.goBack()">← 返回查票</button>
+      <h2>购票</h2>
+      <div id="order-train-info" class="info-card"></div>
+      <div class="form-group">
+        <label>席位类型</label>
+        <select id="order-seat-type"></select>
+      </div>
+      <div class="form-group">
+        <label>购票数量 (1-5)</label>
+        <input type="number" id="order-count" min="1" max="5" value="1">
+      </div>
+      <div class="form-group">
+        <label>乘车人姓名</label>
+        <input type="text" id="order-passenger-name" placeholder="乘车人姓名" required>
+      </div>
+      <div class="form-group">
+        <label>乘车人身份证号</label>
+        <input type="text" id="order-passenger-id" placeholder="身份证号" required>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="UI.submitOrder()">确认下单</button>
+      <p id="order-form-error" class="error-msg"></p>
+    </section>
+
+    <!-- ═══ 订单页 ═══ -->
+    <section id="page-orders" class="page">
+      <h2>我的订单</h2>
+      <div class="filter-bar">
+        <button class="btn btn-sm active" onclick="UI.filterOrders('')">全部</button>
+        <button class="btn btn-sm" onclick="UI.filterOrders('PAID')">已支付</button>
+        <button class="btn btn-sm" onclick="UI.filterOrders('REFUNDED')">已退票</button>
+        <button class="btn btn-sm" onclick="UI.filterOrders('CANCELLED')">已取消</button>
+      </div>
+      <div id="orders-loading" class="loading" style="display:none">加载中…</div>
+      <div id="orders-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══ Toast 通知 ═══ -->
+<div id="toast" class="toast"></div>
+
+<script src="/app.js?v=2"></script>
+</body>
+</html>

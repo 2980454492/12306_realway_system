@@ -1,0 +1,146 @@
+/* ═══ 全局 ═══ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #1a1a2e; color: #e0e0e0; min-height: 100vh;
+}
+
+/* ═══ 应用布局（侧边栏 + 主区域）═══ */
+#app-layout { display: flex; min-height: calc(100vh - 52px); }
+#sidebar {
+  width: 200px; min-width: 200px; background: #16213e; border-right: 1px solid #0f3460;
+  padding: 16px 0; flex-shrink: 0;
+}
+.sidebar-menu { display: flex; flex-direction: column; gap: 2px; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #a0a0b0;
+  text-decoration: none; font-size: 14px; cursor: pointer; transition: all .15s;
+  border-left: 3px solid transparent;
+}
+.sidebar-item:hover { background: #0f3460; color: #e0e0e0; }
+.sidebar-item.active { background: #0f3460; color: #fff; border-left-color: #e94560; }
+.sidebar-icon { font-size: 16px; }
+
+#main-content { flex: 1; overflow-y: auto; }
+
+/* ═══ 顶部导航 ═══ */
+#top-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #16213e; border-bottom: 1px solid #0f3460;
+  padding: 0 24px; height: 52px; position: sticky; top: 0; z-index: 100;
+}
+.logo { font-size: 18px; font-weight: 700; color: #e94560; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-user { color: #a0a0b0; font-size: 13px; }
+
+/* ═══ 页面容器 ═══ */
+.page { display: none; padding: 24px 32px; max-width: 960px; margin: 0 auto; }
+.page.active { display: block; }
+h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
+
+/* ═══ 登录页 ═══ */
+.login-card {
+  max-width: 400px; margin: 120px auto 0; background: #16213e;
+  border: 1px solid #0f3460; border-radius: 12px; padding: 40px 48px; text-align: center;
+}
+.login-card h1 { font-size: 26px; color: #e94560; margin-bottom: 4px; }
+.login-card .sub { color: #707090; font-size: 13px; margin-bottom: 28px; }
+.login-card input {
+  width: 100%; padding: 10px 14px; margin-bottom: 12px; border: 1px solid #0f3460;
+  border-radius: 6px; background: #0a0a1e; color: #e0e0e0; font-size: 14px; outline: none;
+}
+.login-card input:focus { border-color: #e94560; }
+
+/* ═══ 按钮 ═══ */
+.btn { padding: 8px 16px; border: 1px solid #0f3460; border-radius: 6px; background: #16213e;
+  color: #e0e0e0; cursor: pointer; font-size: 13px; transition: all .2s; }
+.btn:hover { background: #0f3460; }
+.btn.active { background: #0f3460; color: #fff; }
+.btn-primary { background: #e94560; border-color: #e94560; color: #fff; }
+.btn-primary:hover { background: #d63850; }
+.btn-sm { padding: 4px 12px; font-size: 12px; }
+.btn-block { display: block; width: 100%; padding: 12px; font-size: 15px; }
+.btn-danger { background: transparent; border-color: #e94560; color: #e94560; }
+.btn-danger:hover { background: #e94560; color: #fff; }
+.btn-back { border: none; background: transparent; color: #53a8ff; padding: 4px 0; margin-bottom: 16px;
+  font-size: 14px; cursor: pointer; }
+.btn-back:hover { color: #fff; }
+
+/* ═══ 搜索栏 ═══ */
+.search-bar {
+  display: flex; align-items: center; gap: 12px; background: #16213e;
+  border: 1px solid #0f3460; border-radius: 8px; padding: 16px; margin-bottom: 20px;
+}
+.search-bar select, .search-bar input {
+  padding: 8px 12px; background: #0a0a1e; border: 1px solid #0f3460; border-radius: 6px;
+  color: #e0e0e0; font-size: 14px; outline: none;
+}
+.search-bar select:focus, .search-bar input:focus { border-color: #e94560; }
+.search-bar .arrow { color: #e94560; font-size: 20px; font-weight: bold; }
+
+/* ═══ 标签页 ═══ */
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab { padding: 8px 20px; background: #16213e; border: 1px solid #0f3460; border-radius: 6px;
+  color: #a0a0b0; cursor: pointer; font-size: 14px; }
+.tab.active { background: #0f3460; color: #fff; }
+
+/* ═══ 列车卡片 ═══ */
+.train-list { display: flex; flex-direction: column; gap: 10px; }
+.train-card {
+  background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+  transition: border-color .2s;
+}
+.train-card:hover { border-color: #e94560; }
+.train-info .train-id { font-size: 18px; font-weight: 700; color: #fff; }
+.train-info .train-meta { font-size: 12px; color: #707090; margin-top: 2px; }
+.train-time { text-align: center; }
+.train-time .time { font-size: 22px; font-weight: 700; color: #53a8ff; }
+.train-time .duration { font-size: 12px; color: #707090; }
+.train-seats { text-align: right; }
+.train-seats .price { font-size: 16px; color: #e94560; font-weight: 700; }
+.train-seats .seats { font-size: 11px; color: #00cc66; margin-top: 2px; }
+
+/* ═══ 筛选栏 ═══ */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+
+/* ═══ 订单列表 ═══ */
+.order-card {
+  background: #16213e; border: 1px solid #0f3460; border-radius: 8px;
+  padding: 16px 20px; margin-bottom: 10px;
+}
+.order-card .order-header { display: flex; justify-content: space-between; align-items: center; }
+.order-card .order-id { font-size: 12px; color: #707090; }
+.order-card .order-status { font-size: 12px; padding: 2px 10px; border-radius: 12px; }
+.order-card .status-PAID { background: #0f3460; color: #53a8ff; }
+.order-card .status-REFUNDED { background: #3a2a2a; color: #e94560; }
+.order-card .order-body { margin-top: 10px; display: flex; gap: 24px; font-size: 14px; }
+.order-card .order-actions { margin-top: 12px; text-align: right; }
+
+/* ═══ 表单 ═══ */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 13px; color: #a0a0b0; margin-bottom: 4px; }
+.form-group input, .form-group select {
+  width: 100%; padding: 10px 14px; border: 1px solid #0f3460; border-radius: 6px;
+  background: #0a0a1e; color: #e0e0e0; font-size: 14px; outline: none;
+}
+.form-group input:focus, .form-group select:focus { border-color: #e94560; }
+
+/* ═══ 信息卡片 ═══ */
+.info-card { background: #16213e; border: 1px solid #0f3460; border-radius: 8px;
+  padding: 16px 20px; margin-bottom: 20px; }
+
+/* ═══ 错误与加载 ═══ */
+.error-msg { color: #e94560; font-size: 13px; margin-top: 8px; }
+.loading { text-align: center; padding: 32px; color: #707090; font-size: 14px; }
+
+/* ═══ Toast ═══ */
+.toast {
+  position: fixed; top: 60px; right: 24px; padding: 12px 24px; border-radius: 8px;
+  font-size: 14px; z-index: 999; display: none; max-width: 360px;
+}
+.toast.show { display: block; animation: slideIn .3s ease; }
+.toast.success { background: #005530; color: #00ff88; border: 1px solid #00ff88; }
+.toast.error { background: #550000; color: #ff4444; border: 1px solid #ff4444; }
+@keyframes slideIn { from { transform: translateX(100px); opacity: 0; }
+                       to { transform: translateX(0); opacity: 1; } }

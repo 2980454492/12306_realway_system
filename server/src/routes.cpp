@@ -44,55 +44,10 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    // ── GET / — 欢迎页 ──
-    // 浏览器直接打开可确认服务正在运行
-    // 临时内嵌 HTML，Phase 5 迁移到 server/frontend/ 用 set_mount_point 托管
-    app.Get("/", [](const httplib::Request& /*req*/, httplib::Response& res) {
-        res.set_content(R"(
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>12306 铁路票务系统</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-         background: #1a1a2e; color: #e0e0e0; display: flex; justify-content: center;
-         align-items: center; min-height: 100vh; }
-  .card { background: #16213e; border: 1px solid #0f3460; border-radius: 12px;
-          padding: 48px 64px; text-align: center; max-width: 520px; }
-  h1 { font-size: 28px; color: #e94560; margin-bottom: 8px; }
-  .subtitle { color: #a0a0b0; font-size: 14px; margin-bottom: 32px; }
-  .status { display: inline-flex; align-items: center; gap: 8px; background: #0f3460;
-            padding: 10px 24px; border-radius: 24px; font-size: 14px; margin-bottom: 32px; }
-  .dot { width: 10px; height: 10px; background: #00ff88; border-radius: 50%;
-         animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-  .links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .links a { color: #53a8ff; text-decoration: none; font-size: 13px; padding: 6px 16px;
-             border: 1px solid #0f3460; border-radius: 6px; transition: all .2s; }
-  .links a:hover { background: #0f3460; color: #fff; }
-  .footer { margin-top: 36px; color: #606080; font-size: 12px; }
-</style>
-</head>
-<body>
-<div class="card">
-  <h1>12306 铁路票务系统</h1>
-  <p class="subtitle">Railway Ticketing System — C++17</p>
-  <div class="status"><span class="dot"></span> 服务运行中</div>
-  <div class="links">
-    <a href="/health">/health</a>
-    <a href="/api/trains/query">/api/trains/query</a>
-    <a href="/api/orders">/api/orders</a>
-    <a href="/api/admin/trains">/api/admin/trains</a>
-  </div>
-  <p class="footer">Phase 1 · v0.1.0</p>
-</div>
-</body>
-</html>
-        )", "text/html; charset=utf-8");
-    });
+    // ── 静态文件托管 — frontend/ 目录 ──
+    // 所有非 API 路径由前端 SPA 处理
+    // index.html 作为兜底页面，SPA 路由由 JS 的 hash-based router 接管
+    app.set_mount_point("/", "frontend");
 
     // ── GET /api/debug/stations — 查看所有站点（调试验证用）──
     app.Get("/api/debug/stations", [](const httplib::Request& /*req*/, httplib::Response& res) {
@@ -376,6 +331,8 @@ void registerRoutes(RailwayServer& server) {
             for (const auto& item : qr.direct) {
                 json d;
                 d["train_id"] = item.train_id;
+                d["from_station"] = item.from_station;
+                d["to_station"] = item.to_station;
                 d["departure_time"] = item.departure_time;
                 d["arrival_time"] = item.arrival_time;
                 d["duration_minutes"] = item.duration_minutes;
@@ -389,6 +346,8 @@ void registerRoutes(RailwayServer& server) {
             for (const auto& item : qr.transfers) {
                 json t;
                 t["train_id"] = item.train_id;
+                t["from_station"] = item.from_station;
+                t["to_station"] = item.to_station;
                 t["second_train_id"] = item.second_train_id;
                 t["transfer_station"] = item.transfer_station;
                 t["departure_time"] = item.departure_time;
@@ -543,5 +502,5 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    Logger::instance().info("Routes registered: 10 endpoints (/, /health, auth, passenger, admin, debug)");
+    Logger::instance().info("Routes registered: 9 endpoints + static frontend (auth, passenger, admin, debug)");
 }
