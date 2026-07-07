@@ -71,7 +71,7 @@ void TrainGenerator::generateForLine(
         return;  // 找不到线路路径，跳过
     }
 
-    auto route = it->second;  // 正向停站序列
+    auto route = it->second;  // LINE_ROUTES 中定义的正向停站序列（按地理方向）
 
     // 根据线路类型确定车次前缀和席位配置
     std::string prefix;
@@ -146,6 +146,7 @@ void TrainGenerator::generateForLine(
                     // 高铁/城际实际旅行速度 ≈ 设计时速×0.7，普速 ≈ 设计时速×0.6
                     double factor = (line.type == LineType::NORMAL) ? 0.6 : 0.7;
                     travel_minutes = std::max(8, static_cast<int>(distance / (speed_kmh * factor) * 60));
+                    // 最小 8 分钟：防止极短站间距（如 1km）导致计算值偏小
                 }
 
                 if (s == 0) {

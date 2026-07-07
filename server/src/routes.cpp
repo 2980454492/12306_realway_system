@@ -41,6 +41,7 @@ void registerRoutes(RailwayServer& server) {
 
     // ── GET / — 欢迎页 ──
     // 浏览器直接打开可确认服务正在运行
+    // 临时内嵌 HTML，Phase 5 迁移到 server/frontend/ 用 set_mount_point 托管
     app.Get("/", [](const httplib::Request& /*req*/, httplib::Response& res) {
         res.set_content(R"(
 <!DOCTYPE html>
