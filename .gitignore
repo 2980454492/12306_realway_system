@@ -1,3 +1,5 @@
 .claude/
 .cache/
 .vscode/
+build/
+server/data/*.log
