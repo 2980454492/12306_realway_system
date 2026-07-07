@@ -7,6 +7,8 @@
 #include "auth_service.h"
 #include "jwt_service.h"
 #include "rbac_middleware.h"
+#include "train_query.h"
+#include "order_service.h"
 
 #include <nlohmann/json.hpp>
 #include <chrono>
@@ -319,5 +321,227 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    Logger::instance().info("Routes registered: GET /, /health, /api/auth/login, /api/whoami, /api/admin/debug, /api/debug/*");
+    // ═════════════════════════════════════════════════
+    // 旅客端点
+    // ═════════════════════════════════════════════════
+
+    // ── GET /api/trains/query — 查票（直达+换乘）──
+    app.Get("/api/trains/query", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            // JWT 鉴权
+            std::string auth = req.has_header("Authorization")
+                ? req.get_header_value("Authorization") : "";
+            auto ctx = RbacMiddleware::authenticate(auth);
+            if (!ctx || !RbacMiddleware::authorize(*ctx, Permission::QUERY_TRAINS)) {
+                json j;
+                j["ok"] = false;
+                j["error"] = ctx ? "Forbidden" : "Unauthorized";
+                res.set_content(j.dump(), "application/json");
+                res.status = ctx ? 403 : 401;
+                return;
+            }
+
+            uint32_t from = 0, to = 0;
+            std::string date;
+            try {
+                if (req.has_param("from")) from = std::stoul(req.get_param_value("from"));
+                if (req.has_param("to")) to = std::stoul(req.get_param_value("to"));
+                date = req.has_param("date") ? req.get_param_value("date") : "2026-07-07";
+            } catch (const std::exception&) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "Invalid from/to parameter";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            if (from == 0 || to == 0) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "from and to station IDs are required";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            auto qr = TrainQuery::query(from, to, date);
+
+            json j;
+            j["ok"] = true;
+            j["direct_count"] = qr.direct.size();
+            j["transfer_count"] = qr.transfers.size();
+
+            json direct_arr = json::array();
+            for (const auto& item : qr.direct) {
+                json d;
+                d["train_id"] = item.train_id;
+                d["departure_time"] = item.departure_time;
+                d["arrival_time"] = item.arrival_time;
+                d["duration_minutes"] = item.duration_minutes;
+                d["price"] = item.price;
+                d["available_seats"] = item.available_seats;
+                direct_arr.push_back(d);
+            }
+            j["direct"] = direct_arr;
+
+            json transfer_arr = json::array();
+            for (const auto& item : qr.transfers) {
+                json t;
+                t["train_id"] = item.train_id;
+                t["second_train_id"] = item.second_train_id;
+                t["transfer_station"] = item.transfer_station;
+                t["departure_time"] = item.departure_time;
+                t["arrival_time"] = item.arrival_time;
+                t["duration_minutes"] = item.duration_minutes;
+                t["price"] = item.price;
+                transfer_arr.push_back(t);
+            }
+            j["transfers"] = transfer_arr;
+
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── POST /api/orders — 购票 ──
+    app.Post("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            std::string auth = req.has_header("Authorization")
+                ? req.get_header_value("Authorization") : "";
+            auto ctx = RbacMiddleware::authenticate(auth);
+            if (!ctx || !RbacMiddleware::authorize(*ctx, Permission::BUY_TICKETS)) {
+                json j;
+                j["ok"] = false;
+                j["error"] = ctx ? "Forbidden" : "Unauthorized";
+                res.set_content(j.dump(), "application/json");
+                res.status = ctx ? 403 : 401;
+                return;
+            }
+
+            json body = json::parse(req.body);
+            auto result = OrderService::instance().createOrder(
+                ctx->user_id,
+                body.value("train_id", ""),
+                body.value("date", "2026-07-07"),
+                body.value("from_station", 0),
+                body.value("to_station", 0),
+                body.value("seat_type", SeatType::SECOND),
+                body.value("count", 1),
+                body.value("passenger_name", ""),
+                body.value("passenger_id", "")
+            );
+
+            if (!result.order) {
+                json j;
+                j["ok"] = false;
+                j["error"] = result.error;
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            json j;
+            j["ok"] = true;
+            j["order_id"] = result.order->id;
+            j["train_id"] = result.order->train_id;
+            j["seat_number"] = result.order->seat_number;
+            j["price"] = result.order->price;
+            j["status"] = result.order->status;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── GET /api/orders — 订单查询 ──
+    app.Get("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            std::string auth = req.has_header("Authorization")
+                ? req.get_header_value("Authorization") : "";
+            auto ctx = RbacMiddleware::authenticate(auth);
+            if (!ctx || !RbacMiddleware::authorize(*ctx, Permission::VIEW_OWN_ORDERS)) {
+                json j;
+                j["ok"] = false;
+                j["error"] = ctx ? "Forbidden" : "Unauthorized";
+                res.set_content(j.dump(), "application/json");
+                res.status = ctx ? 403 : 401;
+                return;
+            }
+
+            std::optional<OrderStatus> status_filter;
+            if (req.has_param("status")) {
+                std::string s = req.get_param_value("status");
+                if (s == "PAID") status_filter = OrderStatus::PAID;
+                else if (s == "REFUNDED") status_filter = OrderStatus::REFUNDED;
+                else if (s == "CANCELLED") status_filter = OrderStatus::CANCELLED;
+            }
+
+            auto orders = OrderService::instance().getOrders(ctx->user_id, status_filter);
+
+            json j;
+            j["ok"] = true;
+            j["count"] = orders.size();
+            j["data"] = orders;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── POST /api/orders/{id}/refund — 退票 ──
+    app.Post(R"(/api/orders/([^/]+)/refund)", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            std::string auth = req.has_header("Authorization")
+                ? req.get_header_value("Authorization") : "";
+            auto ctx = RbacMiddleware::authenticate(auth);
+            if (!ctx || !RbacMiddleware::authorize(*ctx, Permission::REFUND_OWN)) {
+                json j;
+                j["ok"] = false;
+                j["error"] = ctx ? "Forbidden" : "Unauthorized";
+                res.set_content(j.dump(), "application/json");
+                res.status = ctx ? 403 : 401;
+                return;
+            }
+
+            std::string order_id = req.matches[1];
+            auto result = OrderService::instance().refundOrder(order_id, ctx->user_id);
+
+            if (!result.refund_amount) {
+                json j;
+                j["ok"] = false;
+                j["error"] = result.error;
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            json j;
+            j["ok"] = true;
+            j["refund_amount"] = *result.refund_amount;
+            j["order_id"] = order_id;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    Logger::instance().info("Routes registered: 10 endpoints (/, /health, auth, passenger, admin, debug)");
 }

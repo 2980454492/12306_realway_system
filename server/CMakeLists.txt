@@ -46,6 +46,9 @@ set(SOURCES
     src/auth_service.cpp
     src/jwt_service.cpp
     src/rbac_middleware.cpp
+    src/train_query.cpp
+    src/seat_inventory.cpp
+    src/order_service.cpp
 )
 
 set(HEADERS
@@ -59,6 +62,9 @@ set(HEADERS
     src/auth_service.h
     src/jwt_service.h
     src/rbac_middleware.h
+    src/train_query.h
+    src/seat_inventory.h
+    src/order_service.h
     vendor/httplib.h
 )
 
