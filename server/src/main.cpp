@@ -5,6 +5,9 @@
 #include "logger.h"
 #include "data_store.h"
 #include "railway_graph.h"
+#include "auth_service.h"
+#include "jwt_service.h"
+#include "rbac_middleware.h"
 
 #include <csignal>
 #include <atomic>
@@ -41,6 +44,20 @@ int main() {
         Logger::instance().error("Failed to initialize DataStore");
         return 1;
     }
+
+    // ── 初始化认证服务 ──
+    // 加载或创建用户数据（首次启动生成 admin/staff/passenger 种子用户）
+    if (!AuthService::instance().initialize("config")) {
+        Logger::instance().error("Failed to initialize AuthService");
+        return 1;
+    }
+
+    // ── 初始化 JWT 服务 ──
+    // 密钥为空则随机生成（重启后旧 Token 全部失效）
+    JwtService::instance().initialize();
+
+    // ── 初始化 RBAC 中间件 ──
+    RbacMiddleware::initialize();
 
     // ── 创建并启动服务 ──
     RailwayServer server;

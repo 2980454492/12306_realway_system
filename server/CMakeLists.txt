@@ -31,6 +31,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
+# libsodium — argon2id 密码哈希、AES-256-GCM 加密
+find_library(SODIUM_LIB sodium REQUIRED)
+
 # ── 可执行目标 ──
 set(SOURCES
     src/main.cpp
@@ -40,6 +43,9 @@ set(SOURCES
     src/data_store.cpp
     src/railway_graph.cpp
     src/train_generator.cpp
+    src/auth_service.cpp
+    src/jwt_service.cpp
+    src/rbac_middleware.cpp
 )
 
 set(HEADERS
@@ -50,6 +56,9 @@ set(HEADERS
     src/data_store.h
     src/train_generator.h
     src/railway_graph.h
+    src/auth_service.h
+    src/jwt_service.h
+    src/rbac_middleware.h
     vendor/httplib.h
 )
 
@@ -63,7 +72,7 @@ target_include_directories(railway_server PRIVATE
 
 # ── 链接库 ──
 # nlohmann/json (header-only, 但 CMake 包提供 target)
-target_link_libraries(railway_server PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(railway_server PRIVATE nlohmann_json::nlohmann_json ${SODIUM_LIB})
 
 # cpp-httplib 在 Linux 上需要 pthread
 if(UNIX)

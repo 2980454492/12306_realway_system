@@ -87,6 +87,18 @@ NLOHMANN_JSON_SERIALIZE_ENUM(OrderStatus, {
     {OrderStatus::REFUNDED,  "REFUNDED"},
 })
 
+/** 用户角色 — RBAC 三角色 */
+enum class UserRole : uint8_t {
+    PASSENGER = 0,  // 普通旅客
+    STAFF     = 1,  // 铁路职工
+    ADMIN     = 2   // 系统管理员
+};
+NLOHMANN_JSON_SERIALIZE_ENUM(UserRole, {
+    {UserRole::PASSENGER, "PASSENGER"},
+    {UserRole::STAFF,     "STAFF"},
+    {UserRole::ADMIN,     "ADMIN"},
+})
+
 // ═══════════════════════════════════════════════════════════
 // 核心数据结构
 // ═══════════════════════════════════════════════════════════
@@ -172,3 +184,16 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Order,
     id, user_id, train_id, date, from_station, to_station,
     seat_type, seat_number, price, status, created_at,
     passenger_name, passenger_id)
+
+/** 用户 — 系统认证与 RBAC 的基础实体 */
+struct User {
+    std::string id;               // UUID
+    std::string username;
+    std::string password_hash;    // argon2id 输出字符串（crypto_pwhash_str，含算法+参数+salt+hash）
+    UserRole role = UserRole::PASSENGER;
+    bool active = true;           // false = 已禁用
+    int failed_attempts = 0;      // 连续登录失败次数
+    std::string locked_until;     // 锁定截止时间 ISO 8601，空表示未锁定
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(User,
+    id, username, password_hash, role, active, failed_attempts, locked_until)

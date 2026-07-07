@@ -1,0 +1,29 @@
+[
+  {
+    "active": true,
+    "failed_attempts": 0,
+    "id": "9a5eec1b-4b9f-4100-8694-e28c478b551f",
+    "locked_until": "",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$Z3iK1b0dHDtKY8BDHoMnQQ$icaWupza7mu/D1jHJlp3/pV87/u9kC9ruVozpZYIoZU",
+    "role": "ADMIN",
+    "username": "admin"
+  },
+  {
+    "active": true,
+    "failed_attempts": 0,
+    "id": "93b07c43-5c50-41e4-8b64-12ad9bbe462a",
+    "locked_until": "",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$UUp3xVJEgLSutBdo3nbWjQ$J0oAuLi7pFG8Dc3FRxoxBngbBCxobjg/ZgBcA7HHUw8",
+    "role": "STAFF",
+    "username": "staff"
+  },
+  {
+    "active": true,
+    "failed_attempts": 0,
+    "id": "66f8936d-baf8-4d16-815b-77cc1e7c8bf8",
+    "locked_until": "",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$90a7U7QddVmCduXvngbF0A$iid/6ca/tc3gSsFfQUDJjvMYspBDOBeOcXpubo0o5Bw",
+    "role": "PASSENGER",
+    "username": "passenger"
+  }
+]

@@ -4,6 +4,9 @@
 #include "logger.h"
 #include "data_store.h"
 #include "railway_graph.h"
+#include "auth_service.h"
+#include "jwt_service.h"
+#include "rbac_middleware.h"
 
 #include <nlohmann/json.hpp>
 #include <chrono>
@@ -191,5 +194,130 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    Logger::instance().info("Routes registered: GET /, /health, /api/debug/stations, /api/debug/graph");
+    // ── POST /api/auth/login — 登录（调试验证用，Phase 3 正式实现 JWT）──
+    app.Post("/api/auth/login", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            json body = json::parse(req.body);
+            std::string username = body.value("username", "");
+            std::string password = body.value("password", "");
+
+            if (username.empty() || password.empty()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "username and password are required";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            auto user = AuthService::instance().verifyUser(username, password);
+            if (!user) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "Invalid credentials or account locked";
+                res.set_content(j.dump(), "application/json");
+                res.status = 401;
+                return;
+            }
+
+            // 生成 JWT token（30 分钟有效期）
+            std::string role_str;
+            switch (user->role) {
+                case UserRole::ADMIN:     role_str = "ADMIN"; break;
+                case UserRole::STAFF:     role_str = "STAFF"; break;
+                case UserRole::PASSENGER: role_str = "PASSENGER"; break;
+            }
+            std::string token = JwtService::instance().generateToken(
+                user->id, role_str, 1800);
+
+            json j;
+            j["ok"] = true;
+            j["token"] = token;
+            j["token_type"] = "Bearer";
+            j["expires_in"] = 1800;
+            j["username"] = user->username;
+            j["role"] = role_str;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = std::string("Login error: ") + e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── GET /api/whoami — 验证 JWT + RBAC 中间件（调试验证用）──
+    app.Get("/api/whoami", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            // 1. 鉴权：从 Authorization header 提取并校验 JWT
+            std::string auth = req.has_header("Authorization")
+                ? req.get_header_value("Authorization") : "";
+
+            auto ctx = RbacMiddleware::authenticate(auth);
+            if (!ctx) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "Unauthorized: invalid or expired token";
+                res.set_content(j.dump(), "application/json");
+                res.status = 401;
+                return;
+            }
+
+            // 2. 鉴权通过，返回用户信息
+            json j;
+            j["ok"] = true;
+            j["user_id"] = ctx->user_id;
+            j["role"] = ctx->role;
+            j["permissions"] = ctx->permissions.to_ullong();
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── GET /api/admin/debug — 管理员权限测试（仅 ADMIN 可访问）──
+    app.Get("/api/admin/debug", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            std::string auth = req.has_header("Authorization")
+                ? req.get_header_value("Authorization") : "";
+
+            auto ctx = RbacMiddleware::authenticate(auth);
+            if (!ctx) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "Unauthorized";
+                res.set_content(j.dump(), "application/json");
+                res.status = 401;
+                return;
+            }
+
+            // 检查 ADMIN 权限
+            if (!RbacMiddleware::authorize(*ctx, Permission::MANAGE_USERS)) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "Forbidden: admin only";
+                res.set_content(j.dump(), "application/json");
+                res.status = 403;
+                return;
+            }
+
+            json j;
+            j["ok"] = true;
+            j["message"] = "Welcome, admin " + ctx->user_id;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    Logger::instance().info("Routes registered: GET /, /health, /api/auth/login, /api/whoami, /api/admin/debug, /api/debug/*");
 }
