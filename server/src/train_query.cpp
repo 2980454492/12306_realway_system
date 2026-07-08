@@ -8,6 +8,43 @@
 #include <algorithm>
 #include <set>
 #include <queue>
+#include <cmath>
+#include <unordered_map>
+
+namespace {
+
+/** Haversine 公式：计算两经纬度间的大圆距离（km） */
+double haversineDist(const Station& a, const Station& b) {
+    const double R = 6371.0;
+    double lat1 = a.latitude * M_PI / 180.0;
+    double lat2 = b.latitude * M_PI / 180.0;
+    double dlat = lat2 - lat1;
+    double dlon = (b.longitude - a.longitude) * M_PI / 180.0;
+    double sin_dlat = std::sin(dlat / 2.0);
+    double sin_dlon = std::sin(dlon / 2.0);
+    double h = sin_dlat * sin_dlat + std::cos(lat1) * std::cos(lat2) * sin_dlon * sin_dlon;
+    return 2.0 * R * std::atan2(std::sqrt(h), std::sqrt(1.0 - h));
+}
+
+/**
+ * 计算列车从 from_idx 到 to_idx 的实际走行里程。
+ * = 经停序列中每一对相邻站之间的 Haversine 距离逐段累加。
+ * 铁路列车沿轨道依次经过各中间站，不是直线飞行——必须逐段求和。
+ */
+double calcSegmentDistance(const Train& train, int from_idx, int to_idx,
+                           const std::unordered_map<uint32_t, const Station*>& station_map) {
+    double total = 0.0;
+    for (int i = from_idx; i < to_idx; ++i) {
+        auto sa = station_map.find(train.stops[i].station_id);
+        auto sb = station_map.find(train.stops[i + 1].station_id);
+        if (sa != station_map.end() && sb != station_map.end()) {
+            total += haversineDist(*sa->second, *sb->second);
+        }
+    }
+    return total;
+}
+
+}  // namespace
 
 // ── 公开接口 ──
 
@@ -15,6 +52,16 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                                const std::string& date) {
     QueryResult result;
     auto& ds = DataStore::instance();
+
+    // 构建站点 ID→指针 查找表（逐段累加里程用）
+    std::unordered_map<uint32_t, const Station*> station_map;
+    for (const auto& s : ds.getAllStations()) {
+        station_map[s.id] = &s;
+    }
+
+    // 预构建铁路网图（仅用于换乘站查找，不用于票价里程）
+    RailwayGraph graph;
+    graph.build(ds.getAllLines(), ds.getAllStations());
 
     // ── 直达查询 ──
     for (const auto& train : ds.getAllTrains()) {
@@ -34,11 +81,9 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
         item.duration_minutes = timeDiff(item.departure_time, item.arrival_time);
         item.stops = train.stops;
 
-        // 票价计算：使用 RailwayGraph 获取最短路径里程
-        RailwayGraph graph;
-        graph.build(ds.getAllLines());
-        auto path = graph.shortestPath(from_station, to_station);
-        item.price = calcPrice(path.total_distance_km, SeatType::SECOND);
+        // 票价里程 = 沿该列车停站序列逐段累加（不是直线距离）
+        double trip_km = calcSegmentDistance(train, from_idx, to_idx, station_map);
+        item.price = calcPrice(trip_km, SeatType::SECOND);
 
         // 查可用座位（仅查数量，不锁定）
         item.available_seats = getAvailableSeats(train.id, date);
@@ -53,8 +98,8 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
         });
 
     // ── 换乘查询 ──
-    // 找中转站：from 和 to 的共同邻居（在铁路网图中）
-    auto transfers = findTransferStations(from_station, to_station);
+    // 找中转站：from 和 to 的共同邻居（复用已构建的图）
+    auto transfers = findTransferStations(from_station, to_station, graph);
     for (uint32_t transfer_id : transfers) {
         // 找第一段：from → transfer 的列车
         for (const auto& t1 : ds.getAllTrains()) {
@@ -83,19 +128,16 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                 item.departure_time = t1.stops[f1].departure;
                 item.arrival_time = t2.stops[to_idx2].arrival;
                 item.duration_minutes = timeDiff(item.departure_time, item.arrival_time);
-                item.stops = t1.stops;  // 只展示第一段停站（实际可同时返回两段）
+                item.stops = t1.stops;
                 item.is_transfer = true;
                 auto* station = ds.getStation(transfer_id);
                 item.transfer_station = station ? station->name : "unknown";
                 item.second_train_id = t2.id;
 
-                // 里程累加
-                RailwayGraph graph;
-                graph.build(ds.getAllLines());
-                auto p1 = graph.shortestPath(from_station, transfer_id);
-                auto p2 = graph.shortestPath(transfer_id, to_station);
-                item.price = calcPrice(p1.total_distance_km + p2.total_distance_km,
-                                       SeatType::SECOND);
+                // 换乘里程 = 两段列车各自的逐段累加之和
+                double km1 = calcSegmentDistance(t1, f1, t1_idx, station_map);
+                double km2 = calcSegmentDistance(t2, f2, to_idx2, station_map);
+                item.price = calcPrice(km1 + km2, SeatType::SECOND);
 
                 result.transfers.push_back(item);
             }
@@ -145,11 +187,8 @@ double TrainQuery::calcPrice(double distance_km, SeatType seat_type) {
     return distance_km * BASE_RATE * multiplier;
 }
 
-std::vector<uint32_t> TrainQuery::findTransferStations(uint32_t from, uint32_t to) {
-    auto& ds = DataStore::instance();
-    RailwayGraph graph;
-    graph.build(ds.getAllLines());
-
+std::vector<uint32_t> TrainQuery::findTransferStations(uint32_t from, uint32_t to,
+                                                       const RailwayGraph& graph) {
     // 找 from 的所有邻居 → 筛选也能到达 to 的
     const auto& adj = graph.getAdjacency();
     auto from_it = adj.find(from);

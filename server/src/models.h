@@ -138,18 +138,17 @@ struct Station {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Station, id, name, city, type, latitude, longitude)
 
-/** 线路 — 铁路网中的边，连接两个站点 */
+/** 线路 — 铁路网中的边，含沿途所有站点序列（含端点和中间站） */
 struct Line {
     uint32_t id = 0;
-    std::string name;             // 线路名（如"京包高铁"）
-    uint32_t station_a = 0;       // 端点站 A
-    uint32_t station_b = 0;       // 端点站 B
-    double distance_km = 0.0;     // 里程（公里）
-    uint32_t max_speed_kmh = 0;   // 设计时速
+    std::string name;                   // 线路名（如"京包高铁"）
+    std::vector<uint32_t> stations;     // 沿途站点 ID 序列（按地理方向，首个=起点，末个=终点）
+    double distance_km = 0.0;           // 里程（公里）
+    uint32_t max_speed_kmh = 0;         // 设计时速
     LineType type = LineType::NORMAL;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Line,
-    id, name, station_a, station_b, distance_km, max_speed_kmh, type)
+    id, name, stations, distance_km, max_speed_kmh, type)
 
 /** 列车 — 一列在铁路上运行的客运列车 */
 struct Train {

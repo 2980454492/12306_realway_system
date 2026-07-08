@@ -15,31 +15,6 @@ namespace {
         std::uniform_int_distribution<int> dist(min, max);
         return dist(rng);
     }
-
-    // 各线路的中间停站序列（按线路编号 ID 映射）
-    // 值为沿途站点 ID 列表（含端点，不含方向）
-    const std::map<uint32_t, std::vector<uint32_t>> LINE_ROUTES = {
-        // 京包高铁：呼和浩特东 → 察素齐 → 萨拉齐 → 包头东 → 包头
-        {1, {1, 14, 13, 4, 3}},
-        // 呼鄂城际：呼和浩特东 → 托克托东 → 准格尔 → 东胜西 → 鄂尔多斯
-        {2, {1, 15, 11, 6, 5}},
-        // 包西铁路：包头 → 达拉特西 → 东胜西 → 鄂尔多斯
-        {3, {3, 12, 6, 5}},
-        // 集包铁路：集宁南 → 卓资东 → 旗下营南 → 呼和浩特东 → 呼和浩特 → 察素齐 → 萨拉齐 → 包头东 → 包头
-        {4, {7, 19, 20, 1, 2, 14, 13, 4, 3}},
-        // 呼准鄂铁路：呼和浩特 → 托克托东 → 准格尔
-        {5, {2, 15, 11}},
-        // 包兰铁路(内蒙段)：包头 → 临河 → 乌海
-        {6, {3, 9, 10}},
-        // 集呼高铁：乌兰察布 → 卓资东 → 旗下营南 → 呼和浩特东
-        {7, {8, 19, 20, 1}},
-        // 呼临铁路：呼和浩特 → 包头东 → 包头 → 临河
-        {8, {2, 4, 3, 9}},
-        // 包白铁路：包头 → 包头东 → 白云鄂博
-        {9, {3, 4, 17}},
-        // 沿黄铁路：鄂尔多斯 → 东胜西 → 达拉特西 → 包头 → 临河 → 乌海
-        {10, {5, 6, 12, 3, 9, 10}},
-    };
 }
 
 // ── 公开接口 ──
@@ -66,12 +41,9 @@ void TrainGenerator::generateForLine(
     std::vector<Train>& out_trains,
     int& train_counter)
 {
-    auto it = LINE_ROUTES.find(line.id);
-    if (it == LINE_ROUTES.end()) {
-        return;  // 找不到线路路径，跳过
-    }
+    if (line.stations.size() < 2) return;  // 至少两个站才能生成列车
 
-    auto route = it->second;  // LINE_ROUTES 中定义的正向停站序列（按地理方向）
+    const auto& route = line.stations;  // lines.json 中定义的沿途站点序列
 
     // 根据线路类型确定车次前缀和席位配置
     std::string prefix;

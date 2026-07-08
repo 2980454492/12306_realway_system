@@ -27,8 +27,8 @@ class RailwayGraph {
 public:
     RailwayGraph() = default;
 
-    /** 根据线路列表构建邻接表（双向边） */
-    void build(const std::vector<Line>& lines);
+    /** 根据线路列表和站点数据构建邻接表。站点用于 Haversine 计算线段实际里程 */
+    void build(const std::vector<Line>& lines, const std::vector<Station>& stations);
 
     /** 查找 from → to 的最短路径（Dijkstra 按里程） */
     PathResult shortestPath(uint32_t from, uint32_t to) const;

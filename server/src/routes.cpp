@@ -118,7 +118,7 @@ void registerRoutes(RailwayServer& server) {
 
             // 构建图并查询最短路径
             RailwayGraph graph;
-            graph.build(ds.getAllLines());
+            graph.build(ds.getAllLines(), ds.getAllStations());
 
             auto path = graph.shortestPath(from, to);
 

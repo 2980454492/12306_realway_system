@@ -2,8 +2,10 @@
 #include "order_service.h"
 #include "seat_inventory.h"
 #include "data_store.h"
-#include "railway_graph.h"
 #include "logger.h"
+
+#include <cmath>
+#include <unordered_map>
 
 #include <random>
 #include <sstream>
@@ -77,20 +79,16 @@ OrderService::OrderResult OrderService::createOrder(
         return result;
     }
 
-    // 2. 校验停站序列
-    bool from_found = false, to_found = false;
-    int departure_hhmm = 0;
-    for (const auto& stop : train->stops) {
-        if (stop.station_id == from_station) {
-            from_found = true;
-            departure_hhmm = stop.departure;
-        }
-        if (stop.station_id == to_station && from_found) {
-            to_found = true;
+    // 2. 校验停站序列 + 记录位置（用于逐段累加里程）
+    int from_idx = -1, to_idx = -1;
+    for (size_t i = 0; i < train->stops.size(); ++i) {
+        if (train->stops[i].station_id == from_station) from_idx = static_cast<int>(i);
+        if (train->stops[i].station_id == to_station && from_idx >= 0) {
+            to_idx = static_cast<int>(i);
             break;
         }
     }
-    if (!from_found || !to_found) {
+    if (from_idx < 0 || to_idx < 0) {
         result.error = "Invalid from/to stations for this train";
         return result;
     }
@@ -102,7 +100,36 @@ OrderService::OrderResult OrderService::createOrder(
         return result;
     }
 
-    // 4. 创建订单
+    // 4. 计算票价里程 = 列车停站序列逐段 Haversine 累加（不是直线距离）
+    double trip_km = 0.0;
+    auto& ds = DataStore::instance();
+    for (int i = from_idx; i < to_idx; ++i) {
+        auto* sa = ds.getStation(train->stops[i].station_id);
+        auto* sb = ds.getStation(train->stops[i + 1].station_id);
+        if (sa && sb) {
+            double lat1 = sa->latitude * M_PI / 180.0;
+            double lat2 = sb->latitude * M_PI / 180.0;
+            double dlat = lat2 - lat1;
+            double dlon = (sb->longitude - sa->longitude) * M_PI / 180.0;
+            double sin_dlat = std::sin(dlat / 2.0);
+            double sin_dlon = std::sin(dlon / 2.0);
+            double h = sin_dlat * sin_dlat + std::cos(lat1) * std::cos(lat2) * sin_dlon * sin_dlon;
+            trip_km += 2.0 * 6371.0 * std::atan2(std::sqrt(h), std::sqrt(1.0 - h));
+        }
+    }
+
+    const double BASE = 0.30;
+    double mult = 1.0;
+    switch (seat_type) {
+        case SeatType::BUSINESS: mult = 3.0; break;
+        case SeatType::FIRST:    mult = 2.0; break;
+        case SeatType::SECOND:   mult = 1.0; break;
+        case SeatType::HARD_SLEEPER: mult = 0.8; break;
+        case SeatType::HARD_SEAT:    mult = 0.4; break;
+        case SeatType::NO_SEAT:      mult = 0.3; break;
+    }
+
+    // 5. 创建订单
     Order order;
     order.id = makeUuid();
     order.user_id = user_id;
@@ -112,28 +139,11 @@ OrderService::OrderResult OrderService::createOrder(
     order.to_station = to_station;
     order.seat_type = seat_type;
     order.seat_number = reservation.seat_numbers.empty() ? 0 : reservation.seat_numbers[0];
-    order.price = 0.0;  // Phase 5 计算实际票价
+    order.price = trip_km * BASE * mult * count;
     order.status = OrderStatus::PAID;
     order.created_at = nowIso();
     order.passenger_name = passenger_name;
     order.passenger_id = passenger_id;
-    // 票价简算：用 RailwayGraph 最短路径里程 × 费率
-    {
-        RailwayGraph graph;
-        graph.build(DataStore::instance().getAllLines());
-        auto path = graph.shortestPath(from_station, to_station);
-        const double BASE = 0.30;
-        double mult = 1.0;
-        switch (seat_type) {
-            case SeatType::BUSINESS: mult = 3.0; break;
-            case SeatType::FIRST:    mult = 2.0; break;
-            case SeatType::SECOND:   mult = 1.0; break;
-            case SeatType::HARD_SLEEPER: mult = 0.8; break;
-            case SeatType::HARD_SEAT:    mult = 0.4; break;
-            case SeatType::NO_SEAT:      mult = 0.3; break;
-        }
-        order.price = path.total_distance_km * BASE * mult * count;
-    }
 
     orders_.push_back(order);
     Logger::instance().info("Order created: " + order.id + " for " + train_id);

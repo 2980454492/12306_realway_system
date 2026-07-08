@@ -1,12 +1,12 @@
 [
-  {"id": 1,  "name": "京包高铁",       "station_a": 1,  "station_b": 3,  "distance_km": 165.0, "max_speed_kmh": 300, "type": "HIGH_SPEED"},
-  {"id": 2,  "name": "呼鄂城际",       "station_a": 1,  "station_b": 5,  "distance_km": 210.0, "max_speed_kmh": 200, "type": "INTERCITY"},
-  {"id": 3,  "name": "包西铁路",       "station_a": 3,  "station_b": 5,  "distance_km": 130.0, "max_speed_kmh": 120, "type": "NORMAL"},
-  {"id": 4,  "name": "集包铁路",       "station_a": 7,  "station_b": 3,  "distance_km": 320.0, "max_speed_kmh": 120, "type": "NORMAL"},
-  {"id": 5,  "name": "呼准鄂铁路",     "station_a": 2,  "station_b": 11, "distance_km": 160.0, "max_speed_kmh": 120, "type": "NORMAL"},
-  {"id": 6,  "name": "包兰铁路(内蒙段)", "station_a": 3,  "station_b": 10, "distance_km": 405.0, "max_speed_kmh": 120, "type": "NORMAL"},
-  {"id": 7,  "name": "集呼高铁",       "station_a": 8,  "station_b": 1,  "distance_km": 135.0, "max_speed_kmh": 300, "type": "HIGH_SPEED"},
-  {"id": 8,  "name": "呼临铁路",       "station_a": 2,  "station_b": 9,  "distance_km": 385.0, "max_speed_kmh": 120, "type": "NORMAL"},
-  {"id": 9,  "name": "包白铁路",       "station_a": 3,  "station_b": 17, "distance_km": 150.0, "max_speed_kmh": 100, "type": "NORMAL"},
-  {"id": 10, "name": "沿黄铁路",       "station_a": 5,  "station_b": 10, "distance_km": 380.0, "max_speed_kmh": 120, "type": "NORMAL"}
+  {"id": 1,  "name": "京包高铁",       "stations": [1, 14, 13, 4, 3],                         "distance_km": 165.0, "max_speed_kmh": 300, "type": "HIGH_SPEED"},
+  {"id": 2,  "name": "呼鄂城际",       "stations": [1, 15, 11, 6, 5],                         "distance_km": 210.0, "max_speed_kmh": 200, "type": "INTERCITY"},
+  {"id": 3,  "name": "包西铁路",       "stations": [3, 12, 6, 5],                             "distance_km": 130.0, "max_speed_kmh": 120, "type": "NORMAL"},
+  {"id": 4,  "name": "集包铁路",       "stations": [7, 19, 20, 1, 2, 14, 13, 4, 3],           "distance_km": 320.0, "max_speed_kmh": 120, "type": "NORMAL"},
+  {"id": 5,  "name": "呼准鄂铁路",     "stations": [2, 15, 11],                               "distance_km": 160.0, "max_speed_kmh": 120, "type": "NORMAL"},
+  {"id": 6,  "name": "包兰铁路(内蒙段)", "stations": [3, 9, 10],                               "distance_km": 405.0, "max_speed_kmh": 120, "type": "NORMAL"},
+  {"id": 7,  "name": "集呼高铁",       "stations": [8, 19, 20, 1],                             "distance_km": 135.0, "max_speed_kmh": 300, "type": "HIGH_SPEED"},
+  {"id": 8,  "name": "呼临铁路",       "stations": [2, 4, 3, 9],                               "distance_km": 385.0, "max_speed_kmh": 120, "type": "NORMAL"},
+  {"id": 9,  "name": "包白铁路",       "stations": [3, 4, 17],                                 "distance_km": 150.0, "max_speed_kmh": 100, "type": "NORMAL"},
+  {"id": 10, "name": "沿黄铁路",       "stations": [5, 6, 12, 3, 9, 10],                       "distance_km": 380.0, "max_speed_kmh": 120, "type": "NORMAL"}
 ]

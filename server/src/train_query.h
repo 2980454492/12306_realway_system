@@ -54,8 +54,9 @@ private:
     /** 计算票价（元），基准为二等座每公里费率 */
     static double calcPrice(double distance_km, SeatType seat_type);
 
-    /** 找一个站的中转可能（BFS），返回所有可达的中转站 */
-    static std::vector<uint32_t> findTransferStations(uint32_t from, uint32_t to);
+    /** 找中转站（基于已构建的 RailwayGraph，避免重复 build） */
+    static std::vector<uint32_t> findTransferStations(uint32_t from, uint32_t to,
+                                                       const class RailwayGraph& graph);
 
     /** 查某车次从 from 站到 to 站的可用座位 */
     static SeatConfig getAvailableSeats(const std::string& train_id, const std::string& date);
