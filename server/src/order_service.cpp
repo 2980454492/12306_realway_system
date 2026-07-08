@@ -100,21 +100,36 @@ OrderService::OrderResult OrderService::createOrder(
         return result;
     }
 
-    // 4. 计算票价里程 = 列车停站序列逐段 Haversine 累加（不是直线距离）
+    // 4. 计算票价里程 = 列车经过站序列逐段 Haversine 累加（优先 route_stations）
     double trip_km = 0.0;
     auto& ds = DataStore::instance();
-    for (int i = from_idx; i < to_idx; ++i) {
-        auto* sa = ds.getStation(train->stops[i].station_id);
-        auto* sb = ds.getStation(train->stops[i + 1].station_id);
-        if (sa && sb) {
-            double lat1 = sa->latitude * M_PI / 180.0;
-            double lat2 = sb->latitude * M_PI / 180.0;
-            double dlat = lat2 - lat1;
-            double dlon = (sb->longitude - sa->longitude) * M_PI / 180.0;
-            double sin_dlat = std::sin(dlat / 2.0);
-            double sin_dlon = std::sin(dlon / 2.0);
-            double h = sin_dlat * sin_dlat + std::cos(lat1) * std::cos(lat2) * sin_dlon * sin_dlon;
-            trip_km += 2.0 * 6371.0 * std::atan2(std::sqrt(h), std::sqrt(1.0 - h));
+    // 使用 route_stations（含经过不停车的站），更精确
+    std::vector<uint32_t> fallback;
+    const std::vector<uint32_t>* ids = &train->route_stations;
+    if (ids->empty()) {
+        for (const auto& s : train->stops) fallback.push_back(s.station_id);
+        ids = &fallback;
+    }
+
+    int r_from = -1, r_to = -1;
+    for (size_t i = 0; i < ids->size(); ++i) {
+        if ((*ids)[i] == from_station) r_from = static_cast<int>(i);
+        if ((*ids)[i] == to_station && r_from >= 0) { r_to = static_cast<int>(i); break; }
+    }
+    if (r_from >= 0 && r_to > r_from) {
+        for (int i = r_from; i < r_to; ++i) {
+            auto* sa = ds.getStation((*ids)[i]);
+            auto* sb = ds.getStation((*ids)[i + 1]);
+            if (sa && sb) {
+                double lat1 = sa->latitude * M_PI / 180.0;
+                double lat2 = sb->latitude * M_PI / 180.0;
+                double dlat = lat2 - lat1;
+                double dlon = (sb->longitude - sa->longitude) * M_PI / 180.0;
+                double sin_dlat = std::sin(dlat / 2.0);
+                double sin_dlon = std::sin(dlon / 2.0);
+                double h = sin_dlat * sin_dlat + std::cos(lat1) * std::cos(lat2) * sin_dlon * sin_dlon;
+                trip_km += 2.0 * 6371.0 * std::atan2(std::sqrt(h), std::sqrt(1.0 - h));
+            }
         }
     }
 

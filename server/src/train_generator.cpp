@@ -78,12 +78,13 @@ void TrainGenerator::generateForLine(
 
     // 生成两个方向的列车
     for (int dir = 0; dir < 2; ++dir) {
-        std::vector<uint32_t> stops_sequence;
+        // 全线路经过站序列（route_stations，用于票价里程计算）
+        std::vector<uint32_t> full_route;
         if (dir == 0) {
-            stops_sequence = route;  // 正向
+            full_route = route;  // 正向
         } else {
-            stops_sequence = route;
-            std::reverse(stops_sequence.begin(), stops_sequence.end());  // 反向
+            full_route = route;
+            std::reverse(full_route.begin(), full_route.end());  // 反向
         }
 
         for (int t = 0; t < trains_per_direction; ++t) {
@@ -97,64 +98,64 @@ void TrainGenerator::generateForLine(
             train.status = TrainStatus::ACTIVE;
             train.seat_config = seats;
 
+            // route_stations = 线路全序列（含所有经过站，不论是否停靠）
+            train.route_stations = full_route;
+
+            // stops = 办客停站序列（大站快车可能跳过部分中间站）
+            // 线路站点 ≥ 5 的，30% 概率生成为大站快车（跳过 1-2 个中间站）
+            std::vector<uint32_t> stop_ids = full_route;
+            if (full_route.size() >= 5 && randomInt(1, 10) <= 3) {
+                // 大站快车：随机去掉 1-2 个中间站（保留首尾）
+                int skip_count = randomInt(1, std::min(2, static_cast<int>(full_route.size()) - 3));
+                for (int sk = 0; sk < skip_count; ++sk) {
+                    int idx = randomInt(1, static_cast<int>(stop_ids.size()) - 2);
+                    stop_ids.erase(stop_ids.begin() + idx);
+                }
+            }
+
             // 发车时间：base + 每班间隔 90-180 分钟
             int departure_minutes = base_departure / 100 * 60 + base_departure % 100;
             departure_minutes += t * randomInt(90, 180);
             int departure_hhmm = (departure_minutes / 60 * 100) + (departure_minutes % 60);
 
             // 为每个停站计算到达和发车时间
-            int current_time = departure_hhmm;
-            for (size_t s = 0; s < stops_sequence.size(); ++s) {
-                Stop stop;
-                stop.station_id = stops_sequence[s];
+            // 运行时间 = 线路总里程 / (速度×系数) / 经停段数 × 60
+            double speed_kmh = static_cast<double>(line.max_speed_kmh);
+            double factor = (line.type == LineType::NORMAL) ? 0.6 : 0.7;
+            int total_travel = std::max(10, static_cast<int>(
+                line.distance_km / (speed_kmh * factor) * 60));
+            int segment_travel = total_travel / std::max(1, static_cast<int>(full_route.size()) - 1);
 
-                // 计算到下一站的运行时间（里程/速度*60，取整到分钟）
-                int travel_minutes = 15;  // 默认站间距 15 分钟
-                if (s > 0) {
-                    // 用线路总里程比例估算行驶时间
-                    double segment_ratio = 1.0 / (stops_sequence.size() - 1);
-                    double speed_kmh = static_cast<double>(line.max_speed_kmh);
-                    double distance = line.distance_km * segment_ratio;
-                    // 高铁/城际实际旅行速度 ≈ 设计时速×0.7，普速 ≈ 设计时速×0.6
-                    double factor = (line.type == LineType::NORMAL) ? 0.6 : 0.7;
-                    travel_minutes = std::max(8, static_cast<int>(distance / (speed_kmh * factor) * 60));
-                    // 最小 8 分钟：防止极短站间距（如 1km）导致计算值偏小
-                }
+            int current_time = departure_hhmm;
+            for (size_t s = 0; s < stop_ids.size(); ++s) {
+                Stop stop;
+                stop.station_id = stop_ids[s];
+                int travel = (s == 0) ? 0 : std::max(3, segment_travel);
 
                 if (s == 0) {
-                    // 始发站：无到达时间
                     stop.arrival = -1;
                     stop.departure = current_time;
                 } else {
-                    current_time += travel_minutes;
-                    // 处理时间进位（分钟→小时）
+                    // 处理时间进位
+                    current_time += travel;
                     int hours = current_time / 100;
                     int mins = current_time % 100;
-                    mins += travel_minutes;
-                    hours += mins / 60;
-                    mins = mins % 60;
+                    if (mins >= 60) { hours += 1; mins -= 60; }
                     current_time = hours * 100 + mins;
 
                     stop.arrival = current_time;
-                    if (s < stops_sequence.size() - 1) {
-                        // 中间站：停留 2-5 分钟
+                    if (s < stop_ids.size() - 1) {
                         int dwell = randomInt(2, 5);
                         current_time += dwell;
-                        // 再次处理进位
                         hours = current_time / 100;
                         mins = current_time % 100;
-                        if (mins >= 60) {
-                            hours += mins / 60;
-                            mins = mins % 60;
-                        }
+                        if (mins >= 60) { hours += 1; mins -= 60; }
                         current_time = hours * 100 + mins;
                         stop.departure = current_time;
                     } else {
-                        // 终到站：无发车时间
                         stop.departure = -1;
                     }
                 }
-
                 stop.platform = static_cast<uint8_t>(randomInt(1, 8));
                 train.stops.push_back(stop);
             }

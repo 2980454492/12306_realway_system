@@ -27,16 +27,34 @@ double haversineDist(const Station& a, const Station& b) {
 }
 
 /**
- * 计算列车从 from_idx 到 to_idx 的实际走行里程。
- * = 经停序列中每一对相邻站之间的 Haversine 距离逐段累加。
+ * 计算列车从 from_station 到 to_station 的实际走行里程。
+ * 使用 route_stations（含所有经过站，不只是停站）逐段累加 Haversine。
  * 铁路列车沿轨道依次经过各中间站，不是直线飞行——必须逐段求和。
  */
-double calcSegmentDistance(const Train& train, int from_idx, int to_idx,
-                           const std::unordered_map<uint32_t, const Station*>& station_map) {
+double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station,
+                         const std::unordered_map<uint32_t, const Station*>& station_map) {
+    int from_idx = -1, to_idx = -1;
+    // 优先用 route_stations（更精确），fallback 用 stops 的 station_id
+    std::vector<uint32_t> fallback_ids;
+    const std::vector<uint32_t>* ids = &train.route_stations;
+    if (ids->empty()) {
+        for (const auto& s : train.stops) fallback_ids.push_back(s.station_id);
+        ids = &fallback_ids;
+    }
+
+    for (size_t i = 0; i < ids->size(); ++i) {
+        if ((*ids)[i] == from_station) from_idx = static_cast<int>(i);
+        if ((*ids)[i] == to_station && from_idx >= 0) {
+            to_idx = static_cast<int>(i);
+            break;
+        }
+    }
+    if (from_idx < 0 || to_idx < 0 || from_idx >= to_idx) return 0.0;
+
     double total = 0.0;
     for (int i = from_idx; i < to_idx; ++i) {
-        auto sa = station_map.find(train.stops[i].station_id);
-        auto sb = station_map.find(train.stops[i + 1].station_id);
+        auto sa = station_map.find((*ids)[i]);
+        auto sb = station_map.find((*ids)[i + 1]);
         if (sa != station_map.end() && sb != station_map.end()) {
             total += haversineDist(*sa->second, *sb->second);
         }
@@ -82,7 +100,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
         item.stops = train.stops;
 
         // 票价里程 = 沿该列车停站序列逐段累加（不是直线距离）
-        double trip_km = calcSegmentDistance(train, from_idx, to_idx, station_map);
+        double trip_km = calcRouteDistance(train, from_station, to_station, station_map);
         item.price = calcPrice(trip_km, SeatType::SECOND);
 
         // 查可用座位（仅查数量，不锁定）
@@ -135,8 +153,8 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                 item.second_train_id = t2.id;
 
                 // 换乘里程 = 两段列车各自的逐段累加之和
-                double km1 = calcSegmentDistance(t1, f1, t1_idx, station_map);
-                double km2 = calcSegmentDistance(t2, f2, to_idx2, station_map);
+                double km1 = calcRouteDistance(t1, from_station, transfer_id, station_map);
+                double km2 = calcRouteDistance(t2, transfer_id, to_station, station_map);
                 item.price = calcPrice(km1 + km2, SeatType::SECOND);
 
                 result.transfers.push_back(item);

@@ -154,14 +154,15 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Line,
 struct Train {
     std::string id;               // 车次号（如 G2492 / K7901 / C1003 / L6601）
     TrainType type = TrainType::REGULAR;
-    std::vector<Stop> stops;      // 停站序列（按运行方向排序）
+    std::vector<Stop> stops;      // 停站序列（有到发时间，仅办客站）
+    std::vector<uint32_t> route_stations;  // 经过站序列（含停站+经过不停车，用于计算票价里程）
     TrainStatus status = TrainStatus::ACTIVE;
     SeatConfig seat_config;       // 各席位座位数
     std::string valid_from;       // 有效期起始（临客必填，图定可为空）
     std::string valid_until;      // 有效期截止
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Train,
-    id, type, stops, status, seat_config, valid_from, valid_until)
+    id, type, stops, route_stations, status, seat_config, valid_from, valid_until)
 
 /** 订单 — 旅客购票记录。Phase 5 实现完整业务逻辑 */
 struct Order {
