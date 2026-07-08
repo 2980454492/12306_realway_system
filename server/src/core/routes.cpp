@@ -320,6 +320,15 @@ void registerRoutes(RailwayServer& server) {
                 res.status = 400;
                 return;
             }
+            // 日期范围校验：仅允许今天 ~ 14 天后
+            if (!isTodayOrFuture(date, 14)) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "Date must be within 14 days from today";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
 
             auto& ds = DataStore::instance();
             auto qr = TrainQuery::query(from, to, date);

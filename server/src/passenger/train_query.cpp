@@ -69,6 +69,10 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
         if (from_idx < 0 || to_idx < 0) continue;  // 该车次不覆盖此 OD
         if (from_idx >= to_idx) continue;           // 方向错误
 
+        // 查当天车次时，过滤已发车的
+        int dep_hhmm = train.stops[from_idx].departure;
+        if (dep_hhmm > 0 && isToday(date) && nowHHMM() > dep_hhmm) continue;
+
         QueryResultItem item;
         item.train_id = train.id;
         item.train_type = train.type;

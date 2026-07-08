@@ -164,7 +164,13 @@ const UI = {
       from.innerHTML += '<option value="' + s.id + '">' + U.esc(s.name) + '</option>';
       to.innerHTML   += '<option value="' + s.id + '">' + U.esc(s.name) + '</option>';
     }
-    var d = U.$('query-date'); if (d) d.value = new Date().toISOString().slice(0, 10);
+    var d = U.$('query-date'); if (d) {
+      d.value = new Date().toISOString().slice(0, 10);
+      var today = new Date();
+      var maxDay = new Date(today); maxDay.setDate(today.getDate() + 14);
+      d.min = today.toISOString().slice(0, 10);
+      d.max = maxDay.toISOString().slice(0, 10);
+    }
   },
 
   // ── 查票 ──

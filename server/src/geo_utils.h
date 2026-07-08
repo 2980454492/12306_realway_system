@@ -30,3 +30,47 @@ inline double seatPriceMultiplier(SeatType type) {
     }
     return 1.0;
 }
+
+#include <chrono>
+#include <ctime>
+#include <string>
+
+/** 当前 HHMM（如 1430 = 14:30），用于判断是否已发车 */
+inline int nowHHMM() {
+    auto now = std::chrono::system_clock::now();
+    auto t = std::chrono::system_clock::to_time_t(now);
+    std::tm tm{};
+    localtime_r(&t, &tm);
+    return tm.tm_hour * 100 + tm.tm_min;
+}
+
+/** 检查给定日期字符串（yyyy-MM-dd）是否为今天 */
+inline bool isToday(const std::string& date) {
+    auto now = std::chrono::system_clock::now();
+    auto t = std::chrono::system_clock::to_time_t(now);
+    std::tm tm{};
+    localtime_r(&t, &tm);
+    char buf[11];
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+    return date == std::string(buf);
+}
+
+/** 检查日期是否在 [今天, 今天+maxDays] 范围内 */
+inline bool isTodayOrFuture(const std::string& date, int maxDays) {
+    char buf[11];
+    auto now = std::chrono::system_clock::now();
+    auto t = std::chrono::system_clock::to_time_t(now);
+    std::tm tm{};
+    localtime_r(&t, &tm);
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+    std::string today(buf);
+
+    auto min_t = std::mktime(&tm);
+    auto max_t = min_t + maxDays * 86400;
+    std::tm max_tm{};
+    localtime_r(&max_t, &max_tm);
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &max_tm);
+    std::string maxDay(buf);
+
+    return date >= today && date <= maxDay;
+}

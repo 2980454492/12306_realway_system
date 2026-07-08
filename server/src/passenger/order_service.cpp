@@ -38,13 +38,6 @@ namespace {
         return oss.str();
     }
 
-    // ── 当前 HHMM ──
-    int nowHHMM() {
-        auto now = std::chrono::system_clock::now();
-        auto t = std::chrono::system_clock::to_time_t(now);
-        std::tm* tm = std::gmtime(&t);
-        return tm->tm_hour * 100 + tm->tm_min;
-    }
 }
 
 // ── 单例 ──
@@ -91,14 +84,24 @@ OrderService::OrderResult OrderService::createOrder(
         return result;
     }
 
-    // 3. 预留座位（原子操作，由 SeatInventory 内部锁保证）
+    // 3. 校验列车未发车（出发站的发车时间不能早于当前时间）
+    int departure_hhmm = train->stops[from_idx].departure;
+    if (departure_hhmm > 0) {
+        int now = nowHHMM();
+        if (now > departure_hhmm) {
+            result.error = "Train already departed";
+            return result;
+        }
+    }
+
+    // 4. 预留座位（原子操作，由 SeatInventory 内部锁保证）
     auto reservation = SeatInventory::instance().reserve(train_id, date, seat_type, count);
     if (!reservation.success) {
         result.error = "Insufficient seats";
         return result;
     }
 
-    // 4. 计算票价里程 = 列车经过站序列逐段 Haversine 累加（优先 route_stations）
+    // 5. 计算票价里程 = 列车经过站序列逐段 Haversine 累加（优先 route_stations）
     double trip_km = 0.0;
     auto& ds = DataStore::instance();
     // 使用 route_stations（含经过不停车的站），更精确
@@ -126,7 +129,7 @@ OrderService::OrderResult OrderService::createOrder(
 
     const double BASE = 0.30;
 
-    // 5. 创建订单
+    // 6. 创建订单
     Order order;
     order.id = makeUuid();
     order.user_id = user_id;
