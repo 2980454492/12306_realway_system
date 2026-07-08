@@ -339,6 +339,25 @@ void registerRoutes(RailwayServer& server) {
                 d["duration_minutes"] = item.duration_minutes;
                 d["price"] = item.price;
                 d["available_seats"] = item.available_seats;
+                // 始发站 / 终到站
+                if (!item.stops.empty()) {
+                    auto* orig = ds.getStation(item.stops.front().station_id);
+                    auto* term = ds.getStation(item.stops.back().station_id);
+                    d["origin_station"] = orig ? orig->name : "?";
+                    d["terminal_station"] = term ? term->name : "?";
+                }
+                // 各席位票价（基于二等座价格等比例换算）
+                {
+                    json sp;
+                    double base = item.price;  // 二等座价格
+                    sp["BUSINESS"]     = base * 3.0;
+                    sp["FIRST"]        = base * 2.0;
+                    sp["SECOND"]       = base;
+                    sp["HARD_SLEEPER"] = base * 0.8;
+                    sp["HARD_SEAT"]    = base * 0.4;
+                    sp["NO_SEAT"]      = base * 0.3;
+                    d["seat_prices"] = sp;
+                }
                 // 停站详情（含站名和时间，前端展示用）
                 json stops_arr = json::array();
                 for (const auto& stop : item.stops) {
@@ -367,6 +386,24 @@ void registerRoutes(RailwayServer& server) {
                 t["arrival_time"] = item.arrival_time;
                 t["duration_minutes"] = item.duration_minutes;
                 t["price"] = item.price;
+                // 始发/终到 + 各席位票价
+                if (!item.stops.empty()) {
+                    auto* orig = ds.getStation(item.stops.front().station_id);
+                    auto* term = ds.getStation(item.stops.back().station_id);
+                    t["origin_station"] = orig ? orig->name : "?";
+                    t["terminal_station"] = term ? term->name : "?";
+                }
+                {
+                    json sp;
+                    double base = item.price;
+                    sp["BUSINESS"] = base * 3.0;
+                    sp["FIRST"] = base * 2.0;
+                    sp["SECOND"] = base;
+                    sp["HARD_SLEEPER"] = base * 0.8;
+                    sp["HARD_SEAT"] = base * 0.4;
+                    sp["NO_SEAT"] = base * 0.3;
+                    t["seat_prices"] = sp;
+                }
                 transfer_arr.push_back(t);
             }
             j["transfers"] = transfer_arr;

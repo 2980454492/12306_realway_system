@@ -88,10 +88,10 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .train-list { display: flex; flex-direction: column; gap: 10px; }
 .train-card {
   background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 16px 20px;
-  display: flex; align-items: center; justify-content: space-between; cursor: pointer;
-  transition: border-color .2s;
+  cursor: pointer; transition: border-color .2s;
 }
 .train-card:hover { border-color: #e94560; }
+.train-main { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .train-info .train-id { font-size: 18px; font-weight: 700; color: #fff; }
 .train-info .train-meta { font-size: 12px; color: #707090; margin-top: 2px; }
 .train-time { text-align: center; }
@@ -100,6 +100,16 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .train-seats { text-align: right; }
 .train-seats .price { font-size: 16px; color: #e94560; font-weight: 700; }
 .train-seats .seats { font-size: 11px; color: #00cc66; margin-top: 2px; }
+/* 席位标签行 */
+.train-seats-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.seat-tag {
+  background: #0a0a1e; border: 1px solid #0f3460; border-radius: 6px;
+  padding: 8px 14px; font-size: 14px; color: #a0a0b0; white-space: nowrap;
+  cursor: pointer; transition: all .15s;
+}
+.seat-tag:hover { border-color: #e94560; background: #1a1a3e; }
+.seat-tag b { color: #e0e0e0; font-size: 15px; }
+.seat-tag .tag-price { color: #e94560; font-weight: 700; margin-left: 4px; }
 
 /* ═══ 筛选栏 ═══ */
 .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; }
@@ -146,8 +156,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 }
 .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .detail-header h3 { color: #e94560; font-size: 20px; }
-.detail-body { margin-bottom: 20px; }
-.detail-footer { text-align: right; }
+.detail-body { margin-bottom: 0; }
 
 /* 时间线 */
 .timeline { position: relative; padding-left: 24px; }
@@ -162,6 +171,8 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 }
 .timeline-item.stop::before { background: #e94560; }
 .timeline-item.pass::before { background: #0f3460; }
+.timeline-item.user-stop::before { background: #00cc66; }
+.timeline-item.user-stop .timeline-station { color: #00cc66; }
 .timeline-station { font-size: 14px; color: #e0e0e0; font-weight: 600; }
 .timeline-time { font-size: 12px; color: #707090; margin-top: 2px; }
 .timeline-time span { color: #53a8ff; }

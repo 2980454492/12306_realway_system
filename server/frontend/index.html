@@ -77,11 +77,7 @@
       <div id="order-train-info" class="info-card"></div>
       <div class="form-group">
         <label>席位类型</label>
-        <select id="order-seat-type"></select>
-      </div>
-      <div class="form-group">
-        <label>购票数量 (1-5)</label>
-        <input type="number" id="order-count" min="1" max="5" value="1">
+        <select id="order-seat-type" disabled style="opacity:0.7"></select>
       </div>
       <div class="form-group">
         <label>乘车人姓名</label>
@@ -119,9 +115,6 @@
       <button class="btn btn-sm" onclick="UI.closeDetail()">✕</button>
     </div>
     <div class="detail-body" id="detail-stops"></div>
-    <div class="detail-footer">
-      <button class="btn btn-primary" onclick="UI.buyFromDetail()">购票</button>
-    </div>
   </div>
 </div>
 

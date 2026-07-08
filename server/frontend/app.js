@@ -206,42 +206,87 @@ const UI = {
     if (!list || !list.length) { html = '<div class="loading">暂无结果</div>'; }
     else for (var i = 0; i < list.length; i++) {
       var item = list[i];
-      var seats = item.available_seats;
-      var avail = seats ? (seats.second_seats || seats.hard_seat || seats.hard_sleeper || 0) : 0;
+      var seats = item.available_seats || {};
+      var prices = item.seat_prices || {};
       var tid = U.esc(item.train_id);
-      // 将 item 数据存到 State 中供 detail 使用（避免 onclick 传大量数据）
+      var orig = item.origin_station || '?';
+      var term = item.terminal_station || '?';
+      // 存储供 detail 弹窗使用
       var itemKey = 'item_' + tab + '_' + i;
       State._trainItems = State._trainItems || {};
       State._trainItems[itemKey] = item;
+
+      // 席位列表（只显示有票的席位类型）
+      var seatTypes = [
+        {key: 'business_seats', label: '商务座', priceKey: 'BUSINESS'},
+        {key: 'first_seats',    label: '一等座', priceKey: 'FIRST'},
+        {key: 'second_seats',   label: '二等座', priceKey: 'SECOND'},
+        {key: 'hard_sleeper',   label: '硬卧',  priceKey: 'HARD_SLEEPER'},
+        {key: 'hard_seat',      label: '硬座',  priceKey: 'HARD_SEAT'},
+        {key: 'no_seat',        label: '无座',  priceKey: 'NO_SEAT'}
+      ];
+      var seatsHtml = '';
+      for (var s = 0; s < seatTypes.length; s++) {
+        var st = seatTypes[s];
+        var cnt = seats[st.key] || 0;
+        if (cnt > 0) {
+          var p = prices[st.priceKey] || 0;
+          seatsHtml += '<span class="seat-tag" onclick="UI.buySeat(\'' + itemKey + '\',\'' + st.priceKey + '\');event.stopPropagation()">' +
+            st.label + ' <b>' + cnt + '</b>张 <span class="tag-price">¥' + p.toFixed(0) + '</span></span>';
+        }
+      }
+
       html += '<div class="train-card" onclick="UI.showDetail(\'' + itemKey + '\')">' +
-        '<div class="train-info"><div class="train-id">' + tid + '</div>' +
-        '<div class="train-meta">' + (item.is_transfer ? '换乘: ' + U.esc(item.transfer_station || '') : '直达') + '</div></div>' +
-        '<div class="train-time"><div class="time">' + U.fmtTime(item.departure_time) + ' – ' + U.fmtTime(item.arrival_time) + '</div>' +
-        '<div class="duration">' + U.fmtDuration(item.duration_minutes) + '</div></div>' +
-        '<div class="train-seats"><div class="price">¥' + (item.price || 0).toFixed(1) + '</div>' +
-        '<div class="seats">' + avail + ' 张</div></div></div>';
+        '<div class="train-main">' +
+          '<div class="train-info">' +
+            '<div class="train-id">' + tid + '</div>' +
+            '<div class="train-meta">' + orig + ' → ' + term + '</div>' +
+            '<div class="train-meta">' + (item.is_transfer ? '换乘: ' + U.esc(item.transfer_station || '') : '直达') + '</div>' +
+          '</div>' +
+          '<div class="train-time">' +
+            '<div class="time">' + U.fmtTime(item.departure_time) + ' – ' + U.fmtTime(item.arrival_time) + '</div>' +
+            '<div class="duration">' + U.fmtDuration(item.duration_minutes) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="train-seats-row">' + seatsHtml + '</div>' +
+      '</div>';
     }
     el.innerHTML = html;
+  },
+
+  // ── 点击席位标签 → 直接购票 ──
+  buySeat: function(itemKey, seatType) {
+    var item = (State._trainItems || {})[itemKey];
+    if (!item) return;
+    var prices = item.seat_prices || {};
+    State.selectedTrain = {
+      train_id: item.train_id, from_station: item.from_station,
+      to_station: item.to_station, departure_time: item.departure_time,
+      arrival_time: item.arrival_time, price: prices[seatType] || item.price,
+      seat_type: seatType,
+      date: (U.$('query-date') || {}).value || '2026-07-08'
+    };
+    UI.showPage('order-form');
+    UI.renderOrderForm();
   },
 
   // ── 车次详情弹窗 ──
   showDetail: function(itemKey) {
     var item = (State._trainItems || {})[itemKey];
     if (!item) return;
-    State.selectedTrain = { train_id: item.train_id, from_station: item.from_station,
-      to_station: item.to_station, departure_time: item.departure_time,
-      arrival_time: item.arrival_time, price: item.price,
-      date: (U.$('query-date') || {}).value || '2026-07-08' };
 
     U.$('detail-train-id').textContent = item.train_id;
     var stops = item.stops || [];
+    var fromId = item.from_station, toId = item.to_station;
     var html = '<div class="timeline">';
     for (var i = 0; i < stops.length; i++) {
       var s = stops[i];
       var isFirst = i === 0, isLast = i === stops.length - 1;
+      var isUserStop = (s.station_id === fromId || s.station_id === toId);
       var arrTime = isFirst ? '始发' : U.fmtTime(s.arrival);
       var depTime = isLast ? '终到' : U.fmtTime(s.departure);
       var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
+      if (isUserStop) cls += ' user-stop';
       html += '<div class="timeline-item ' + cls + '">' +
         '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
         '<div class="timeline-time">到 <span>' + arrTime + '</span> · 发 <span>' + depTime + '</span></div>' +
@@ -254,14 +299,6 @@ const UI = {
 
   closeDetail: function() {
     U.$('detail-overlay').classList.remove('show');
-  },
-
-  buyFromDetail: function() {
-    U.$('detail-overlay').classList.remove('show');
-    if (State.selectedTrain) {
-      UI.showPage('order-form');
-      UI.renderOrderForm();
-    }
   },
 
   // ── 购票页 ──
@@ -278,10 +315,14 @@ const UI = {
     var info = U.$('order-train-info');
     if (info) info.innerHTML = t ? '<strong>' + U.esc(t.train_id) + '</strong> &nbsp; ' +
       U.fmtTime(parseInt(t.departure_time)) + ' → ' + U.fmtTime(parseInt(t.arrival_time)) +
-      ' &nbsp; ¥' + (t.price || 0).toFixed(1) + ' &nbsp; ' + t.date : '';
+      ' &nbsp; <span style="color:#e94560">¥' + (t.price || 0).toFixed(0) + '</span> &nbsp; ' +
+      U.seatLabel(t.seat_type || 'SECOND') + ' &nbsp; ' + t.date : '';
+    // 席位已从查票页选定，隐藏选择器
     var sel = U.$('order-seat-type');
-    if (sel) sel.innerHTML = ['SECOND','FIRST','BUSINESS','HARD_SLEEPER','HARD_SEAT','NO_SEAT']
-      .map(function(s) { return '<option value="' + s + '">' + U.seatLabel(s) + '</option>'; }).join('');
+    if (sel) {
+      sel.innerHTML = '<option value="' + (t.seat_type || 'SECOND') + '">' + U.seatLabel(t.seat_type || 'SECOND') + '</option>';
+      sel.disabled = true;
+    }
   },
 
   submitOrder: async function() {
@@ -289,8 +330,8 @@ const UI = {
     if (!t) return;
     var body = {
       train_id: t.train_id, date: t.date, from_station: t.from_station, to_station: t.to_station,
-      seat_type: (U.$('order-seat-type') || {}).value || 'SECOND',
-      count: parseInt((U.$('order-count') || {}).value) || 1,
+      seat_type: t.seat_type || 'SECOND',
+      count: 1,
       passenger_name: (U.$('order-passenger-name') || {}).value || '',
       passenger_id: (U.$('order-passenger-id') || {}).value || '',
     };
