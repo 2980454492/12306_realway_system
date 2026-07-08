@@ -1,7 +1,7 @@
 // rbac_middleware.cpp — RBAC 中间件实现
-#include "rbac_middleware.h"
-#include "jwt_service.h"
-#include "logger.h"
+#include "auth/rbac_middleware.h"
+#include "auth/jwt_service.h"
+#include "core/logger.h"
 
 std::unordered_map<std::string, PermissionSet> RbacMiddleware::role_permissions_;
 bool RbacMiddleware::initialized_ = false;

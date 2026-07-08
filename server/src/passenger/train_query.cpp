@@ -1,10 +1,10 @@
 // train_query.cpp — 列车余票查询实现
-#include "train_query.h"
-#include "data_store.h"
-#include "railway_graph.h"
-#include "seat_inventory.h"
+#include "passenger/train_query.h"
+#include "data/data_store.h"
+#include "data/railway_graph.h"
+#include "passenger/seat_inventory.h"
 #include "geo_utils.h"
-#include "logger.h"
+#include "core/logger.h"
 
 #include <algorithm>
 #include <set>

@@ -37,35 +37,35 @@ find_library(SODIUM_LIB sodium REQUIRED)
 # ── 可执行目标 ──
 set(SOURCES
     src/main.cpp
-    src/logger.cpp
-    src/server.cpp
-    src/routes.cpp
-    src/data_store.cpp
-    src/railway_graph.cpp
-    src/train_generator.cpp
-    src/auth_service.cpp
-    src/jwt_service.cpp
-    src/rbac_middleware.cpp
-    src/train_query.cpp
-    src/seat_inventory.cpp
-    src/order_service.cpp
+    src/core/logger.cpp
+    src/core/server.cpp
+    src/core/routes.cpp
+    src/data/data_store.cpp
+    src/data/railway_graph.cpp
+    src/data/train_generator.cpp
+    src/auth/auth_service.cpp
+    src/auth/jwt_service.cpp
+    src/auth/rbac_middleware.cpp
+    src/passenger/train_query.cpp
+    src/passenger/seat_inventory.cpp
+    src/passenger/order_service.cpp
 )
 
 set(HEADERS
-    src/logger.h
-    src/server.h
-    src/routes.h
     src/models.h
-    src/data_store.h
-    src/train_generator.h
-    src/railway_graph.h
-    src/auth_service.h
-    src/jwt_service.h
-    src/rbac_middleware.h
-    src/train_query.h
-    src/seat_inventory.h
-    src/order_service.h
     src/geo_utils.h
+    src/core/logger.h
+    src/core/server.h
+    src/core/routes.h
+    src/data/data_store.h
+    src/data/train_generator.h
+    src/data/railway_graph.h
+    src/auth/auth_service.h
+    src/auth/jwt_service.h
+    src/auth/rbac_middleware.h
+    src/passenger/train_query.h
+    src/passenger/seat_inventory.h
+    src/passenger/order_service.h
     vendor/httplib.h
 )
 

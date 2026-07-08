@@ -1,7 +1,7 @@
 // seat_inventory.cpp — SeatInventory 实现
-#include "seat_inventory.h"
-#include "data_store.h"
-#include "logger.h"
+#include "passenger/seat_inventory.h"
+#include "data/data_store.h"
+#include "core/logger.h"
 
 #include <algorithm>
 

@@ -1,6 +1,6 @@
 // auth_service.cpp — AuthService 实现
-#include "auth_service.h"
-#include "logger.h"
+#include "auth/auth_service.h"
+#include "core/logger.h"
 
 #include <sodium.h>
 #include <nlohmann/json.hpp>

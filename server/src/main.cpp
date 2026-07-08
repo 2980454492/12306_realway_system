@@ -1,13 +1,13 @@
 // main.cpp — 12306 铁路票务系统入口
 // 负责数据初始化、信号处理、服务启动、优雅关闭
-#include "server.h"
-#include "routes.h"
-#include "logger.h"
-#include "data_store.h"
-#include "railway_graph.h"
-#include "auth_service.h"
-#include "jwt_service.h"
-#include "rbac_middleware.h"
+#include "core/server.h"
+#include "core/routes.h"
+#include "core/logger.h"
+#include "data/data_store.h"
+#include "data/railway_graph.h"
+#include "auth/auth_service.h"
+#include "auth/jwt_service.h"
+#include "auth/rbac_middleware.h"
 
 #include <csignal>
 #include <atomic>

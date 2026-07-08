@@ -1,6 +1,6 @@
 // jwt_service.cpp — JWT HS256 实现
-#include "jwt_service.h"
-#include "logger.h"
+#include "auth/jwt_service.h"
+#include "core/logger.h"
 
 #include <sodium.h>
 #include <nlohmann/json.hpp>
