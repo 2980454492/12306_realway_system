@@ -1,4 +1,4 @@
-// train_query.cpp — 列车查询实现
+// train_query.cpp — 列车余票查询实现
 #include "train_query.h"
 #include "data_store.h"
 #include "railway_graph.h"

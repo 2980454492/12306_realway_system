@@ -1,4 +1,4 @@
-// train_query.h — 列车查询服务，支持直达和一次换乘
+// train_query.h — 列车余票查询服务，支持直达和一次换乘
 #pragma once
 
 #include "models.h"
@@ -31,7 +31,7 @@ struct QueryResult {
 };
 
 /**
- * TrainQuery — 列车查询逻辑。
+ * TrainQuery — 列车余票查询逻辑。
  * 直达：遍历所有列车，匹配停站序列。
  * 换乘：铁路网 BFS 找中转站，验证两段车次时间衔接。
  */
