@@ -209,9 +209,11 @@ const UI = {
       var seats = item.available_seats;
       var avail = seats ? (seats.second_seats || seats.hard_seat || seats.hard_sleeper || 0) : 0;
       var tid = U.esc(item.train_id);
-      html += '<div class="train-card" onclick="UI.selectTrain(\'' + tid + '\',' +
-        (item.from_station || 0) + ',' + (item.to_station || 0) + ',\'' +
-        item.departure_time + '\',\'' + item.arrival_time + '\',' + (item.price || 0) + ')">' +
+      // 将 item 数据存到 State 中供 detail 使用（避免 onclick 传大量数据）
+      var itemKey = 'item_' + tab + '_' + i;
+      State._trainItems = State._trainItems || {};
+      State._trainItems[itemKey] = item;
+      html += '<div class="train-card" onclick="UI.showDetail(\'' + itemKey + '\')">' +
         '<div class="train-info"><div class="train-id">' + tid + '</div>' +
         '<div class="train-meta">' + (item.is_transfer ? '换乘: ' + U.esc(item.transfer_station || '') : '直达') + '</div></div>' +
         '<div class="train-time"><div class="time">' + U.fmtTime(item.departure_time) + ' – ' + U.fmtTime(item.arrival_time) + '</div>' +
@@ -220,6 +222,46 @@ const UI = {
         '<div class="seats">' + avail + ' 张</div></div></div>';
     }
     el.innerHTML = html;
+  },
+
+  // ── 车次详情弹窗 ──
+  showDetail: function(itemKey) {
+    var item = (State._trainItems || {})[itemKey];
+    if (!item) return;
+    State.selectedTrain = { train_id: item.train_id, from_station: item.from_station,
+      to_station: item.to_station, departure_time: item.departure_time,
+      arrival_time: item.arrival_time, price: item.price,
+      date: (U.$('query-date') || {}).value || '2026-07-08' };
+
+    U.$('detail-train-id').textContent = item.train_id;
+    var stops = item.stops || [];
+    var html = '<div class="timeline">';
+    for (var i = 0; i < stops.length; i++) {
+      var s = stops[i];
+      var isFirst = i === 0, isLast = i === stops.length - 1;
+      var arrTime = isFirst ? '始发' : U.fmtTime(s.arrival);
+      var depTime = isLast ? '终到' : U.fmtTime(s.departure);
+      var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
+      html += '<div class="timeline-item ' + cls + '">' +
+        '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
+        '<div class="timeline-time">到 <span>' + arrTime + '</span> · 发 <span>' + depTime + '</span></div>' +
+        '</div>';
+    }
+    html += '</div>';
+    U.$('detail-stops').innerHTML = html;
+    U.$('detail-overlay').classList.add('show');
+  },
+
+  closeDetail: function() {
+    U.$('detail-overlay').classList.remove('show');
+  },
+
+  buyFromDetail: function() {
+    U.$('detail-overlay').classList.remove('show');
+    if (State.selectedTrain) {
+      UI.showPage('order-form');
+      UI.renderOrderForm();
+    }
   },
 
   // ── 购票页 ──

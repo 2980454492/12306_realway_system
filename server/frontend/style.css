@@ -134,6 +134,38 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .error-msg { color: #e94560; font-size: 13px; margin-top: 8px; }
 .loading { text-align: center; padding: 32px; color: #707090; font-size: 14px; }
 
+/* ═══ 弹窗 / 详情 ═══ */
+.overlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center;
+}
+.overlay.show { display: flex; }
+.detail-card {
+  background: #16213e; border: 1px solid #0f3460; border-radius: 12px;
+  width: 480px; max-height: 80vh; overflow-y: auto; padding: 24px;
+}
+.detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.detail-header h3 { color: #e94560; font-size: 20px; }
+.detail-body { margin-bottom: 20px; }
+.detail-footer { text-align: right; }
+
+/* 时间线 */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before {
+  content: ''; position: absolute; left: 8px; top: 8px; bottom: 8px;
+  width: 2px; background: #0f3460;
+}
+.timeline-item { position: relative; padding: 8px 0; }
+.timeline-item::before {
+  content: ''; position: absolute; left: -20px; top: 14px;
+  width: 10px; height: 10px; border-radius: 50%; background: #0f3460; border: 2px solid #16213e;
+}
+.timeline-item.stop::before { background: #e94560; }
+.timeline-item.pass::before { background: #0f3460; }
+.timeline-station { font-size: 14px; color: #e0e0e0; font-weight: 600; }
+.timeline-time { font-size: 12px; color: #707090; margin-top: 2px; }
+.timeline-time span { color: #53a8ff; }
+
 /* ═══ Toast ═══ */
 .toast {
   position: fixed; top: 60px; right: 24px; padding: 12px 24px; border-radius: 8px;

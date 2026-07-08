@@ -111,6 +111,20 @@
   </main>
 </div>
 
+<!-- ═══ 车次详情弹窗 ═══ -->
+<div id="detail-overlay" class="overlay" onclick="UI.closeDetail()">
+  <div class="detail-card" onclick="event.stopPropagation()">
+    <div class="detail-header">
+      <h3 id="detail-train-id"></h3>
+      <button class="btn btn-sm" onclick="UI.closeDetail()">✕</button>
+    </div>
+    <div class="detail-body" id="detail-stops"></div>
+    <div class="detail-footer">
+      <button class="btn btn-primary" onclick="UI.buyFromDetail()">购票</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 

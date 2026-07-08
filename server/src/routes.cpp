@@ -320,6 +320,7 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
+            auto& ds = DataStore::instance();
             auto qr = TrainQuery::query(from, to, date);
 
             json j;
@@ -338,6 +339,18 @@ void registerRoutes(RailwayServer& server) {
                 d["duration_minutes"] = item.duration_minutes;
                 d["price"] = item.price;
                 d["available_seats"] = item.available_seats;
+                // 停站详情（含站名和时间，前端展示用）
+                json stops_arr = json::array();
+                for (const auto& stop : item.stops) {
+                    json sd;
+                    sd["station_id"] = stop.station_id;
+                    auto* st = ds.getStation(stop.station_id);
+                    sd["station_name"] = st ? st->name : "?";
+                    sd["arrival"] = stop.arrival;
+                    sd["departure"] = stop.departure;
+                    stops_arr.push_back(sd);
+                }
+                d["stops"] = stops_arr;
                 direct_arr.push_back(d);
             }
             j["direct"] = direct_arr;
