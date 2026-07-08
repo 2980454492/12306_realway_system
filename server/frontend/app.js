@@ -276,23 +276,33 @@ const UI = {
     if (!item) return;
 
     U.$('detail-train-id').textContent = item.train_id;
-    var stops = item.stops || [];
     var fromId = item.from_station, toId = item.to_station;
-    var html = '<div class="timeline">';
-    for (var i = 0; i < stops.length; i++) {
-      var s = stops[i];
-      var isFirst = i === 0, isLast = i === stops.length - 1;
-      var isUserStop = (s.station_id === fromId || s.station_id === toId);
-      var arrTime = isFirst ? '始发' : U.fmtTime(s.arrival);
-      var depTime = isLast ? '终到' : U.fmtTime(s.departure);
-      var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
-      if (isUserStop) cls += ' user-stop';
-      html += '<div class="timeline-item ' + cls + '">' +
-        '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
-        '<div class="timeline-time">到 <span>' + arrTime + '</span> · 发 <span>' + depTime + '</span></div>' +
-        '</div>';
+
+    function renderTimeline(stops, label) {
+      if (!stops || !stops.length) return '';
+      var h = (label ? '<div class="timeline-label">' + U.esc(label) + '</div>' : '');
+      h += '<div class="timeline">';
+      for (var i = 0; i < stops.length; i++) {
+        var s = stops[i];
+        var isFirst = i === 0, isLast = i === stops.length - 1;
+        var isUserStop = (s.station_id === fromId || s.station_id === toId);
+        var arrTime = isFirst ? '始发' : U.fmtTime(s.arrival);
+        var depTime = isLast ? '终到' : U.fmtTime(s.departure);
+        var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
+        if (isUserStop) cls += ' user-stop';
+        h += '<div class="timeline-item ' + cls + '">' +
+          '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
+          '<div class="timeline-time">到 <span>' + arrTime + '</span> · 发 <span>' + depTime + '</span></div>' +
+          '</div>';
+      }
+      h += '</div>';
+      return h;
     }
-    html += '</div>';
+
+    var html = renderTimeline(item.stops, item.second_stops ? '第一段 ' + U.esc(item.train_id.split(' → ')[0] || '') : '');
+    if (item.second_stops && item.second_stops.length) {
+      html += renderTimeline(item.second_stops, '第二段 ' + U.esc(item.second_train_id || ''));
+    }
     U.$('detail-stops').innerHTML = html;
     U.$('detail-overlay').classList.add('show');
   },

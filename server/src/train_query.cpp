@@ -17,8 +17,8 @@ namespace {
  * 使用 route_stations（含所有经过站，不只是停站）逐段累加 Haversine。
  * 铁路列车沿轨道依次经过各中间站，不是直线飞行——必须逐段求和。
  */
-double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station) {
-    auto& ds = DataStore::instance();
+double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station,
+                         DataStore& ds) {
     int from_idx = -1, to_idx = -1;
     // 优先用 route_stations（更精确），fallback 用 stops 的 station_id
     std::vector<uint32_t> fallback_ids;
@@ -59,7 +59,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
 
     // 预构建铁路网图（仅用于换乘站查找，不用于票价里程）
     RailwayGraph graph;
-    graph.build(ds.getAllLines(), ds.getAllStations());
+    graph.build(ds.getAllLines());
 
     // ── 直达查询 ──
     for (const auto& train : ds.getAllTrains()) {
@@ -80,7 +80,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
         item.stops = train.stops;
 
         // 票价里程 = 沿该列车停站序列逐段累加（不是直线距离）
-        double trip_km = calcRouteDistance(train, from_station, to_station);
+        double trip_km = calcRouteDistance(train, from_station, to_station, ds);
         item.price = calcPrice(trip_km, SeatType::SECOND);
 
         // 查可用座位（仅查数量，不锁定）
@@ -131,10 +131,11 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                 auto* station = ds.getStation(transfer_id);
                 item.transfer_station = station ? station->name : "unknown";
                 item.second_train_id = t2.id;
+                item.second_stops = t2.stops;
 
                 // 换乘里程 = 两段列车各自的逐段累加之和
-                double km1 = calcRouteDistance(t1, from_station, transfer_id);
-                double km2 = calcRouteDistance(t2, transfer_id, to_station);
+                double km1 = calcRouteDistance(t1, from_station, transfer_id, ds);
+                double km2 = calcRouteDistance(t2, transfer_id, to_station, ds);
                 item.price = calcPrice(km1 + km2, SeatType::SECOND);
 
                 result.transfers.push_back(item);
@@ -171,18 +172,8 @@ int TrainQuery::timeDiff(int from_hhmm, int to_hhmm) {
 }
 
 double TrainQuery::calcPrice(double distance_km, SeatType seat_type) {
-    // 每公里基准费率（元/km），按席位乘以不同倍率
-    const double BASE_RATE = 0.30;  // 二等座基准费率（实际约 0.3-0.4 元/km）
-    double multiplier = 1.0;
-    switch (seat_type) {
-        case SeatType::BUSINESS:     multiplier = 3.0; break;
-        case SeatType::FIRST:        multiplier = 2.0; break;
-        case SeatType::SECOND:       multiplier = 1.0; break;
-        case SeatType::HARD_SLEEPER: multiplier = 0.8; break;
-        case SeatType::HARD_SEAT:    multiplier = 0.4; break;
-        case SeatType::NO_SEAT:      multiplier = 0.3; break;
-    }
-    return distance_km * BASE_RATE * multiplier;
+    const double BASE_RATE = 0.30;  // 二等座基准费率（元/km）
+    return distance_km * BASE_RATE * seatPriceMultiplier(seat_type);
 }
 
 std::vector<uint32_t> TrainQuery::findTransferStations(uint32_t from, uint32_t to,

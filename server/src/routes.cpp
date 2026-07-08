@@ -9,6 +9,7 @@
 #include "rbac_middleware.h"
 #include "train_query.h"
 #include "order_service.h"
+#include "geo_utils.h"
 
 #include <nlohmann/json.hpp>
 #include <chrono>
@@ -118,7 +119,7 @@ void registerRoutes(RailwayServer& server) {
 
             // 构建图并查询最短路径
             RailwayGraph graph;
-            graph.build(ds.getAllLines(), ds.getAllStations());
+            graph.build(ds.getAllLines());
 
             auto path = graph.shortestPath(from, to);
 
@@ -350,12 +351,12 @@ void registerRoutes(RailwayServer& server) {
                 {
                     json sp;
                     double base = item.price;  // 二等座价格
-                    sp["BUSINESS"]     = base * 3.0;
-                    sp["FIRST"]        = base * 2.0;
+                    sp["BUSINESS"]     = base * seatPriceMultiplier(SeatType::BUSINESS);
+                    sp["FIRST"]        = base * seatPriceMultiplier(SeatType::FIRST);
                     sp["SECOND"]       = base;
-                    sp["HARD_SLEEPER"] = base * 0.8;
-                    sp["HARD_SEAT"]    = base * 0.4;
-                    sp["NO_SEAT"]      = base * 0.3;
+                    sp["HARD_SLEEPER"] = base * seatPriceMultiplier(SeatType::HARD_SLEEPER);
+                    sp["HARD_SEAT"]    = base * seatPriceMultiplier(SeatType::HARD_SEAT);
+                    sp["NO_SEAT"]      = base * seatPriceMultiplier(SeatType::NO_SEAT);
                     d["seat_prices"] = sp;
                 }
                 // 停站详情（含站名和时间，前端展示用）
@@ -396,14 +397,30 @@ void registerRoutes(RailwayServer& server) {
                 {
                     json sp;
                     double base = item.price;
-                    sp["BUSINESS"] = base * 3.0;
-                    sp["FIRST"] = base * 2.0;
+                    sp["BUSINESS"] = base * seatPriceMultiplier(SeatType::BUSINESS);
+                    sp["FIRST"] = base * seatPriceMultiplier(SeatType::FIRST);
                     sp["SECOND"] = base;
-                    sp["HARD_SLEEPER"] = base * 0.8;
-                    sp["HARD_SEAT"] = base * 0.4;
-                    sp["NO_SEAT"] = base * 0.3;
+                    sp["HARD_SLEEPER"] = base * seatPriceMultiplier(SeatType::HARD_SLEEPER);
+                    sp["HARD_SEAT"] = base * seatPriceMultiplier(SeatType::HARD_SEAT);
+                    sp["NO_SEAT"] = base * seatPriceMultiplier(SeatType::NO_SEAT);
                     t["seat_prices"] = sp;
                 }
+                // 停站详情（第一段 + 第二段）
+                auto addStops = [&](json& target, const std::string& key, const std::vector<Stop>& stops) {
+                    json arr = json::array();
+                    for (const auto& stop : stops) {
+                        json sd;
+                        sd["station_id"] = stop.station_id;
+                        auto* st = ds.getStation(stop.station_id);
+                        sd["station_name"] = st ? st->name : "?";
+                        sd["arrival"] = stop.arrival;
+                        sd["departure"] = stop.departure;
+                        arr.push_back(sd);
+                    }
+                    target[key] = arr;
+                };
+                addStops(t, "stops", item.stops);
+                addStops(t, "second_stops", item.second_stops);
                 transfer_arr.push_back(t);
             }
             j["transfers"] = transfer_arr;

@@ -22,6 +22,7 @@ struct QueryResultItem {
     bool is_transfer = false;    // 是否为换乘方案
     std::string transfer_station; // 换乘站名（仅换乘方案）
     std::string second_train_id;  // 第二段车次（仅换乘方案）
+    std::vector<Stop> second_stops; // 第二段列车停站（仅换乘方案）
 };
 
 /** 一次查询的完整结果 */

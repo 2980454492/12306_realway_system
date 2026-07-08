@@ -9,7 +9,7 @@
 
 // ── 构建 ──
 
-void RailwayGraph::build(const std::vector<Line>& lines, const std::vector<Station>& /*stations*/) {
+void RailwayGraph::build(const std::vector<Line>& lines) {
     adjacency_.clear();
     invalidateCache();
 

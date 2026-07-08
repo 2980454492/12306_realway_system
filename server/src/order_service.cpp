@@ -5,8 +5,6 @@
 #include "geo_utils.h"
 #include "logger.h"
 
-#include <unordered_map>
-
 #include <random>
 #include <sstream>
 #include <iomanip>
@@ -127,15 +125,6 @@ OrderService::OrderResult OrderService::createOrder(
     }
 
     const double BASE = 0.30;
-    double mult = 1.0;
-    switch (seat_type) {
-        case SeatType::BUSINESS: mult = 3.0; break;
-        case SeatType::FIRST:    mult = 2.0; break;
-        case SeatType::SECOND:   mult = 1.0; break;
-        case SeatType::HARD_SLEEPER: mult = 0.8; break;
-        case SeatType::HARD_SEAT:    mult = 0.4; break;
-        case SeatType::NO_SEAT:      mult = 0.3; break;
-    }
 
     // 5. 创建订单
     Order order;
@@ -147,7 +136,7 @@ OrderService::OrderResult OrderService::createOrder(
     order.to_station = to_station;
     order.seat_type = seat_type;
     order.seat_number = reservation.seat_numbers.empty() ? 0 : reservation.seat_numbers[0];
-    order.price = trip_km * BASE * mult * count;
+    order.price = trip_km * BASE * seatPriceMultiplier(seat_type) * count;
     order.status = OrderStatus::PAID;
     order.created_at = nowIso();
     order.passenger_name = passenger_name;

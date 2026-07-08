@@ -173,6 +173,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .timeline-item.pass::before { background: #0f3460; }
 .timeline-item.user-stop::before { background: #00cc66; }
 .timeline-item.user-stop .timeline-station { color: #00cc66; }
+.timeline-label { font-size: 13px; color: #53a8ff; font-weight: 600; margin: 12px 0 4px 0; padding-left: 24px; }
 .timeline-station { font-size: 14px; color: #e0e0e0; font-weight: 600; }
 .timeline-time { font-size: 12px; color: #707090; margin-top: 2px; }
 .timeline-time span { color: #53a8ff; }
