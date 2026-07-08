@@ -2,9 +2,9 @@
 #include "order_service.h"
 #include "seat_inventory.h"
 #include "data_store.h"
+#include "geo_utils.h"
 #include "logger.h"
 
-#include <cmath>
 #include <unordered_map>
 
 #include <random>
@@ -121,14 +121,7 @@ OrderService::OrderResult OrderService::createOrder(
             auto* sa = ds.getStation((*ids)[i]);
             auto* sb = ds.getStation((*ids)[i + 1]);
             if (sa && sb) {
-                double lat1 = sa->latitude * M_PI / 180.0;
-                double lat2 = sb->latitude * M_PI / 180.0;
-                double dlat = lat2 - lat1;
-                double dlon = (sb->longitude - sa->longitude) * M_PI / 180.0;
-                double sin_dlat = std::sin(dlat / 2.0);
-                double sin_dlon = std::sin(dlon / 2.0);
-                double h = sin_dlat * sin_dlat + std::cos(lat1) * std::cos(lat2) * sin_dlon * sin_dlon;
-                trip_km += 2.0 * 6371.0 * std::atan2(std::sqrt(h), std::sqrt(1.0 - h));
+                trip_km += haversineDist(*sa, *sb);
             }
         }
     }

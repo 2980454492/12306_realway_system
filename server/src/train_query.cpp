@@ -3,36 +3,22 @@
 #include "data_store.h"
 #include "railway_graph.h"
 #include "seat_inventory.h"
+#include "geo_utils.h"
 #include "logger.h"
 
 #include <algorithm>
 #include <set>
 #include <queue>
-#include <cmath>
-#include <unordered_map>
 
 namespace {
-
-/** Haversine 公式：计算两经纬度间的大圆距离（km） */
-double haversineDist(const Station& a, const Station& b) {
-    const double R = 6371.0;
-    double lat1 = a.latitude * M_PI / 180.0;
-    double lat2 = b.latitude * M_PI / 180.0;
-    double dlat = lat2 - lat1;
-    double dlon = (b.longitude - a.longitude) * M_PI / 180.0;
-    double sin_dlat = std::sin(dlat / 2.0);
-    double sin_dlon = std::sin(dlon / 2.0);
-    double h = sin_dlat * sin_dlat + std::cos(lat1) * std::cos(lat2) * sin_dlon * sin_dlon;
-    return 2.0 * R * std::atan2(std::sqrt(h), std::sqrt(1.0 - h));
-}
 
 /**
  * 计算列车从 from_station 到 to_station 的实际走行里程。
  * 使用 route_stations（含所有经过站，不只是停站）逐段累加 Haversine。
  * 铁路列车沿轨道依次经过各中间站，不是直线飞行——必须逐段求和。
  */
-double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station,
-                         const std::unordered_map<uint32_t, const Station*>& station_map) {
+double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station) {
+    auto& ds = DataStore::instance();
     int from_idx = -1, to_idx = -1;
     // 优先用 route_stations（更精确），fallback 用 stops 的 station_id
     std::vector<uint32_t> fallback_ids;
@@ -53,10 +39,10 @@ double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_
 
     double total = 0.0;
     for (int i = from_idx; i < to_idx; ++i) {
-        auto sa = station_map.find((*ids)[i]);
-        auto sb = station_map.find((*ids)[i + 1]);
-        if (sa != station_map.end() && sb != station_map.end()) {
-            total += haversineDist(*sa->second, *sb->second);
+        auto* sa = ds.getStation((*ids)[i]);
+        auto* sb = ds.getStation((*ids)[i + 1]);
+        if (sa && sb) {
+            total += haversineDist(*sa, *sb);
         }
     }
     return total;
@@ -70,12 +56,6 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                                const std::string& date) {
     QueryResult result;
     auto& ds = DataStore::instance();
-
-    // 构建站点 ID→指针 查找表（逐段累加里程用）
-    std::unordered_map<uint32_t, const Station*> station_map;
-    for (const auto& s : ds.getAllStations()) {
-        station_map[s.id] = &s;
-    }
 
     // 预构建铁路网图（仅用于换乘站查找，不用于票价里程）
     RailwayGraph graph;
@@ -100,7 +80,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
         item.stops = train.stops;
 
         // 票价里程 = 沿该列车停站序列逐段累加（不是直线距离）
-        double trip_km = calcRouteDistance(train, from_station, to_station, station_map);
+        double trip_km = calcRouteDistance(train, from_station, to_station);
         item.price = calcPrice(trip_km, SeatType::SECOND);
 
         // 查可用座位（仅查数量，不锁定）
@@ -153,8 +133,8 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                 item.second_train_id = t2.id;
 
                 // 换乘里程 = 两段列车各自的逐段累加之和
-                double km1 = calcRouteDistance(t1, from_station, transfer_id, station_map);
-                double km2 = calcRouteDistance(t2, transfer_id, to_station, station_map);
+                double km1 = calcRouteDistance(t1, from_station, transfer_id);
+                double km2 = calcRouteDistance(t2, transfer_id, to_station);
                 item.price = calcPrice(km1 + km2, SeatType::SECOND);
 
                 result.transfers.push_back(item);

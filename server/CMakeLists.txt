@@ -65,6 +65,7 @@ set(HEADERS
     src/train_query.h
     src/seat_inventory.h
     src/order_service.h
+    src/geo_utils.h
     vendor/httplib.h
 )
 

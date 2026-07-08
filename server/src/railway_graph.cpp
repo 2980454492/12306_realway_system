@@ -1,58 +1,33 @@
 // railway_graph.cpp — RailwayGraph 实现
 #include "railway_graph.h"
+#include "data_store.h"
+#include "geo_utils.h"
 
 #include <queue>
 #include <algorithm>
 #include <map>
-#include <cmath>
-#include <unordered_map>
-
-namespace {
-
-/** Haversine 公式：计算两经纬度间的大圆距离（km） */
-double haversineDist(const Station& a, const Station& b) {
-    const double R = 6371.0;  // 地球平均半径（km）
-    double lat1 = a.latitude * M_PI / 180.0;
-    double lat2 = b.latitude * M_PI / 180.0;
-    double dlat = lat2 - lat1;
-    double dlon = (b.longitude - a.longitude) * M_PI / 180.0;
-
-    double sin_dlat = std::sin(dlat / 2.0);
-    double sin_dlon = std::sin(dlon / 2.0);
-    double h = sin_dlat * sin_dlat + std::cos(lat1) * std::cos(lat2) * sin_dlon * sin_dlon;
-    return 2.0 * R * std::atan2(std::sqrt(h), std::sqrt(1.0 - h));
-}
-
-}  // namespace
 
 // ── 构建 ──
 
-void RailwayGraph::build(const std::vector<Line>& lines, const std::vector<Station>& stations) {
+void RailwayGraph::build(const std::vector<Line>& lines, const std::vector<Station>& /*stations*/) {
     adjacency_.clear();
     invalidateCache();
 
-    // 站点 ID → Station 指针，快速查找经纬度
-    std::unordered_map<uint32_t, const Station*> station_map;
-    for (const auto& s : stations) {
-        station_map[s.id] = &s;
-    }
+    auto& ds = DataStore::instance();
 
     for (const auto& line : lines) {
         if (line.stations.size() < 2) continue;
 
         // 按线路沿途站点序列拆分为多段，Haversine 计算邻站实际地理距离
         for (size_t i = 0; i + 1 < line.stations.size(); ++i) {
-            uint32_t id_a = line.stations[i];
-            uint32_t id_b = line.stations[i + 1];
+            auto* sa = ds.getStation(line.stations[i]);
+            auto* sb = ds.getStation(line.stations[i + 1]);
+            if (!sa || !sb) continue;
 
-            auto sa = station_map.find(id_a);
-            auto sb = station_map.find(id_b);
-            if (sa == station_map.end() || sb == station_map.end()) continue;
+            double dist = haversineDist(*sa, *sb);
 
-            double dist = haversineDist(*sa->second, *sb->second);
-
-            adjacency_[id_a].push_back({id_b, dist});
-            adjacency_[id_b].push_back({id_a, dist});
+            adjacency_[line.stations[i]].push_back({line.stations[i + 1], dist});
+            adjacency_[line.stations[i + 1]].push_back({line.stations[i], dist});
         }
     }
 }

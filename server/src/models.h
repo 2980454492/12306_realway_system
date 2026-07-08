@@ -133,8 +133,8 @@ struct Station {
     std::string name;
     std::string city;
     StationType type = StationType::NORMAL;
-    double latitude = 0.0;   // 经度（可选，可视化用）
-    double longitude = 0.0;  // 纬度（可选，可视化用）
+    double latitude = 0.0;   // 经度
+    double longitude = 0.0;  // 纬度
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Station, id, name, city, type, latitude, longitude)
 
