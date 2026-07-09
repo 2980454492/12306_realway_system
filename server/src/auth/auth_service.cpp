@@ -17,8 +17,30 @@ namespace fs = std::filesystem;
 using json = nlohmann::json;
 
 namespace {
-    // 生成 UUID v4 的简单实现（不依赖外部库）
-    std::string generateUuid() {
+
+/** 用 argon2id 哈希密码（libsodium crypto_pwhash_str），自动生成独立 salt */
+std::string hashPassword(const std::string& password) {
+    char hash[crypto_pwhash_STRBYTES];
+    if (crypto_pwhash_str(hash, password.c_str(), password.size(),
+                          crypto_pwhash_OPSLIMIT_INTERACTIVE,
+                          crypto_pwhash_MEMLIMIT_INTERACTIVE) != 0) {
+        Logger::instance().error("Password hashing failed (out of memory?)");
+        return "";
+    }
+    return std::string(hash);
+}
+
+/** 验证密码是否匹配已存储的 argon2id 哈希 */
+bool verifyPassword(const std::string& password, const std::string& hash) {
+    if (hash.empty()) return false;
+    return crypto_pwhash_str_verify(hash.c_str(), password.c_str(),
+                                    password.size()) == 0;
+}
+
+// ── UUID 生成 ──
+
+/** 生成 UUID v4（不依赖外部库） */
+std::string generateUuid() {
         static std::mt19937_64 rng(std::random_device{}());
         static std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
 
@@ -183,32 +205,6 @@ const User* AuthService::findUserById(const std::string& id) const {
     return (it != users_.end()) ? &(*it) : nullptr;
 }
 
-// ── 密码哈希 ──
-
-std::string AuthService::hashPassword(const std::string& password) {
-    // crypto_pwhash_str 输出格式：
-    //   $argon2id$v=19$m=65536,t=3,p=4$<base64_salt>$<base64_hash>
-    // 包含了算法、参数、salt、hash，无需额外存储 salt
-    char hash[crypto_pwhash_STRBYTES];
-    if (crypto_pwhash_str(
-            hash,
-            password.c_str(),
-            password.size(),
-            crypto_pwhash_OPSLIMIT_INTERACTIVE,
-            crypto_pwhash_MEMLIMIT_INTERACTIVE) != 0) {
-        Logger::instance().error("Password hashing failed (out of memory?)");
-        return "";
-    }
-    return std::string(hash);
-}
-
-bool AuthService::verifyPassword(const std::string& password, const std::string& hash) {
-    if (hash.empty()) return false;
-    return crypto_pwhash_str_verify(
-               hash.c_str(),
-               password.c_str(),
-               password.size()) == 0;
-}
 
 // ── 持久化 ──
 

@@ -338,6 +338,18 @@ void registerRoutes(RailwayServer& server) {
             j["direct_count"] = qr.direct.size();
             j["transfer_count"] = qr.transfers.size();
 
+            // 席位价格换算（二等座价格为基准，各席位按倍率换算）
+            auto addSeatPrices = [](json& target, double base_price) {
+                json sp;
+                sp["BUSINESS"]     = base_price * seatPriceMultiplier(SeatType::BUSINESS);
+                sp["FIRST"]        = base_price * seatPriceMultiplier(SeatType::FIRST);
+                sp["SECOND"]       = base_price;
+                sp["HARD_SLEEPER"] = base_price * seatPriceMultiplier(SeatType::HARD_SLEEPER);
+                sp["HARD_SEAT"]    = base_price * seatPriceMultiplier(SeatType::HARD_SEAT);
+                sp["NO_SEAT"]      = base_price * seatPriceMultiplier(SeatType::NO_SEAT);
+                target["seat_prices"] = sp;
+            };
+
             json direct_arr = json::array();
             for (const auto& item : qr.direct) {
                 json d;
@@ -357,18 +369,7 @@ void registerRoutes(RailwayServer& server) {
                     d["origin_station"] = orig ? orig->name : "?";
                     d["terminal_station"] = term ? term->name : "?";
                 }
-                // 各席位票价（基于二等座价格等比例换算）
-                {
-                    json sp;
-                    double base = item.price;  // 二等座价格
-                    sp["BUSINESS"]     = base * seatPriceMultiplier(SeatType::BUSINESS);
-                    sp["FIRST"]        = base * seatPriceMultiplier(SeatType::FIRST);
-                    sp["SECOND"]       = base;
-                    sp["HARD_SLEEPER"] = base * seatPriceMultiplier(SeatType::HARD_SLEEPER);
-                    sp["HARD_SEAT"]    = base * seatPriceMultiplier(SeatType::HARD_SEAT);
-                    sp["NO_SEAT"]      = base * seatPriceMultiplier(SeatType::NO_SEAT);
-                    d["seat_prices"] = sp;
-                }
+                addSeatPrices(d, item.price);  // 各席位票价
                 // 停站详情（含站名和时间，前端展示用）
                 json stops_arr = json::array();
                 for (const auto& stop : item.stops) {
@@ -405,17 +406,7 @@ void registerRoutes(RailwayServer& server) {
                     t["origin_station"] = orig ? orig->name : "?";
                     t["terminal_station"] = term ? term->name : "?";
                 }
-                {
-                    json sp;
-                    double base = item.price;
-                    sp["BUSINESS"] = base * seatPriceMultiplier(SeatType::BUSINESS);
-                    sp["FIRST"] = base * seatPriceMultiplier(SeatType::FIRST);
-                    sp["SECOND"] = base;
-                    sp["HARD_SLEEPER"] = base * seatPriceMultiplier(SeatType::HARD_SLEEPER);
-                    sp["HARD_SEAT"] = base * seatPriceMultiplier(SeatType::HARD_SEAT);
-                    sp["NO_SEAT"] = base * seatPriceMultiplier(SeatType::NO_SEAT);
-                    t["seat_prices"] = sp;
-                }
+                addSeatPrices(t, item.price);
                 // 停站详情（第一段 + 第二段）
                 auto addStops = [&](json& target, const std::string& key, const std::vector<Stop>& stops) {
                     json arr = json::array();

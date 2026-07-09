@@ -68,9 +68,6 @@ private:
     std::unordered_map<std::string, std::unique_ptr<std::shared_mutex>> mutexes_;
     std::shared_mutex global_mutex_;  // 保护 inventories_ 和 mutexes_ 的新增操作
 
-    /** 生成 key */
-    static std::string makeKey(const std::string& train_id, const std::string& date);
-
     /** 获取或创建 mutex */
     std::shared_mutex& getMutex(const std::string& key);
 };

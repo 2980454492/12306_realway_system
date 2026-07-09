@@ -5,6 +5,15 @@
 
 #include <algorithm>
 
+namespace {
+
+/** 生成 (车次, 日期) 组合 key */
+std::string makeKey(const std::string& train_id, const std::string& date) {
+    return train_id + "|" + date;
+}
+
+}  // namespace
+
 // ── 单例 ──
 
 SeatInventory& SeatInventory::instance() {
@@ -113,10 +122,6 @@ void SeatInventory::release(const std::string& train_id, const std::string& date
 }
 
 // ── 内部实现 ──
-
-std::string SeatInventory::makeKey(const std::string& train_id, const std::string& date) {
-    return train_id + "|" + date;
-}
 
 std::shared_mutex& SeatInventory::getMutex(const std::string& key) {
     {

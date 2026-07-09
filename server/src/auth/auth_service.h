@@ -41,14 +41,6 @@ public:
     /** 所有用户列表 */
     const std::vector<User>& getAllUsers() const { return users_; }
 
-    // ── 密码工具（静态，方便测试）──
-
-    /** 用 argon2id 哈希密码（libsodium crypto_pwhash_str） */
-    static std::string hashPassword(const std::string& password);
-
-    /** 验证密码是否匹配已存储的哈希 */
-    static bool verifyPassword(const std::string& password, const std::string& hash);
-
 private:
     AuthService() = default;
 

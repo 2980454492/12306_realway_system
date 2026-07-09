@@ -31,6 +31,9 @@ inline double seatPriceMultiplier(SeatType type) {
     return 1.0;
 }
 
+/** 二等座基准费率（元/km），所有票价计算以此为基础 */
+inline constexpr double BASE_RATE_PER_KM = 0.30;
+
 #include <chrono>
 #include <ctime>
 #include <string>

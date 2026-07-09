@@ -36,30 +36,15 @@ struct QueryResult {
  * TrainQuery — 列车余票查询逻辑。
  * 直达：遍历所有列车，匹配停站序列。
  * 换乘：铁路网 BFS 找中转站，验证两段车次时间衔接。
+ * 内部工具函数全部在 .cpp 匿名 namespace 中，不暴露。
  */
 class TrainQuery {
 public:
     /**
      * 查询 from → to 的可用列车。
      * @param date 乘车日期（yyyy-MM-dd），用于查询座位库存
+     * @return 直达和换乘两种方案，前端负责排序和筛选
      */
     static QueryResult query(uint32_t from_station, uint32_t to_station,
                              const std::string& date);
-
-private:
-    /** 在列车停站序列中找 from 和 to 的位置，返回 {from_idx, to_idx}，未找到返回 {-1,-1} */
-    static std::pair<int, int> findStops(const Train& train, uint32_t from, uint32_t to);
-
-    /** 计算 HHMM 时间差（分钟） */
-    static int timeDiff(int from_hhmm, int to_hhmm);
-
-    /** 计算票价（元），基准为二等座每公里费率 */
-    static double calcPrice(double distance_km, SeatType seat_type);
-
-    /** 找中转站（基于已构建的 RailwayGraph，避免重复 build） */
-    static std::vector<uint32_t> findTransferStations(uint32_t from, uint32_t to,
-                                                       const class RailwayGraph& graph);
-
-    /** 查某车次从 from 站到 to 站的可用座位 */
-    static SeatConfig getAvailableSeats(const std::string& train_id, const std::string& date);
 };

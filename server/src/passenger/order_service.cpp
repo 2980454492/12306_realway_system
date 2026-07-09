@@ -127,8 +127,6 @@ OrderService::OrderResult OrderService::createOrder(
         }
     }
 
-    const double BASE = 0.30;
-
     // 6. 创建订单
     Order order;
     order.id = makeUuid();
@@ -139,7 +137,7 @@ OrderService::OrderResult OrderService::createOrder(
     order.to_station = to_station;
     order.seat_type = seat_type;
     order.seat_number = reservation.seat_numbers.empty() ? 0 : reservation.seat_numbers[0];
-    order.price = trip_km * BASE * seatPriceMultiplier(seat_type) * count;
+    order.price = trip_km * BASE_RATE_PER_KM * seatPriceMultiplier(seat_type) * count;
     order.status = OrderStatus::PAID;
     order.created_at = nowIso();
     order.passenger_name = passenger_name;
