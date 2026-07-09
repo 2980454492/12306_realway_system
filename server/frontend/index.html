@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>12306 铁路票务系统</title>
-<link rel="stylesheet" href="/style.css?v=4">
+<link rel="stylesheet" href="/style.css?v=8">
 </head>
 <body>
 
@@ -70,6 +70,48 @@
       </div>
       <div id="query-loading" class="loading" style="display:none">查询中…</div>
       <div id="query-error" class="error-msg"></div>
+      <!-- 筛选栏 -->
+      <div class="filter-panel" id="filter-panel">
+        <div class="filter-row">
+          <div class="filter-group" id="filter-type-group">
+            <span class="filter-label">车型</span>
+            <label class="filter-check"><input type="checkbox" class="filter-type-all" checked onchange="UI.toggleAllTypes(this)"> 全部</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="G" checked onchange="UI.onTypeChange()"> G</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="D" checked onchange="UI.onTypeChange()"> D</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="C" checked onchange="UI.onTypeChange()"> C</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="Z" checked onchange="UI.onTypeChange()"> Z</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="T" checked onchange="UI.onTypeChange()"> T</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="K" checked onchange="UI.onTypeChange()"> K</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="S" checked onchange="UI.onTypeChange()"> S</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="OTHER" checked onchange="UI.onTypeChange()"> 其他</label>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-check"><input type="checkbox" id="filter-has-ticket" onchange="UI.applyFilters()"> 只看有票</label>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">出发时间</span>
+            <select id="filter-dep-from" class="filter-time" onchange="UI.onDepFromChange()">
+              <option value="">不限</option>
+            </select>
+            <span class="filter-time-sep">–</span>
+            <select id="filter-dep-to" class="filter-time" onchange="UI.applyFilters()">
+              <option value="">不限</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">到达时间</span>
+            <select id="filter-arr-from" class="filter-time" onchange="UI.onArrFromChange()">
+              <option value="">不限</option>
+            </select>
+            <span class="filter-time-sep">–</span>
+            <select id="filter-arr-to" class="filter-time" onchange="UI.applyFilters()">
+              <option value="">不限</option>
+            </select>
+          </div>
+        </div>
+      </div>
       <div class="tabs">
         <button class="tab active" onclick="UI.switchTab('direct')">直达 <span id="tab-direct-count"></span></button>
         <button class="tab" onclick="UI.switchTab('transfer')">换乘 <span id="tab-transfer-count"></span></button>
@@ -128,6 +170,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=5"></script>
+<script src="/app.js?v=8"></script>
 </body>
 </html>

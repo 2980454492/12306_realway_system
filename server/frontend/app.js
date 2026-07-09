@@ -171,7 +171,60 @@ const UI = {
       d.min = today.toISOString().slice(0, 10);
       d.max = maxDay.toISOString().slice(0, 10);
     }
+    // 初始化小时下拉（0–23）
+    UI.initHourSelects();
   },
+
+  // ── 小时下拉初始化 ──
+
+  /** 生成 0–23 小时 option，并初始化四个时间筛选下拉 */
+  initHourSelects: function() {
+    var hoursHtml = '<option value="">不限</option>';
+    for (var h = 0; h <= 23; h++) {
+      var label = (h < 10 ? '0' : '') + h + ':00';
+      hoursHtml += '<option value="' + h + '">' + label + '</option>';
+    }
+    var ids = ['filter-dep-from', 'filter-dep-to', 'filter-arr-from', 'filter-arr-to'];
+    for (var i = 0; i < ids.length; i++) {
+      var el = U.$(ids[i]);
+      if (el) { var val = el.value; el.innerHTML = hoursHtml; el.value = val; }
+    }
+  },
+
+  /**
+   * 将 to 下拉的选项限制为 > fromHour（级联约束第二个时间一定晚于第一个）
+   * @param {string} fromId 出发"从"下拉的 ID
+   * @param {string} toId   出发"到"下拉的 ID
+   */
+  cascadeHourTo: function(fromId, toId) {
+    var fromEl = U.$(fromId), toEl = U.$(toId);
+    if (!fromEl || !toEl) return;
+    var fromVal = fromEl.value;
+    var toVal = toEl.value;
+    toEl.innerHTML = '<option value="">不限</option>';
+    if (fromVal === '') {
+      // 不限：恢复全部小时
+      for (var h = 0; h <= 23; h++) {
+        var label = (h < 10 ? '0' : '') + h + ':00';
+        toEl.innerHTML += '<option value="' + h + '">' + label + '</option>';
+      }
+    } else {
+      var minH = parseInt(fromVal, 10) + 1;
+      for (var h = minH; h <= 23; h++) {
+        var label = (h < 10 ? '0' : '') + h + ':00';
+        toEl.innerHTML += '<option value="' + h + '">' + label + '</option>';
+      }
+    }
+    // 恢复之前的选中值（如果仍在范围内）
+    if (toVal && toEl.querySelector('option[value="' + toVal + '"]')) toEl.value = toVal;
+    UI.applyFilters();
+  },
+
+  /** 出发"从"变更 → 级联更新出发"到" */
+  onDepFromChange: function() { UI.cascadeHourTo('filter-dep-from', 'filter-dep-to'); },
+
+  /** 到达"从"变更 → 级联更新到达"到" */
+  onArrFromChange: function() { UI.cascadeHourTo('filter-arr-from', 'filter-arr-to'); },
 
   // ── 查票 ──
   queryTrains: async function() {
@@ -243,6 +296,10 @@ const UI = {
         default:          return (a.departure_time  || 9999) - (b.departure_time  || 9999);
       }
     });
+
+    // ── 筛选 ──
+    list = UI.filterList(list);
+
     var html = '';
     if (!list || !list.length) { html = '<div class="loading">暂无结果</div>'; }
     else for (var i = 0; i < list.length; i++) {
@@ -293,6 +350,98 @@ const UI = {
       '</div>';
     }
     el.innerHTML = html;
+  },
+
+  // ── 筛选 ──
+
+  /** 对已排序的列表应用全部筛选条件，返回筛选后的数组 */
+  filterList: function(list) {
+    var allEl = document.querySelector('.filter-type-all');
+    var filterAll = allEl ? allEl.checked : true;
+
+    // 1. 车型筛选
+    if (!filterAll) {
+      var checked = document.querySelectorAll('.filter-type-item:checked');
+      var types = [];
+      for (var t = 0; t < checked.length; t++) { types.push(checked[t].value); }
+      list = list.filter(function(item) {
+        var letter = (item.train_id || '')[0].toUpperCase();
+        // G/D/C/Z/T/K/S 以外的归为 OTHER
+        if ('GDCZTKS'.indexOf(letter) < 0) letter = 'OTHER';
+        return types.indexOf(letter) >= 0;
+      });
+    }
+
+    // 2. 只看有票
+    var hasTicketEl = U.$('filter-has-ticket');
+    if (hasTicketEl && hasTicketEl.checked) {
+      list = list.filter(function(item) {
+        var seats = item.available_seats || {};
+        return (seats.business_seats || 0) + (seats.first_seats || 0) +
+               (seats.second_seats || 0) + (seats.hard_sleeper || 0) +
+               (seats.hard_seat || 0) + (seats.no_seat || 0) > 0;
+      });
+    }
+
+    // 取小时：select 的 value 是 "0"~"23" 或 ""（不限）
+    function hourFrom(el) {
+      if (!el || !el.value) return null;
+      return parseInt(el.value, 10);
+    }
+
+    // 3. 出发时间范围（只比较小时）
+    var depFrom = hourFrom(U.$('filter-dep-from'));
+    var depTo   = hourFrom(U.$('filter-dep-to'));
+    if (depFrom != null || depTo != null) {
+      list = list.filter(function(item) {
+        var d = Math.floor(item.departure_time / 100);  // HHMM → 小时
+        if (depFrom != null && d < depFrom) return false;
+        if (depTo   != null && d > depTo)   return false;
+        return true;
+      });
+    }
+
+    // 4. 到达时间范围（只比较小时）
+    var arrFrom = hourFrom(U.$('filter-arr-from'));
+    var arrTo   = hourFrom(U.$('filter-arr-to'));
+    if (arrFrom != null || arrTo != null) {
+      list = list.filter(function(item) {
+        var a = Math.floor(item.arrival_time / 100);
+        if (arrFrom != null && a < arrFrom) return false;
+        if (arrTo   != null && a > arrTo)   return false;
+        return true;
+      });
+    }
+
+    return list;
+  },
+
+  /** 车型"全部"切换：全选/取消全选各类型复选框 */
+  toggleAllTypes: function(el) {
+    var items = document.querySelectorAll('.filter-type-item');
+    for (var i = 0; i < items.length; i++) {
+      items[i].checked = el.checked;
+      items[i].disabled = el.checked;
+    }
+    UI.applyFilters();
+  },
+
+  /** 单个车型变化时，同步"全部"复选框状态 */
+  onTypeChange: function() {
+    var allEl = document.querySelector('.filter-type-all');
+    if (!allEl) return;
+    var items = document.querySelectorAll('.filter-type-item');
+    var allChecked = true;
+    for (var i = 0; i < items.length; i++) {
+      if (!items[i].checked) { allChecked = false; break; }
+    }
+    allEl.checked = allChecked;
+    UI.applyFilters();
+  },
+
+  /** 筛选条件变更时重新渲染当前 tab */
+  applyFilters: function() {
+    UI.renderResults(State.currentTab);
   },
 
   // ── 点击席位标签 → 直接购票 ──
