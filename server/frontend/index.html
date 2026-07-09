@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>12306 铁路票务系统</title>
-<link rel="stylesheet" href="/style.css?v=3">
+<link rel="stylesheet" href="/style.css?v=4">
 </head>
 <body>
 
@@ -59,6 +59,13 @@
         <span class="arrow">→</span>
         <select id="query-to"></select>
         <input type="date" id="query-date">
+        <select id="query-sort">
+          <option value="departure">发车时间优先</option>
+          <option value="arrival">到达时间优先</option>
+          <option value="duration">少用时优先</option>
+          <option value="distance">短距离优先</option>
+          <option value="price">低票价优先</option>
+        </select>
         <button class="btn btn-primary" onclick="UI.queryTrains()">查询</button>
       </div>
       <div id="query-loading" class="loading" style="display:none">查询中…</div>
@@ -121,6 +128,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=3"></script>
+<script src="/app.js?v=5"></script>
 </body>
 </html>

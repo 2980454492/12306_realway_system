@@ -207,7 +207,42 @@ const UI = {
 
   renderResults: function(tab) {
     var el = U.$('query-results'); if (!el) return;
-    var list = State.queryResult ? (tab === 'direct' ? State.queryResult.direct : State.queryResult.transfers) : [];
+    var rawList = State.queryResult ? (tab === 'direct' ? State.queryResult.direct : State.queryResult.transfers) : [];
+    // 排序：先拷贝再排，不改变原始数据
+    var sortEl = U.$('query-sort');
+    var sortBy = sortEl ? sortEl.value : 'departure';
+    var list = rawList.slice();
+    // 计算每趟列车当前最低可购票价（有票的席位中最便宜的）
+    function cheapestPrice(item) {
+      var seats = item.available_seats || {};
+      var prices = item.seat_prices || {};
+      var map = [
+        {sk: 'business_seats', pk: 'BUSINESS'},
+        {sk: 'first_seats',    pk: 'FIRST'},
+        {sk: 'second_seats',   pk: 'SECOND'},
+        {sk: 'hard_sleeper',   pk: 'HARD_SLEEPER'},
+        {sk: 'hard_seat',      pk: 'HARD_SEAT'},
+        {sk: 'no_seat',        pk: 'NO_SEAT'}
+      ];
+      var best = Infinity;
+      for (var m = 0; m < map.length; m++) {
+        if ((seats[map[m].sk] || 0) > 0) {
+          var p = prices[map[m].pk];
+          if (p != null && p < best) best = p;
+        }
+      }
+      return best === Infinity ? (item.price || 9999) : best;
+    }
+
+    list.sort(function(a, b) {
+      switch (sortBy) {
+        case 'arrival':   return (a.arrival_time   || 9999) - (b.arrival_time   || 9999);
+        case 'duration':  return (a.duration_minutes || 9999) - (b.duration_minutes || 9999);
+        case 'distance':  return (a.distance_km     || 9999) - (b.distance_km     || 9999);
+        case 'price':     return cheapestPrice(a) - cheapestPrice(b);
+        default:          return (a.departure_time  || 9999) - (b.departure_time  || 9999);
+      }
+    });
     var html = '';
     if (!list || !list.length) { html = '<div class="loading">暂无结果</div>'; }
     else for (var i = 0; i < list.length; i++) {
