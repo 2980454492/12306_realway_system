@@ -85,6 +85,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
 
         // 票价里程 = 沿该列车停站序列逐段累加（不是直线距离）
         double trip_km = calcRouteDistance(train, from_station, to_station, ds);
+        item.distance_km = trip_km;
         item.price = calcPrice(trip_km, SeatType::SECOND);
 
         // 查可用座位（仅查数量，不锁定）
@@ -140,6 +141,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                 // 换乘里程 = 两段列车各自的逐段累加之和
                 double km1 = calcRouteDistance(t1, from_station, transfer_id, ds);
                 double km2 = calcRouteDistance(t2, transfer_id, to_station, ds);
+                item.distance_km = km1 + km2;
                 item.price = calcPrice(km1 + km2, SeatType::SECOND);
 
                 result.transfers.push_back(item);

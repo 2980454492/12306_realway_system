@@ -247,7 +247,7 @@ const UI = {
           '<div class="train-info">' +
             '<div class="train-id">' + tid + '</div>' +
             '<div class="train-meta">' + orig + ' → ' + term + '</div>' +
-            '<div class="train-meta">' + (item.is_transfer ? '换乘: ' + U.esc(item.transfer_station || '') : '直达') + '</div>' +
+            '<div class="train-meta">' + (item.distance_km || 0).toFixed(0) + 'km</div>' +
           '</div>' +
           '<div class="train-time">' +
             '<div class="time">' + U.fmtTime(item.departure_time) + ' – ' + U.fmtTime(item.arrival_time) + '</div>' +
@@ -281,7 +281,7 @@ const UI = {
     var item = (State._trainItems || {})[itemKey];
     if (!item) return;
 
-    U.$('detail-train-id').textContent = item.train_id;
+    U.$('detail-train-id').textContent = item.train_id + ' · ' + (item.distance_km || 0).toFixed(0) + 'km';
     var fromId = item.from_station, toId = item.to_station;
 
     function renderTimeline(stops, label) {

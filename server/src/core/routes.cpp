@@ -347,6 +347,7 @@ void registerRoutes(RailwayServer& server) {
                 d["departure_time"] = item.departure_time;
                 d["arrival_time"] = item.arrival_time;
                 d["duration_minutes"] = item.duration_minutes;
+                d["distance_km"] = item.distance_km;
                 d["price"] = item.price;
                 d["available_seats"] = item.available_seats;
                 // 始发站 / 终到站
@@ -395,6 +396,7 @@ void registerRoutes(RailwayServer& server) {
                 t["departure_time"] = item.departure_time;
                 t["arrival_time"] = item.arrival_time;
                 t["duration_minutes"] = item.duration_minutes;
+                t["distance_km"] = item.distance_km;
                 t["price"] = item.price;
                 // 始发/终到 + 各席位票价
                 if (!item.stops.empty()) {

@@ -19,6 +19,7 @@ struct QueryResultItem {
     std::vector<Stop> stops;     // 该列车完整停站序列
     SeatConfig available_seats;  // 该日期的余票数量（从库存查询）
     double price;                // 票价（按里程×席位倍率估算，取二等座为基准）
+    double distance_km = 0.0;    // 走行里程（km），沿列车 route_stations 逐段 Haversine 累加
     bool is_transfer = false;    // 是否为换乘方案
     std::string transfer_station; // 换乘站名（仅换乘方案）
     std::string second_train_id;  // 第二段车次（仅换乘方案）
