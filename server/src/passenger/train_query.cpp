@@ -6,7 +6,6 @@
 #include "geo_utils.h"
 #include "core/logger.h"
 
-#include <algorithm>
 #include <set>
 #include <queue>
 
@@ -94,12 +93,6 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
         result.direct.push_back(item);
     }
 
-    // 按时长排序
-    std::sort(result.direct.begin(), result.direct.end(),
-        [](const QueryResultItem& a, const QueryResultItem& b) {
-            return a.duration_minutes < b.duration_minutes;
-        });
-
     // ── 换乘查询 ──
     // 找中转站：from 和 to 的共同邻居（复用已构建的图）
     auto transfers = findTransferStations(from_station, to_station, graph);
@@ -148,12 +141,6 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
             }
         }
     }
-
-    // 换乘也按时长排序
-    std::sort(result.transfers.begin(), result.transfers.end(),
-        [](const QueryResultItem& a, const QueryResultItem& b) {
-            return a.duration_minutes < b.duration_minutes;
-        });
 
     return result;
 }
