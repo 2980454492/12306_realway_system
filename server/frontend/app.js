@@ -347,6 +347,9 @@ const UI = {
       }
     });
 
+    // 动态填充分站复选框（仅首次或结果变化时）
+    UI.populateStationFilters(rawList);
+
     // ── 筛选 ──
     list = UI.filterList(list);
     // 更新标签页计数（筛选后）
@@ -528,6 +531,38 @@ const UI = {
       });
     }
 
+    // 5. 出发站筛选
+    var fromChecks = document.querySelectorAll('.filter-from-st:not(:checked)');
+    if (fromChecks.length > 0) {
+      var excludeFrom = [];
+      for (var fi = 0; fi < fromChecks.length; fi++) { excludeFrom.push(fromChecks[fi].value); }
+      list = list.filter(function(item) {
+        var fname = item.from_station_name;
+        if (!fname && item.stops) {
+          for (var j = 0; j < item.stops.length; j++) {
+            if (item.stops[j].station_id === item.from_station) { fname = item.stops[j].station_name; break; }
+          }
+        }
+        return excludeFrom.indexOf(fname) < 0;
+      });
+    }
+
+    // 6. 到达站筛选
+    var toChecks = document.querySelectorAll('.filter-to-st:not(:checked)');
+    if (toChecks.length > 0) {
+      var excludeTo = [];
+      for (var ti = 0; ti < toChecks.length; ti++) { excludeTo.push(toChecks[ti].value); }
+      list = list.filter(function(item) {
+        var tname = item.to_station_name;
+        if (!tname && item.stops) {
+          for (var j = 0; j < item.stops.length; j++) {
+            if (item.stops[j].station_id === item.to_station) { tname = item.stops[j].station_name; break; }
+          }
+        }
+        return excludeTo.indexOf(tname) < 0;
+      });
+    }
+
     return list;
   },
 
@@ -557,6 +592,54 @@ const UI = {
   /** 筛选条件变更时重新渲染当前 tab */
   applyFilters: function() {
     UI.renderResults(State.currentTab);
+  },
+
+  /** 从结果中提取出发/到达站名，动态生成多选复选框（保留已有勾选状态） */
+  populateStationFilters: function(list) {
+    // 收集当前结果中的站名
+    var fromNames = {}, toNames = {};
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i];
+      var fname = item.from_station_name;
+      var tname = item.to_station_name;
+      if (!fname && item.stops) {
+        for (var j = 0; j < item.stops.length; j++) {
+          if (item.stops[j].station_id === item.from_station) fname = item.stops[j].station_name;
+          if (item.stops[j].station_id === item.to_station) tname = item.stops[j].station_name;
+        }
+      }
+      if (fname) fromNames[fname] = true;
+      if (tname) toNames[tname] = true;
+    }
+
+    // 保存当前未勾选的站（只在新站名集合中存在的）
+    function saveUnchecked(cls) {
+      var unchecked = [];
+      var els = document.querySelectorAll('.' + cls + ':not(:checked)');
+      for (var u = 0; u < els.length; u++) { unchecked.push(els[u].value); }
+      State._uncheckedStations = State._uncheckedStations || {};
+      State._uncheckedStations[cls] = unchecked;
+    }
+    saveUnchecked('filter-from-st');
+    saveUnchecked('filter-to-st');
+
+    function buildChecks(containerId, names, cls) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      var keys = Object.keys(names).sort();
+      var unchecked = (State._uncheckedStations || {})[cls] || [];
+      var html = '<span class="filter-label">' + (containerId === 'filter-from-stations' ? '出发站' : '到达站') + '</span>';
+      for (var k = 0; k < keys.length; k++) {
+        var isChecked = (unchecked.indexOf(keys[k]) < 0) ? ' checked' : '';
+        html += '<label class="filter-check"><input type="checkbox" class="filter-station ' + cls +
+          '" value="' + U.esc(keys[k]) + '"' + isChecked + ' onchange="UI.applyFilters()"> ' +
+          U.esc(keys[k]) + '</label>';
+      }
+      el.innerHTML = html;
+    }
+
+    buildChecks('filter-from-stations', fromNames, 'filter-from-st');
+    buildChecks('filter-to-stations', toNames, 'filter-to-st');
   },
 
   // ── 点击席位标签 → 直接购票 ──
