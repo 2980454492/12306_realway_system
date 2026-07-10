@@ -121,6 +121,23 @@ void SeatInventory::release(const std::string& train_id, const std::string& date
         + " seats on " + train_id);
 }
 
+void SeatInventory::markSold(const std::string& train_id, const std::string& date,
+                              SeatType seat_type, uint16_t seat_number) {
+    if (seat_number == 0) return;
+    std::string key = makeKey(train_id, date);
+    auto& mtx = getMutex(key);
+    std::unique_lock<std::shared_mutex> lock(mtx);
+
+    auto& inv = getOrCreate(train_id, date);
+    ensureSeatType(inv, seat_type, seat_number);
+
+    auto& bitmap = inv.seat_maps[seat_type];
+    if (seat_number <= bitmap.seats.size()) {
+        bitmap.seats[seat_number - 1] = true;
+        bitmap.version++;
+    }
+}
+
 // ── 内部实现 ──
 
 std::shared_mutex& SeatInventory::getMutex(const std::string& key) {

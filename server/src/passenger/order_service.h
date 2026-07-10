@@ -20,6 +20,9 @@ public:
     OrderService(const OrderService&) = delete;
     OrderService& operator=(const OrderService&) = delete;
 
+    /** 从目录加载订单文件，持久化路径为 data_dir/orders.json */
+    bool initialize(const std::string& data_dir);
+
     /**
      * 购票请求。
      * @return 成功返回订单，失败返回 error 信息
@@ -58,9 +61,11 @@ public:
 private:
     OrderService() = default;
 
-    std::string generateUuid() const;
+    void saveOrders() const;
+
     double calcRefund(double price, int departure_hhmm) const;
 
     std::vector<Order> orders_;
     mutable std::mutex mutex_;
+    std::string data_dir_;
 };

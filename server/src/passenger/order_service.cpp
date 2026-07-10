@@ -11,6 +11,11 @@
 #include <algorithm>
 #include <chrono>
 #include <ctime>
+#include <fstream>
+#include <filesystem>
+#include <nlohmann/json.hpp>
+
+namespace fs = std::filesystem;
 
 namespace {
     // ── UUID 生成 ──
@@ -47,6 +52,58 @@ OrderService& OrderService::instance() {
     return svc;
 }
 
+// ── 持久化 ──
+
+bool OrderService::initialize(const std::string& data_dir) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    data_dir_ = data_dir;
+
+    std::string path = data_dir + "/orders.json";
+    if (!fs::exists(path)) {
+        Logger::instance().info("No existing orders file, starting fresh");
+        return true;
+    }
+
+    try {
+        std::ifstream in(path);
+        using json = nlohmann::json;
+        json j;
+        in >> j;
+        orders_ = j.get<std::vector<Order>>();
+        Logger::instance().info("Loaded " + std::to_string(orders_.size()) + " orders from file");
+
+        // 恢复已支付订单的座位占用
+        int restored = 0;
+        for (const auto& order : orders_) {
+            if (order.status == OrderStatus::PAID && order.seat_number > 0) {
+                SeatInventory::instance().markSold(
+                    order.train_id, order.date, order.seat_type, order.seat_number);
+                restored++;
+            }
+        }
+        if (restored > 0) {
+            Logger::instance().info("Restored " + std::to_string(restored) + " seat reservations");
+        }
+        return true;
+    } catch (const std::exception& e) {
+        Logger::instance().error(std::string("Failed to load orders: ") + e.what());
+        return false;
+    }
+}
+
+void OrderService::saveOrders() const {
+    // 调用方已持有 mutex_
+    std::string path = data_dir_ + "/orders.json";
+    try {
+        using json = nlohmann::json;
+        json j = orders_;
+        std::ofstream out(path);
+        out << j.dump(2);
+    } catch (const std::exception& e) {
+        Logger::instance().error(std::string("Failed to save orders: ") + e.what());
+    }
+}
+
 // ── 购票 ──
 
 OrderService::OrderResult OrderService::createOrder(
@@ -62,6 +119,12 @@ OrderService::OrderResult OrderService::createOrder(
 {
     OrderResult result;
     std::lock_guard<std::mutex> lock(mutex_);
+
+    // 0. 日期不能是过去
+    if (!isTodayOrFuture(date, 14)) {
+        result.error = "Date must be within 14 days from today";
+        return result;
+    }
 
     // 1. 校验列车存在且运行中
     auto* train = DataStore::instance().getTrain(train_id);
@@ -144,6 +207,7 @@ OrderService::OrderResult OrderService::createOrder(
     order.passenger_id = passenger_id;
 
     orders_.push_back(order);
+    saveOrders();
     Logger::instance().info("Order created: " + order.id + " for " + train_id);
 
     result.order = order;
@@ -207,6 +271,7 @@ OrderService::RefundResult OrderService::refundOrder(const std::string& order_id
 
     // 5. 更新订单状态
     it->status = OrderStatus::REFUNDED;
+    saveOrders();
     Logger::instance().info("Order refunded: " + order_id
         + " refund=" + std::to_string(refund) + " rate=" + std::to_string(rate * 100) + "%");
 

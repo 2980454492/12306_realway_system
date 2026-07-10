@@ -8,6 +8,7 @@
 #include "auth/auth_service.h"
 #include "auth/jwt_service.h"
 #include "auth/rbac_middleware.h"
+#include "passenger/order_service.h"
 
 #include <csignal>
 #include <atomic>
@@ -58,6 +59,9 @@ int main() {
 
     // ── 初始化 RBAC 中间件 ──
     RbacMiddleware::initialize();
+
+    // ── 初始化订单服务（加载持久化订单）──
+    OrderService::instance().initialize("data");
 
     // ── 创建并启动服务 ──
     RailwayServer server;

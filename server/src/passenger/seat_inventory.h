@@ -42,6 +42,13 @@ public:
     void release(const std::string& train_id, const std::string& date,
                  SeatType seat_type, const std::vector<uint16_t>& seat_numbers);
 
+    /**
+     * 恢复已售座位（启动时重放订单用）。
+     * 绕过余票检查，直接将指定座位号标记为已售。
+     */
+    void markSold(const std::string& train_id, const std::string& date,
+                  SeatType seat_type, uint16_t seat_number);
+
 private:
     SeatInventory() = default;
 
