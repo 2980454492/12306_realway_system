@@ -63,7 +63,7 @@ private:
 
     void saveOrders() const;
 
-    double calcRefund(double price, int departure_hhmm) const;
+    double calcRefund(const std::string& date, int departure_hhmm) const;
 
     std::vector<Order> orders_;
     mutable std::mutex mutex_;

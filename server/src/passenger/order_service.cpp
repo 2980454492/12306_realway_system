@@ -147,14 +147,11 @@ OrderService::OrderResult OrderService::createOrder(
         return result;
     }
 
-    // 3. 校验列车未发车（出发站的发车时间不能早于当前时间）
+    // 3. 仅当乘车日期为今天时校验是否已发车
     int departure_hhmm = train->stops[from_idx].departure;
-    if (departure_hhmm > 0) {
-        int now = nowHHMM();
-        if (now > departure_hhmm) {
-            result.error = "Train already departed";
-            return result;
-        }
+    if (departure_hhmm > 0 && isToday(date) && nowHHMM() > departure_hhmm) {
+        result.error = "Train already departed";
+        return result;
     }
 
     // 4. 预留座位（原子操作，由 SeatInventory 内部锁保证）
@@ -164,29 +161,31 @@ OrderService::OrderResult OrderService::createOrder(
         return result;
     }
 
-    // 5. 计算票价里程 = 列车经过站序列逐段 Haversine 累加（优先 route_stations）
+    // 5. 计算票价里程：沿经过站序列逐段 Haversine 累加
     double trip_km = 0.0;
     auto& ds = DataStore::instance();
-    // 使用 route_stations（含经过不停车的站），更精确
-    std::vector<uint32_t> fallback;
-    const std::vector<uint32_t>* ids = &train->route_stations;
-    if (ids->empty()) {
-        for (const auto& s : train->stops) fallback.push_back(s.station_id);
-        ids = &fallback;
-    }
-
-    int r_from = -1, r_to = -1;
-    for (size_t i = 0; i < ids->size(); ++i) {
-        if ((*ids)[i] == from_station) r_from = static_cast<int>(i);
-        if ((*ids)[i] == to_station && r_from >= 0) { r_to = static_cast<int>(i); break; }
-    }
-    if (r_from >= 0 && r_to > r_from) {
-        for (int i = r_from; i < r_to; ++i) {
-            auto* sa = ds.getStation((*ids)[i]);
-            auto* sb = ds.getStation((*ids)[i + 1]);
-            if (sa && sb) {
-                trip_km += haversineDist(*sa, *sb);
+    if (!train->route_stations.empty()) {
+        // route_stations 下标和 stops 不同，需独立查找
+        int r_from = -1, r_to = -1;
+        for (size_t i = 0; i < train->route_stations.size(); ++i) {
+            if (train->route_stations[i] == from_station) r_from = static_cast<int>(i);
+            if (train->route_stations[i] == to_station && r_from >= 0) {
+                r_to = static_cast<int>(i); break;
             }
+        }
+        if (r_from >= 0 && r_to > r_from) {
+            for (int i = r_from; i < r_to; ++i) {
+                auto* sa = ds.getStation(train->route_stations[i]);
+                auto* sb = ds.getStation(train->route_stations[i + 1]);
+                if (sa && sb) trip_km += haversineDist(*sa, *sb);
+            }
+        }
+    } else {
+        // route_stations 为空，直接用 stops 的 from_idx/to_idx
+        for (int i = from_idx; i < to_idx; ++i) {
+            auto* sa = ds.getStation(train->stops[i].station_id);
+            auto* sb = ds.getStation(train->stops[i + 1].station_id);
+            if (sa && sb) trip_km += haversineDist(*sa, *sb);
         }
     }
 
@@ -255,7 +254,7 @@ OrderService::RefundResult OrderService::refundOrder(const std::string& order_id
         }
     }
 
-    double rate = calcRefund(it->price, departure_hhmm);
+    double rate = calcRefund(it->date, departure_hhmm);
     if (rate <= 0.0) {
         result.error = "Train already departed, cannot refund";
         return result;
@@ -306,13 +305,17 @@ const Order* OrderService::getOrder(const std::string& order_id) const {
 
 // ── 退票费率 ──
 
-double OrderService::calcRefund(double /*price*/, int departure_hhmm) const {
-    int now = nowHHMM();
-    int hours_before = (departure_hhmm / 100 * 60 + departure_hhmm % 100
-                        - now / 100 * 60 - now % 100) / 60;
+double OrderService::calcRefund(const std::string& date, int departure_hhmm) const {
+    // 非今天的票，距发车 >24 小时，最高费率
+    if (!isToday(date)) return 0.95;
 
-    if (hours_before < 0) return 0.0;    // 已发车
-    if (hours_before < 2) return 0.80;   // 2 小时内
-    if (hours_before < 24) return 0.90;  // 2-24 小时
-    return 0.95;                          // 24 小时以上
+    // 今天的票，按时距计算
+    int now = nowHHMM();
+    int minutes_before = (departure_hhmm / 100 * 60 + departure_hhmm % 100)
+                       - (now / 100 * 60 + now % 100);
+
+    if (minutes_before < 0) return 0.0;          // 已发车
+    if (minutes_before < 120) return 0.80;        // 2 小时内
+    if (minutes_before < 1440) return 0.90;       // 2-24 小时
+    return 0.95;                                   // 24 小时以上
 }
