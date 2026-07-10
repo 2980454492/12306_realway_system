@@ -73,7 +73,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 }
 .search-bar select, .search-bar input {
   padding: 8px 12px; background: #0a0a1e; border: 1px solid #0f3460; border-radius: 6px;
-  color: #e0e0e0; font-size: 14px; outline: none;
+  color: #e0e0e0; font-size: 14px; outline: none; min-width: 180px;
 }
 .search-bar select:focus, .search-bar input:focus { border-color: #e94560; }
 .search-bar .arrow { color: #e94560; font-size: 20px; font-weight: bold; }

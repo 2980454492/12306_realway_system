@@ -158,17 +158,31 @@ const UI = {
   populateStationSelects: function() {
     var from = U.$('query-from'), to = U.$('query-to');
     if (!from || !to) return;
-    // 保存当前选中值
-    var savedFrom = from.value, savedTo = to.value;
-    from.innerHTML = to.innerHTML = '<option value="">选择站点</option>';
+    // 构建 datalist：所有站名 + 城市名（去重，城市前缀 🌆）
+    var cities = {};
+    var html = '';
     for (var i = 0; i < State.stations.length; i++) {
       var s = State.stations[i];
-      from.innerHTML += '<option value="' + s.id + '">' + U.esc(s.name) + '</option>';
-      to.innerHTML   += '<option value="' + s.id + '">' + U.esc(s.name) + '</option>';
+      html += '<option value="' + U.esc(s.name) + '">';
+      if (!cities[s.city]) { cities[s.city] = true; }
     }
-    // 恢复选中值
-    if (savedFrom) from.value = savedFrom;
-    if (savedTo) to.value = savedTo;
+    var cityNames = Object.keys(cities);
+    for (var c = 0; c < cityNames.length; c++) {
+      html += '<option value="🌆 ' + U.esc(cityNames[c]) + '">';
+    }
+    U.$('stations-datalist').innerHTML = html;
+    // 绑定 datalist
+    from.setAttribute('list', 'stations-datalist');
+    to.setAttribute('list', 'stations-datalist');
+    // 恢复上次的输入
+    if (State._savedFrom) from.value = State._savedFrom;
+    if (State._savedTo) to.value = State._savedTo;
+    // 监听变更，保存值
+    from.onchange = function() { State._savedFrom = from.value; };
+    to.onchange = function() { State._savedTo = to.value; };
+    from.onblur = function() { State._savedFrom = from.value; };
+    to.onblur = function() { State._savedTo = to.value; };
+
     var d = U.$('query-date'); if (d) {
       var savedDate = d.value;
       if (!savedDate || savedDate < d.min || savedDate > d.max) {
@@ -179,8 +193,25 @@ const UI = {
       d.min = today.toISOString().slice(0, 10);
       d.max = maxDay.toISOString().slice(0, 10);
     }
-    // 初始化小时下拉（0–23）
     UI.initHourSelects();
+  },
+
+  /**
+   * 将用户输入的站名/城市名解析为车站 ID 数组（逗号拼接给后端）。
+   * 🌆 前缀表示城市级别查询，匹配该城市所有车站。
+   */
+  resolveStationIds: function(input) {
+    if (!input) return '';
+    var isCity = (input.indexOf('🌆 ') === 0);
+    var name = isCity ? input.slice(3) : input;
+    var ids = [];
+    for (var i = 0; i < State.stations.length; i++) {
+      var s = State.stations[i];
+      if (isCity ? (s.city === name) : (s.name === name)) {
+        ids.push(s.id);
+      }
+    }
+    return ids.length ? ids.join(',') : '0';  // '0' 会导致后端校验失败
   },
 
   // ── 小时下拉初始化 ──
@@ -238,15 +269,22 @@ const UI = {
   queryTrains: async function() {
     var fromEl = U.$('query-from'), toEl = U.$('query-to'), dateEl = U.$('query-date');
     if (!fromEl || !toEl) return;
-    var from = fromEl.value, to = toEl.value, date = dateEl ? dateEl.value : '2026-07-07';
-    if (!from || !to) return U.toast('请选择出发站和到达站', 'error');
-    if (from === to) return U.toast('出发站和到达站不能相同', 'error');
+    var fromRaw = fromEl.value.trim(), toRaw = toEl.value.trim();
+    var date = dateEl ? dateEl.value : '2026-07-07';
+    if (!fromRaw || !toRaw) return U.toast('请选择出发站和到达站', 'error');
+
+    var fromIds = UI.resolveStationIds(fromRaw);
+    var toIds = UI.resolveStationIds(toRaw);
+    if (!fromIds || fromIds === '0' || !toIds || toIds === '0') {
+      return U.toast('未找到匹配的车站，请从下拉列表中选择', 'error');
+    }
+    if (fromIds === toIds) return U.toast('出发站和到达站不能相同', 'error');
 
     var loadingEl = U.$('query-loading'); if (loadingEl) loadingEl.style.display = 'block';
     var errEl = U.$('query-error'); if (errEl) errEl.textContent = '';
     var listEl = U.$('query-results'); if (listEl) listEl.innerHTML = '';
 
-    var res = await API.get('/api/trains/query?from=' + from + '&to=' + to + '&date=' + date);
+    var res = await API.get('/api/trains/query?from=' + fromIds + '&to=' + toIds + '&date=' + date);
     if (loadingEl) loadingEl.style.display = 'none';
 
     if (!res.ok) { if (errEl) errEl.textContent = (res.data && res.data.error) || '查询失败'; return; }

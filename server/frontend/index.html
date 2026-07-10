@@ -55,9 +55,10 @@
     <section id="page-query" class="page active">
       <h2>列车余票查询</h2>
       <div class="search-bar">
-        <select id="query-from"></select>
+        <input type="text" id="query-from" placeholder="出发城市/车站" autocomplete="off">
         <span class="arrow">→</span>
-        <select id="query-to"></select>
+        <input type="text" id="query-to" placeholder="到达城市/车站" autocomplete="off">
+        <datalist id="stations-datalist"></datalist>
         <input type="date" id="query-date">
         <select id="query-sort">
           <option value="departure">发车时间优先</option>

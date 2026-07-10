@@ -221,11 +221,22 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
-            uint32_t from = 0, to = 0;
+            // 解析逗号分隔的站 ID（支持城市级别查询）
+            std::vector<uint32_t> from_ids, to_ids;
             std::string date;
             try {
-                if (req.has_param("from")) from = std::stoul(req.get_param_value("from"));
-                if (req.has_param("to")) to = std::stoul(req.get_param_value("to"));
+                auto parseIds = [](const std::string& s) {
+                    std::vector<uint32_t> ids;
+                    size_t start = 0, end;
+                    while ((end = s.find(',', start)) != std::string::npos) {
+                        ids.push_back(std::stoul(s.substr(start, end - start)));
+                        start = end + 1;
+                    }
+                    ids.push_back(std::stoul(s.substr(start)));
+                    return ids;
+                };
+                if (req.has_param("from")) from_ids = parseIds(req.get_param_value("from"));
+                if (req.has_param("to")) to_ids = parseIds(req.get_param_value("to"));
                 date = req.has_param("date") ? req.get_param_value("date") : "2026-07-07";
             } catch (const std::exception&) {
                 json j;
@@ -236,7 +247,7 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
-            if (from == 0 || to == 0) {
+            if (from_ids.empty() || to_ids.empty()) {
                 json j;
                 j["ok"] = false;
                 j["error"] = "from and to station IDs are required";
@@ -244,7 +255,6 @@ void registerRoutes(RailwayServer& server) {
                 res.status = 400;
                 return;
             }
-            // 日期范围校验：仅允许今天 ~ 14 天后
             if (!isTodayOrFuture(date, 14)) {
                 json j;
                 j["ok"] = false;
@@ -254,8 +264,28 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
+            // 多站查询：每个 from×to 对分别查，合并去重
             auto& ds = DataStore::instance();
-            auto qr = TrainQuery::query(from, to, date);
+            QueryResult qr;
+            std::set<std::string> seen;  // 去重 key = train_id|from|to
+            for (auto fid : from_ids) {
+                for (auto tid : to_ids) {
+                    if (fid == tid) continue;
+                    auto part = TrainQuery::query(fid, tid, date);
+                    for (auto& item : part.direct) {
+                        std::string key = item.train_id + "|" + std::to_string(item.from_station)
+                                        + "|" + std::to_string(item.to_station);
+                        if (!seen.insert(key).second) continue;
+                        qr.direct.push_back(std::move(item));
+                    }
+                    for (auto& item : part.transfers) {
+                        std::string key = item.train_id + "|" + std::to_string(item.from_station)
+                                        + "|" + std::to_string(item.to_station);
+                        if (!seen.insert(key).second) continue;
+                        qr.transfers.push_back(std::move(item));
+                    }
+                }
+            }
 
             json j;
             j["ok"] = true;
