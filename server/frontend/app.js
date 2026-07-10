@@ -243,9 +243,13 @@ const UI = {
 
     if (!res.ok) { if (errEl) errEl.textContent = (res.data && res.data.error) || '查询失败'; return; }
     State.queryResult = res.data;
-    var dc = U.$('tab-direct-count'); if (dc) dc.textContent = '(' + res.data.direct_count + ')';
-    var tc = U.$('tab-transfer-count'); if (tc) tc.textContent = '(' + res.data.transfer_count + ')';
-    UI.renderResults('direct');
+    UI.renderResults(State.currentTab);
+    // 保持当前标签页高亮
+    var tabs = document.querySelectorAll('.tab');
+    for (var ti = 0; ti < tabs.length; ti++) {
+      var attr = tabs[ti].getAttribute('onclick') || '';
+      tabs[ti].classList.toggle('active', attr.indexOf("'" + State.currentTab + "'") >= 0);
+    }
   },
 
   switchTab: function(tab) {
@@ -299,6 +303,9 @@ const UI = {
 
     // ── 筛选 ──
     list = UI.filterList(list);
+    // 更新标签页计数（筛选后）
+    var countEl = U.$('tab-' + tab + '-count');
+    if (countEl) countEl.textContent = '(' + list.length + ')';
 
     var html = '';
     if (!list || !list.length) { html = '<div class="loading">暂无结果</div>'; }
@@ -323,31 +330,93 @@ const UI = {
         {key: 'hard_seat',      label: '硬座',  priceKey: 'HARD_SEAT'},
         {key: 'no_seat',        label: '无座',  priceKey: 'NO_SEAT'}
       ];
-      var seatsHtml = '';
-      for (var s = 0; s < seatTypes.length; s++) {
-        var st = seatTypes[s];
-        var cnt = seats[st.key] || 0;
-        if (cnt > 0) {
-          var p = prices[st.priceKey] || 0;
-          seatsHtml += '<span class="seat-tag" onclick="UI.buySeat(\'' + itemKey + '\',\'' + st.priceKey + '\');event.stopPropagation()">' +
-            st.label + ' <b>' + cnt + '</b>张 <span class="tag-price">¥' + p.toFixed(0) + '</span></span>';
+
+      function buildSeatRow(avail, priceMap, itemKey, seatType) {
+        var h = '';
+        for (var s = 0; s < seatTypes.length; s++) {
+          var st = seatTypes[s];
+          var cnt = avail[st.key] || 0;
+          if (cnt > 0) {
+            var p = (priceMap || {})[st.priceKey] || 0;
+            h += '<span class="seat-tag" onclick="UI.buySeat(\'' + itemKey + '\',\'' + st.priceKey + '\',\'' + (seatType || '') + '\');event.stopPropagation()">' +
+              st.label + ' <b>' + cnt + '</b>张 <span class="tag-price">¥' + p.toFixed(0) + '</span></span>';
+          }
         }
+        return h;
       }
 
-      html += '<div class="train-card" onclick="UI.showDetail(\'' + itemKey + '\')">' +
-        '<div class="train-main">' +
-          '<div class="train-info">' +
-            '<div class="train-id">' + tid + '</div>' +
-            '<div class="train-meta">' + orig + ' → ' + term + '</div>' +
-            '<div class="train-meta">' + (item.distance_km || 0).toFixed(0) + 'km</div>' +
+      var cardHtml;
+      if (item.is_transfer) {
+        // ── 换乘卡片：五行布局 ──
+        var tid1 = U.esc(item.train_id.split(' → ')[0] || '');
+        var tid2 = U.esc(item.second_train_id || '');
+        // T1／T2 的始发终到站
+        var s1 = item.stops || [];
+        var s2 = item.second_stops || [];
+        var t1orig = (s1.length ? s1[0].station_name : '?');
+        var t1term = (s1.length ? s1[s1.length-1].station_name : '?');
+        var t2orig = (s2.length ? s2[0].station_name : '?');
+        var t2term = (s2.length ? s2[s2.length-1].station_name : '?');
+
+        cardHtml =
+          '<div class="train-card transfer-card" onclick="UI.showDetail(\'' + itemKey + '\')">' +
+          // 左侧主内容
+          '<div class="transfer-main">' +
+            // 第一行：第一程信息
+            '<div class="transfer-leg-info">' +
+              '<span class="leg-train-id">' + tid1 + '</span>' +
+              '<span class="leg-route">' + U.esc(t1orig) + ' → ' + U.esc(t1term) + '</span>' +
+              '<span class="leg-time">发 ' + U.fmtTime(item.departure_time) + ' · 到 ' + U.fmtTime(item.transfer_arrival_time) + '</span>' +
+            '</div>' +
+            // 第二行：第一程购票
+            '<div class="transfer-leg-seats">' +
+              buildSeatRow(item.first_leg_seats || {}, item.first_leg_seat_prices || {}, itemKey, 'first') +
+            '</div>' +
+            // 第三行：换乘间隔
+            '<div class="transfer-gap">' +
+              '换乘 ' + U.esc(item.transfer_station || '?') + ' · ' +
+              (item.transfer_gap_minutes || 0) + '分钟' +
+            '</div>' +
+            // 第四行：第二程信息
+            '<div class="transfer-leg-info">' +
+              '<span class="leg-train-id">' + tid2 + '</span>' +
+              '<span class="leg-route">' + U.esc(t2orig) + ' → ' + U.esc(t2term) + '</span>' +
+              '<span class="leg-time">发 ' + U.fmtTime(item.transfer_departure_time) + ' · 到 ' + U.fmtTime(item.arrival_time) + '</span>' +
+            '</div>' +
+            // 第五行：第二程购票
+            '<div class="transfer-leg-seats">' +
+              buildSeatRow(item.second_leg_seats || {}, item.second_leg_seat_prices || {}, itemKey, 'second') +
+            '</div>' +
           '</div>' +
-          '<div class="train-time">' +
-            '<div class="time">' + U.fmtTime(item.departure_time) + ' – ' + U.fmtTime(item.arrival_time) + '</div>' +
-            '<div class="duration">' + U.fmtDuration(item.duration_minutes) + '</div>' +
+          // 右侧总时间列
+          '<div class="transfer-summary">' +
+            '<span class="summary-dur">' + U.fmtDuration(item.duration_minutes) + '</span>' +
+            '<div class="summary-row">' +
+              '<span class="summary-time">' + U.fmtTime(item.departure_time) + '</span>' +
+              '<span class="summary-dash">——</span>' +
+              '<span class="summary-time">' + U.fmtTime(item.arrival_time) + '</span>' +
+            '</div>' +
           '</div>' +
-        '</div>' +
-        '<div class="train-seats-row">' + seatsHtml + '</div>' +
-      '</div>';
+          '</div>';
+      } else {
+        // ── 直达卡片 ──
+        cardHtml = '<div class="train-card" onclick="UI.showDetail(\'' + itemKey + '\')">' +
+          '<div class="train-main">' +
+            '<div class="train-info">' +
+              '<div class="train-id">' + tid + '</div>' +
+              '<div class="train-meta">' + orig + ' → ' + term + '</div>' +
+              '<div class="train-meta">' + (item.distance_km || 0).toFixed(0) + 'km</div>' +
+            '</div>' +
+            '<div class="train-time">' +
+              '<div class="time">' + U.fmtTime(item.departure_time) + ' – ' + U.fmtTime(item.arrival_time) + '</div>' +
+              '<div class="duration">' + U.fmtDuration(item.duration_minutes) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="train-seats-row">' + buildSeatRow(seats, prices, itemKey) + '</div>' +
+        '</div>';
+      }
+
+      html += cardHtml;
     }
     el.innerHTML = html;
   },
@@ -445,14 +514,46 @@ const UI = {
   },
 
   // ── 点击席位标签 → 直接购票 ──
-  buySeat: function(itemKey, seatType) {
+  buySeat: function(itemKey, seatType, leg) {
     var item = (State._trainItems || {})[itemKey];
     if (!item) return;
-    var prices = item.seat_prices || {};
+    // 通过站名查中转站 ID
+    var transferId = 0;
+    if (item.transfer_station) {
+      for (var si = 0; si < State.stations.length; si++) {
+        if (State.stations[si].name === item.transfer_station) {
+          transferId = State.stations[si].id; break;
+        }
+      }
+    }
+
+    var prices, trainId, depTime, arrTime, fromSt, toSt;
+    if (leg === 'first') {
+      prices = item.first_leg_seat_prices || {};
+      trainId = (item.train_id || '').split(' → ')[0] || '';
+      depTime = item.departure_time;
+      arrTime = item.transfer_arrival_time;
+      fromSt = item.from_station;
+      toSt = transferId;
+    } else if (leg === 'second') {
+      prices = item.second_leg_seat_prices || {};
+      trainId = item.second_train_id || '';
+      depTime = item.transfer_departure_time;
+      arrTime = item.arrival_time;
+      fromSt = transferId;
+      toSt = item.to_station;
+    } else {
+      prices = item.seat_prices || {};
+      trainId = item.train_id;
+      depTime = item.departure_time;
+      arrTime = item.arrival_time;
+      fromSt = item.from_station;
+      toSt = item.to_station;
+    }
     State.selectedTrain = {
-      train_id: item.train_id, from_station: item.from_station,
-      to_station: item.to_station, departure_time: item.departure_time,
-      arrival_time: item.arrival_time, price: prices[seatType] || item.price,
+      train_id: trainId, from_station: fromSt,
+      to_station: toSt, departure_time: depTime,
+      arrival_time: arrTime, price: prices[seatType] || item.price,
       seat_type: seatType,
       date: (U.$('query-date') || {}).value || '2026-07-08'
     };
@@ -467,19 +568,33 @@ const UI = {
 
     U.$('detail-train-id').textContent = item.train_id + ' · ' + (item.distance_km || 0).toFixed(0) + 'km';
     var fromId = item.from_station, toId = item.to_station;
+    var transferName = item.transfer_station || '';
 
-    function renderTimeline(stops, label) {
+    /**
+     * 渲染时间线，highlight 是两个站 ID 的集合（通过 station_id 匹配绿色高亮）。
+     * 换乘时额外传入 highlightName 用于中转站名匹配。
+     */
+    /**
+     * 渲染时间线。
+     * @param {Array} stops
+     * @param {string} label 段落标签
+     * @param {Array} greenIds 绿色高亮的站 ID 列表
+     * @param {string|null} blueName 蓝色高亮的中转站名（仅换乘）
+     */
+    function renderTimeline(stops, label, greenIds, blueName) {
       if (!stops || !stops.length) return '';
       var h = (label ? '<div class="timeline-label">' + U.esc(label) + '</div>' : '');
       h += '<div class="timeline">';
       for (var i = 0; i < stops.length; i++) {
         var s = stops[i];
         var isFirst = i === 0, isLast = i === stops.length - 1;
-        var isUserStop = (s.station_id === fromId || s.station_id === toId);
+        var isGreen = (greenIds.indexOf(s.station_id) >= 0);
+        var isBlue  = (blueName && s.station_name === blueName);
         var arrTime = isFirst ? '始发' : U.fmtTime(s.arrival);
         var depTime = isLast ? '终到' : U.fmtTime(s.departure);
         var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
-        if (isUserStop) cls += ' user-stop';
+        if (isGreen) cls += ' user-stop';
+        if (isBlue)  cls += ' transfer-stop';
         h += '<div class="timeline-item ' + cls + '">' +
           '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
           '<div class="timeline-time">到 <span>' + arrTime + '</span> · 发 <span>' + depTime + '</span></div>' +
@@ -489,9 +604,16 @@ const UI = {
       return h;
     }
 
-    var html = renderTimeline(item.stops, item.second_stops ? '第一段 ' + U.esc(item.train_id.split(' → ')[0] || '') : '');
+    var html;
     if (item.second_stops && item.second_stops.length) {
-      html += renderTimeline(item.second_stops, '第二段 ' + U.esc(item.second_train_id || ''));
+      html  = renderTimeline(item.stops,
+                '第一段 ' + U.esc(item.train_id.split(' → ')[0] || ''),
+                [fromId], transferName);
+      html += renderTimeline(item.second_stops,
+                '第二段 ' + U.esc(item.second_train_id || ''),
+                [toId], transferName);
+    } else {
+      html = renderTimeline(item.stops, '', [fromId, toId], null);
     }
     U.$('detail-stops').innerHTML = html;
     U.$('detail-overlay').classList.add('show');

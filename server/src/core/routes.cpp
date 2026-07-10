@@ -339,7 +339,7 @@ void registerRoutes(RailwayServer& server) {
             j["transfer_count"] = qr.transfers.size();
 
             // 席位价格换算（二等座价格为基准，各席位按倍率换算）
-            auto addSeatPrices = [](json& target, double base_price) {
+            auto addSeatPrices = [](json& target, const std::string& key, double base_price) {
                 json sp;
                 sp["BUSINESS"]     = base_price * seatPriceMultiplier(SeatType::BUSINESS);
                 sp["FIRST"]        = base_price * seatPriceMultiplier(SeatType::FIRST);
@@ -347,7 +347,7 @@ void registerRoutes(RailwayServer& server) {
                 sp["HARD_SLEEPER"] = base_price * seatPriceMultiplier(SeatType::HARD_SLEEPER);
                 sp["HARD_SEAT"]    = base_price * seatPriceMultiplier(SeatType::HARD_SEAT);
                 sp["NO_SEAT"]      = base_price * seatPriceMultiplier(SeatType::NO_SEAT);
-                target["seat_prices"] = sp;
+                target[key] = sp;
             };
 
             json direct_arr = json::array();
@@ -369,7 +369,7 @@ void registerRoutes(RailwayServer& server) {
                     d["origin_station"] = orig ? orig->name : "?";
                     d["terminal_station"] = term ? term->name : "?";
                 }
-                addSeatPrices(d, item.price);  // 各席位票价
+                addSeatPrices(d, "seat_prices", item.price);
                 // 停站详情（含站名和时间，前端展示用）
                 json stops_arr = json::array();
                 for (const auto& stop : item.stops) {
@@ -389,11 +389,15 @@ void registerRoutes(RailwayServer& server) {
             json transfer_arr = json::array();
             for (const auto& item : qr.transfers) {
                 json t;
+                t["is_transfer"] = true;
                 t["train_id"] = item.train_id;
                 t["from_station"] = item.from_station;
                 t["to_station"] = item.to_station;
                 t["second_train_id"] = item.second_train_id;
                 t["transfer_station"] = item.transfer_station;
+                t["transfer_arrival_time"] = item.transfer_arrival_time;
+                t["transfer_departure_time"] = item.transfer_departure_time;
+                t["transfer_gap_minutes"] = item.transfer_gap_minutes;
                 t["departure_time"] = item.departure_time;
                 t["arrival_time"] = item.arrival_time;
                 t["duration_minutes"] = item.duration_minutes;
@@ -406,7 +410,14 @@ void registerRoutes(RailwayServer& server) {
                     t["origin_station"] = orig ? orig->name : "?";
                     t["terminal_station"] = term ? term->name : "?";
                 }
-                addSeatPrices(t, item.price);
+                t["first_leg_seats"] = item.first_leg_seats;
+                t["second_leg_seats"] = item.second_leg_seats;
+                t["first_leg_price"] = item.first_leg_price;
+                t["second_leg_price"] = item.second_leg_price;
+                addSeatPrices(t, "seat_prices", item.price);
+                // 每程独立票价
+                addSeatPrices(t, "first_leg_seat_prices", item.first_leg_price);
+                addSeatPrices(t, "second_leg_seat_prices", item.second_leg_price);
                 // 停站详情（第一段 + 第二段）
                 auto addStops = [&](json& target, const std::string& key, const std::vector<Stop>& stops) {
                     json arr = json::array();

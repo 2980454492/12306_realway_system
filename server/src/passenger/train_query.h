@@ -21,9 +21,18 @@ struct QueryResultItem {
     double price;                // 票价（按里程×席位倍率估算，取二等座为基准）
     double distance_km = 0.0;    // 走行里程（km），沿列车 route_stations 逐段 Haversine 累加
     bool is_transfer = false;    // 是否为换乘方案
-    std::string transfer_station; // 换乘站名（仅换乘方案）
-    std::string second_train_id;  // 第二段车次（仅换乘方案）
-    std::vector<Stop> second_stops; // 第二段列车停站（仅换乘方案）
+    std::string transfer_station;   // 换乘站名
+    std::string second_train_id;    // 第二段车次
+    std::vector<Stop> second_stops; // 第二段列车停站
+    // 换乘详情（前端展示用）
+    int transfer_arrival_time = 0;     // T1 到达中转站时间 HHMM
+    int transfer_departure_time = 0;   // T2 从中转站出发时间 HHMM
+    int transfer_gap_minutes = 0;      // 换乘间隔（分钟）
+    // 每程独立余票和票价（换乘时前端分两行展示）
+    SeatConfig first_leg_seats;       // 第一程余票
+    SeatConfig second_leg_seats;      // 第二程余票
+    double first_leg_price = 0.0;     // 第一程票价（二等座基准）
+    double second_leg_price = 0.0;    // 第二程票价（二等座基准）
 };
 
 /** 一次查询的完整结果 */
@@ -34,8 +43,9 @@ struct QueryResult {
 
 /**
  * TrainQuery — 列车余票查询逻辑。
- * 直达：遍历所有列车，匹配停站序列。
- * 换乘：铁路网 BFS 找中转站，验证两段车次时间衔接。
+ * 直达：基于车站-列车索引 O(1) 查找，匹配停站序列。
+ * 换乘：遍历 from 出发列车的后续停站作为候选中转站，通过索引查找中转→to 的列车。
+ *       地理约束中转站在起止站之间，换乘时间窗口 ≥ 30 分钟。
  * 内部工具函数全部在 .cpp 匿名 namespace 中，不暴露。
  */
 class TrainQuery {
