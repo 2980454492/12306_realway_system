@@ -158,14 +158,22 @@ const UI = {
   populateStationSelects: function() {
     var from = U.$('query-from'), to = U.$('query-to');
     if (!from || !to) return;
+    // 保存当前选中值
+    var savedFrom = from.value, savedTo = to.value;
     from.innerHTML = to.innerHTML = '<option value="">选择站点</option>';
     for (var i = 0; i < State.stations.length; i++) {
       var s = State.stations[i];
       from.innerHTML += '<option value="' + s.id + '">' + U.esc(s.name) + '</option>';
       to.innerHTML   += '<option value="' + s.id + '">' + U.esc(s.name) + '</option>';
     }
+    // 恢复选中值
+    if (savedFrom) from.value = savedFrom;
+    if (savedTo) to.value = savedTo;
     var d = U.$('query-date'); if (d) {
-      d.value = new Date().toISOString().slice(0, 10);
+      var savedDate = d.value;
+      if (!savedDate || savedDate < d.min || savedDate > d.max) {
+        d.value = new Date().toISOString().slice(0, 10);
+      }
       var today = new Date();
       var maxDay = new Date(today); maxDay.setDate(today.getDate() + 14);
       d.min = today.toISOString().slice(0, 10);
