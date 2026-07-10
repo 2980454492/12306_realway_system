@@ -673,7 +673,7 @@ const UI = {
     var btns = document.querySelectorAll('.filter-bar .btn');
     for (var i = 0; i < btns.length; i++) {
       var txt = btns[i].textContent.trim();
-      btns[i].classList.toggle('active', txt === (status === '' ? '全部' : status === 'PAID' ? '已支付' : status === 'REFUNDED' ? '已退票' : '已取消'));
+      btns[i].classList.toggle('active', txt === (status === '' ? '全部' : status === 'PAID' ? '已支付' : '已退票'));
     }
     UI.loadOrders();
   },
@@ -690,14 +690,38 @@ const UI = {
     if (!orders.length) { html = '<div class="loading">暂无订单</div>'; }
     else for (var i = 0; i < orders.length; i++) {
       var o = orders[i];
-      html += '<div class="order-card"><div class="order-header">' +
-        '<span class="order-id">' + U.esc(o.id) + '</span>' +
-        '<span class="order-status status-' + o.status + '">' + o.status + '</span></div>' +
-        '<div class="order-body"><span><strong>' + U.esc(o.train_id) + '</strong></span>' +
-        '<span>' + (o.date || '') + '</span><span>' + U.seatLabel(o.seat_type) + ' ' + (o.seat_number || 0) + '号</span>' +
-        '<span style="color:#e94560">¥' + (o.price || 0).toFixed(1) + '</span></div>';
-      if (o.status === 'PAID') html += '<div class="order-actions"><button class="btn btn-danger btn-sm" onclick="UI.refundOrder(\'' + o.id + '\')">退票</button></div>';
-      html += '</div>';
+      var oKey = 'order_' + i;
+      State._trainItems = State._trainItems || {};
+      State._trainItems[oKey] = o;
+      var statusClass = o.status === 'PAID' ? 'status-paid' : 'status-refunded';
+      html += '<div class="order-card" onclick="UI.showDetail(\'' + oKey + '\')">' +
+        // 第一行：出发时间 | 车次 | 到达时间
+        '<div class="order-row order-row-1">' +
+          '<span class="order-time-dep">' + U.fmtTime(o.departure_time || 0) + '</span>' +
+          '<span class="order-train-id">' + U.esc(o.train_id) + '</span>' +
+          '<span class="order-time-arr">' + U.fmtTime(o.arrival_time || 0) + '</span>' +
+        '</div>' +
+        // 第二行：出发站 | 历时 | 到达站
+        '<div class="order-row order-row-2">' +
+          '<span class="order-station">' + U.esc(o.from_station_name || '?') + '</span>' +
+          '<span class="order-duration">' + U.fmtDuration(o.duration_minutes || 0) + '</span>' +
+          '<span class="order-station">' + U.esc(o.to_station_name || '?') + '</span>' +
+        '</div>' +
+        // 第三行：乘车人 | 座位号
+        '<div class="order-row order-row-3">' +
+          '<span class="order-passenger">' + U.esc(o.passenger_name || '?') + '</span>' +
+          '<span class="order-seat">' + U.seatLabel(o.seat_type) + ' ' + (o.seat_number || 0) + '号</span>' +
+        '</div>' +
+        // 第四行：发车日期 | 售价
+        '<div class="order-row order-row-4">' +
+          '<span class="order-date">' + (o.date || '') + '</span>' +
+          '<span class="order-price">¥' + (o.price || 0).toFixed(1) + '</span>' +
+        '</div>' +
+        // 第五行：退票按钮
+        (o.status === 'PAID'
+          ? '<div class="order-row order-row-5"><button class="btn btn-danger btn-sm" onclick="UI.refundOrder(\'' + o.id + '\');event.stopPropagation()">退票</button></div>'
+          : '<div class="order-row order-row-5"><span class="order-status ' + statusClass + '">已退票</span></div>') +
+      '</div>';
     }
     var listEl = U.$('orders-list'); if (listEl) listEl.innerHTML = html;
   },

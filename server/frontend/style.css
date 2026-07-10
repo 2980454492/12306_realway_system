@@ -184,15 +184,33 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 /* ═══ 订单列表 ═══ */
 .order-card {
   background: #16213e; border: 1px solid #0f3460; border-radius: 8px;
-  padding: 16px 20px; margin-bottom: 10px;
+  padding: 20px 28px; margin-bottom: 12px; cursor: pointer; transition: border-color .2s;
 }
-.order-card .order-header { display: flex; justify-content: space-between; align-items: center; }
-.order-card .order-id { font-size: 12px; color: #707090; }
-.order-card .order-status { font-size: 12px; padding: 2px 10px; border-radius: 12px; }
-.order-card .status-PAID { background: #0f3460; color: #53a8ff; }
-.order-card .status-REFUNDED { background: #3a2a2a; color: #e94560; }
-.order-card .order-body { margin-top: 10px; display: flex; gap: 24px; font-size: 14px; }
-.order-card .order-actions { margin-top: 12px; text-align: right; }
+.order-card:hover { border-color: #e94560; }
+.order-row { display: flex; align-items: center; padding: 10px 0; }
+.order-row + .order-row { border-top: 1px solid #0f3460; }
+/* 第一行：出发时间 | 车次 | 到达时间 */
+.order-row-1 { justify-content: space-between; padding-bottom: 14px; }
+.order-time-dep, .order-time-arr { font-size: 26px; font-weight: 700; color: #53a8ff; min-width: 80px; }
+.order-time-arr { text-align: right; }
+.order-train-id { font-size: 22px; font-weight: 700; color: #53a8ff; text-align: center; flex: 1; }
+/* 第二行：出发站 | 历时 | 到达站 */
+.order-row-2 { justify-content: space-between; font-size: 15px; color: #a0a0b0; }
+.order-row-2 .order-station { font-size: 16px; color: #c0c0d0; }
+.order-row-2 .order-duration { color: #707090; font-size: 18px; text-align: center; flex: 1; }
+/* 第三行：乘车人 | 座位号 */
+.order-row-3 { justify-content: space-between; }
+.order-row-3 .order-passenger { font-size: 20px; color: #9090a0; }
+.order-row-3 .order-seat { font-size: 18px; font-weight: 600; color: #e0e0e0; }
+/* 第四行：日期 | 售价 */
+.order-row-4 { justify-content: space-between; }
+.order-row-4 .order-date { font-size: 24px; font-weight: 700; color: #e0e0e0; }
+.order-row-4 .order-price { font-size: 20px; font-weight: 700; color: #e94560; }
+/* 第五行：退票 */
+.order-row-5 { justify-content: flex-end; padding-top: 12px; }
+.order-status { font-size: 12px; padding: 2px 10px; border-radius: 12px; }
+.status-paid { background: #0f3460; color: #53a8ff; }
+.status-refunded { background: #3a2a2a; color: #e94560; }
 
 /* ═══ 表单 ═══ */
 .form-group { margin-bottom: 14px; }

@@ -77,14 +77,12 @@ NLOHMANN_JSON_SERIALIZE_ENUM(SeatType, {
 
 /** 订单状态 */
 enum class OrderStatus : uint8_t {
-    PAID     = 0,  // 已支付
-    CANCELLED = 1,  // 已取消
-    REFUNDED  = 2   // 已退票
+    PAID    = 0,  // 已支付
+    REFUNDED = 1   // 已退票
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(OrderStatus, {
-    {OrderStatus::PAID,     "PAID"},
-    {OrderStatus::CANCELLED, "CANCELLED"},
-    {OrderStatus::REFUNDED,  "REFUNDED"},
+    {OrderStatus::PAID,    "PAID"},
+    {OrderStatus::REFUNDED, "REFUNDED"},
 })
 
 /** 用户角色 — RBAC 三角色 */

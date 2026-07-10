@@ -446,15 +446,59 @@ void registerRoutes(RailwayServer& server) {
                 std::string s = req.get_param_value("status");
                 if (s == "PAID") status_filter = OrderStatus::PAID;
                 else if (s == "REFUNDED") status_filter = OrderStatus::REFUNDED;
-                else if (s == "CANCELLED") status_filter = OrderStatus::CANCELLED;
             }
 
             auto orders = OrderService::instance().getOrders(ctx->user_id, status_filter);
 
+            // 为每个订单附加列车时刻信息
+            auto& ds = DataStore::instance();
+            json arr = json::array();
+            for (const auto& order : orders) {
+                json o = order;  // NLOHMANN_DEFINE_TYPE 自动序列化
+                auto* train = ds.getTrain(order.train_id);
+                if (train) {
+                    int dep = 0, arr = 0, dur = 0;
+                    for (size_t si = 0; si < train->stops.size(); ++si) {
+                        if (train->stops[si].station_id == order.from_station) dep = train->stops[si].departure;
+                        if (train->stops[si].station_id == order.to_station) {
+                            arr = train->stops[si].arrival;
+                            break;
+                        }
+                    }
+                    // HHMM 时间差
+                    if (dep > 0 && arr > 0) {
+                        int dm = (dep/100)*60 + dep%100;
+                        int am = (arr/100)*60 + arr%100;
+                        if (am < dm) am += 1440;
+                        dur = am - dm;
+                    }
+                    o["departure_time"] = dep;
+                    o["arrival_time"] = arr;
+                    o["duration_minutes"] = dur;
+                    auto* fromSt = ds.getStation(order.from_station);
+                    auto* toSt = ds.getStation(order.to_station);
+                    o["from_station_name"] = fromSt ? fromSt->name : "?";
+                    o["to_station_name"] = toSt ? toSt->name : "?";
+                    // 停站数据（供详情弹窗用）
+                    json stopsArr = json::array();
+                    for (const auto& stop : train->stops) {
+                        json sd;
+                        sd["station_id"] = stop.station_id;
+                        auto* st = ds.getStation(stop.station_id);
+                        sd["station_name"] = st ? st->name : "?";
+                        sd["arrival"] = stop.arrival;
+                        sd["departure"] = stop.departure;
+                        stopsArr.push_back(sd);
+                    }
+                    o["stops"] = stopsArr;
+                }
+                arr.push_back(o);
+            }
+
             json j;
             j["ok"] = true;
             j["count"] = orders.size();
-            j["data"] = orders;
+            j["data"] = arr;
             res.set_content(j.dump(), "application/json");
         } catch (const std::exception& e) {
             json j;

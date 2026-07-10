@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>12306 铁路票务系统</title>
-<link rel="stylesheet" href="/style.css?v=10">
+<link rel="stylesheet" href="/style.css?v=11">
 </head>
 <body>
 
@@ -147,7 +147,6 @@
         <button class="btn btn-sm active" onclick="UI.filterOrders('')">全部</button>
         <button class="btn btn-sm" onclick="UI.filterOrders('PAID')">已支付</button>
         <button class="btn btn-sm" onclick="UI.filterOrders('REFUNDED')">已退票</button>
-        <button class="btn btn-sm" onclick="UI.filterOrders('CANCELLED')">已取消</button>
       </div>
       <div id="orders-loading" class="loading" style="display:none">加载中…</div>
       <div id="orders-list"></div>
@@ -170,6 +169,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=12"></script>
+<script src="/app.js?v=14"></script>
 </body>
 </html>
