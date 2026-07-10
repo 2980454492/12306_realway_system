@@ -566,7 +566,7 @@ const UI = {
     var item = (State._trainItems || {})[itemKey];
     if (!item) return;
 
-    U.$('detail-train-id').textContent = item.train_id + ' · ' + (item.distance_km || 0).toFixed(0) + 'km';
+    U.$('detail-train-id').textContent = item.train_id;
     var fromId = item.from_station, toId = item.to_station;
     var transferName = item.transfer_station || '';
 
