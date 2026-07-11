@@ -106,14 +106,14 @@ OrderService::OrderResult OrderService::createOrder(
 
     // 0. 日期不能是过去
     if (!isTodayOrFuture(date, 14)) {
-        result.error = "Date must be within 14 days from today";
+        result.error = "日期必须在今日起 14 天内";
         return result;
     }
 
     // 1. 校验列车存在且运行中
     auto* train = DataStore::instance().getTrain(train_id);
     if (!train || train->status != TrainStatus::ACTIVE) {
-        result.error = "Train not found or not active";
+        result.error = "列车不存在或未在运行中";
         return result;
     }
 
@@ -127,14 +127,14 @@ OrderService::OrderResult OrderService::createOrder(
         }
     }
     if (from_idx < 0 || to_idx < 0) {
-        result.error = "Invalid from/to stations for this train";
+        result.error = "出发站或到达站不在该列车停站序列中";
         return result;
     }
 
     // 3. 仅当乘车日期为今天时校验是否已发车
     int departure_hhmm = train->stops[from_idx].departure;
     if (departure_hhmm > 0 && isToday(date) && nowHHMM() > departure_hhmm) {
-        result.error = "Train already departed";
+        result.error = "列车已发车，无法购票";
         return result;
     }
 
@@ -155,7 +155,7 @@ OrderService::OrderResult OrderService::createOrder(
         }
         // 时间窗口重叠判定：新购票的发车 < 已有票的到达 且 新购票的到达 > 已有票的发车
         if (departure_hhmm < ext_arr && new_arrival > ext_dep) {
-            result.error = "Passenger already has a conflicting ticket on the same date: "
+            result.error = "乘车人当日已有时间冲突的车票："
                          + existing.train_id;
             return result;
         }
@@ -164,7 +164,7 @@ OrderService::OrderResult OrderService::createOrder(
     // 4. 预留座位（原子操作，由 SeatInventory 内部锁保证）
     auto reservation = SeatInventory::instance().reserve(train_id, date, seat_type, count);
     if (!reservation.success) {
-        result.error = "Insufficient seats";
+        result.error = "余票不足";
         return result;
     }
 
@@ -206,25 +206,25 @@ OrderService::RefundResult OrderService::refundOrder(const std::string& order_id
     auto it = std::find_if(orders_.begin(), orders_.end(),
         [&](const Order& o) { return o.id == order_id; });
     if (it == orders_.end()) {
-        result.error = "Order not found";
+        result.error = "订单不存在";
         return result;
     }
 
     // 2. 权限检查：只能退自己的
     if (it->user_id != user_id) {
-        result.error = "Can only refund your own orders";
+        result.error = "只能退自己的订单";
         return result;
     }
 
     if (it->status != OrderStatus::PAID) {
-        result.error = "Order is not in PAID status";
+        result.error = "订单状态不是已支付，无法退票";
         return result;
     }
 
     // 3. 计算退款金额（按退票时间阶梯费率）
     auto* train = DataStore::instance().getTrain(it->train_id);
     if (!train) {
-        result.error = "Train not found";
+        result.error = "列车不存在";
         return result;
     }
 
@@ -238,7 +238,7 @@ OrderService::RefundResult OrderService::refundOrder(const std::string& order_id
 
     double rate = calcRefund(it->date, departure_hhmm);
     if (rate <= 0.0) {
-        result.error = "Train already departed, cannot refund";
+        result.error = "列车已发车，无法退票";
         return result;
     }
 
