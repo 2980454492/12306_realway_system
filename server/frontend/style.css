@@ -113,8 +113,6 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .train-info .train-id-inline { font-size: 18px; font-weight: 700; color: #fff; }
 .train-info .train-meta { font-size: 16px; color: #9090a0; margin-top: 2px; }
 .train-info .train-route { font-size: 12px; color: #606070; margin-top: 2px; }
-.train-info .transfer-info { color: #53a8ff; font-size: 13px; margin-top: 6px; }
-
 /* ── 时间条：历时在上居中，时间在下用横线连接 ── */
 .tb-wrap { display: inline-block; text-align: center; }
 .tb-dur { font-size: 12px; color: #707090; display: block; margin-bottom: 2px; text-align: center; }
@@ -130,9 +128,6 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
   margin: 4px 0;
 }
 .train-time { text-align: center; }
-.train-seats { text-align: right; }
-.train-seats .price { font-size: 16px; color: #e94560; font-weight: 700; }
-.train-seats .seats { font-size: 11px; color: #00cc66; margin-top: 2px; }
 /* 席位标签行 */
 .train-seats-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .seat-tag {

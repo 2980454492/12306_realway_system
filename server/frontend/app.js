@@ -14,6 +14,7 @@ const State = {
   queryResult: null,
   selectedTrain: null,
   currentStatusFilter: '',
+  _trainItems: {},
 };
 
 // ═══════════════════════════════════════════
@@ -124,6 +125,15 @@ const U = {
 // ═══════════════════════════════════════════
 // UI 模块
 // ═══════════════════════════════════════════
+
+var SEAT_MAP = [
+  {key: 'business_seats', label: '商务座', priceKey: 'BUSINESS'},
+  {key: 'first_seats',    label: '一等座', priceKey: 'FIRST'},
+  {key: 'second_seats',   label: '二等座', priceKey: 'SECOND'},
+  {key: 'hard_sleeper',   label: '硬卧',   priceKey: 'HARD_SLEEPER'},
+  {key: 'hard_seat',      label: '硬座',   priceKey: 'HARD_SEAT'},
+  {key: 'no_seat',        label: '无座',   priceKey: 'NO_SEAT'}
+];
 
 const UI = {
   showPage: function(name) {
@@ -238,23 +248,13 @@ const UI = {
   cascadeHourTo: function(fromId, toId) {
     var fromEl = U.$(fromId), toEl = U.$(toId);
     if (!fromEl || !toEl) return;
-    var fromVal = fromEl.value;
-    var toVal = toEl.value;
-    toEl.innerHTML = '<option value="">不限</option>';
-    if (fromVal === '') {
-      // 不限：恢复全部小时
-      for (var h = 0; h <= 23; h++) {
-        var label = (h < 10 ? '0' : '') + h + ':00';
-        toEl.innerHTML += '<option value="' + h + '">' + label + '</option>';
-      }
-    } else {
-      var minH = parseInt(fromVal, 10) + 1;
-      for (var h = minH; h <= 23; h++) {
-        var label = (h < 10 ? '0' : '') + h + ':00';
-        toEl.innerHTML += '<option value="' + h + '">' + label + '</option>';
-      }
+    var fromVal = fromEl.value, toVal = toEl.value;
+    var minH = fromVal === '' ? 0 : parseInt(fromVal, 10) + 1;
+    var html = '<option value="">不限</option>';
+    for (var h = minH; h <= 23; h++) {
+      html += '<option value="' + h + '">' + (h < 10 ? '0' : '') + h + ':00</option>';
     }
-    // 恢复之前的选中值（如果仍在范围内）
+    toEl.innerHTML = html;
     if (toVal && toEl.querySelector('option[value="' + toVal + '"]')) toEl.value = toVal;
     UI.applyFilters();
   },
@@ -289,6 +289,9 @@ const UI = {
 
     if (!res.ok) { if (errEl) errEl.textContent = (res.data && res.data.error) || '查询失败'; return; }
     State.queryResult = res.data;
+    // 仅新查询时构建站名筛选复选框
+    var allResults = res.data.direct.concat(res.data.transfers || []);
+    UI.populateStationFilters(allResults);
     UI.renderResults(State.currentTab);
     // 保持当前标签页高亮
     var tabs = document.querySelectorAll('.tab');
@@ -315,26 +318,22 @@ const UI = {
     var sortEl = U.$('query-sort');
     var sortBy = sortEl ? sortEl.value : 'departure';
     var list = rawList.slice();
-    // 计算每趟列车当前最低可购票价（有票的席位中最便宜的）
     function cheapestPrice(item) {
       var seats = item.available_seats || {};
       var prices = item.seat_prices || {};
-      var map = [
-        {sk: 'business_seats', pk: 'BUSINESS'},
-        {sk: 'first_seats',    pk: 'FIRST'},
-        {sk: 'second_seats',   pk: 'SECOND'},
-        {sk: 'hard_sleeper',   pk: 'HARD_SLEEPER'},
-        {sk: 'hard_seat',      pk: 'HARD_SEAT'},
-        {sk: 'no_seat',        pk: 'NO_SEAT'}
-      ];
       var best = Infinity;
-      for (var m = 0; m < map.length; m++) {
-        if ((seats[map[m].sk] || 0) > 0) {
-          var p = prices[map[m].pk];
+      for (var m = 0; m < SEAT_MAP.length; m++) {
+        if ((seats[SEAT_MAP[m].key] || 0) > 0) {
+          var p = prices[SEAT_MAP[m].priceKey];
           if (p != null && p < best) best = p;
         }
       }
       return best === Infinity ? (item.price || 9999) : best;
+    }
+
+    // 预计算最低票价，排序时 O(1) 复用
+    for (var pi = 0; pi < list.length; pi++) {
+      list[pi]._cp = cheapestPrice(list[pi]);
     }
 
     list.sort(function(a, b) {
@@ -342,13 +341,10 @@ const UI = {
         case 'arrival':   return (a.arrival_time   || 9999) - (b.arrival_time   || 9999);
         case 'duration':  return (a.duration_minutes || 9999) - (b.duration_minutes || 9999);
         case 'distance':  return (a.distance_km     || 9999) - (b.distance_km     || 9999);
-        case 'price':     return cheapestPrice(a) - cheapestPrice(b);
+        case 'price':     return (a._cp || 9999) - (b._cp || 9999);
         default:          return (a.departure_time  || 9999) - (b.departure_time  || 9999);
       }
     });
-
-    // 动态填充分站复选框（仅首次或结果变化时）
-    UI.populateStationFilters(rawList);
 
     // ── 筛选 ──
     list = UI.filterList(list);
@@ -367,18 +363,7 @@ const UI = {
       var term = item.terminal_station || '?';
       // 存储供 detail 弹窗使用
       var itemKey = 'item_' + tab + '_' + i;
-      State._trainItems = State._trainItems || {};
       State._trainItems[itemKey] = item;
-
-      // 席位列表（只显示有票的席位类型）
-      var seatTypes = [
-        {key: 'business_seats', label: '商务座', priceKey: 'BUSINESS'},
-        {key: 'first_seats',    label: '一等座', priceKey: 'FIRST'},
-        {key: 'second_seats',   label: '二等座', priceKey: 'SECOND'},
-        {key: 'hard_sleeper',   label: '硬卧',  priceKey: 'HARD_SLEEPER'},
-        {key: 'hard_seat',      label: '硬座',  priceKey: 'HARD_SEAT'},
-        {key: 'no_seat',        label: '无座',  priceKey: 'NO_SEAT'}
-      ];
 
       /** 时间条：历时在上，时间分列横线两端 */
       function timeBar(dep, dur, arr) {
@@ -393,8 +378,8 @@ const UI = {
 
       function buildSeatRow(avail, priceMap, itemKey, seatType) {
         var h = '';
-        for (var s = 0; s < seatTypes.length; s++) {
-          var st = seatTypes[s];
+        for (var s = 0; s < SEAT_MAP.length; s++) {
+          var st = SEAT_MAP[s];
           var cnt = avail[st.key] || 0;
           if (cnt > 0) {
             var p = (priceMap || {})[st.priceKey] || 0;
@@ -782,13 +767,6 @@ const UI = {
   },
 
   // ── 购票页 ──
-  selectTrain: function(trainId, from, to, dep, arr, price) {
-    var d = U.$('query-date');
-    State.selectedTrain = { train_id: trainId, from_station: from, to_station: to,
-      departure_time: dep, arrival_time: arr, price: price, date: d ? d.value : '2026-07-07' };
-    UI.showPage('order-form');
-    UI.renderOrderForm();
-  },
 
   renderOrderForm: function() {
     var t = State.selectedTrain;
@@ -849,7 +827,6 @@ const UI = {
     else for (var i = 0; i < orders.length; i++) {
       var o = orders[i];
       var oKey = 'order_' + i;
-      State._trainItems = State._trainItems || {};
       State._trainItems[oKey] = o;
       var statusClass = o.status === 'PAID' ? 'status-paid' : 'status-refunded';
       html += '<div class="order-card" onclick="UI.showDetail(\'' + oKey + '\')">' +

@@ -63,9 +63,6 @@ SeatInventory::Reservation SeatInventory::reserve(
 
     auto& bitmap = inv.seat_maps[seat_type];
 
-    // 乐观锁：CAS 版本号校验
-    uint64_t old_version = bitmap.version;
-
     // 找到 count 个未售座位
     std::vector<uint16_t> assigned;
     for (size_t i = 0; i < bitmap.seats.size() && static_cast<int>(assigned.size()) < count; ++i) {
@@ -86,8 +83,6 @@ SeatInventory::Reservation SeatInventory::reserve(
         return {{}, false};
     }
 
-    bitmap.version = old_version + 1;  // 更新版本号
-    ++inv.version;
 
     Logger::instance().info("Reserved " + std::to_string(count) + " seats on " + train_id);
 
@@ -114,8 +109,6 @@ void SeatInventory::release(const std::string& train_id, const std::string& date
             it->second.seats[seat_num - 1] = false;
         }
     }
-    ++it->second.version;
-    ++inv.version;
 
     Logger::instance().info("Released " + std::to_string(seat_numbers.size())
         + " seats on " + train_id);
@@ -134,7 +127,6 @@ void SeatInventory::markSold(const std::string& train_id, const std::string& dat
     auto& bitmap = inv.seat_maps[seat_type];
     if (seat_number <= bitmap.seats.size()) {
         bitmap.seats[seat_number - 1] = true;
-        bitmap.version++;
     }
 }
 
@@ -186,6 +178,5 @@ void SeatInventory::ensureSeatType(TrainInventory& inv, SeatType type, uint16_t 
 
     SeatBitmap bitmap;
     bitmap.seats.resize(count, false);  // 全部初始化为可售
-    bitmap.version = 0;
     inv.seat_maps[type] = std::move(bitmap);
 }

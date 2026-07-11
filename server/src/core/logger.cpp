@@ -26,7 +26,7 @@ void Logger::setLogFile(const std::string& file_path) {
         file_.close();
     }
     file_.open(file_path, std::ios::app);
-    file_open_ = file_.is_open();
+    
 }
 
 void Logger::info(const std::string& message) {
@@ -56,7 +56,7 @@ void Logger::write(const std::string& level, const std::string& message) {
     }
 
     // 文件输出
-    if (file_open_) {
+    if (file_.is_open()) {
         file_ << line << std::endl;
         file_.flush();  // 每条日志立即落盘，崩溃不丢
     }

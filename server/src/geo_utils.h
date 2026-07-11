@@ -19,7 +19,7 @@ inline double haversineDist(const Station& a, const Station& b) {
 }
 
 /** 席位票价倍率（相对于二等座） */
-inline double seatPriceMultiplier(SeatType type) {
+inline constexpr double seatPriceMultiplier(SeatType type) {
     switch (type) {
         case SeatType::BUSINESS:     return 3.0;
         case SeatType::FIRST:        return 2.0;

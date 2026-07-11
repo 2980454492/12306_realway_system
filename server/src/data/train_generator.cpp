@@ -67,8 +67,8 @@ void TrainGenerator::generateForLine(
             trains_per_direction = 5;
             break;
         case LineType::NORMAL:
-            // 普速：长线用 K，短线用 K
-            prefix = (line.distance_km > 200) ? "K" : "K";
+            // 普速：长短线均用 K 字头
+            prefix = "K";
             // 普速：硬卧 200，硬座 400，无座 100
             seats = {0, 0, 0, 200, 400, 100};
             base_departure = 700;    // 7:00

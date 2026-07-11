@@ -34,5 +34,4 @@ private:
     // ── 成员 ──
     std::mutex mutex_;
     std::ofstream file_;
-    bool file_open_ = false;
 };

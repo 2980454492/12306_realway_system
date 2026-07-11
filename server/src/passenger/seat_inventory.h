@@ -55,12 +55,10 @@ private:
     // ── 内部数据结构 ──
     struct SeatBitmap {
         std::vector<bool> seats;  // true = 已售
-        uint64_t version = 0;     // 乐观锁版本号
     };
 
     struct TrainInventory {
         std::unordered_map<SeatType, SeatBitmap> seat_maps;  // 按席位存储
-        uint64_t version = 0;
     };
 
     /** 获取或创建某车次某日的库存（惰性初始化） */
