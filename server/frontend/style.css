@@ -106,64 +106,30 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .train-list { display: flex; flex-direction: column; gap: 10px; }
 .train-card {
   background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 16px 20px;
-  cursor: pointer; transition: border-color .2s; position: relative;
+  cursor: pointer; transition: border-color .2s;
 }
 .train-card:hover { border-color: #e94560; }
 .train-main { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.train-info .train-id { font-size: 18px; font-weight: 700; color: #fff; }
-.train-info .train-meta { font-size: 14px; color: #9090a0; margin-top: 2px; }
+.train-info .train-id-inline { font-size: 18px; font-weight: 700; color: #fff; }
+.train-info .train-meta { font-size: 16px; color: #9090a0; margin-top: 2px; }
+.train-info .train-route { font-size: 12px; color: #606070; margin-top: 2px; }
 .train-info .transfer-info { color: #53a8ff; font-size: 13px; margin-top: 6px; }
 
-/* ── 换乘卡片五行布局 ── */
-.transfer-leg-info {
-  display: flex; align-items: center; gap: 12px; padding: 4px 0;
-}
-.transfer-leg-info .leg-train-id {
-  font-size: 17px; font-weight: 700; color: #fff; min-width: 60px;
-}
-.transfer-leg-info .leg-route {
-  font-size: 14px; color: #a0a0b0;
-}
-.transfer-leg-info .leg-time {
-  font-size: 13px; color: #53a8ff; margin-left: auto;
-}
-.transfer-card {
-  display: flex; align-items: stretch;
-}
-.transfer-main {
-  flex: 1; min-width: 0;
-}
-.transfer-summary {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding-left: 16px; margin-left: 16px;
-  border-left: 1px solid #0f3460; min-width: 100px; text-align: center;
-}
-.transfer-summary .summary-dur {
-  font-size: 12px; color: #707090; margin-bottom: 4px;
-}
-.transfer-summary .summary-row {
-  display: flex; flex-direction: column; align-items: center; gap: 0;
-}
-.transfer-summary .summary-time {
-  font-size: 22px; font-weight: 700; color: #53a8ff; line-height: 1.1;
-}
-.transfer-summary .summary-dash {
-  font-size: 14px; color: #0f3460; line-height: 1;
-}
+/* ── 时间条：历时在上居中，时间在下用横线连接 ── */
+.tb-wrap { display: inline-block; text-align: center; }
+.tb-dur { font-size: 12px; color: #707090; display: block; margin-bottom: 2px; text-align: center; }
+.tb-line { display: flex; align-items: center; gap: 6px; }
+.tb-time { font-size: 18px; font-weight: 700; color: #a0a0b0; }
+.tb-dash { font-size: 14px; color: #0f3460; }
+/* 大号时间：直达 & 换乘总时间，蓝色 */
+.tb-big .tb-time { font-size: 22px; color: #53a8ff; }
+/* 总时间：整块右对齐 */
+.transfer-summary { text-align: right; }
 .transfer-gap {
   padding: 6px 0; font-size: 16px; font-weight: 600; color: #a0a0b0;
-  border-top: 1px dashed #0f3460; border-bottom: 1px dashed #0f3460;
   margin: 4px 0;
 }
-.transfer-leg-seats {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 2px 0;
-}
-.transfer-leg-seats .leg-label {
-  color: #53a8ff; font-size: 13px; font-weight: 600; min-width: 48px;
-}
 .train-time { text-align: center; }
-.train-time .time { font-size: 22px; font-weight: 700; color: #53a8ff; }
-.train-time .duration { font-size: 12px; color: #707090; }
 .train-seats { text-align: right; }
 .train-seats .price { font-size: 16px; color: #e94560; font-weight: 700; }
 .train-seats .seats { font-size: 11px; color: #00cc66; margin-top: 2px; }
@@ -188,7 +154,6 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 }
 .order-card:hover { border-color: #e94560; }
 .order-row { display: flex; align-items: center; padding: 10px 0; }
-.order-row + .order-row { border-top: 1px solid #0f3460; }
 /* 第一行：出发时间 | 车次 | 到达时间 */
 .order-row-1 { justify-content: space-between; padding-bottom: 14px; }
 .order-time-dep, .order-time-arr { font-size: 26px; font-weight: 700; color: #53a8ff; min-width: 80px; }
