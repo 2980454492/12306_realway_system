@@ -14,8 +14,8 @@
 │   ├── src/
 │   │   ├── main.cpp                    # 入口
 │   │   ├── models.h                    # 全局数据模型（20个结构体+枚举）
-│   │   ├── geo_utils.h                 # 全局工具（Haversine距离、票价倍率、时间工具）
 │   │   ├── core/                       # HTTP 服务 + 路由 + 日志
+│   │   │   ├── utils.h                 #   全局工具函数（UUID、时间、地理、序列查找、路线计算）
 │   │   │   ├── server.h/.cpp           #   cpp-httplib 包装
 │   │   │   ├── routes.h/.cpp           #   路由注册（10个端点）
 │   │   │   └── logger.h/.cpp           #   日志基础设施

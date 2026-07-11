@@ -361,7 +361,7 @@
 
 | 场景 | 要求 | 实现说明 |
 |------|------|----------|
-| 🔥 购票并发 | 同车次同日期同席位不超卖 | 每 (车次, 日期, 席位) 一个 `std::shared_mutex`。查票用 `shared_lock`（读），购票用 `unique_lock`（写）。乐观锁兜底：座位表带 `version` 字段，CAS 校验 |
+| 🔥 购票并发 | 同车次同日期同席位不超卖 | 每 (车次, 日期, 席位) 一个 `std::shared_mutex`。查票用 `shared_lock`（读），购票用 `unique_lock`（写） |
 | 审批并发 | 同一申请被多人同时审批 | `std::atomic_flag` CAS 操作，第一个成功的获得审批权，其余返回"已被处理" |
 | 时刻表并发 | 列车运行图更新时不影响查票 | `std::shared_mutex` 保护运行图。多读少写，写时独占 |
 | 审计日志并发 | 多线程同时写审计日志不丢数据 | 无锁队列(Lock-Free Queue)：业务线程 `push`，专用 logger 线程 `pop` 并写入磁盘 |
@@ -423,7 +423,7 @@ Order
   seat_type: SeatType
   seat_number: uint16_t
   price: double            # 票价(分)
-  status: OrderStatus      # PAID / CANCELLED / REFUNDED
+  status: OrderStatus      # PAID / REFUNDED
   created_at: TimePoint
   passenger_name: string   # 乘车人
   passenger_id: string     # 身份证号(脱敏存储)
@@ -486,7 +486,6 @@ SeatBitmap
   second: vector<bool>
   hard_sleeper: vector<bool>
   hard_seat: vector<bool>
-  version: uint64_t          # 乐观锁版本号
 ```
 
 ---
@@ -671,7 +670,7 @@ SeatBitmap
 | P0 | 一次换乘：铁路网图 BFS 找中转站，换乘 ≥ 30min | 同上接口，`transfer` 字段 |
 | P0 | 结果排序（历时）+ 票价计算（里程×席位×倍率） | 完整查询结果 |
 | P0 | **座位库存** + **购票原子性** | `SeatInventory` + `POST /api/orders` |
-| P0 | **细粒度锁**：`shared_mutex` 每 (车次,日期,席位) + version CAS 兜底 | 并发不超卖 |
+| P0 | **细粒度锁**：`shared_mutex` 每 (车次,日期,席位) | 并发不超卖 |
 | P0 | 死锁预防：多锁按车次 ID 字典序 | 不卡死 |
 | P0 | 退票：阶梯费率 → 退款 → 恢复座位 | `POST /api/orders/{id}/refund` |
 | P0 | 订单查询：按用户 + 状态筛选 + 时间倒序 | `GET /api/orders?status=X` |
