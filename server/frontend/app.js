@@ -794,6 +794,13 @@ const UI = {
       passenger_id: (U.$('order-passenger-id') || {}).value || '',
     };
     if (!body.passenger_name || !body.passenger_id) return U.toast('请填写乘车人信息', 'error');
+
+    // 表单校验
+    if (body.passenger_name.length < 2) return U.toast('乘车人姓名至少 2 个字符', 'error');
+    if (!/^[一-鿿·]{2,20}$/.test(body.passenger_name)) return U.toast('乘车人姓名格式不正确', 'error');
+    if (!/^\d{17}[\dXx]$/.test(body.passenger_id)) return U.toast('身份证号格式不正确（18 位）', 'error');
+    if (!body.seat_type) return U.toast('请选择席位类型', 'error');
+    if (body.count < 1 || body.count > 5) return U.toast('购票数量须为 1-5 张', 'error');
     var res = await API.post('/api/orders', body);
     if (res.ok) {
       U.toast('购票成功！订单号: ' + res.data.order_id, 'success');

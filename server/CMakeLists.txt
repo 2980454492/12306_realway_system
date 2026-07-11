@@ -53,7 +53,7 @@ set(SOURCES
 
 set(HEADERS
     src/models.h
-    src/geo_utils.h
+    src/core/utils.h
     src/core/logger.h
     src/core/server.h
     src/core/routes.h

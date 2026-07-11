@@ -138,6 +138,29 @@ OrderService::OrderResult OrderService::createOrder(
         return result;
     }
 
+    // 3.5 乘车人冲突检测：同一天同一乘车人不能购买时间重叠的两张票
+    int new_arrival = train->stops[to_idx].arrival;
+    for (const auto& existing : orders_) {
+        if (existing.status != OrderStatus::PAID) continue;
+        if (existing.passenger_id != passenger_id) continue;
+        if (existing.date != date) continue;
+
+        auto* ext = DataStore::instance().getTrain(existing.train_id);
+        if (!ext) continue;
+
+        int ext_dep = 0, ext_arr = 0;
+        for (const auto& s : ext->stops) {
+            if (s.station_id == existing.from_station) ext_dep = s.departure;
+            if (s.station_id == existing.to_station) { ext_arr = s.arrival; break; }
+        }
+        // 时间窗口重叠判定：新购票的发车 < 已有票的到达 且 新购票的到达 > 已有票的发车
+        if (departure_hhmm < ext_arr && new_arrival > ext_dep) {
+            result.error = "Passenger already has a conflicting ticket on the same date: "
+                         + existing.train_id;
+            return result;
+        }
+    }
+
     // 4. 预留座位（原子操作，由 SeatInventory 内部锁保证）
     auto reservation = SeatInventory::instance().reserve(train_id, date, seat_type, count);
     if (!reservation.success) {

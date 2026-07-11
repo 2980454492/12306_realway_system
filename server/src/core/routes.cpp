@@ -382,6 +382,38 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
+    // ── GET /api/trains/{id}/stops — 列车经停站详情 ──
+    app.Get(R"(/api/trains/([^/]+)/stops)", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::QUERY_TRAINS);
+            if (!ctx) return;
+
+            auto& ds = DataStore::instance();
+            std::string train_id = req.matches[1];
+            auto* train = ds.getTrain(train_id);
+            if (!train) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "Train not found";
+                res.set_content(j.dump(), "application/json");
+                res.status = 404;
+                return;
+            }
+
+            json j;
+            j["ok"] = true;
+            j["train_id"] = train_id;
+            j["stops"] = stopsToJson(train->stops, ds);
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
     // ── POST /api/orders — 购票 ──
     app.Post("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
         try {
