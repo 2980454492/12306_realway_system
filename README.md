@@ -21,14 +21,14 @@
 │   │   │   └── logger.h/.cpp           #   日志基础设施
 │   │   ├── data/                       # 数据加载 + 铁路网图 + 种子生成
 │   │   │   ├── data_store.h/.cpp       #   单例数据加载器
-│   │   │   ├── railway_graph.h/.cpp    #   邻接表 + Dijkstra 最短路径
+│   │   │   ├── railway_graph.h/.cpp    #   邻接表 + JSON 持久化
 │   │   │   └── train_generator.h/.cpp  #   100辆列车自动生成器
 │   │   ├── auth/                       # 认证 + JWT + RBAC
 │   │   │   ├── auth_service.h/.cpp     #   argon2id 密码哈希 + 用户管理
 │   │   │   ├── jwt_service.h/.cpp      #   HS256 JWT 生成与校验
 │   │   │   └── rbac_middleware.h/.cpp  #   std::bitset<64> 权限位图 + 中间件
 │   │   ├── passenger/                  # 旅客端：查票 + 购票 + 退票
-│   │   │   ├── train_query.h/.cpp      #   直达+换乘查询（Dijkstra + BFS）
+│   │   │   ├── train_query.h/.cpp      #   直达+换乘查询（车站-列车索引）
 │   │   │   ├── order_service.h/.cpp    #   购票+退票（阶梯费率）
 │   │   │   └── seat_inventory.h/.cpp   #   座位库存（细粒度 shared_mutex 锁）
 │   │   ├── staff/                      # 铁路职工端（待实现）
@@ -113,7 +113,7 @@ bash scripts/run.sh
 
 | 功能 | 说明 |
 |------|------|
-| 🔍 列车查询 | 直达 + 一次换乘（Dijkstra 最短路径 + BFS 中转站），14 天日期窗口 |
+| 🔍 列车查询 | 直达 + 一次换乘（车站-列车索引 + 地理约束 + 换乘窗口 [10min, 3h]），14 天日期窗口 |
 | 🎫 购票 | 原子下单，细粒度锁防超卖，逐段 Haversine 累加计价 |
 | 🔄 退票 | 阶梯费率（>24h 退 95%、2-24h 退 90%、<2h 退 80%、发车后不可退） |
 | 📋 订单查询 | 按状态筛选，时间倒序 |
@@ -162,7 +162,7 @@ bash scripts/run.sh
 | GET | `/health` | 健康检查 |
 | GET | `/api/whoami` | 验证 JWT + 查看权限 |
 | GET | `/api/debug/stations` | 站点列表 |
-| GET | `/api/debug/graph?from=&to=` | Dijkstra 最短路径 |
+| GET | `/api/debug/graph?from=&to=` | 路网最短路径 |
 
 ---
 
@@ -197,8 +197,8 @@ std::bitset<64> 位图存储权限
 ### 路网算法
 
 ```
-RailwayGraph: 邻接表 + Dijkstra 优先队列
-TrainQuery:   直达（停站匹配）+ 换乘（BFS 深度 2，≥30min 窗口）
+RailwayGraph: 邻接表，启动时从 JSON 加载
+TrainQuery:   直达（停站匹配）+ 换乘（车站-列车索引 + 地理约束）
 ```
 
 ### 数据安全

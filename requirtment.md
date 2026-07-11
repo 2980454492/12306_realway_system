@@ -70,7 +70,7 @@
 
 **并发保证**：购票操作须保证原子性——同一车次同一日期同一席位不允许超卖
 
-**输出**：订单号(UUID)、车次、日期、乘车人、席位、票价、状态(已支付/已取消/已退票)
+**输出**：订单号(UUID)、车次、日期、乘车人、席位、票价、状态(已支付/已退票)
 
 #### F-1.3 退票
 
@@ -162,7 +162,6 @@
 
 **操作**：
 - 在铁路网图中添加边（双向）
-- 标记已有最短路径缓存失效
 - 审批流：需管理员审批
 
 #### F-3.2 新增站点
@@ -450,9 +449,7 @@ AuditRecord
 
 ```
 铁路网图 RailwayGraph
-  adjacency: map<StationId, vector<pair<StationId, Distance>>>
-  shortest_cache: map<pair<StartId, EndId>, PathResult>  # 最短路径缓存
-  # 缓存失效标记：每次新增线路后标记脏
+  adjacency: map<StationId, map<StationId, Distance>>
 
 区间占用表 IntervalOccupancy
   # key = (站A, 站B) 即运行区间
@@ -626,7 +623,7 @@ SeatBitmap
 |:---:|------|------|
 | P0 | 核心实体定义 + JSON 序列化 | `models.h` |
 | P0 | 20 站点 + 10 线路种子数据 | `stations.json` `lines.json` |
-| P0 | 铁路网图 + Dijkstra 最短路径 | `railway_graph.h/.cpp` |
+| P0 | 铁路网图（邻接表） + JSON 持久化 | `railway_graph.h/.cpp` |
 | P1 | 100 辆列车生成器 + 数据加载器 | `train_generator` `data_store` |
 
 ---
@@ -658,15 +655,15 @@ SeatBitmap
 | 优先级 | 任务 | 产出 |
 |:---:|------|------|
 | P0 | 直达查询：遍历列车匹配停站序列 | `GET /api/trains/query?from=X&to=Y&date=Z` |
-| P0 | 一次换乘：铁路网图 BFS 找中转站，换乘 ≥ 30min | 同上接口，`transfer` 字段 |
+| P0 | 一次换乘：车站-列车索引 O(1) 查找 + 地理约束（单段≤直达距离，总≤2×） + 换乘窗口 [10min, 3h] | 同上接口，`transfer` 字段 |
 | P0 | 结果排序（历时）+ 票价计算（里程×席位×倍率） | 完整查询结果 |
 | P0 | **座位库存** + **购票原子性** | `SeatInventory` + `POST /api/orders` |
 | P0 | **细粒度锁**：`shared_mutex` 每 (车次,日期,席位) | 并发不超卖 |
 | P0 | 死锁预防：多锁按车次 ID 字典序 | 不卡死 |
 | P0 | 退票：阶梯费率 → 退款 → 恢复座位 | `POST /api/orders/{id}/refund` |
 | P0 | 订单查询：按用户 + 状态筛选 + 时间倒序 | `GET /api/orders?status=X` |
-| P1 | 乘车人冲突检测（同天不卖时间重叠票） | 业务校验 |
-| P1 | 列车经停站详情 | `GET /api/trains/{id}/stops` |
+| P1 | 乘车人冲突检测（同天不卖时间重叠票） | 业务校验（未实现） |
+| P1 | 列车经停站详情 | `GET /api/trains/{id}/stops`（未实现） |
 
 **可演示**：curl 查票 → 购票 → 100 线程抢最后 1 张票 only 1 成功 → 退票 → 座位恢复。
 
@@ -684,7 +681,8 @@ SeatBitmap
 | P0 | **查票页**：出发站/到达站下拉 + 日期选择 + 结果卡片列表（直达/换乘标签） | 对应 `GET /api/trains/query` |
 | P0 | **购票**：从查票结果进入 → 选席位/数量 → 填写乘车人 → 确认下单 | 对应 `POST /api/orders` |
 | P0 | **我的订单**：列表 + 状态筛选 + 退票按钮 | 对应 `GET /api/orders` + `POST ../refund` |
-| P1 | toast 通知 + loading 状态 + 表单校验 + 401 拦截 | `UI` 工具模块 |
+| P1 | toast 通知 + loading 状态 + 401 拦截 | `UI` 工具模块 |
+| P1 | 表单校验 | 前端输入校验（未实现） |
 
 **可演示**：浏览器登录 → 查票 → 选车次 → 选座位 → 提交下单 → 查看订单 → 退票 → 退款显示。
 
