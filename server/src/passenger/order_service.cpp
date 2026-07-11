@@ -2,38 +2,22 @@
 #include "passenger/order_service.h"
 #include "passenger/seat_inventory.h"
 #include "data/data_store.h"
-#include "geo_utils.h"
+#include "core/utils.h"
 #include "core/logger.h"
 
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <filesystem>
 #include <random>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
 #include <chrono>
 #include <ctime>
-#include <fstream>
-#include <filesystem>
-#include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
 
 namespace {
-    // ── UUID 生成 ──
-    std::string makeUuid() {
-        static std::mt19937_64 rng(std::random_device{}());
-        static std::uniform_int_distribution<uint64_t> dist;
-        uint64_t a = dist(rng), b = dist(rng);
-        std::ostringstream oss;
-        oss << std::hex << std::setfill('0')
-            << std::setw(8) << ((a >> 32) & 0xFFFFFFFF)
-            << "-" << std::setw(4) << ((a >> 16) & 0xFFFF)
-            << "-4" << std::setw(3) << (a & 0xFFF)
-            << "-8" << std::setw(3) << ((b >> 48) & 0xFFF)
-            << "-" << std::setw(4) << ((b >> 32) & 0xFFFF)
-            << std::setw(8) << (b & 0xFFFFFFFF);
-        return oss.str();
-    }
-
     // ── 当前时间 ISO 8601 ──
     std::string nowIso() {
         auto now = std::chrono::system_clock::now();
@@ -161,37 +145,12 @@ OrderService::OrderResult OrderService::createOrder(
         return result;
     }
 
-    // 5. 计算票价里程：沿经过站序列逐段 Haversine 累加
-    double trip_km = 0.0;
-    auto& ds = DataStore::instance();
-    if (!train->route_stations.empty()) {
-        // route_stations 下标和 stops 不同，需独立查找
-        int r_from = -1, r_to = -1;
-        for (size_t i = 0; i < train->route_stations.size(); ++i) {
-            if (train->route_stations[i] == from_station) r_from = static_cast<int>(i);
-            if (train->route_stations[i] == to_station && r_from >= 0) {
-                r_to = static_cast<int>(i); break;
-            }
-        }
-        if (r_from >= 0 && r_to > r_from) {
-            for (int i = r_from; i < r_to; ++i) {
-                auto* sa = ds.getStation(train->route_stations[i]);
-                auto* sb = ds.getStation(train->route_stations[i + 1]);
-                if (sa && sb) trip_km += haversineDist(*sa, *sb);
-            }
-        }
-    } else {
-        // route_stations 为空，直接用 stops 的 from_idx/to_idx
-        for (int i = from_idx; i < to_idx; ++i) {
-            auto* sa = ds.getStation(train->stops[i].station_id);
-            auto* sb = ds.getStation(train->stops[i + 1].station_id);
-            if (sa && sb) trip_km += haversineDist(*sa, *sb);
-        }
-    }
+    // 5. 计算票价里程（复用共享函数）
+    double trip_km = calcRouteDistance(*train, from_station, to_station, DataStore::instance());
 
     // 6. 创建订单
     Order order;
-    order.id = makeUuid();
+    order.id = generateUuid();
     order.user_id = user_id;
     order.train_id = train_id;
     order.date = date;
@@ -310,9 +269,7 @@ double OrderService::calcRefund(const std::string& date, int departure_hhmm) con
     if (!isToday(date)) return 0.95;
 
     // 今天的票，按时距计算
-    int now = nowHHMM();
-    int minutes_before = (departure_hhmm / 100 * 60 + departure_hhmm % 100)
-                       - (now / 100 * 60 + now % 100);
+    int minutes_before = timeDiff(nowHHMM(), departure_hhmm);
 
     if (minutes_before < 0) return 0.0;          // 已发车
     if (minutes_before < 120) return 0.80;        // 2 小时内

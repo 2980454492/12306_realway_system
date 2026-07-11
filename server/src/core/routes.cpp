@@ -8,12 +8,44 @@
 #include "auth/rbac_middleware.h"
 #include "passenger/train_query.h"
 #include "passenger/order_service.h"
-#include "geo_utils.h"
+#include "core/utils.h"
 
 #include <nlohmann/json.hpp>
 #include <chrono>
 
 using json = nlohmann::json;  // 局部 using，非全局
+
+/** 停站序列 → JSON 数组 [{station_id, station_name, arrival, departure}] */
+inline json stopsToJson(const std::vector<Stop>& stops, DataStore& ds) {
+    json arr = json::array();
+    for (const auto& stop : stops) {
+        json sd;
+        sd["station_id"] = stop.station_id;
+        auto* st = ds.getStation(stop.station_id);
+        sd["station_name"] = st ? st->name : "?";
+        sd["arrival"] = stop.arrival;
+        sd["departure"] = stop.departure;
+        arr.push_back(sd);
+    }
+    return arr;
+}
+
+/** 从请求中提取 JWT、校验、检查权限。成功返回 AuthContext，失败写入响应并返回 nullopt。 */
+inline std::optional<AuthContext> checkAuth(const httplib::Request& req, httplib::Response& res,
+                                             Permission perm) {
+    std::string auth = req.has_header("Authorization")
+        ? req.get_header_value("Authorization") : "";
+    auto ctx = RbacMiddleware::authenticate(auth);
+    if (!ctx || !RbacMiddleware::authorize(*ctx, perm)) {
+        json j;
+        j["ok"] = false;
+        j["error"] = ctx ? "Forbidden" : "Unauthorized";
+        res.set_content(j.dump(), "application/json");
+        res.status = ctx ? 403 : 401;
+        return std::nullopt;
+    }
+    return ctx;
+}
 
 void registerRoutes(RailwayServer& server) {
     auto& app = server.getApp();
@@ -164,28 +196,8 @@ void registerRoutes(RailwayServer& server) {
     // ── GET /api/admin/debug — 管理员权限测试（仅 ADMIN 可访问）──
     app.Get("/api/admin/debug", [](const httplib::Request& req, httplib::Response& res) {
         try {
-            std::string auth = req.has_header("Authorization")
-                ? req.get_header_value("Authorization") : "";
-
-            auto ctx = RbacMiddleware::authenticate(auth);
-            if (!ctx) {
-                json j;
-                j["ok"] = false;
-                j["error"] = "Unauthorized";
-                res.set_content(j.dump(), "application/json");
-                res.status = 401;
-                return;
-            }
-
-            // 检查 ADMIN 权限
-            if (!RbacMiddleware::authorize(*ctx, Permission::MANAGE_USERS)) {
-                json j;
-                j["ok"] = false;
-                j["error"] = "Forbidden: admin only";
-                res.set_content(j.dump(), "application/json");
-                res.status = 403;
-                return;
-            }
+            auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
+            if (!ctx) return;
 
             json j;
             j["ok"] = true;
@@ -208,17 +220,8 @@ void registerRoutes(RailwayServer& server) {
     app.Get("/api/trains/query", [](const httplib::Request& req, httplib::Response& res) {
         try {
             // JWT 鉴权
-            std::string auth = req.has_header("Authorization")
-                ? req.get_header_value("Authorization") : "";
-            auto ctx = RbacMiddleware::authenticate(auth);
-            if (!ctx || !RbacMiddleware::authorize(*ctx, Permission::QUERY_TRAINS)) {
-                json j;
-                j["ok"] = false;
-                j["error"] = ctx ? "Forbidden" : "Unauthorized";
-                res.set_content(j.dump(), "application/json");
-                res.status = ctx ? 403 : 401;
-                return;
-            }
+            auto ctx = checkAuth(req, res, Permission::QUERY_TRAINS);
+    if (!ctx) return;
 
             // 解析逗号分隔的站 ID（支持城市级别查询）
             std::vector<uint32_t> from_ids, to_ids;
@@ -324,17 +327,7 @@ void registerRoutes(RailwayServer& server) {
                 }
                 addSeatPrices(d, "seat_prices", item.price);
                 // 停站详情（含站名和时间，前端展示用）
-                json stops_arr = json::array();
-                for (const auto& stop : item.stops) {
-                    json sd;
-                    sd["station_id"] = stop.station_id;
-                    auto* st = ds.getStation(stop.station_id);
-                    sd["station_name"] = st ? st->name : "?";
-                    sd["arrival"] = stop.arrival;
-                    sd["departure"] = stop.departure;
-                    stops_arr.push_back(sd);
-                }
-                d["stops"] = stops_arr;
+                d["stops"] = stopsToJson(item.stops, ds);
                 direct_arr.push_back(d);
             }
             j["direct"] = direct_arr;
@@ -372,21 +365,9 @@ void registerRoutes(RailwayServer& server) {
                 addSeatPrices(t, "first_leg_seat_prices", item.first_leg_price);
                 addSeatPrices(t, "second_leg_seat_prices", item.second_leg_price);
                 // 停站详情（第一段 + 第二段）
-                auto addStops = [&](json& target, const std::string& key, const std::vector<Stop>& stops) {
-                    json arr = json::array();
-                    for (const auto& stop : stops) {
-                        json sd;
-                        sd["station_id"] = stop.station_id;
-                        auto* st = ds.getStation(stop.station_id);
-                        sd["station_name"] = st ? st->name : "?";
-                        sd["arrival"] = stop.arrival;
-                        sd["departure"] = stop.departure;
-                        arr.push_back(sd);
-                    }
-                    target[key] = arr;
-                };
-                addStops(t, "stops", item.stops);
-                addStops(t, "second_stops", item.second_stops);
+                
+                t["stops"] = stopsToJson(item.stops, ds);
+                t["second_stops"] = stopsToJson(item.second_stops, ds);
                 transfer_arr.push_back(t);
             }
             j["transfers"] = transfer_arr;
@@ -404,17 +385,8 @@ void registerRoutes(RailwayServer& server) {
     // ── POST /api/orders — 购票 ──
     app.Post("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
         try {
-            std::string auth = req.has_header("Authorization")
-                ? req.get_header_value("Authorization") : "";
-            auto ctx = RbacMiddleware::authenticate(auth);
-            if (!ctx || !RbacMiddleware::authorize(*ctx, Permission::BUY_TICKETS)) {
-                json j;
-                j["ok"] = false;
-                j["error"] = ctx ? "Forbidden" : "Unauthorized";
-                res.set_content(j.dump(), "application/json");
-                res.status = ctx ? 403 : 401;
-                return;
-            }
+            auto ctx = checkAuth(req, res, Permission::BUY_TICKETS);
+    if (!ctx) return;
 
             json body = json::parse(req.body);
             auto result = OrderService::instance().createOrder(
@@ -458,17 +430,8 @@ void registerRoutes(RailwayServer& server) {
     // ── GET /api/orders — 订单查询 ──
     app.Get("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
         try {
-            std::string auth = req.has_header("Authorization")
-                ? req.get_header_value("Authorization") : "";
-            auto ctx = RbacMiddleware::authenticate(auth);
-            if (!ctx || !RbacMiddleware::authorize(*ctx, Permission::VIEW_OWN_ORDERS)) {
-                json j;
-                j["ok"] = false;
-                j["error"] = ctx ? "Forbidden" : "Unauthorized";
-                res.set_content(j.dump(), "application/json");
-                res.status = ctx ? 403 : 401;
-                return;
-            }
+            auto ctx = checkAuth(req, res, Permission::VIEW_OWN_ORDERS);
+    if (!ctx) return;
 
             std::optional<OrderStatus> status_filter;
             if (req.has_param("status")) {
@@ -494,13 +457,7 @@ void registerRoutes(RailwayServer& server) {
                             break;
                         }
                     }
-                    // HHMM 时间差
-                    if (dep > 0 && arr > 0) {
-                        int dm = (dep/100)*60 + dep%100;
-                        int am = (arr/100)*60 + arr%100;
-                        if (am < dm) am += 1440;
-                        dur = am - dm;
-                    }
+                    dur = timeDiff(dep, arr);
                     o["departure_time"] = dep;
                     o["arrival_time"] = arr;
                     o["duration_minutes"] = dur;
@@ -509,16 +466,7 @@ void registerRoutes(RailwayServer& server) {
                     o["from_station_name"] = fromSt ? fromSt->name : "?";
                     o["to_station_name"] = toSt ? toSt->name : "?";
                     // 停站数据（供详情弹窗用）
-                    json stopsArr = json::array();
-                    for (const auto& stop : train->stops) {
-                        json sd;
-                        sd["station_id"] = stop.station_id;
-                        auto* st = ds.getStation(stop.station_id);
-                        sd["station_name"] = st ? st->name : "?";
-                        sd["arrival"] = stop.arrival;
-                        sd["departure"] = stop.departure;
-                        stopsArr.push_back(sd);
-                    }
+                    json stopsArr = stopsToJson(train->stops, ds);
                     o["stops"] = stopsArr;
                 }
                 arr.push_back(o);
@@ -541,17 +489,8 @@ void registerRoutes(RailwayServer& server) {
     // ── POST /api/orders/{id}/refund — 退票 ──
     app.Post(R"(/api/orders/([^/]+)/refund)", [](const httplib::Request& req, httplib::Response& res) {
         try {
-            std::string auth = req.has_header("Authorization")
-                ? req.get_header_value("Authorization") : "";
-            auto ctx = RbacMiddleware::authenticate(auth);
-            if (!ctx || !RbacMiddleware::authorize(*ctx, Permission::REFUND_OWN)) {
-                json j;
-                j["ok"] = false;
-                j["error"] = ctx ? "Forbidden" : "Unauthorized";
-                res.set_content(j.dump(), "application/json");
-                res.status = ctx ? 403 : 401;
-                return;
-            }
+            auto ctx = checkAuth(req, res, Permission::REFUND_OWN);
+    if (!ctx) return;
 
             std::string order_id = req.matches[1];
             auto result = OrderService::instance().refundOrder(order_id, ctx->user_id);

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <optional>
 #include <mutex>
 
@@ -49,8 +50,13 @@ private:
     bool saveUsers(const std::string& config_dir);
     void createSeedUsers();
 
+    /** 重建索引（加载/修改用户后调用） */
+    void rebuildIndexes();
+
     // ── 数据 ──
     std::vector<User> users_;
+    std::unordered_map<std::string, size_t> username_idx_;  // username → users_ 下标
+    std::unordered_map<std::string, size_t> id_idx_;        // user id → users_ 下标
     std::string config_dir_;
     bool initialized_ = false;
     mutable std::mutex mutex_;

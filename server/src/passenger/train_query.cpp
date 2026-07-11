@@ -2,7 +2,7 @@
 #include "passenger/train_query.h"
 #include "data/data_store.h"
 #include "passenger/seat_inventory.h"
-#include "geo_utils.h"
+#include "core/utils.h"
 #include "core/logger.h"
 
 #include <set>
@@ -86,69 +86,9 @@ std::optional<StationTrainIndex> loadIndex(const std::string& path, DataStore& d
 
 // ── 工具函数 ──
 
-/** 在车站 ID 序列中查找 from 和 to 的索引。to 必须在 from 之后出现，找到立即返回。 */
-std::pair<int, int> findIndices(const std::vector<uint32_t>& ids, uint32_t from, uint32_t to) {
-    int from_idx = -1, to_idx = -1;
-    for (size_t i = 0; i < ids.size(); ++i) {
-        if (ids[i] == from) from_idx = static_cast<int>(i);
-        if (ids[i] == to && from_idx >= 0) {
-            to_idx = static_cast<int>(i);
-            break;
-        }
-    }
-    return {from_idx, to_idx};
-}
-
-/** 计算 HHMM 时间差（分钟），支持跨天（如 2300→0100 = 120min） */
-int timeDiff(int from_hhmm, int to_hhmm) {
-    if (from_hhmm < 0 || to_hhmm < 0) return 9999;
-    int from_min = (from_hhmm / 100) * 60 + (from_hhmm % 100);
-    int to_min = (to_hhmm / 100) * 60 + (to_hhmm % 100);
-    if (to_min < from_min) to_min += 24 * 60;  // 跨天
-    return to_min - from_min;
-}
-
 /** 计算票价（元），基准为二等座每公里费率 */
 double calcPrice(double distance_km, SeatType seat_type) {
     return distance_km * BASE_RATE_PER_KM * seatPriceMultiplier(seat_type);
-}
-
-/** 在列车停站序列中找 from 和 to 的位置，复用 findIndices */
-std::pair<int, int> findStops(const Train& train, uint32_t from, uint32_t to) {
-    std::vector<uint32_t> ids;
-    ids.reserve(train.stops.size());
-    for (const auto& s : train.stops) ids.push_back(s.station_id);
-    return findIndices(ids, from, to);
-}
-
-/**
- * 计算列车从 from_station 到 to_station 的实际走行里程。
- * 使用 route_stations（含所有经过站，不只是停站）逐段累加 Haversine。
- * 铁路列车沿轨道依次经过各中间站，不是直线飞行——必须逐段求和。
- */
-double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station,
-                         DataStore& ds) {
-    int from_idx = -1, to_idx = -1;
-    // 优先用 route_stations（更精确），fallback 用 stops 的 station_id
-    std::vector<uint32_t> fallback_ids;
-    const std::vector<uint32_t>* ids = &train.route_stations;
-    if (ids->empty()) {
-        for (const auto& s : train.stops) fallback_ids.push_back(s.station_id);
-        ids = &fallback_ids;
-    }
-
-    std::tie(from_idx, to_idx) = findIndices(*ids, from_station, to_station);
-    if (from_idx < 0 || to_idx < 0 || from_idx >= to_idx) return 0.0;
-
-    double total = 0.0;
-    for (int i = from_idx; i < to_idx; ++i) {
-        auto* sa = ds.getStation((*ids)[i]);
-        auto* sb = ds.getStation((*ids)[i + 1]);
-        if (sa && sb) {
-            total += haversineDist(*sa, *sb);
-        }
-    }
-    return total;
 }
 
 /** 查某车次从 from 站到 to 站的可用座位（仅查数量，不锁定） */
