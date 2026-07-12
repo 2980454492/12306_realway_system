@@ -111,7 +111,7 @@
 - 车站筛选（只有输入城市名时才生效，筛选该城市下的具体车站）
 - 车型筛选（G/C/K/Z/L，与查票页共用）
 
-**同城多站合并规则**：当一列车途经同一城市的多个车站时，后台返回多条记录（每条对应一个停站），前端按车次合并为一张卡片，到发时间选取优先级为：
+**同城多站合并规则**：当一列车途经同一城市的多个车站时，后端自动合并为一条记录，到发时间选取优先级为：
 
 1. 始发站 — 若该城市内有列车全程的始发站，显示该站到发时间
 2. 终到站 — 若该城市内有列车全程的终到站，显示该站到发时间
@@ -516,7 +516,7 @@ SeatBitmap
 | POST | `/api/auth/refresh` | 刷新Token | - |
 | POST | `/api/auth/logout` | 登出 | Passenger+ |
 | GET | `/api/trains/query?from=X&to=Y&date=Z` | 查票 | Passenger+ |
-| GET | `/api/trains/station?station=X` | 车站查询 | Passenger+ |
+| GET | `/api/trains/station?station=X&sort=departure\|train_id` | 车站查询 | Passenger+ |
 | GET | `/api/trains/{id}/stops` | 查询列车经停站 | Passenger+ |
 | POST | `/api/orders` | 购票 | Passenger+ |
 | POST | `/api/orders/{id}/refund` | 退票 | Passenger+(仅自己订单) |
