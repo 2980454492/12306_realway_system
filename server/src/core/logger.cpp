@@ -8,6 +8,7 @@
 #include <filesystem>
 
 namespace {
+// 生成精确到毫秒的时间戳字符串
 std::string timestamp() {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);

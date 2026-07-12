@@ -27,6 +27,7 @@ public:
      * 购票请求。
      * @return 成功返回订单，失败返回 error 信息
      */
+    /** 购票结果 */
     struct OrderResult {
         std::optional<Order> order;
         std::string error;  // 失败时的原因
@@ -45,6 +46,7 @@ public:
      * 退票。
      * @return 成功返回退款金额，失败返回 error
      */
+    /** 退票结果 */
     struct RefundResult {
         std::optional<double> refund_amount;
         std::string error;
@@ -61,6 +63,7 @@ public:
 private:
     OrderService() = default;
 
+    /** 将订单持久化到 data_dir/orders.json */
     void saveOrders() const;
 
     std::vector<Order> orders_;

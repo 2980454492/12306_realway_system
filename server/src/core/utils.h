@@ -14,7 +14,7 @@
 
 // ── UUID ──
 
-/** 生成 UUID v4 字符串 */
+/** 生成 UUID v4 随机字符串（用于订单号等唯一标识） */
 inline std::string generateUuid() {
     static std::mt19937_64 rng(std::random_device{}());
     static std::uniform_int_distribution<uint64_t> dist;
@@ -32,7 +32,7 @@ inline std::string generateUuid() {
 
 // ── 时间工具 ──
 
-/** 当前本地时间 tm 结构（所有时间函数的唯一 system_clock 调用点） */
+/** 当前本地时间，所有时间函数的唯一 system_clock 入口 */
 inline std::tm nowTm() {
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
@@ -41,7 +41,7 @@ inline std::tm nowTm() {
     return tm;
 }
 
-/** 今天的日期字符串 yyyy-MM-dd */
+/** 今天的日期，格式 yyyy-MM-dd */
 inline std::string todayStr() {
     auto tm = nowTm();
     char buf[11];
@@ -49,13 +49,13 @@ inline std::string todayStr() {
     return std::string(buf);
 }
 
-/** 当前 HHMM（如 1430 = 14:30） */
+/** 当前时刻 HHMM 整数（如 1430） */
 inline int nowHHMM() {
     auto tm = nowTm();
     return tm.tm_hour * 100 + tm.tm_min;
 }
 
-/** 当前 UTC 时间 ISO 8601 字符串（用于订单时间戳） */
+/** 当前 UTC 时间，ISO 8601 格式（订单时间戳用） */
 inline std::string nowIso() {
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
@@ -66,15 +66,12 @@ inline std::string nowIso() {
     return oss.str();
 }
 
-/** 检查日期字符串（yyyy-MM-dd）是否为今天 */
+/** date 是否为今天 */
 inline bool isToday(const std::string& date) {
     return date == todayStr();
 }
 
-/**
- * 检查车票是否未过期：日期在 [today, today+maxDays]，且若为今天则发车时间未过。
- * @param departure_hhmm  发车 HHMM，为 0 时仅做日期比较
- */
+/** 车票是否未过期：日期在 [today, today+maxDays]，departure_hhmm>0 时校验发车时间未过 */
 inline bool isFuture(const std::string& date, int maxDays, int departure_hhmm = 0) {
     auto today = todayStr();
     if (date < today) return false;
@@ -94,7 +91,7 @@ inline bool isFuture(const std::string& date, int maxDays, int departure_hhmm = 
     return true;
 }
 
-/** 计算两个 HHMM 时间差（分钟），支持跨天（如 2300→0100 = 120min） */
+/** 两个 HHMM 的时间差（分钟），跨天自动加 24h */
 inline int timeDiff(int from_hhmm, int to_hhmm) {
     if (from_hhmm < 0 || to_hhmm < 0) return 9999;
     int from_min = (from_hhmm / 100) * 60 + (from_hhmm % 100);
@@ -105,7 +102,7 @@ inline int timeDiff(int from_hhmm, int to_hhmm) {
 
 // ── 序列查找 ──
 
-/** 在车站 ID 序列中查找 from 和 to 的索引。to 必须在 from 之后出现。 */
+/** 在 ID 序列中查找 from/to 的索引，to 须在 from 之后 */
 inline std::pair<int, int> findIndices(const std::vector<uint32_t>& ids, uint32_t from, uint32_t to) {
     int from_idx = -1, to_idx = -1;
     for (size_t i = 0; i < ids.size(); ++i) {
@@ -120,7 +117,7 @@ inline std::pair<int, int> findIndices(const std::vector<uint32_t>& ids, uint32_
 
 // ── 地理工具 ──
 
-/** Haversine 公式：计算两经纬度间的大圆距离（km） */
+/** 两站点间的大圆距离（km），Haversine 公式 */
 inline double haversineDist(const Station& a, const Station& b) {
     const double EARTH_RADIUS_KM = 6371.0;
     double lat1 = a.latitude * M_PI / 180.0;
@@ -134,7 +131,7 @@ inline double haversineDist(const Station& a, const Station& b) {
     return 2.0 * EARTH_RADIUS_KM * std::atan2(std::sqrt(h), std::sqrt(1.0 - h));
 }
 
-/** 席位票价倍率（相对于二等座） */
+/** 席位票价倍率，以二等座为 1.0 */
 inline constexpr double seatPriceMultiplier(SeatType type) {
     switch (type) {
         case SeatType::BUSINESS:     return 3.0;
@@ -147,18 +144,15 @@ inline constexpr double seatPriceMultiplier(SeatType type) {
     return 1.0;
 }
 
-/** 二等座基准费率（元/km） */
+/** 二等座每公里基准费率（元） */
 inline constexpr double BASE_RATE_PER_KM = 0.30;
 
-/** 购票/查票最大提前天数（12306 为 15 天，含今天） */
+/** 购票/查票最大提前天数（12306 为 15 天即 today+14） */
 inline constexpr int MAX_ADVANCE_DAYS = 14;
 
 // ── 路线计算 ──
 
-/**
- * 计算列车从 from_station 到 to_station 的实际走行里程。
- * 使用 route_stations（含所有经过站）逐段累加 Haversine。
- */
+/** 计算列车从 from 到 to 的实际走行里程，沿 route_stations 逐段累加 Haversine */
 inline double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station,
                                 DataStore& ds) {
     int from_idx = -1, to_idx = -1;

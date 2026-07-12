@@ -18,9 +18,11 @@ namespace {
     // ── Base64URL 编码/解码 ──
     // JWT 使用 URL-safe base64（+ → -, / → _, 去尾 =
 
+    /** Base64 字符集 */
     const std::string BASE64_CHARS =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
+    // Base64 URL-safe 编码（去尾 = 替换 +-/）
     std::string base64urlEncode(const std::string& input) {
         std::string encoded;
         int val = 0, valb = -6;
@@ -47,6 +49,7 @@ namespace {
         return encoded;
     }
 
+    // Base64 URL-safe 解码
     std::string base64urlDecode(const std::string& input) {
         std::string decoded_input = input;
         // 恢复 padding
@@ -77,6 +80,7 @@ namespace {
 
     // ── HMAC-SHA256（使用 libsodium）──
 
+    // 用 libsodium crypto_auth_hmacsha256 计算 HMAC-SHA256
     std::string hmacSha256(const std::string& key, const std::string& data) {
         unsigned char mac[crypto_auth_hmacsha256_BYTES];
         crypto_auth_hmacsha256_state state;

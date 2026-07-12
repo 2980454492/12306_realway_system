@@ -26,8 +26,9 @@ public:
 
     /**
      * 预留座位。成功返回分配的 seat_number 列表，失败返回空。
-     * 原子操作：检查余票 → 标记为已售 → 写入版本号。
+     * 原子操作：检查余票 → 标记为已售。
      */
+    /** 座位预留结果 */
     struct Reservation {
         std::vector<uint16_t> seat_numbers;  // 分配的座位号（1-based）
         bool success = false;

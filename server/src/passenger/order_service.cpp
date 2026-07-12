@@ -18,6 +18,8 @@
 
 namespace {
     // ── 退票费率 ──
+
+    // 根据距发车时间计算退票费率：>24h→95%, 2-24h→90%, <2h→80%
     double calcRefund(const std::string& date, int departure_hhmm) {
         // 非今天的票（未来），距发车 >24 小时，最高费率
         if (!isToday(date)) return 0.95;

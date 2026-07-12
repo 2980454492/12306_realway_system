@@ -7,7 +7,7 @@
 
 namespace {
 
-/** 生成 (车次, 日期) 组合 key */
+// 生成 (车次, 日期) 组合 key
 std::string makeKey(const std::string& train_id, const std::string& date) {
     return train_id + "|" + date;
 }

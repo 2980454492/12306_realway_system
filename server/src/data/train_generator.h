@@ -12,12 +12,7 @@
  */
 class TrainGenerator {
 public:
-    /**
-     * 生成列车数据。
-     * @param lines    线路列表
-     * @param stations 站点列表
-     * @return 生成的列车列表（100 辆左右）
-     */
+    /** 根据线路和站点生成列车数据（约 100 辆） */
     static std::vector<Train> generate(
         const std::vector<Line>& lines,
         const std::vector<Station>& stations);

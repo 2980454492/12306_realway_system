@@ -19,7 +19,7 @@ using json = nlohmann::json;
 
 namespace {
 
-/** 用 argon2id 哈希密码（libsodium crypto_pwhash_str），自动生成独立 salt */
+// 用 argon2id 哈希密码，自动生成独立 salt
 std::string hashPassword(const std::string& password) {
     char hash[crypto_pwhash_STRBYTES];
     if (crypto_pwhash_str(hash, password.c_str(), password.size(),
@@ -31,7 +31,7 @@ std::string hashPassword(const std::string& password) {
     return std::string(hash);
 }
 
-/** 验证密码是否匹配已存储的 argon2id 哈希 */
+// 验证密码是否匹配已存储的 argon2id 哈希
 bool verifyPassword(const std::string& password, const std::string& hash) {
     if (hash.empty()) return false;
     return crypto_pwhash_str_verify(hash.c_str(), password.c_str(),

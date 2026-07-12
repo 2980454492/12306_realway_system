@@ -1,4 +1,4 @@
-// railway_graph.h — 铁路网图，邻接表 + Dijkstra 最短路径
+// railway_graph.h — 铁路网拓扑图（邻接表 + JSON 持久化）
 #pragma once
 
 #include "models.h"
@@ -34,6 +34,7 @@ private:
     bool tryLoadFromFile();
     void saveToFile() const;
 
+    /** 铁路网图持久化文件路径 */
     static constexpr const char* GRAPH_FILE = "data/railway_graph.json";
 
     std::map<uint32_t, std::map<uint32_t, double>> adjacency_;

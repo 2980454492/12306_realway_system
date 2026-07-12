@@ -26,13 +26,15 @@ public:
                               const std::string& role,
                               int expires_in_seconds = 1800) const;
 
-    /** 校验 JWT token。成功返回 payload（sub, role, exp），失败返回 nullopt */
+    /** JWT 解析后的 Payload 字段 */
     struct Payload {
         std::string user_id;
         std::string role;
         int64_t exp = 0;
         int64_t iat = 0;
     };
+
+    /** 校验 JWT token。成功返回 payload，失败返回 nullopt */
     std::optional<Payload> verifyToken(const std::string& token) const;
 
     /** 获取密钥（用于调试，生产环境勿暴露） */
