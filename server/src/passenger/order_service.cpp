@@ -288,7 +288,10 @@ const Order* OrderService::getOrder(const std::string& order_id) const {
 // ── 退票费率 ──
 
 double OrderService::calcRefund(const std::string& date, int departure_hhmm) const {
-    // 非今天的票，距发车 >24 小时，最高费率
+    // 已过的乘车日期，不可退
+    if (!isTodayOrFuture(date, 14)) return 0.0;
+
+    // 非今天的票（未来），距发车 >24 小时，最高费率
     if (!isToday(date)) return 0.95;
 
     // 今天的票，按时距计算

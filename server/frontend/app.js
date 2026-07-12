@@ -1009,6 +1009,8 @@ const UI = {
         list = list.filter(function(item) {
           return enabledSt[item.station_name] === true;
         });
+      } else {
+        list = [];
       }
     }
 

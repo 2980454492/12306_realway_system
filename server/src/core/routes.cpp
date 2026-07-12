@@ -596,7 +596,7 @@ void registerRoutes(RailwayServer& server) {
     app.Post(R"(/api/orders/([^/]+)/refund)", [](const httplib::Request& req, httplib::Response& res) {
         try {
             auto ctx = checkAuth(req, res, Permission::REFUND_OWN);
-    if (!ctx) return;
+            if (!ctx) return;
 
             std::string order_id = req.matches[1];
             auto result = OrderService::instance().refundOrder(order_id, ctx->user_id);
