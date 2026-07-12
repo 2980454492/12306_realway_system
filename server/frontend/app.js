@@ -996,21 +996,20 @@ const UI = {
       return enabledTypes[typeKey] !== false;
     });
 
-    // 车站筛选：检查该列车是否经停任一勾选的车站（同一城市可能多站停靠）
+    // 车站筛选：按条目自身的 station_name 匹配勾选的车站
     if (State.stationIsCity && State.stationCityStations.length > 1) {
       var enabledSt = {};
       var stChecks = document.querySelectorAll('.station-filter-st-check');
+      var anyChecked = false;
       for (var si = 0; si < stChecks.length; si++) {
         enabledSt[stChecks[si].value] = stChecks[si].checked;
+        if (stChecks[si].checked) anyChecked = true;
       }
-      list = list.filter(function(item) {
-        // 遍历该列车所有停站，任一停站在勾选集合中即保留
-        var stops = item.stops || [];
-        for (var si2 = 0; si2 < stops.length; si2++) {
-          if (enabledSt[stops[si2].station_name] === true) return true;
-        }
-        return false;
-      });
+      if (anyChecked) {
+        list = list.filter(function(item) {
+          return enabledSt[item.station_name] === true;
+        });
+      }
     }
 
     // 同车次合并：同一列车经停同城多站时，按优先级选一条显示
@@ -1036,7 +1035,7 @@ const UI = {
           if (stops[si3].station_id === old.station_id) oldIdx = si3;
           if (stops[si3].station_id === entry.station_id) newIdx = si3;
         }
-        if (!oldIsOrigin && (newIsOrigin || (newIsTerm && !oldIsTerm) || (newIdx >= 0 && (oldIdx < 0 || newIdx < oldIdx)))) {
+        if (!oldIsOrigin && (newIsOrigin || (newIsTerm && !oldIsTerm) || (!oldIsTerm && newIdx >= 0 && (oldIdx < 0 || newIdx < oldIdx)))) {
           merged[tid] = entry;
         }
       }
