@@ -96,6 +96,34 @@ NLOHMANN_JSON_SERIALIZE_ENUM(UserRole, {
     {UserRole::ADMIN,     "ADMIN"},
 })
 
+/** 审批类型 */
+enum class ApprovalType : uint8_t {
+    CREATE_TRAIN   = 0,  // 新增列车
+    ADJUST_SCHEDULE = 1,  // 调整时刻
+    ADD_LINE       = 2,  // 新增线路
+    ADD_STATION    = 3   // 新增站点
+};
+NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalType, {
+    {ApprovalType::CREATE_TRAIN,   "CREATE_TRAIN"},
+    {ApprovalType::ADJUST_SCHEDULE, "ADJUST_SCHEDULE"},
+    {ApprovalType::ADD_LINE,       "ADD_LINE"},
+    {ApprovalType::ADD_STATION,    "ADD_STATION"},
+})
+
+/** 审批状态 */
+enum class ApprovalState : uint8_t {
+    SUBMITTED = 0,  // 待审批
+    APPROVED  = 1,  // 已通过
+    REJECTED  = 2,  // 已驳回
+    EXPIRED   = 3   // 已过期
+};
+NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalState, {
+    {ApprovalState::SUBMITTED, "SUBMITTED"},
+    {ApprovalState::APPROVED,  "APPROVED"},
+    {ApprovalState::REJECTED,  "REJECTED"},
+    {ApprovalState::EXPIRED,   "EXPIRED"},
+})
+
 // ── 核心数据结构 ──
 
 /** 经停站 — 列车在一个站点的到发信息。时间用 HHMM 整数（如 1430=14:30）。
@@ -192,3 +220,27 @@ struct User {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(User,
     id, username, password_hash, role, active, failed_attempts, locked_until)
+
+/** 区间占用记录 — 某列车在某运行区间的时刻占用 */
+struct TrainInterval {
+    std::string train_id;
+    int enter_time = 0;   // 进入区间 HHMM
+    int leave_time = 0;   // 离开区间 HHMM
+};
+
+/** 审批申请 — 职工提交的变更请求 */
+struct ApprovalRequest {
+    std::string id;              // UUID
+    ApprovalType type;
+    std::string submitter_id;    // 提交人 user_id
+    std::string approver_id;     // 审批人 user_id（审批后填入）
+    ApprovalState status = ApprovalState::SUBMITTED;
+    std::string payload;         // 变更内容 JSON 字符串
+    std::string snapshot;        // 提交时区间占用快照 JSON（二次校验用）
+    std::string submitted_at;    // ISO 8601
+    std::string decided_at;      // 审批决定时间
+    std::string comment;         // 审批意见
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ApprovalRequest,
+    id, type, submitter_id, approver_id, status, payload, snapshot,
+    submitted_at, decided_at, comment)

@@ -49,6 +49,8 @@ set(SOURCES
     src/passenger/train_query.cpp
     src/passenger/seat_inventory.cpp
     src/passenger/order_service.cpp
+    src/staff/train_manager.cpp
+    src/staff/approval_service.cpp
 )
 
 set(HEADERS
@@ -66,6 +68,8 @@ set(HEADERS
     src/passenger/train_query.h
     src/passenger/seat_inventory.h
     src/passenger/order_service.h
+    src/staff/train_manager.h
+    src/staff/approval_service.h
     vendor/httplib.h
 )
 

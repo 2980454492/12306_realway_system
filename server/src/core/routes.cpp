@@ -8,6 +8,8 @@
 #include "auth/rbac_middleware.h"
 #include "passenger/train_query.h"
 #include "passenger/order_service.h"
+#include "staff/train_manager.h"
+#include "staff/approval_service.h"
 #include "core/utils.h"
 
 #include <nlohmann/json.hpp>
@@ -623,5 +625,301 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    Logger::instance().info("Routes registered: 9 endpoints + static frontend (auth, passenger, admin, debug)");
+    // ═══════════════════════════════════════════
+    // 职工端 — 列车管理 + 审批
+    // ═══════════════════════════════════════════
+
+    // ── GET /api/admin/trains — 列车列表 ──
+    app.Get("/api/admin/trains", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+            if (!ctx) return;
+
+            auto& trains = TrainManager::instance().getAllTrains();
+            json arr = json::array();
+            for (const auto& t : trains) {
+                json jt;
+                jt["id"] = t.id;
+                jt["type"] = static_cast<int>(t.type);
+                jt["status"] = static_cast<int>(t.status);
+                jt["stops_count"] = t.stops.size();
+                jt["stops"] = stopsToJson(t.stops, DataStore::instance());
+                arr.push_back(jt);
+            }
+
+            json j;
+            j["ok"] = true;
+            j["count"] = arr.size();
+            j["data"] = arr;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── POST /api/admin/trains — 新增列车（提交审批）──
+    app.Post("/api/admin/trains", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+            if (!ctx) return;
+
+            json body = json::parse(req.body);
+            Train train = body.get<Train>();
+
+            // 校验
+            auto vr = TrainManager::instance().validate(train, true);
+            if (!vr.valid) {
+                json j;
+                j["ok"] = false;
+                j["error"] = vr.error;
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            // 冲突检测
+            auto conflicts = TrainManager::instance().detectConflicts(train);
+            if (!conflicts.empty()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "运行图冲突：与 " + conflicts[0].train_id + " 在区间重叠";
+                json details = json::array();
+                for (const auto& c : conflicts) {
+                    json cd;
+                    cd["train_id"] = c.train_id;
+                    cd["station_a"] = c.station_a;
+                    cd["station_b"] = c.station_b;
+                    cd["conflicting_enter"] = c.conflicting_enter;
+                    cd["conflicting_leave"] = c.conflicting_leave;
+                    details.push_back(cd);
+                }
+                j["conflicts"] = details;
+                res.set_content(j.dump(), "application/json");
+                res.status = 409;
+                return;
+            }
+
+            // 提交审批
+            std::string snapshot = body.dump();
+            std::string aid = ApprovalService::instance().submit(
+                ApprovalType::CREATE_TRAIN, ctx->user_id, body.dump(), "");
+
+            json j;
+            j["ok"] = true;
+            j["approval_id"] = aid;
+            j["message"] = "已提交审批";
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── DELETE /api/admin/trains/{id} — 删除列车 ──
+    app.Delete(R"(/api/admin/trains/([^/]+))", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+            if (!ctx) return;
+
+            std::string train_id = req.matches[1];
+            auto result = TrainManager::instance().deleteTrain(train_id);
+            json j;
+            j["ok"] = result.success;
+            if (!result.success) j["error"] = result.error;
+            res.set_content(j.dump(), "application/json");
+            res.status = result.success ? 200 : 400;
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── PUT /api/admin/trains/{id}/schedule — 调整时刻（提交审批）──
+    app.Put(R"(/api/admin/trains/([^/]+)/schedule)", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+            if (!ctx) return;
+
+            std::string train_id = req.matches[1];
+            json body = json::parse(req.body);
+            auto new_stops = body["stops"].get<std::vector<Stop>>();
+
+            // 构建临时列车做校验
+            auto& ds = DataStore::instance();
+            auto* existing = ds.getTrain(train_id);
+            if (!existing) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "列车不存在";
+                res.set_content(j.dump(), "application/json");
+                res.status = 404;
+                return;
+            }
+
+            Train temp = *existing;
+            temp.stops = new_stops;
+            auto vr = TrainManager::instance().validate(temp, false);
+            if (!vr.valid) {
+                json j;
+                j["ok"] = false;
+                j["error"] = vr.error;
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            // 冲突检测
+            auto conflicts = TrainManager::instance().detectConflicts(temp);
+            if (!conflicts.empty()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "运行图冲突：与 " + conflicts[0].train_id + " 在区间重叠";
+                json details = json::array();
+                for (const auto& c : conflicts) {
+                    json cd;
+                    cd["train_id"] = c.train_id;
+                    cd["station_a"] = c.station_a;
+                    cd["station_b"] = c.station_b;
+                    details.push_back(cd);
+                }
+                j["conflicts"] = details;
+                res.set_content(j.dump(), "application/json");
+                res.status = 409;
+                return;
+            }
+
+            // 提交审批
+            json payload;
+            payload["id"] = train_id;
+            payload["stops"] = body["stops"];
+            std::string aid = ApprovalService::instance().submit(
+                ApprovalType::ADJUST_SCHEDULE, ctx->user_id, payload.dump(), "");
+
+            json j;
+            j["ok"] = true;
+            j["approval_id"] = aid;
+            j["message"] = "已提交审批";
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── GET /api/admin/approvals — 审批列表 ──
+    app.Get("/api/admin/approvals", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::APPROVE);
+            if (!ctx) return;
+
+            std::string status = req.get_param_value("status");
+            std::optional<ApprovalState> filter;
+            if (status == "SUBMITTED") filter = ApprovalState::SUBMITTED;
+            else if (status == "APPROVED") filter = ApprovalState::APPROVED;
+            else if (status == "REJECTED") filter = ApprovalState::REJECTED;
+
+            auto approvals = ApprovalService::instance().getApprovals(filter);
+            json arr = json::array();
+            for (const auto& a : approvals) {
+                json ja;
+                ja["id"] = a.id;
+                ja["type"] = static_cast<int>(a.type);
+                ja["submitter_id"] = a.submitter_id;
+                ja["approver_id"] = a.approver_id;
+                ja["status"] = static_cast<int>(a.status);
+                ja["submitted_at"] = a.submitted_at;
+                ja["decided_at"] = a.decided_at;
+                ja["comment"] = a.comment;
+                try { ja["payload"] = json::parse(a.payload); } catch (...) { ja["payload"] = json(); }
+                arr.push_back(ja);
+            }
+
+            json j;
+            j["ok"] = true;
+            j["count"] = arr.size();
+            j["data"] = arr;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── POST /api/admin/approvals/{id}/approve — 审批通过 ──
+    app.Post(R"(/api/admin/approvals/([^/]+)/approve)", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::APPROVE);
+            if (!ctx) return;
+
+            std::string approval_id = req.matches[1];
+            auto result = ApprovalService::instance().approve(approval_id, ctx->user_id);
+            json j;
+            j["ok"] = result.success;
+            if (!result.success) {
+                j["error"] = result.error;
+                res.status = 400;
+            } else {
+                j["train_id"] = result.train_id;
+                j["message"] = "审批通过，列车已生效";
+            }
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── POST /api/admin/approvals/{id}/reject — 审批驳回 ──
+    app.Post(R"(/api/admin/approvals/([^/]+)/reject)", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::APPROVE);
+            if (!ctx) return;
+
+            std::string approval_id = req.matches[1];
+            json body = json::parse(req.body);
+            std::string comment = body.value("comment", "");
+            if (comment.empty()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "驳回时必须填写意见";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            auto result = ApprovalService::instance().reject(approval_id, ctx->user_id, comment);
+            json j;
+            j["ok"] = result.success;
+            if (!result.success) j["error"] = result.error;
+            else j["message"] = "已驳回";
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    Logger::instance().info("Routes registered: 16 endpoints (auth, passenger, staff, debug)");
 }

@@ -41,6 +41,17 @@ public:
     /** 按站点 ID 查找所有经过的列车（通过检查列车的停站序列） */
     std::vector<const Train*> getTrainsByStation(uint32_t station_id) const;
 
+    // ── 运行时变更（职工端）──
+
+    /** 添加列车（审批通过后调用），自动重建索引 */
+    void addTrain(const Train& train);
+
+    /** 删除列车（标记为 ARCHIVED） */
+    bool removeTrain(const std::string& train_id);
+
+    /** 回写 trains 到 config/trains.json */
+    bool saveTrains(const std::string& config_dir) const;
+
 private:
     DataStore() = default;
 

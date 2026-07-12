@@ -9,6 +9,8 @@
 #include "auth/jwt_service.h"
 #include "auth/rbac_middleware.h"
 #include "passenger/order_service.h"
+#include "staff/train_manager.h"
+#include "staff/approval_service.h"
 
 #include <csignal>
 #include <atomic>
@@ -62,6 +64,10 @@ int main() {
 
     // ── 初始化订单服务（加载持久化订单）──
     OrderService::instance().initialize("data");
+
+    // ── 初始化职工端服务（列车管理 + 审批）──
+    TrainManager::instance().initialize("data");
+    ApprovalService::instance().initialize("data");
 
     // ── 创建并启动服务 ──
     RailwayServer server;

@@ -182,3 +182,34 @@ bool DataStore::loadTrains(const std::string& config_dir) {
 
     return true;
 }
+
+// ── 运行时变更 ──
+
+void DataStore::addTrain(const Train& train) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    trains_.push_back(train);
+    train_index_[train.id] = trains_.size() - 1;
+}
+
+bool DataStore::removeTrain(const std::string& train_id) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = train_index_.find(train_id);
+    if (it == train_index_.end()) return false;
+    trains_[it->second].status = TrainStatus::ARCHIVED;
+    return true;
+}
+
+bool DataStore::saveTrains(const std::string& config_dir) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    std::string path = config_dir + "/trains.json";
+    try {
+        using json = nlohmann::json;
+        json j = trains_;
+        std::ofstream out(path);
+        out << j.dump(2);
+        return true;
+    } catch (const std::exception& e) {
+        Logger::instance().error(std::string("Failed to save trains.json: ") + e.what());
+        return false;
+    }
+}
