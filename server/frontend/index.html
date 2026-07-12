@@ -138,7 +138,7 @@
       <div class="search-bar">
         <input type="text" id="station-query-input" placeholder="城市/车站" autocomplete="off" oninput="UI.onStationInput()" onfocus="UI.onStationInput()">
         <datalist id="station-query-datalist"></datalist>
-        <select id="station-sort" onchange="UI.renderStationResults()">
+        <select id="station-sort" onchange="UI.searchStation()">
           <option value="departure">发车时间优先</option>
           <option value="train_id">车次排序</option>
         </select>
@@ -222,6 +222,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=25"></script>
+<script src="/app.js?v=27"></script>
 </body>
 </html>

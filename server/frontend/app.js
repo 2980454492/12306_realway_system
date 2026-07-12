@@ -926,7 +926,8 @@ const UI = {
     U.$('station-results').innerHTML = '';
 
     try {
-      var url = '/api/trains/station?station=' + ids;
+      var sort = (U.$('station-sort') || {}).value || 'departure';
+      var url = '/api/trains/station?station=' + ids + '&sort=' + sort;
       var res = await API.get(url);
       if (loadingEl) loadingEl.style.display = 'none';
       if (!res.ok) {
@@ -1010,51 +1011,8 @@ const UI = {
       }
     }
 
-    // 同车次合并：同一列车经停同城多站时，按优先级选一条显示
-    var merged = {};
-    for (var mi = 0; mi < list.length; mi++) {
-      var entry = list[mi];
-      var tid = entry.train_id;
-      if (!merged[tid]) {
-        merged[tid] = entry;
-      } else {
-        // 优先级：始发站 > 终到站 > 先停靠的站
-        var old = merged[tid];
-        var stops = entry.stops || [];
-        var firstId = stops.length ? stops[0].station_id : 0;
-        var lastId  = stops.length ? stops[stops.length - 1].station_id : 0;
-        var oldIsOrigin = (old.station_id === firstId);
-        var oldIsTerm   = (old.station_id === lastId);
-        var newIsOrigin = (entry.station_id === firstId);
-        var newIsTerm   = (entry.station_id === lastId);
-        // 找 stop 在 stops 数组中的下标
-        var oldIdx = -1, newIdx = -1;
-        for (var si3 = 0; si3 < stops.length; si3++) {
-          if (stops[si3].station_id === old.station_id) oldIdx = si3;
-          if (stops[si3].station_id === entry.station_id) newIdx = si3;
-        }
-        if (!oldIsOrigin && (newIsOrigin || (newIsTerm && !oldIsTerm) || (!oldIsTerm && newIdx >= 0 && (oldIdx < 0 || newIdx < oldIdx)))) {
-          merged[tid] = entry;
-        }
-      }
-    }
-    list = Object.values(merged);
-
-    // 排序
-    var sortBy = (U.$('station-sort') || {}).value || 'departure';
-    if (sortBy === 'train_id') {
-      list.sort(function(a, b) { return (a.train_id || '').localeCompare(b.train_id || ''); });
-    } else {
-      list.sort(function(a, b) {
-        var ta = a.departure_time > 0 ? a.departure_time : a.arrival_time;
-        var tb = b.departure_time > 0 ? b.departure_time : b.arrival_time;
-        return ta - tb;
-      });
-    }
-
-    // 渲染筛选栏：车型筛选已在 HTML 中静态定义，车站筛选按需填充
+    // 渲染筛选栏：车站筛选按需填充
     if (State.stationIsCity && State.stationCityStations.length > 1) {
-      // 先从当前 DOM 读取勾选状态（避免重建时丢失刚点击的状态）
       var liveChecks = document.querySelectorAll('.station-filter-st-check');
       for (var l = 0; l < liveChecks.length; l++) {
         State.stationFilterSt[liveChecks[l].value] = liveChecks[l].checked;
@@ -1083,9 +1041,6 @@ const UI = {
     var html = '';
     for (var j = 0; j < list.length; j++) {
       var item = list[j];
-      var prefix = (item.train_id || '')[0];
-      var isG = (prefix === 'G'), isC = (prefix === 'C'), isK = (prefix === 'K' || prefix === 'Z');
-      var cls = isG ? 'tag-g' : isC ? 'tag-c' : isK ? 'tag-k' : 'tag-other';
       var dir = U.esc(item.from_station_name || '始发') + ' → ' + U.esc(item.to_station_name || '终到');
 
       var arrStr = item.arrival_time > 0 ? U.fmtTime(item.arrival_time) : '---';
@@ -1097,7 +1052,6 @@ const UI = {
       html += '<div class="train-card station-card" onclick="UI.showStationDetail(\'' + itemKey + '\')">' +
         '<div class="train-header">' +
           '<span class="train-id">' + U.esc(item.train_id) + '</span>' +
-          '<span class="train-type ' + cls + '">' + prefix + '</span>' +
           '<span class="train-dir">' + dir + '</span>' +
         '</div>' +
         '<div class="station-times">' +

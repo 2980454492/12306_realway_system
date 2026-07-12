@@ -336,3 +336,88 @@ std::vector<StationQueryItem> TrainQuery::queryByStation(uint32_t station_id) {
 
     return result;
 }
+
+// ── 多站查询（合并 + 排序）──
+
+std::vector<StationQueryItem> TrainQuery::queryByStations(
+    const std::vector<uint32_t>& station_ids, const std::string& sort) {
+
+    auto& ds = DataStore::instance();
+    const auto& idx = getStationIndex(ds);
+
+    // 1. 收集所有 (train, stop) 条目
+    std::unordered_map<uint32_t, std::string> station_names;
+    struct RawEntry { const Train* train; int stop_idx; uint32_t station_id; };
+    std::vector<RawEntry> raw;
+    for (auto sid : station_ids) {
+        station_names[sid] = ds.getStation(sid) ? ds.getStation(sid)->name : "";
+        auto it = idx.find(sid);
+        if (it == idx.end()) continue;
+        for (const auto& [train, stop_idx] : it->second) {
+            if (train->status == TrainStatus::ACTIVE) {
+                raw.push_back({train, stop_idx, sid});
+            }
+        }
+    }
+
+    // 2. 同车次合并：始发 > 终到 > 先停靠
+    std::unordered_map<std::string, RawEntry> best;
+    for (const auto& re : raw) {
+        auto& train = *re.train;
+        auto it = best.find(train.id);
+        if (it == best.end()) {
+            best[train.id] = re;
+            continue;
+        }
+        const auto& old = it->second;
+        uint32_t orig_id = train.stops.front().station_id;
+        uint32_t term_id = train.stops.back().station_id;
+        bool oldOrig = (old.station_id == orig_id);
+        bool newOrig = (re.station_id == orig_id);
+        bool oldTerm = (old.station_id == term_id);
+        bool newTerm = (re.station_id == term_id);
+        if (oldOrig) continue;  // 已有始发，不换
+        if (newOrig || (newTerm && !oldTerm) || (!oldTerm && re.stop_idx < old.stop_idx)) {
+            best[train.id] = re;
+        }
+    }
+
+    // 3. 构建结果
+    std::vector<StationQueryItem> result;
+    for (const auto& [tid, re] : best) {
+        const auto& train = *re.train;
+        StationQueryItem item;
+        item.train_id = train.id;
+        item.train_type = train.type;
+        item.stops = train.stops;
+        item.station_id = re.station_id;
+        item.station_name = station_names[re.station_id];
+        if (!train.stops.empty()) {
+            auto* orig = ds.getStation(train.stops.front().station_id);
+            auto* term = ds.getStation(train.stops.back().station_id);
+            item.from_station_name = orig ? orig->name : "";
+            item.to_station_name = term ? term->name : "";
+        }
+        const auto& stop = train.stops[re.stop_idx];
+        item.arrival_time = stop.arrival;
+        item.departure_time = stop.departure;
+        result.push_back(item);
+    }
+
+    // 4. 排序
+    if (sort == "train_id") {
+        std::sort(result.begin(), result.end(),
+            [](const StationQueryItem& a, const StationQueryItem& b) {
+                return a.train_id < b.train_id;
+            });
+    } else {
+        std::sort(result.begin(), result.end(),
+            [](const StationQueryItem& a, const StationQueryItem& b) {
+                int ta = (a.departure_time > 0) ? a.departure_time : a.arrival_time;
+                int tb = (b.departure_time > 0) ? b.departure_time : b.arrival_time;
+                return ta < tb;
+            });
+    }
+
+    return result;
+}

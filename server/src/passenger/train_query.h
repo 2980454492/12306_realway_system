@@ -44,6 +44,8 @@ struct StationQueryItem {
     int arrival_time = 0;            // 到达查询站的时刻 HHMM，始发站为 -1
     int departure_time = 0;          // 从查询站出发的时刻 HHMM，终到站为 -1
     std::vector<Stop> stops;         // 完整停站序列
+    uint32_t station_id = 0;         // 匹配的车站 ID（合并后按优先级选出的那个）
+    std::string station_name;        // 对应站名
 };
 
 /** 一次查询的完整结果 */
@@ -69,6 +71,13 @@ public:
     static QueryResult query(uint32_t from_station, uint32_t to_station,
                              const std::string& date);
 
-    /** 查询经停某站的所有列车，结果按发车时间升序（终到站按到达时间） */
+    /** 查询经停某站的所有列车（内部调用） */
     static std::vector<StationQueryItem> queryByStation(uint32_t station_id);
+
+    /**
+     * 查询经停多个车站的所有列车，自动合并同车次（按优先级选最佳停站），
+     * 并按指定方式排序（"departure" 或 "train_id"）。
+     */
+    static std::vector<StationQueryItem> queryByStations(
+        const std::vector<uint32_t>& station_ids, const std::string& sort);
 };

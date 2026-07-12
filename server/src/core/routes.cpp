@@ -222,7 +222,7 @@ void registerRoutes(RailwayServer& server) {
         try {
             // JWT 鉴权
             auto ctx = checkAuth(req, res, Permission::QUERY_TRAINS);
-    if (!ctx) return;
+            if (!ctx) return;
 
             // 解析逗号分隔的站 ID（支持城市级别查询）
             std::vector<uint32_t> from_ids, to_ids;
@@ -420,26 +420,24 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
-            // 查询每个目标站经停的列车（同一列车经停同城多站时保留多条，前端合并）
-            json all_items = json::array();
-            for (auto sid : target_ids) {
-                auto items = TrainQuery::queryByStation(sid);
-                for (auto& item : items) {
+            // 多站查询（后端自动合并同车次 + 排序）
+            std::string sort = req.get_param_value("sort");
+            if (sort.empty()) sort = "departure";
+            auto items = TrainQuery::queryByStations(target_ids, sort);
 
-                    json t;
-                    t["train_id"] = item.train_id;
-                    t["train_type"] = static_cast<int>(item.train_type);
-                    t["from_station_name"] = item.from_station_name;
-                    t["to_station_name"] = item.to_station_name;
-                    t["arrival_time"] = item.arrival_time;
-                    t["departure_time"] = item.departure_time;
-                    t["stops"] = stopsToJson(item.stops, ds);
-                    t["station_id"] = sid;
-                    // 站名
-                    auto* st = ds.getStation(sid);
-                    t["station_name"] = st ? st->name : "";
-                    all_items.push_back(t);
-                }
+            json all_items = json::array();
+            for (auto& item : items) {
+                json t;
+                t["train_id"] = item.train_id;
+                t["train_type"] = static_cast<int>(item.train_type);
+                t["from_station_name"] = item.from_station_name;
+                t["to_station_name"] = item.to_station_name;
+                t["arrival_time"] = item.arrival_time;
+                t["departure_time"] = item.departure_time;
+                t["stops"] = stopsToJson(item.stops, ds);
+                t["station_id"] = item.station_id;
+                t["station_name"] = item.station_name;
+                all_items.push_back(t);
             }
 
             json j;
@@ -492,7 +490,7 @@ void registerRoutes(RailwayServer& server) {
     app.Post("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
         try {
             auto ctx = checkAuth(req, res, Permission::BUY_TICKETS);
-    if (!ctx) return;
+            if (!ctx) return;
 
             json body = json::parse(req.body);
             auto result = OrderService::instance().createOrder(
@@ -537,7 +535,7 @@ void registerRoutes(RailwayServer& server) {
     app.Get("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
         try {
             auto ctx = checkAuth(req, res, Permission::VIEW_OWN_ORDERS);
-    if (!ctx) return;
+            if (!ctx) return;
 
             std::optional<OrderStatus> status_filter;
             if (req.has_param("status")) {
