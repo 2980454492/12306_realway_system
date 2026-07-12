@@ -12,6 +12,7 @@
 
 #include <nlohmann/json.hpp>
 #include <chrono>
+#include <sstream>
 
 using json = nlohmann::json;  // 局部 using，非全局
 
@@ -399,18 +400,15 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
-            // 解析输入：城市名（🌆xxx）→ 该城市所有车站，站名 → 单个站
-            bool is_city = (station_param.size() >= 4 && station_param.substr(0, 4) == "🌆 ");
-            // 去掉可能的 🌆 前缀
-            std::string search_name = is_city ? station_param.substr(4) : station_param;
-
-            // 收集目标站 ID
+            // 解析逗号分隔的车站 ID（前端 resolveStationIds 已统一完成城市→ID 转换）
             std::vector<uint32_t> target_ids;
-            for (const auto& st : ds.getAllStations()) {
-                if (is_city && st.city == search_name) {
-                    target_ids.push_back(st.id);
-                } else if (!is_city && st.name == search_name) {
-                    target_ids.push_back(st.id);
+            {
+                std::istringstream iss(station_param);
+                std::string token;
+                while (std::getline(iss, token, ',')) {
+                    try {
+                        target_ids.push_back(static_cast<uint32_t>(std::stoul(token)));
+                    } catch (...) { /* 跳过无效 ID */ }
                 }
             }
             if (target_ids.empty()) {
@@ -422,14 +420,11 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
-            // 查询每个目标站经停的列车，去重（同一列车可能经停同城多站）
-            std::set<std::string> seen;
+            // 查询每个目标站经停的列车（同一列车经停同城多站时保留多条，前端合并）
             json all_items = json::array();
             for (auto sid : target_ids) {
                 auto items = TrainQuery::queryByStation(sid);
                 for (auto& item : items) {
-                    if (seen.count(item.train_id)) continue;
-                    seen.insert(item.train_id);
 
                     json t;
                     t["train_id"] = item.train_id;
@@ -451,8 +446,6 @@ void registerRoutes(RailwayServer& server) {
             j["ok"] = true;
             j["count"] = all_items.size();
             j["data"] = all_items;
-            j["is_city"] = is_city;
-            j["stations"] = target_ids;  // 城市查询时返回子站 ID，供前端筛选
             res.set_content(j.dump(), "application/json");
         } catch (const std::exception& e) {
             json j;

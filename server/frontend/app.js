@@ -183,7 +183,7 @@ const UI = {
     }
     var cityNames = Object.keys(cities);
     for (var c = 0; c < cityNames.length; c++) {
-      html += '<option value="🌆 ' + U.esc(cityNames[c]) + '">';
+      html += '<option value="🏠 ' + U.esc(cityNames[c]) + '">';
     }
     U.$('stations-datalist').innerHTML = html;
     // 绑定 datalist
@@ -213,11 +213,11 @@ const UI = {
 
   /**
    * 将用户输入的站名/城市名解析为车站 ID 数组（逗号拼接给后端）。
-   * 🌆 前缀表示城市级别查询，匹配该城市所有车站。
+   * 🏠 前缀表示城市级别查询，匹配该城市所有车站。
    */
   resolveStationIds: function(input) {
     if (!input) return '';
-    var isCity = (input.indexOf('🌆 ') === 0);
+    var isCity = (input.indexOf('🏠 ') === 0);
     var name = isCity ? input.slice(3) : input;
     var ids = [];
     for (var i = 0; i < State.stations.length; i++) {
@@ -909,7 +909,7 @@ const UI = {
     }
     var cityNames = Object.keys(cities);
     for (var c = 0; c < cityNames.length; c++) {
-      html += '<option value="🌆 ' + U.esc(cityNames[c]) + '">';
+      html += '<option value="🏠 ' + U.esc(cityNames[c]) + '">';
     }
     dl.innerHTML = html;
     el.setAttribute('list', 'station-query-datalist');
@@ -920,12 +920,17 @@ const UI = {
     var input = (U.$('station-query-input') || {}).value || '';
     if (!input) return U.toast('请输入车站名或城市名', 'error');
 
+    // 前端解析城市→站 ID（复用 resolveStationIds）
+    var isCity = (input.indexOf('🏠 ') === 0);
+    var ids = UI.resolveStationIds(input);
+    if (ids === '0') return U.toast('未找到该车站或城市', 'error');
+
     var loadingEl = U.$('station-loading');
     if (loadingEl) loadingEl.style.display = 'block';
     U.$('station-results').innerHTML = '';
 
     try {
-      var url = '/api/trains/station?station=' + encodeURIComponent(input);
+      var url = '/api/trains/station?station=' + ids;
       var res = await API.get(url);
       if (loadingEl) loadingEl.style.display = 'none';
       if (!res.ok) {
@@ -933,16 +938,14 @@ const UI = {
         return;
       }
       State.stationResult = res.data.data || [];
-      State.stationIsCity = res.data.is_city || false;
-      // 保存子站列表
+      State.stationIsCity = isCity;
+      // 保存子站列表（前端已知，无需后端返回）
       State.stationCityStations = [];
-      if (State.stationIsCity && res.data.stations) {
-        for (var si = 0; si < res.data.stations.length; si++) {
-          var sid = res.data.stations[si];
-          for (var j = 0; j < State.stations.length; j++) {
-            if (State.stations[j].id === sid) {
-              State.stationCityStations.push(State.stations[j]); break;
-            }
+      if (isCity) {
+        var searchName = input.slice(3);
+        for (var si = 0; si < State.stations.length; si++) {
+          if (State.stations[si].city === searchName) {
+            State.stationCityStations.push(State.stations[si]);
           }
         }
       }
@@ -993,7 +996,7 @@ const UI = {
       return enabledTypes[typeKey] !== false;
     });
 
-    // 车站筛选（从静态 checkbox 读取，仅城市查询时有效）
+    // 车站筛选：检查该列车是否经停任一勾选的车站（同一城市可能多站停靠）
     if (State.stationIsCity && State.stationCityStations.length > 1) {
       var enabledSt = {};
       var stChecks = document.querySelectorAll('.station-filter-st-check');
@@ -1001,9 +1004,44 @@ const UI = {
         enabledSt[stChecks[si].value] = stChecks[si].checked;
       }
       list = list.filter(function(item) {
-        return enabledSt[item.station_name] !== false;
+        // 遍历该列车所有停站，任一停站在勾选集合中即保留
+        var stops = item.stops || [];
+        for (var si2 = 0; si2 < stops.length; si2++) {
+          if (enabledSt[stops[si2].station_name] === true) return true;
+        }
+        return false;
       });
     }
+
+    // 同车次合并：同一列车经停同城多站时，按优先级选一条显示
+    var merged = {};
+    for (var mi = 0; mi < list.length; mi++) {
+      var entry = list[mi];
+      var tid = entry.train_id;
+      if (!merged[tid]) {
+        merged[tid] = entry;
+      } else {
+        // 优先级：始发站 > 终到站 > 先停靠的站
+        var old = merged[tid];
+        var stops = entry.stops || [];
+        var firstId = stops.length ? stops[0].station_id : 0;
+        var lastId  = stops.length ? stops[stops.length - 1].station_id : 0;
+        var oldIsOrigin = (old.station_id === firstId);
+        var oldIsTerm   = (old.station_id === lastId);
+        var newIsOrigin = (entry.station_id === firstId);
+        var newIsTerm   = (entry.station_id === lastId);
+        // 找 stop 在 stops 数组中的下标
+        var oldIdx = -1, newIdx = -1;
+        for (var si3 = 0; si3 < stops.length; si3++) {
+          if (stops[si3].station_id === old.station_id) oldIdx = si3;
+          if (stops[si3].station_id === entry.station_id) newIdx = si3;
+        }
+        if (!oldIsOrigin && (newIsOrigin || (newIsTerm && !oldIsTerm) || (newIdx >= 0 && (oldIdx < 0 || newIdx < oldIdx)))) {
+          merged[tid] = entry;
+        }
+      }
+    }
+    list = Object.values(merged);
 
     // 排序
     var sortBy = (U.$('station-sort') || {}).value || 'departure';
@@ -1019,6 +1057,11 @@ const UI = {
 
     // 渲染筛选栏：车型筛选已在 HTML 中静态定义，车站筛选按需填充
     if (State.stationIsCity && State.stationCityStations.length > 1) {
+      // 先从当前 DOM 读取勾选状态（避免重建时丢失刚点击的状态）
+      var liveChecks = document.querySelectorAll('.station-filter-st-check');
+      for (var l = 0; l < liveChecks.length; l++) {
+        State.stationFilterSt[liveChecks[l].value] = liveChecks[l].checked;
+      }
       var stHtml = '<span class="filter-label">车站</span>';
       for (var i = 0; i < State.stationCityStations.length; i++) {
         var sn = State.stationCityStations[i].name;
@@ -1030,6 +1073,13 @@ const UI = {
       U.$('station-filter-st-row').style.display = '';
     } else {
       U.$('station-filter-st-row').style.display = 'none';
+    }
+
+    // 列车总数
+    var countEl = U.$('station-count');
+    if (countEl) {
+      countEl.style.display = '';
+      countEl.textContent = '共 ' + list.length + ' 趟列车';
     }
 
     // 渲染结果卡片
@@ -1068,7 +1118,16 @@ const UI = {
     if (!item) return;
 
     U.$('detail-train-id').textContent = item.train_id + ' 经停时刻表';
-    var queryStationId = item.station_id;
+
+    // 构建高亮站 ID 集合：城市查询时该城市所有车站都高亮，单站查询时仅该站
+    var highlightIds = {};
+    if (State.stationIsCity) {
+      for (var ci = 0; ci < State.stationCityStations.length; ci++) {
+        highlightIds[State.stationCityStations[ci].id] = true;
+      }
+    } else {
+      highlightIds[item.station_id] = true;
+    }
 
     function renderTimeline(stops) {
       if (!stops || !stops.length) return '';
@@ -1076,7 +1135,7 @@ const UI = {
       for (var i = 0; i < stops.length; i++) {
         var s = stops[i];
         var isFirst = i === 0, isLast = i === stops.length - 1;
-        var isQuery = (s.station_id === queryStationId);
+        var isQuery = highlightIds[s.station_id];
         var arrTime = isFirst ? '---' : U.fmtTime(s.arrival);
         var depTime = isLast ? '---' : U.fmtTime(s.departure);
         var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
