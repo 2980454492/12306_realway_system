@@ -20,6 +20,10 @@ const State = {
   stationCityStations: [], // 城市查询时的子站列表 [{id, name}]
   stationFilterSt: {},    // 车站筛选勾选状态 {stationName: true}
   _stationUnchecked: {},  // 未勾选的车站（重建 UI 时保留）
+  _allTrains: [],          // 列车列表
+  _trainStatusFilter: '',  // 列车状态筛选
+  _allApprovals: [],       // 审批列表
+  _approvalFilter: '',     // 审批状态筛选
 };
 
 // ═══════════════════════════════════════════
@@ -68,6 +72,7 @@ const Auth = {
 const API = {
   get: function(url) { return this._fetch('GET', url); },
   post: function(url, body) { return this._fetch('POST', url, body); },
+  del: function(url) { return this._fetch('DELETE', url); },
   _fetch: async function(method, url, body) {
     var headers = { 'Content-Type': 'application/json' };
     if (State.token) headers['Authorization'] = 'Bearer ' + State.token;
@@ -114,6 +119,10 @@ const U = {
     var u = U.$('nav-user'), b = U.$('btn-logout');
     if (u) u.textContent = State.user ? State.user.username + ' (' + State.user.role + ')' : '';
     if (b) b.style.display = State.user ? '' : 'none';
+    // 职工/管理员显示 staff 菜单
+    var isStaff = State.user && (State.user.role === 'STAFF' || State.user.role === 'ADMIN');
+    var items = document.querySelectorAll('.staff-only');
+    for (var i = 0; i < items.length; i++) items[i].style.display = isStaff ? '' : 'none';
   },
   hideNav: function() {
     var u = U.$('nav-user'), b = U.$('btn-logout');
@@ -158,6 +167,8 @@ const UI = {
     }
     if (name === 'query') UI.populateStationSelects();
     if (name === 'orders') UI.loadOrders();
+    if (name === 'trains') UI.loadTrains();
+    if (name === 'approvals') UI.loadApprovals();
   },
 
   /** 返回上一页（购票→查票） */
@@ -1102,6 +1113,187 @@ const UI = {
 
     U.$('detail-stops').innerHTML = renderTimeline(item.stops);
     U.$('detail-overlay').classList.add('show');
+  },
+
+  // ── 职工端：列车管理 ──
+
+  /** 加载列车列表 */
+  loadTrains: async function() {
+    var loadingEl = U.$('trains-loading'); if (loadingEl) loadingEl.style.display = 'block';
+    var res = await API.get('/api/admin/trains');
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (!res.ok) return U.toast((res.data && res.data.error) || '加载失败', 'error');
+
+    State._allTrains = res.data.data || [];
+    UI.renderTrains();
+  },
+
+  /** 按状态筛选列车 */
+  filterTrains: function(status) {
+    State._trainStatusFilter = status;
+    var btns = document.querySelectorAll('#page-trains .filter-bar .btn');
+    for (var i = 0; i < btns.length; i++) {
+      var txt = btns[i].textContent.trim();
+      var match = (status === '' ? '全部' : status === 'ACTIVE' ? '运行中' : status === 'SUSPENDED' ? '已停运' : '已归档');
+      btns[i].classList.toggle('active', txt === match);
+    }
+    UI.renderTrains();
+  },
+
+  /** 渲染列车列表 */
+  renderTrains: function() {
+    var trains = State._allTrains || [];
+    var status = State._trainStatusFilter;
+    if (status) trains = trains.filter(function(t) { return t.status == (status === 'ACTIVE' ? 0 : status === 'SUSPENDED' ? 1 : 2); });
+
+    var html = '';
+    for (var i = 0; i < trains.length; i++) {
+      var t = trains[i];
+      var statusLabel = t.status === 0 ? '运行中' : t.status === 1 ? '已停运' : '已归档';
+      var typeLabel = t.type === 0 ? '图定' : '临客';
+      html += '<div class="train-mgmt-card">' +
+        '<div class="train-mgmt-info">' +
+          '<span class="train-mgmt-id">' + U.esc(t.id) + '</span>' +
+          '<span class="tag">' + typeLabel + '</span>' +
+          '<span class="tag tag-' + (t.status === 0 ? 'active' : 'archived') + '">' + statusLabel + '</span>' +
+          '<span class="train-mgmt-stops">' + (t.stops_count || 0) + ' 站</span>' +
+        '</div>' +
+        '<div class="train-mgmt-actions">' +
+          (t.status === 0 ? '<button class="btn btn-sm btn-danger" onclick="UI.deleteTrain(\'' + U.esc(t.id) + '\')">删除</button>' : '') +
+        '</div>' +
+      '</div>';
+    }
+    if (!html) html = '<div class="loading">暂无列车数据</div>';
+    U.$('trains-list').innerHTML = html;
+  },
+
+  /** 显示新增列车表单 */
+  showAddTrainForm: function() {
+    U.$('add-train-form').style.display = '';
+    U.$('add-train-error').textContent = '';
+  },
+
+  /** 隐藏新增列车表单 */
+  hideAddTrainForm: function() {
+    U.$('add-train-form').style.display = 'none';
+  },
+
+  /** 提交新增列车 */
+  submitNewTrain: async function() {
+    var tid = (U.$('new-train-id') || {}).value || '';
+    var type = parseInt((U.$('new-train-type') || {}).value || '0');
+    var stopsRaw = (U.$('new-train-stops') || {}).value || '';
+    if (!tid) return U.toast('请输入车次号', 'error');
+
+    var stops;
+    try { stops = JSON.parse(stopsRaw); } catch (e) { return U.toast('停站序列 JSON 格式错误', 'error'); }
+    if (!stops.length) return U.toast('至少需要一个停站', 'error');
+
+    var body = {
+      id: tid, type: type, stops: stops,
+      seat_config: {
+        business_seats: parseInt((U.$('sc-business')||{}).value||0),
+        first_seats: parseInt((U.$('sc-first')||{}).value||0),
+        second_seats: parseInt((U.$('sc-second')||{}).value||0),
+        hard_sleeper: parseInt((U.$('sc-sleeper')||{}).value||0),
+        hard_seat: parseInt((U.$('sc-hseat')||{}).value||0),
+        no_seat: parseInt((U.$('sc-noseat')||{}).value||0)
+      }
+    };
+
+    var res = await API.post('/api/admin/trains', body);
+    if (res.ok) {
+      U.toast('已提交审批：' + (res.data.approval_id || ''), 'success');
+      UI.hideAddTrainForm();
+      UI.loadTrains();
+    } else {
+      U.$('add-train-error').textContent = (res.data && res.data.error) || '提交失败';
+    }
+  },
+
+  /** 删除列车 */
+  deleteTrain: async function(trainId) {
+    if (!confirm('确定删除列车 ' + trainId + '？')) return;
+    var res = await API.del('/api/admin/trains/' + trainId);
+    if (res.ok) { U.toast('已删除', 'success'); UI.loadTrains(); }
+    else U.toast((res.data && res.data.error) || '删除失败', 'error');
+  },
+
+  // ── 职工端：审批中心 ──
+
+  /** 加载审批列表 */
+  loadApprovals: async function() {
+    var loadingEl = U.$('approvals-loading'); if (loadingEl) loadingEl.style.display = 'block';
+    var status = State._approvalFilter || '';
+    var url = '/api/admin/approvals' + (status ? '?status=' + status : '');
+    var res = await API.get(url);
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (!res.ok) return U.toast((res.data && res.data.error) || '加载失败', 'error');
+
+    State._allApprovals = res.data.data || [];
+    UI.renderApprovals();
+  },
+
+  /** 按状态筛选审批 */
+  filterApprovals: function(status) {
+    State._approvalFilter = status;
+    var btns = document.querySelectorAll('#page-approvals .filter-bar .btn');
+    for (var i = 0; i < btns.length; i++) {
+      var txt = btns[i].textContent.trim();
+      var match = (status === '' ? '全部' : status === 'SUBMITTED' ? '待审批' : status === 'APPROVED' ? '已通过' : '已驳回');
+      btns[i].classList.toggle('active', txt === match);
+    }
+    UI.loadApprovals();
+  },
+
+  /** 渲染审批列表 */
+  renderApprovals: function() {
+    var approvals = State._allApprovals || [];
+    var typeLabel = {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点'};
+    var html = '';
+    for (var i = 0; i < approvals.length; i++) {
+      var a = approvals[i];
+      var statusCls = a.status === 0 ? 'submitted' : a.status === 1 ? 'approved' : 'rejected';
+      var statusLabel = a.status === 0 ? '待审批' : a.status === 1 ? '已通过' : '已驳回';
+      html += '<div class="approval-card">' +
+        '<div class="approval-header">' +
+          '<span class="approval-type">' + (typeLabel[a.type] || '未知') + '</span>' +
+          '<span class="approval-status ' + statusCls + '">' + statusLabel + '</span>' +
+        '</div>' +
+        '<div class="approval-meta">提交人: ' + U.esc(a.submitter_id || '?') +
+          ' | ' + U.esc(a.submitted_at || '') + '</div>';
+      try {
+        var payload = (typeof a.payload === 'string') ? JSON.parse(a.payload) : a.payload;
+        html += '<div class="approval-payload">车次: ' + U.esc(payload.id || '?') + '</div>';
+      } catch (e) {}
+      if (a.status === 0) {
+        html += '<div class="approval-actions">' +
+          '<button class="btn btn-sm btn-primary" onclick="UI.approveOne(\'' + U.esc(a.id) + '\')">通过</button>' +
+          '<button class="btn btn-sm btn-danger" onclick="UI.rejectOne(\'' + U.esc(a.id) + '\')">驳回</button>' +
+        '</div>';
+      }
+      if (a.comment) html += '<div class="approval-comment">驳回意见: ' + U.esc(a.comment) + '</div>';
+      html += '</div>';
+    }
+    if (!html) html = '<div class="loading">暂无审批</div>';
+    U.$('approvals-list').innerHTML = html;
+  },
+
+  /** 审批通过 */
+  approveOne: async function(id) {
+    if (!confirm('确认通过该审批？')) return;
+    var res = await API.post('/api/admin/approvals/' + id + '/approve');
+    if (res.ok) { U.toast('审批通过', 'success'); UI.loadApprovals(); UI.loadTrains(); }
+    else U.toast((res.data && res.data.error) || '审批失败', 'error');
+  },
+
+  /** 审批驳回 */
+  rejectOne: async function(id) {
+    var comment = prompt('驳回意见：');
+    if (!comment) return;
+    var res = await API.post('/api/admin/approvals/' + id + '/reject', { comment: comment });
+    if (res.ok) { U.toast('已驳回', 'success'); UI.loadApprovals(); }
+    else U.toast((res.data && res.data.error) || '驳回失败', 'error');
   },
 
 };

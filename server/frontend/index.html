@@ -48,7 +48,14 @@
       <a class="sidebar-item" data-page="orders" onclick="UI.navTo('orders')">
         <span class="sidebar-icon">📋</span> 我的订单
       </a>
-      
+      <div class="sidebar-divider staff-only" style="display:none"></div>
+      <a class="sidebar-item staff-only" data-page="trains" style="display:none" onclick="UI.navTo('trains')">
+        <span class="sidebar-icon">🚂</span> 列车管理
+      </a>
+      <a class="sidebar-item staff-only" data-page="approvals" style="display:none" onclick="UI.navTo('approvals')">
+        <span class="sidebar-icon">✅</span> 审批中心
+      </a>
+
     </div>
   </aside>
 
@@ -205,6 +212,68 @@
       <div id="orders-list"></div>
     </section>
 
+    <!-- ═══ 列车管理页（职工）═══ -->
+    <section id="page-trains" class="page">
+      <h2>列车管理</h2>
+      <div class="filter-bar">
+        <button class="btn btn-sm active" onclick="UI.filterTrains('')">全部</button>
+        <button class="btn btn-sm" onclick="UI.filterTrains('ACTIVE')">运行中</button>
+        <button class="btn btn-sm" onclick="UI.filterTrains('SUSPENDED')">已停运</button>
+        <button class="btn btn-sm" onclick="UI.filterTrains('ARCHIVED')">已归档</button>
+        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="UI.showAddTrainForm()">+ 新增列车</button>
+      </div>
+      <!-- 新增列车表单（默认隐藏） -->
+      <div id="add-train-form" class="form-card" style="display:none">
+        <h3>新增列车</h3>
+        <div class="form-group">
+          <label>车次号</label>
+          <input type="text" id="new-train-id" placeholder="如 G9999">
+        </div>
+        <div class="form-group">
+          <label>列车类型</label>
+          <select id="new-train-type">
+            <option value="0">图定列车</option>
+            <option value="1">临客</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>停站序列（JSON 格式）</label>
+          <textarea id="new-train-stops" rows="5" placeholder='[{"station_id":1,"arrival":-1,"departure":800},{"station_id":3,"arrival":1000,"departure":1005}]'></textarea>
+        </div>
+        <div class="form-group">
+          <label>席位配置</label>
+          <div class="seat-config-row">
+            <span>商务座 <input type="number" id="sc-business" value="0" min="0" style="width:60px"></span>
+            <span>一等座 <input type="number" id="sc-first" value="100" min="0" style="width:60px"></span>
+            <span>二等座 <input type="number" id="sc-second" value="200" min="0" style="width:60px"></span>
+            <span>硬卧 <input type="number" id="sc-sleeper" value="0" min="0" style="width:60px"></span>
+            <span>硬座 <input type="number" id="sc-hseat" value="0" min="0" style="width:60px"></span>
+            <span>无座 <input type="number" id="sc-noseat" value="50" min="0" style="width:60px"></span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="UI.submitNewTrain()">提交审批</button>
+          <button class="btn" onclick="UI.hideAddTrainForm()">取消</button>
+        </div>
+        <p id="add-train-error" class="error-msg"></p>
+      </div>
+      <div id="trains-loading" class="loading" style="display:none">加载中…</div>
+      <div id="trains-list"></div>
+    </section>
+
+    <!-- ═══ 审批中心（职工）═══ -->
+    <section id="page-approvals" class="page">
+      <h2>审批中心</h2>
+      <div class="filter-bar">
+        <button class="btn btn-sm active" onclick="UI.filterApprovals('')">全部</button>
+        <button class="btn btn-sm" onclick="UI.filterApprovals('SUBMITTED')">待审批</button>
+        <button class="btn btn-sm" onclick="UI.filterApprovals('APPROVED')">已通过</button>
+        <button class="btn btn-sm" onclick="UI.filterApprovals('REJECTED')">已驳回</button>
+      </div>
+      <div id="approvals-loading" class="loading" style="display:none">加载中…</div>
+      <div id="approvals-list"></div>
+    </section>
+
   </main>
 </div>
 
@@ -222,6 +291,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=27"></script>
+<script src="/app.js?v=28"></script>
 </body>
 </html>

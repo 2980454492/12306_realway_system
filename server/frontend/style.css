@@ -244,3 +244,38 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .toast.error { background: #550000; color: #ff4444; border: 1px solid #ff4444; }
 @keyframes slideIn { from { transform: translateX(100px); opacity: 0; }
                        to { transform: translateX(0); opacity: 1; } }
+
+/* ═══ 职工端 ═══ */
+.sidebar-divider { height: 1px; background: #1a1a3e; margin: 8px 0; }
+.train-mgmt-card { background: #16213e; border: 1px solid #0f3460; border-radius: 8px;
+  padding: 14px 20px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.train-mgmt-info { display: flex; align-items: center; gap: 10px; }
+.train-mgmt-id { font-size: 18px; font-weight: 700; color: #53a8ff; }
+.train-mgmt-stops { font-size: 13px; color: #707090; }
+.train-mgmt-actions { display: flex; gap: 8px; }
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #0f3460; color: #9090b0; }
+.tag-active { background: #005530; color: #00ff88; }
+.tag-archived { background: #333; color: #666; }
+.form-card { background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.form-card h3 { margin-top: 0; color: #53a8ff; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 13px; color: #9090b0; margin-bottom: 4px; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 8px 12px; background: #0a0a1e; border: 1px solid #0f3460; border-radius: 4px; color: #e0e0e0; font-size: 14px; box-sizing: border-box;
+}
+.seat-config-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.seat-config-row span { color: #9090b0; font-size: 13px; }
+.form-actions { display: flex; gap: 8px; margin-top: 12px; }
+.btn-danger { background: #550000; color: #ff4444; border: 1px solid #ff4444; }
+.approval-card { background: #16213e; border: 1px solid #0f3460; border-radius: 8px;
+  padding: 14px 20px; margin-bottom: 8px; }
+.approval-header { display: flex; justify-content: space-between; align-items: center; }
+.approval-type { font-size: 16px; font-weight: 600; color: #e0e0e0; }
+.approval-status { font-size: 12px; padding: 2px 10px; border-radius: 4px; }
+.approval-status.submitted { background: #553800; color: #ffaa00; }
+.approval-status.approved { background: #005530; color: #00ff88; }
+.approval-status.rejected { background: #550000; color: #ff4444; }
+.approval-meta { font-size: 12px; color: #707090; margin-top: 6px; }
+.approval-payload { font-size: 13px; color: #a0a0b0; margin-top: 4px; }
+.approval-actions { margin-top: 10px; display: flex; gap: 8px; }
+.approval-comment { font-size: 12px; color: #ff8888; margin-top: 6px; }
