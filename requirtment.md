@@ -92,7 +92,7 @@
 
 #### F-1.5 车站查询
 
-**输入**：车站名/城市名、日期（yyyy-MM-dd）。支持站名和城市名搜索：输入城市名（如"呼和浩特"）可查询该城市所有车站经停的列车
+**输入**：车站名/城市名。支持站名和城市名搜索：输入城市名（如"呼和浩特"）可查询该城市所有车站经停的列车
 
 **输出**：经停该站（或该城市各站）的所有列车列表，每条包含：
 
@@ -510,7 +510,7 @@ SeatBitmap
 | POST | `/api/auth/refresh` | 刷新Token | - |
 | POST | `/api/auth/logout` | 登出 | Passenger+ |
 | GET | `/api/trains/query?from=X&to=Y&date=Z` | 查票 | Passenger+ |
-| GET | `/api/trains/station?station=X&date=Z` | 车站查询 | Passenger+ |
+| GET | `/api/trains/station?station=X` | 车站查询 | Passenger+ |
 | GET | `/api/trains/{id}/stops` | 查询列车经停站 | Passenger+ |
 | POST | `/api/orders` | 购票 | Passenger+ |
 | POST | `/api/orders/{id}/refund` | 退票 | Passenger+(仅自己订单) |

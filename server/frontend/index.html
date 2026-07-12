@@ -136,17 +136,36 @@
     <section id="page-station" class="page">
       <h2>车站查询</h2>
       <div class="search-bar">
-        <input type="text" id="station-query-input" placeholder="输入车站名或城市名" autocomplete="off" oninput="UI.onStationInput()" onfocus="UI.onStationInput()">
+        <input type="text" id="station-query-input" placeholder="城市/车站" autocomplete="off" oninput="UI.onStationInput()" onfocus="UI.onStationInput()">
         <datalist id="station-query-datalist"></datalist>
-        <input type="date" id="station-query-date">
         <select id="station-sort" onchange="UI.renderStationResults()">
           <option value="departure">发车时间优先</option>
           <option value="train_id">车次排序</option>
         </select>
         <button class="btn btn-primary" onclick="UI.searchStation()">查询</button>
       </div>
-      <!-- 筛选 -->
-      <div id="station-filters" class="filter-group" style="display:none;margin-top:8px;"></div>
+      <!-- 筛选栏 -->
+      <div class="filter-panel" id="station-filter-panel">
+        <div class="filter-row">
+          <div class="filter-group" id="station-filter-type-group">
+            <span class="filter-label">车型</span>
+            <label class="filter-check"><input type="checkbox" class="station-filter-type-all" checked onchange="UI.toggleAllTypes(this)"> 全部</label>
+            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="G" checked onchange="UI.onTypeChange()"> G</label>
+            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="D" checked onchange="UI.onTypeChange()"> D</label>
+            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="C" checked onchange="UI.onTypeChange()"> C</label>
+            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="Z" checked onchange="UI.onTypeChange()"> Z</label>
+            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="T" checked onchange="UI.onTypeChange()"> T</label>
+            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="K" checked onchange="UI.onTypeChange()"> K</label>
+            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="S" checked onchange="UI.onTypeChange()"> S</label>
+            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="OTHER" checked onchange="UI.onTypeChange()"> 其他</label>
+          </div>
+        </div>
+        <div class="filter-row" id="station-filter-st-row" style="display:none">
+          <div class="filter-group" id="station-filter-st-group">
+            <span class="filter-label">车站</span>
+          </div>
+        </div>
+      </div>
       <!-- 结果 -->
       <div id="station-results"></div>
       <div id="station-loading" class="loading" style="display:none">查询中…</div>
@@ -202,6 +221,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=17"></script>
+<script src="/app.js?v=18"></script>
 </body>
 </html>

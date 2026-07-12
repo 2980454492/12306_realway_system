@@ -296,8 +296,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
 
 // ── 车站查询 ──
 
-std::vector<StationQueryItem> TrainQuery::queryByStation(uint32_t station_id,
-                                                          const std::string& /*date*/) {
+std::vector<StationQueryItem> TrainQuery::queryByStation(uint32_t station_id) {
     std::vector<StationQueryItem> result;
     auto& ds = DataStore::instance();
     const auto& idx = getStationIndex(ds);

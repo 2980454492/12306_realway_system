@@ -390,28 +390,10 @@ void registerRoutes(RailwayServer& server) {
 
             auto& ds = DataStore::instance();
             std::string station_param = req.get_param_value("station");
-            std::string date = req.get_param_value("date");
             if (station_param.empty()) {
                 json j;
                 j["ok"] = false;
                 j["error"] = "请输入车站名或城市名";
-                res.set_content(j.dump(), "application/json");
-                res.status = 400;
-                return;
-            }
-            if (date.empty()) {
-                json j;
-                j["ok"] = false;
-                j["error"] = "请指定日期";
-                res.set_content(j.dump(), "application/json");
-                res.status = 400;
-                return;
-            }
-            // 日期校验
-            if (date.length() == 10 && date < "2026") {
-                json j;
-                j["ok"] = false;
-                j["error"] = "日期必须在今日起 14 天内";
                 res.set_content(j.dump(), "application/json");
                 res.status = 400;
                 return;
@@ -444,7 +426,7 @@ void registerRoutes(RailwayServer& server) {
             std::set<std::string> seen;
             json all_items = json::array();
             for (auto sid : target_ids) {
-                auto items = TrainQuery::queryByStation(sid, date);
+                auto items = TrainQuery::queryByStation(sid);
                 for (auto& item : items) {
                     if (seen.count(item.train_id)) continue;
                     seen.insert(item.train_id);

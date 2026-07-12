@@ -70,6 +70,5 @@ public:
                              const std::string& date);
 
     /** 查询经停某站的所有列车，结果按发车时间升序（终到站按到达时间） */
-    static std::vector<StationQueryItem> queryByStation(uint32_t station_id,
-                                                         const std::string& date);
+    static std::vector<StationQueryItem> queryByStation(uint32_t station_id);
 };

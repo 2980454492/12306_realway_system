@@ -149,9 +149,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 }
 .station-card .train-dir { font-size: 13px; color: #707090; }
 .station-times { display: flex; align-items: center; gap: 12px; }
-.st-time-label { font-size: 13px; color: #707090; }
 .st-time { font-size: 18px; font-weight: 700; color: #53a8ff; }
-.st-time-sep { color: #0f3460; }
 
 /* ═══ 订单列表 ═══ */
 .order-card {

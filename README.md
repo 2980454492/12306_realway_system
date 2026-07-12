@@ -151,6 +151,7 @@ bash scripts/run.sh
 | 方法 | 路径 | 说明 | 鉴权 |
 |------|------|------|:--:|
 | GET | `/api/trains/query?from=&to=&date=` | 查票（直达+换乘） | JWT |
+| GET | `/api/trains/station?station=X` | 车站查询 | JWT |
 | GET | `/api/trains/{id}/stops` | 列车经停站详情 | JWT |
 | POST | `/api/orders` | 购票 | JWT |
 | GET | `/api/orders?status=` | 订单查询 | JWT |

@@ -19,7 +19,6 @@ const State = {
   stationIsCity: false,   // 是否为城市级查询
   stationCityStations: [], // 城市查询时的子站列表 [{id, name}]
   stationFilterSt: {},    // 车站筛选勾选状态 {stationName: true}
-  stationFilterTypes: {}, // 车型筛选勾选状态
   _stationUnchecked: {},  // 未勾选的车站（重建 UI 时保留）
 };
 
@@ -159,18 +158,6 @@ const UI = {
     }
     if (name === 'query') UI.populateStationSelects();
     if (name === 'orders') UI.loadOrders();
-    if (name === 'station') {
-      var d = U.$('station-query-date');
-      if (d) {
-        var today = new Date();
-        var maxDay = new Date(today); maxDay.setDate(today.getDate() + 14);
-        d.min = today.toISOString().slice(0, 10);
-        d.max = maxDay.toISOString().slice(0, 10);
-        if (!d.value || d.value < d.min || d.value > d.max) {
-          d.value = today.toISOString().slice(0, 10);
-        }
-      }
-    }
   },
 
   /** 返回上一页（购票→查票） */
@@ -598,27 +585,36 @@ const UI = {
     return list;
   },
 
-  /** 车型"全部"切换：全选/取消全选各类型复选框 */
+  /** 车型"全部"切换：全选/取消全选各类型复选框（购票页和车站查询共用） */
   toggleAllTypes: function(el) {
-    var items = document.querySelectorAll('.filter-type-item');
+    var items = document.querySelectorAll('.filter-type-item, .station-filter-type-item');
     for (var i = 0; i < items.length; i++) {
       items[i].checked = el.checked;
       items[i].disabled = el.checked;
     }
-    UI.applyFilters();
+    UI._refreshAfterFilter();
   },
 
-  /** 单个车型变化时，同步"全部"复选框状态 */
+  /** 单个车型变化时，同步"全部"复选框（购票页和车站查询共用） */
   onTypeChange: function() {
-    var allEl = document.querySelector('.filter-type-all');
+    var allEl = document.querySelector('.filter-type-all, .station-filter-type-all');
     if (!allEl) return;
-    var items = document.querySelectorAll('.filter-type-item');
+    var items = document.querySelectorAll('.filter-type-item, .station-filter-type-item');
     var allChecked = true;
     for (var i = 0; i < items.length; i++) {
       if (!items[i].checked) { allChecked = false; break; }
     }
     allEl.checked = allChecked;
-    UI.applyFilters();
+    UI._refreshAfterFilter();
+  },
+
+  /** 根据当前活跃页调用对应的刷新函数 */
+  _refreshAfterFilter: function() {
+    if (document.getElementById('page-station').classList.contains('active')) {
+      UI.renderStationResults();
+    } else {
+      UI.applyFilters();
+    }
   },
 
   /** 筛选条件变更时重新渲染当前 tab */
@@ -922,17 +918,14 @@ const UI = {
   /** 执行车站查询 */
   searchStation: async function() {
     var input = (U.$('station-query-input') || {}).value || '';
-    var date = (U.$('station-query-date') || {}).value || '';
     if (!input) return U.toast('请输入车站名或城市名', 'error');
-    if (!date) return U.toast('请选择日期', 'error');
 
     var loadingEl = U.$('station-loading');
     if (loadingEl) loadingEl.style.display = 'block';
     U.$('station-results').innerHTML = '';
-    U.$('station-filters').style.display = 'none';
 
     try {
-      var url = '/api/trains/station?station=' + encodeURIComponent(input) + '&date=' + date;
+      var url = '/api/trains/station?station=' + encodeURIComponent(input);
       var res = await API.get(url);
       if (loadingEl) loadingEl.style.display = 'none';
       if (!res.ok) {
@@ -962,11 +955,14 @@ const UI = {
         State.stationFilterSt[sn] = (unchecked !== true);
       }
 
-      // 初始化车型筛选（默认全选）
-      var TYPES = ['G','D','C','Z','T','K','S','OTHER'];
-      for (var t = 0; t < TYPES.length; t++) {
-        if (State.stationFilterTypes[TYPES[t]] === undefined) {
-          State.stationFilterTypes[TYPES[t]] = true;
+      // 初始化车型筛选（默认全选，重置静态 checkbox）
+      var allEl = document.querySelector('.station-filter-type-all');
+      if (allEl) {
+        allEl.checked = true;
+        var items = document.querySelectorAll('.station-filter-type-item');
+        for (var t = 0; t < items.length; t++) {
+          items[t].checked = true;
+          items[t].disabled = false;
         }
       }
 
@@ -985,17 +981,27 @@ const UI = {
       return;
     }
 
-    // 车型筛选
+    // 读取车型筛选（从静态 checkbox 读取）
+    var enabledTypes = {};
+    var typeItems = document.querySelectorAll('.station-filter-type-item');
+    for (var ti = 0; ti < typeItems.length; ti++) {
+      enabledTypes[typeItems[ti].value] = typeItems[ti].checked;
+    }
     list = list.filter(function(item) {
       var prefix = (item.train_id || '')[0];
       var typeKey = (['G','D','C','Z','T','K','S'].indexOf(prefix) >= 0) ? prefix : 'OTHER';
-      return State.stationFilterTypes[typeKey] !== false;
+      return enabledTypes[typeKey] !== false;
     });
 
-    // 车站筛选（仅城市查询时有效）
-    if (State.stationIsCity) {
+    // 车站筛选（从静态 checkbox 读取，仅城市查询时有效）
+    if (State.stationIsCity && State.stationCityStations.length > 1) {
+      var enabledSt = {};
+      var stChecks = document.querySelectorAll('.station-filter-st-check');
+      for (var si = 0; si < stChecks.length; si++) {
+        enabledSt[stChecks[si].value] = stChecks[si].checked;
+      }
       list = list.filter(function(item) {
-        return State.stationFilterSt[item.station_name] !== false;
+        return enabledSt[item.station_name] !== false;
       });
     }
 
@@ -1004,7 +1010,6 @@ const UI = {
     if (sortBy === 'train_id') {
       list.sort(function(a, b) { return (a.train_id || '').localeCompare(b.train_id || ''); });
     } else {
-      // 默认：发车时间升序，终到站按到达时间
       list.sort(function(a, b) {
         var ta = a.departure_time > 0 ? a.departure_time : a.arrival_time;
         var tb = b.departure_time > 0 ? b.departure_time : b.arrival_time;
@@ -1012,32 +1017,20 @@ const UI = {
       });
     }
 
-    // 渲染筛选栏
-    var filterHtml = '';
-    // 城市查询时显示车站复选框
+    // 渲染筛选栏：车型筛选已在 HTML 中静态定义，车站筛选按需填充
     if (State.stationIsCity && State.stationCityStations.length > 1) {
-      filterHtml += '<span class="filter-label">车站</span>';
+      var stHtml = '<span class="filter-label">车站</span>';
       for (var i = 0; i < State.stationCityStations.length; i++) {
         var sn = State.stationCityStations[i].name;
         var checked = State.stationFilterSt[sn] !== false ? ' checked' : '';
-        filterHtml += '<label class="filter-check"><input type="checkbox" class="filter-station-st" value="' +
-          U.esc(sn) + '"' + checked + ' onchange="UI.onStationFilterChange()"> ' + U.esc(sn) + '</label>';
+        stHtml += '<label class="filter-check"><input type="checkbox" class="station-filter-st-check" value="' +
+          U.esc(sn) + '"' + checked + ' onchange="UI.renderStationResults()"> ' + U.esc(sn) + '</label>';
       }
+      U.$('station-filter-st-group').innerHTML = stHtml;
+      U.$('station-filter-st-row').style.display = '';
+    } else {
+      U.$('station-filter-st-row').style.display = 'none';
     }
-    // 车型筛选
-    var TYPES = [
-      {key:'G',label:'G'},{key:'D',label:'D'},{key:'C',label:'C'},
-      {key:'Z',label:'Z'},{key:'T',label:'T'},{key:'K',label:'K'},
-      {key:'S',label:'S'},{key:'OTHER',label:'其他'}
-    ];
-    if (!filterHtml) { filterHtml += '<span class="filter-label">车型</span>'; } else { filterHtml += ' &nbsp; <span class="filter-label">车型</span>'; }
-    for (var t = 0; t < TYPES.length; t++) {
-      var tc = State.stationFilterTypes[TYPES[t].key] !== false ? ' checked' : '';
-      filterHtml += '<label class="filter-check"><input type="checkbox" class="filter-type-st" value="' +
-        TYPES[t].key + '"' + tc + ' onchange="UI.onStationTypeChange()"> ' + TYPES[t].label + '</label>';
-    }
-    U.$('station-filters').innerHTML = filterHtml;
-    U.$('station-filters').style.display = '';
 
     // 渲染结果卡片
     var html = '';
@@ -1101,28 +1094,6 @@ const UI = {
     U.$('detail-overlay').classList.add('show');
   },
 
-  /** 车站筛选变更 */
-  onStationFilterChange: function() {
-    var checks = document.querySelectorAll('.filter-station-st');
-    for (var i = 0; i < checks.length; i++) {
-      State.stationFilterSt[checks[i].value] = checks[i].checked;
-      if (!checks[i].checked) {
-        State._stationUnchecked[checks[i].value] = true;
-      } else {
-        delete State._stationUnchecked[checks[i].value];
-      }
-    }
-    UI.renderStationResults();
-  },
-
-  /** 车型筛选变更 */
-  onStationTypeChange: function() {
-    var checks = document.querySelectorAll('.filter-type-st');
-    for (var i = 0; i < checks.length; i++) {
-      State.stationFilterTypes[checks[i].value] = checks[i].checked;
-    }
-    UI.renderStationResults();
-  },
 };
 
 // ═══════════════════════════════════════════
