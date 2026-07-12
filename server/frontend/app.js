@@ -15,6 +15,12 @@ const State = {
   selectedTrain: null,
   currentStatusFilter: '',
   _trainItems: {},
+  stationResult: [],      // 车站查询原始结果
+  stationIsCity: false,   // 是否为城市级查询
+  stationCityStations: [], // 城市查询时的子站列表 [{id, name}]
+  stationFilterSt: {},    // 车站筛选勾选状态 {stationName: true}
+  stationFilterTypes: {}, // 车型筛选勾选状态
+  _stationUnchecked: {},  // 未勾选的车站（重建 UI 时保留）
 };
 
 // ═══════════════════════════════════════════
@@ -153,6 +159,18 @@ const UI = {
     }
     if (name === 'query') UI.populateStationSelects();
     if (name === 'orders') UI.loadOrders();
+    if (name === 'station') {
+      var d = U.$('station-query-date');
+      if (d) {
+        var today = new Date();
+        var maxDay = new Date(today); maxDay.setDate(today.getDate() + 14);
+        d.min = today.toISOString().slice(0, 10);
+        d.max = maxDay.toISOString().slice(0, 10);
+        if (!d.value || d.value < d.min || d.value > d.max) {
+          d.value = today.toISOString().slice(0, 10);
+        }
+      }
+    }
   },
 
   /** 返回上一页（购票→查票） */
@@ -733,14 +751,14 @@ const UI = {
         var isFirst = i === 0, isLast = i === stops.length - 1;
         var isGreen = (greenIds.indexOf(s.station_id) >= 0);
         var isBlue  = (blueName && s.station_name === blueName);
-        var arrTime = isFirst ? '始发' : U.fmtTime(s.arrival);
-        var depTime = isLast ? '终到' : U.fmtTime(s.departure);
+        var arrTime = isFirst ? '---' : U.fmtTime(s.arrival);
+        var depTime = isLast ? '---' : U.fmtTime(s.departure);
         var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
         if (isGreen) cls += ' user-stop';
         if (isBlue)  cls += ' transfer-stop';
         h += '<div class="timeline-item ' + cls + '">' +
           '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
-          '<div class="timeline-time">到 <span>' + arrTime + '</span> · 发 <span>' + depTime + '</span></div>' +
+          '<div class="timeline-time"><span>' + arrTime + '</span> 到  <span>' + depTime + '</span> 发</div>' +
           '</div>';
       }
       h += '</div>';
@@ -877,6 +895,233 @@ const UI = {
     } else {
       U.toast((res.data && res.data.error) || '退票失败', 'error');
     }
+  },
+
+  // ── 车站查询 ──
+
+  /** 输入时填充 datalist：站名 + 城市名 */
+  onStationInput: function() {
+    var el = U.$('station-query-input');
+    var dl = U.$('station-query-datalist');
+    if (!el || !dl || !State.stations.length) return;
+    var cities = {};
+    var html = '';
+    for (var i = 0; i < State.stations.length; i++) {
+      var s = State.stations[i];
+      html += '<option value="' + U.esc(s.name) + '">';
+      if (!cities[s.city]) { cities[s.city] = true; }
+    }
+    var cityNames = Object.keys(cities);
+    for (var c = 0; c < cityNames.length; c++) {
+      html += '<option value="🌆 ' + U.esc(cityNames[c]) + '">';
+    }
+    dl.innerHTML = html;
+    el.setAttribute('list', 'station-query-datalist');
+  },
+
+  /** 执行车站查询 */
+  searchStation: async function() {
+    var input = (U.$('station-query-input') || {}).value || '';
+    var date = (U.$('station-query-date') || {}).value || '';
+    if (!input) return U.toast('请输入车站名或城市名', 'error');
+    if (!date) return U.toast('请选择日期', 'error');
+
+    var loadingEl = U.$('station-loading');
+    if (loadingEl) loadingEl.style.display = 'block';
+    U.$('station-results').innerHTML = '';
+    U.$('station-filters').style.display = 'none';
+
+    try {
+      var url = '/api/trains/station?station=' + encodeURIComponent(input) + '&date=' + date;
+      var res = await API.get(url);
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (!res.ok) {
+        U.toast((res.data && res.data.error) || '查询失败', 'error');
+        return;
+      }
+      State.stationResult = res.data.data || [];
+      State.stationIsCity = res.data.is_city || false;
+      // 保存子站列表
+      State.stationCityStations = [];
+      if (State.stationIsCity && res.data.stations) {
+        for (var si = 0; si < res.data.stations.length; si++) {
+          var sid = res.data.stations[si];
+          for (var j = 0; j < State.stations.length; j++) {
+            if (State.stations[j].id === sid) {
+              State.stationCityStations.push(State.stations[j]); break;
+            }
+          }
+        }
+      }
+
+      // 初始化车站筛选勾选状态
+      State.stationFilterSt = {};
+      for (var k = 0; k < State.stationCityStations.length; k++) {
+        var sn = State.stationCityStations[k].name;
+        var unchecked = (State._stationUnchecked || {})[sn];
+        State.stationFilterSt[sn] = (unchecked !== true);
+      }
+
+      // 初始化车型筛选（默认全选）
+      var TYPES = ['G','D','C','Z','T','K','S','OTHER'];
+      for (var t = 0; t < TYPES.length; t++) {
+        if (State.stationFilterTypes[TYPES[t]] === undefined) {
+          State.stationFilterTypes[TYPES[t]] = true;
+        }
+      }
+
+      UI.renderStationResults();
+    } catch (e) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      U.toast('查询出错', 'error');
+    }
+  },
+
+  /** 渲染车站查询结果（含排序和筛选） */
+  renderStationResults: function() {
+    var list = State.stationResult.slice();
+    if (!list.length) {
+      U.$('station-results').innerHTML = '<div class="loading">暂无经停列车</div>';
+      return;
+    }
+
+    // 车型筛选
+    list = list.filter(function(item) {
+      var prefix = (item.train_id || '')[0];
+      var typeKey = (['G','D','C','Z','T','K','S'].indexOf(prefix) >= 0) ? prefix : 'OTHER';
+      return State.stationFilterTypes[typeKey] !== false;
+    });
+
+    // 车站筛选（仅城市查询时有效）
+    if (State.stationIsCity) {
+      list = list.filter(function(item) {
+        return State.stationFilterSt[item.station_name] !== false;
+      });
+    }
+
+    // 排序
+    var sortBy = (U.$('station-sort') || {}).value || 'departure';
+    if (sortBy === 'train_id') {
+      list.sort(function(a, b) { return (a.train_id || '').localeCompare(b.train_id || ''); });
+    } else {
+      // 默认：发车时间升序，终到站按到达时间
+      list.sort(function(a, b) {
+        var ta = a.departure_time > 0 ? a.departure_time : a.arrival_time;
+        var tb = b.departure_time > 0 ? b.departure_time : b.arrival_time;
+        return ta - tb;
+      });
+    }
+
+    // 渲染筛选栏
+    var filterHtml = '';
+    // 城市查询时显示车站复选框
+    if (State.stationIsCity && State.stationCityStations.length > 1) {
+      filterHtml += '<span class="filter-label">车站</span>';
+      for (var i = 0; i < State.stationCityStations.length; i++) {
+        var sn = State.stationCityStations[i].name;
+        var checked = State.stationFilterSt[sn] !== false ? ' checked' : '';
+        filterHtml += '<label class="filter-check"><input type="checkbox" class="filter-station-st" value="' +
+          U.esc(sn) + '"' + checked + ' onchange="UI.onStationFilterChange()"> ' + U.esc(sn) + '</label>';
+      }
+    }
+    // 车型筛选
+    var TYPES = [
+      {key:'G',label:'G'},{key:'D',label:'D'},{key:'C',label:'C'},
+      {key:'Z',label:'Z'},{key:'T',label:'T'},{key:'K',label:'K'},
+      {key:'S',label:'S'},{key:'OTHER',label:'其他'}
+    ];
+    if (!filterHtml) { filterHtml += '<span class="filter-label">车型</span>'; } else { filterHtml += ' &nbsp; <span class="filter-label">车型</span>'; }
+    for (var t = 0; t < TYPES.length; t++) {
+      var tc = State.stationFilterTypes[TYPES[t].key] !== false ? ' checked' : '';
+      filterHtml += '<label class="filter-check"><input type="checkbox" class="filter-type-st" value="' +
+        TYPES[t].key + '"' + tc + ' onchange="UI.onStationTypeChange()"> ' + TYPES[t].label + '</label>';
+    }
+    U.$('station-filters').innerHTML = filterHtml;
+    U.$('station-filters').style.display = '';
+
+    // 渲染结果卡片
+    var html = '';
+    for (var j = 0; j < list.length; j++) {
+      var item = list[j];
+      var prefix = (item.train_id || '')[0];
+      var isG = (prefix === 'G'), isC = (prefix === 'C'), isK = (prefix === 'K' || prefix === 'Z');
+      var cls = isG ? 'tag-g' : isC ? 'tag-c' : isK ? 'tag-k' : 'tag-other';
+      var dir = U.esc(item.from_station_name || '始发') + ' → ' + U.esc(item.to_station_name || '终到');
+
+      var arrStr = item.arrival_time > 0 ? U.fmtTime(item.arrival_time) : '---';
+      var depStr = item.departure_time > 0 ? U.fmtTime(item.departure_time) : '---';
+
+      var itemKey = 'st_' + j;
+      State._trainItems[itemKey] = item;
+
+      html += '<div class="train-card station-card" onclick="UI.showStationDetail(\'' + itemKey + '\')">' +
+        '<div class="train-header">' +
+          '<span class="train-id">' + U.esc(item.train_id) + '</span>' +
+          '<span class="train-type ' + cls + '">' + prefix + '</span>' +
+          '<span class="train-dir">' + dir + '</span>' +
+        '</div>' +
+        '<div class="station-times">' +
+          '<span class="st-time"><span>' + arrStr + '</span> 到  </span>' +
+          '<span class="st-time"><span>' + depStr + '</span> 发</span>' +
+        '</div>' +
+      '</div>';
+    }
+    U.$('station-results').innerHTML = html;
+  },
+
+  /** 车站查询 → 车次详情弹窗 */
+  showStationDetail: function(itemKey) {
+    var item = (State._trainItems || {})[itemKey];
+    if (!item) return;
+
+    U.$('detail-train-id').textContent = item.train_id + ' 经停时刻表';
+    var queryStationId = item.station_id;
+
+    function renderTimeline(stops) {
+      if (!stops || !stops.length) return '';
+      var h = '<div class="timeline">';
+      for (var i = 0; i < stops.length; i++) {
+        var s = stops[i];
+        var isFirst = i === 0, isLast = i === stops.length - 1;
+        var isQuery = (s.station_id === queryStationId);
+        var arrTime = isFirst ? '---' : U.fmtTime(s.arrival);
+        var depTime = isLast ? '---' : U.fmtTime(s.departure);
+        var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
+        if (isQuery) cls += ' user-stop';
+        h += '<div class="timeline-item ' + cls + '">' +
+          '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
+          '<div class="timeline-time"><span>' + arrTime + '</span> 到  <span>' + depTime + '</span> 发</div>' +
+          '</div>';
+      }
+      h += '</div>';
+      return h;
+    }
+
+    U.$('detail-stops').innerHTML = renderTimeline(item.stops);
+    U.$('detail-overlay').classList.add('show');
+  },
+
+  /** 车站筛选变更 */
+  onStationFilterChange: function() {
+    var checks = document.querySelectorAll('.filter-station-st');
+    for (var i = 0; i < checks.length; i++) {
+      State.stationFilterSt[checks[i].value] = checks[i].checked;
+      if (!checks[i].checked) {
+        State._stationUnchecked[checks[i].value] = true;
+      } else {
+        delete State._stationUnchecked[checks[i].value];
+      }
+    }
+    UI.renderStationResults();
+  },
+
+  /** 车型筛选变更 */
+  onStationTypeChange: function() {
+    var checks = document.querySelectorAll('.filter-type-st');
+    for (var i = 0; i < checks.length; i++) {
+      State.stationFilterTypes[checks[i].value] = checks[i].checked;
+    }
+    UI.renderStationResults();
   },
 };
 

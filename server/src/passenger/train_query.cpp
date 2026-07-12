@@ -293,3 +293,47 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
 
     return result;
 }
+
+// ── 车站查询 ──
+
+std::vector<StationQueryItem> TrainQuery::queryByStation(uint32_t station_id,
+                                                          const std::string& /*date*/) {
+    std::vector<StationQueryItem> result;
+    auto& ds = DataStore::instance();
+    const auto& idx = getStationIndex(ds);
+    auto it = idx.find(station_id);
+    if (it == idx.end()) return result;
+
+    for (const auto& [train, stop_idx] : it->second) {
+        if (train->status != TrainStatus::ACTIVE) continue;
+
+        StationQueryItem item;
+        item.train_id = train->id;
+        item.train_type = train->type;
+        item.stops = train->stops;
+
+        // 始发站名 / 终到站名
+        if (!train->stops.empty()) {
+            auto* orig = ds.getStation(train->stops.front().station_id);
+            auto* term = ds.getStation(train->stops.back().station_id);
+            item.from_station_name = orig ? orig->name : "";
+            item.to_station_name = term ? term->name : "";
+        }
+
+        // 到达/发车时刻
+        const auto& stop = train->stops[stop_idx];
+        item.arrival_time = stop.arrival;     // -1 表示始发站
+        item.departure_time = stop.departure; // -1 表示终到站
+        result.push_back(item);
+    }
+
+    // 默认按发车时间升序，终到站按到达时间
+    std::sort(result.begin(), result.end(),
+        [](const StationQueryItem& a, const StationQueryItem& b) {
+            int ta = (a.departure_time > 0) ? a.departure_time : a.arrival_time;
+            int tb = (b.departure_time > 0) ? b.departure_time : b.arrival_time;
+            return ta < tb;
+        });
+
+    return result;
+}

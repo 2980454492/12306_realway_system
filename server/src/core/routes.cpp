@@ -382,6 +382,105 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
+    // ── GET /api/trains/station — 车站查询 ──
+    app.Get("/api/trains/station", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::QUERY_TRAINS);
+            if (!ctx) return;
+
+            auto& ds = DataStore::instance();
+            std::string station_param = req.get_param_value("station");
+            std::string date = req.get_param_value("date");
+            if (station_param.empty()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "请输入车站名或城市名";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+            if (date.empty()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "请指定日期";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+            // 日期校验
+            if (date.length() == 10 && date < "2026") {
+                json j;
+                j["ok"] = false;
+                j["error"] = "日期必须在今日起 14 天内";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            // 解析输入：城市名（🌆xxx）→ 该城市所有车站，站名 → 单个站
+            bool is_city = (station_param.size() >= 4 && station_param.substr(0, 4) == "🌆 ");
+            // 去掉可能的 🌆 前缀
+            std::string search_name = is_city ? station_param.substr(4) : station_param;
+
+            // 收集目标站 ID
+            std::vector<uint32_t> target_ids;
+            for (const auto& st : ds.getAllStations()) {
+                if (is_city && st.city == search_name) {
+                    target_ids.push_back(st.id);
+                } else if (!is_city && st.name == search_name) {
+                    target_ids.push_back(st.id);
+                }
+            }
+            if (target_ids.empty()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "未找到该车站或城市";
+                res.set_content(j.dump(), "application/json");
+                res.status = 404;
+                return;
+            }
+
+            // 查询每个目标站经停的列车，去重（同一列车可能经停同城多站）
+            std::set<std::string> seen;
+            json all_items = json::array();
+            for (auto sid : target_ids) {
+                auto items = TrainQuery::queryByStation(sid, date);
+                for (auto& item : items) {
+                    if (seen.count(item.train_id)) continue;
+                    seen.insert(item.train_id);
+
+                    json t;
+                    t["train_id"] = item.train_id;
+                    t["train_type"] = static_cast<int>(item.train_type);
+                    t["from_station_name"] = item.from_station_name;
+                    t["to_station_name"] = item.to_station_name;
+                    t["arrival_time"] = item.arrival_time;
+                    t["departure_time"] = item.departure_time;
+                    t["stops"] = stopsToJson(item.stops, ds);
+                    t["station_id"] = sid;
+                    // 站名
+                    auto* st = ds.getStation(sid);
+                    t["station_name"] = st ? st->name : "";
+                    all_items.push_back(t);
+                }
+            }
+
+            json j;
+            j["ok"] = true;
+            j["count"] = all_items.size();
+            j["data"] = all_items;
+            j["is_city"] = is_city;
+            j["stations"] = target_ids;  // 城市查询时返回子站 ID，供前端筛选
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
     // ── GET /api/trains/{id}/stops — 列车经停站详情 ──
     app.Get(R"(/api/trains/([^/]+)/stops)", [](const httplib::Request& req, httplib::Response& res) {
         try {

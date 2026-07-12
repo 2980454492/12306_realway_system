@@ -42,9 +42,13 @@
       <a class="sidebar-item active" data-page="query" onclick="UI.navTo('query')">
         <span class="sidebar-icon">🔍</span> 列车余票查询
       </a>
+      <a class="sidebar-item" data-page="station" onclick="UI.navTo('station')">
+        <span class="sidebar-icon">🚉</span> 车站查询
+      </a>
       <a class="sidebar-item" data-page="orders" onclick="UI.navTo('orders')">
         <span class="sidebar-icon">📋</span> 我的订单
       </a>
+      
     </div>
   </aside>
 
@@ -126,6 +130,26 @@
         <button class="tab" onclick="UI.switchTab('transfer')">换乘 <span id="tab-transfer-count"></span></button>
       </div>
       <div id="query-results" class="train-list"></div>
+    </section>
+
+    <!-- ═══ 车站查询 ═══ -->
+    <section id="page-station" class="page">
+      <h2>车站查询</h2>
+      <div class="search-bar">
+        <input type="text" id="station-query-input" placeholder="输入车站名或城市名" autocomplete="off" oninput="UI.onStationInput()" onfocus="UI.onStationInput()">
+        <datalist id="station-query-datalist"></datalist>
+        <input type="date" id="station-query-date">
+        <select id="station-sort" onchange="UI.renderStationResults()">
+          <option value="departure">发车时间优先</option>
+          <option value="train_id">车次排序</option>
+        </select>
+        <button class="btn btn-primary" onclick="UI.searchStation()">查询</button>
+      </div>
+      <!-- 筛选 -->
+      <div id="station-filters" class="filter-group" style="display:none;margin-top:8px;"></div>
+      <!-- 结果 -->
+      <div id="station-results"></div>
+      <div id="station-loading" class="loading" style="display:none">查询中…</div>
     </section>
 
     <!-- ═══ 购票页 ═══ -->

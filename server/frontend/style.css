@@ -140,7 +140,18 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .seat-tag .tag-price { color: #e94560; font-weight: 700; margin-left: 4px; }
 
 /* ═══ 筛选栏 ═══ */
-.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+
+/* ═══ 车站查询结果 ═══ */
+.station-card { cursor: pointer; }
+.station-card .train-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+}
+.station-card .train-dir { font-size: 13px; color: #707090; }
+.station-times { display: flex; align-items: center; gap: 12px; }
+.st-time-label { font-size: 13px; color: #707090; }
+.st-time { font-size: 18px; font-weight: 700; color: #53a8ff; }
+.st-time-sep { color: #0f3460; }
 
 /* ═══ 订单列表 ═══ */
 .order-card {
@@ -209,7 +220,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
   content: ''; position: absolute; left: 8px; top: 8px; bottom: 8px;
   width: 2px; background: #0f3460;
 }
-.timeline-item { position: relative; padding: 8px 0; }
+.timeline-item { position: relative; padding: 8px 0; display: flex; justify-content: space-between; align-items: baseline; }
 .timeline-item::before {
   content: ''; position: absolute; left: -20px; top: 14px;
   width: 10px; height: 10px; border-radius: 50%; background: #0f3460; border: 2px solid #16213e;

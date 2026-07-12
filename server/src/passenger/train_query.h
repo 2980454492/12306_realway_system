@@ -35,6 +35,17 @@ struct QueryResultItem {
     double second_leg_price = 0.0;    // 第二程票价（二等座基准）
 };
 
+/** 车站查询单条结果 */
+struct StationQueryItem {
+    std::string train_id;
+    TrainType train_type;
+    std::string from_station_name;   // 始发站名
+    std::string to_station_name;     // 终到站名
+    int arrival_time = 0;            // 到达查询站的时刻 HHMM，始发站为 -1
+    int departure_time = 0;          // 从查询站出发的时刻 HHMM，终到站为 -1
+    std::vector<Stop> stops;         // 完整停站序列
+};
+
 /** 一次查询的完整结果 */
 struct QueryResult {
     std::vector<QueryResultItem> direct;     // 直达结果
@@ -57,4 +68,8 @@ public:
      */
     static QueryResult query(uint32_t from_station, uint32_t to_station,
                              const std::string& date);
+
+    /** 查询经停某站的所有列车，结果按发车时间升序（终到站按到达时间） */
+    static std::vector<StationQueryItem> queryByStation(uint32_t station_id,
+                                                         const std::string& date);
 };
