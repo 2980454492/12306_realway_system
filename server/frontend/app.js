@@ -993,7 +993,7 @@ const UI = {
     list = list.filter(function(item) {
       var prefix = (item.train_id || '')[0];
       var typeKey = (['G','D','C','Z','T','K','S'].indexOf(prefix) >= 0) ? prefix : 'OTHER';
-      return enabledTypes[typeKey] !== false;
+      return enabledTypes[typeKey] === true;
     });
 
     // 车站筛选：按条目自身的 station_name 匹配勾选的车站

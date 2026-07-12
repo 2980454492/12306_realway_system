@@ -53,7 +53,7 @@ inline bool isToday(const std::string& date) {
 }
 
 /** 检查日期是否在 [今天, 今天+maxDays] 范围内 */
-inline bool isTodayOrFuture(const std::string& date, int maxDays) {
+inline bool isFuture(const std::string& date, int maxDays) {
     char buf[11];
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
@@ -127,6 +127,9 @@ inline constexpr double seatPriceMultiplier(SeatType type) {
 
 /** 二等座基准费率（元/km） */
 inline constexpr double BASE_RATE_PER_KM = 0.30;
+
+/** 购票/查票最大提前天数（12306 为 15 天，含今天） */
+inline constexpr int MAX_ADVANCE_DAYS = 14;
 
 // ── 路线计算 ──
 

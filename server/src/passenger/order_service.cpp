@@ -105,8 +105,8 @@ OrderService::OrderResult OrderService::createOrder(
     std::lock_guard<std::mutex> lock(mutex_);
 
     // 0. 日期不能是过去
-    if (!isTodayOrFuture(date, 14)) {
-        result.error = "日期必须在今日起 14 天内";
+    if (!isFuture(date, MAX_ADVANCE_DAYS)) {
+        result.error = "日期必须在今日起 " + std::to_string(MAX_ADVANCE_DAYS) + " 天内";
         return result;
     }
 
@@ -221,7 +221,13 @@ OrderService::RefundResult OrderService::refundOrder(const std::string& order_id
         return result;
     }
 
-    // 3. 计算退款金额（按退票时间阶梯费率）
+    // 3. 列车以发车，无法退票
+    if (!isFuture(it->date, MAX_ADVANCE_DAYS)) {
+        result.error = "列车以发车，无法退票";
+        return result;
+    }
+
+    // 4. 计算退款金额（按退票时间阶梯费率）
     auto* train = DataStore::instance().getTrain(it->train_id);
     if (!train) {
         result.error = "列车不存在";
@@ -244,13 +250,13 @@ OrderService::RefundResult OrderService::refundOrder(const std::string& order_id
 
     double refund = it->price * rate;
 
-    // 4. 释放座位
+    // 5. 释放座位
     if (it->seat_number > 0) {
         SeatInventory::instance().release(it->train_id, it->date,
             it->seat_type, {it->seat_number});
     }
 
-    // 5. 更新订单状态
+    // 6. 更新订单状态
     it->status = OrderStatus::REFUNDED;
     saveOrders();
     Logger::instance().info("Order refunded: " + order_id
@@ -288,9 +294,6 @@ const Order* OrderService::getOrder(const std::string& order_id) const {
 // ── 退票费率 ──
 
 double OrderService::calcRefund(const std::string& date, int departure_hhmm) const {
-    // 已过的乘车日期，不可退
-    if (!isTodayOrFuture(date, 14)) return 0.0;
-
     // 非今天的票（未来），距发车 >24 小时，最高费率
     if (!isToday(date)) return 0.95;
 

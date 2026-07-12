@@ -258,10 +258,10 @@ void registerRoutes(RailwayServer& server) {
                 res.status = 400;
                 return;
             }
-            if (!isTodayOrFuture(date, 14)) {
+            if (!isFuture(date, MAX_ADVANCE_DAYS)) {
                 json j;
                 j["ok"] = false;
-                j["error"] = "Date must be within 14 days from today";
+                j["error"] = "Date must be within " + std::to_string(MAX_ADVANCE_DAYS) + " days from today";
                 res.set_content(j.dump(), "application/json");
                 res.status = 400;
                 return;
