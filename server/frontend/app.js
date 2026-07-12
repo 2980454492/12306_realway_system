@@ -493,21 +493,17 @@ const UI = {
 
   /** 对已排序的列表应用全部筛选条件，返回筛选后的数组 */
   filterList: function(list) {
-    var allEl = document.querySelector('.filter-type-all');
-    var filterAll = allEl ? allEl.checked : true;
-
     // 1. 车型筛选
-    if (!filterAll) {
-      var checked = document.querySelectorAll('.filter-type-item:checked');
-      var types = [];
-      for (var t = 0; t < checked.length; t++) { types.push(checked[t].value); }
-      list = list.filter(function(item) {
-        var letter = (item.train_id || '')[0].toUpperCase();
-        // G/D/C/Z/T/K/S 以外的归为 OTHER
-        if ('GDCZTKS'.indexOf(letter) < 0) letter = 'OTHER';
-        return types.indexOf(letter) >= 0;
-      });
+    var enabledTypes = {};
+    var typeItems = document.querySelectorAll('.filter-type-item');
+    for (var t = 0; t < typeItems.length; t++) {
+      enabledTypes[typeItems[t].value] = typeItems[t].checked;
     }
+    list = list.filter(function(item) {
+      var letter = (item.train_id || '')[0].toUpperCase();
+      if ('GDCZTKS'.indexOf(letter) < 0) letter = 'OTHER';
+      return enabledTypes[letter] === true;
+    });
 
     // 2. 只看有票
     var hasTicketEl = U.$('filter-has-ticket');
