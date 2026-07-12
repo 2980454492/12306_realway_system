@@ -6,6 +6,7 @@
 #include "core/logger.h"
 
 #include <nlohmann/json.hpp>
+
 #include <fstream>
 #include <filesystem>
 #include <random>
@@ -15,19 +16,23 @@
 #include <chrono>
 #include <ctime>
 
-namespace fs = std::filesystem;
-
 namespace {
-    // ── 当前时间 ISO 8601 ──
-    std::string nowIso() {
-        auto now = std::chrono::system_clock::now();
-        auto t = std::chrono::system_clock::to_time_t(now);
-        std::ostringstream oss;
-        oss << std::put_time(std::gmtime(&t), "%Y-%m-%dT%H:%M:%SZ");
-        return oss.str();
+    // ── 退票费率 ──
+    double calcRefund(const std::string& date, int departure_hhmm) {
+        // 非今天的票（未来），距发车 >24 小时，最高费率
+        if (!isToday(date)) return 0.95;
+
+        // 今天的票，按时距计算（已发车由 refundOrder 提前拦截）
+        int minutes_before = timeDiff(nowHHMM(), departure_hhmm);
+
+        if (minutes_before < 120) return 0.80;        // 2 小时内
+        if (minutes_before < 1440) return 0.90;       // 2-24 小时
+        return 0.95;                                   // 24 小时以上
     }
 
 }
+
+namespace fs = std::filesystem;
 
 // ── 单例 ──
 
@@ -221,13 +226,7 @@ OrderService::RefundResult OrderService::refundOrder(const std::string& order_id
         return result;
     }
 
-    // 3. 列车以发车，无法退票
-    if (!isFuture(it->date, MAX_ADVANCE_DAYS)) {
-        result.error = "列车以发车，无法退票";
-        return result;
-    }
-
-    // 4. 计算退款金额（按退票时间阶梯费率）
+    // 3. 获取列车信息
     auto* train = DataStore::instance().getTrain(it->train_id);
     if (!train) {
         result.error = "列车不存在";
@@ -242,21 +241,23 @@ OrderService::RefundResult OrderService::refundOrder(const std::string& order_id
         }
     }
 
-    double rate = calcRefund(it->date, departure_hhmm);
-    if (rate <= 0.0) {
-        result.error = "列车已发车，无法退票";
+    // 4. 发车时间已过（日期过期 或 今天已发车），不可退
+    if (!isFuture(it->date, MAX_ADVANCE_DAYS, departure_hhmm)) {
+        result.error = "发车时间已过，无法退票";
         return result;
     }
 
+    // 5. 计算退款金额（纯费率）
+    double rate = calcRefund(it->date, departure_hhmm);
     double refund = it->price * rate;
 
-    // 5. 释放座位
+    // 6. 释放座位
     if (it->seat_number > 0) {
         SeatInventory::instance().release(it->train_id, it->date,
             it->seat_type, {it->seat_number});
     }
 
-    // 6. 更新订单状态
+    // 7. 更新订单状态
     it->status = OrderStatus::REFUNDED;
     saveOrders();
     Logger::instance().info("Order refunded: " + order_id
@@ -289,19 +290,4 @@ const Order* OrderService::getOrder(const std::string& order_id) const {
         if (o.id == order_id) return &o;
     }
     return nullptr;
-}
-
-// ── 退票费率 ──
-
-double OrderService::calcRefund(const std::string& date, int departure_hhmm) const {
-    // 非今天的票（未来），距发车 >24 小时，最高费率
-    if (!isToday(date)) return 0.95;
-
-    // 今天的票，按时距计算
-    int minutes_before = timeDiff(nowHHMM(), departure_hhmm);
-
-    if (minutes_before < 0) return 0.0;          // 已发车
-    if (minutes_before < 120) return 0.80;        // 2 小时内
-    if (minutes_before < 1440) return 0.90;       // 2-24 小时
-    return 0.95;                                   // 24 小时以上
 }

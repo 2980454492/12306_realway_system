@@ -4,6 +4,7 @@
 
 #include <sodium.h>
 #include <nlohmann/json.hpp>
+
 #include <random>
 #include <sstream>
 #include <iomanip>

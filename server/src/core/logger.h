@@ -29,7 +29,6 @@ private:
 
     // ── 内部方法 ──
     void write(const std::string& level, const std::string& message);
-    std::string timestamp() const;
 
     // ── 成员 ──
     std::mutex mutex_;

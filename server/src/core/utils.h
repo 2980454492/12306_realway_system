@@ -32,44 +32,66 @@ inline std::string generateUuid() {
 
 // ── 时间工具 ──
 
-/** 当前 HHMM（如 1430 = 14:30） */
-inline int nowHHMM() {
+/** 当前本地时间 tm 结构（所有时间函数的唯一 system_clock 调用点） */
+inline std::tm nowTm() {
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
     std::tm tm{};
     localtime_r(&t, &tm);
+    return tm;
+}
+
+/** 今天的日期字符串 yyyy-MM-dd */
+inline std::string todayStr() {
+    auto tm = nowTm();
+    char buf[11];
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+    return std::string(buf);
+}
+
+/** 当前 HHMM（如 1430 = 14:30） */
+inline int nowHHMM() {
+    auto tm = nowTm();
     return tm.tm_hour * 100 + tm.tm_min;
+}
+
+/** 当前 UTC 时间 ISO 8601 字符串（用于订单时间戳） */
+inline std::string nowIso() {
+    auto now = std::chrono::system_clock::now();
+    auto t = std::chrono::system_clock::to_time_t(now);
+    std::tm utc{};
+    gmtime_r(&t, &utc);
+    std::ostringstream oss;
+    oss << std::put_time(&utc, "%Y-%m-%dT%H:%M:%SZ");
+    return oss.str();
 }
 
 /** 检查日期字符串（yyyy-MM-dd）是否为今天 */
 inline bool isToday(const std::string& date) {
-    auto now = std::chrono::system_clock::now();
-    auto t = std::chrono::system_clock::to_time_t(now);
-    std::tm tm{};
-    localtime_r(&t, &tm);
-    char buf[11];
-    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
-    return date == std::string(buf);
+    return date == todayStr();
 }
 
-/** 检查日期是否在 [今天, 今天+maxDays] 范围内 */
-inline bool isFuture(const std::string& date, int maxDays) {
-    char buf[11];
-    auto now = std::chrono::system_clock::now();
-    auto t = std::chrono::system_clock::to_time_t(now);
-    std::tm tm{};
-    localtime_r(&t, &tm);
-    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
-    std::string today(buf);
+/**
+ * 检查车票是否未过期：日期在 [today, today+maxDays]，且若为今天则发车时间未过。
+ * @param departure_hhmm  发车 HHMM，为 0 时仅做日期比较
+ */
+inline bool isFuture(const std::string& date, int maxDays, int departure_hhmm = 0) {
+    auto today = todayStr();
+    if (date < today) return false;
 
-    auto min_t = std::mktime(&tm);
-    auto max_t = min_t + maxDays * 86400;
+    auto tm = nowTm();
+    auto max_t = std::mktime(&tm) + maxDays * 86400;
     std::tm max_tm{};
     localtime_r(&max_t, &max_tm);
+    char buf[11];
     std::strftime(buf, sizeof(buf), "%Y-%m-%d", &max_tm);
-    std::string maxDay(buf);
+    if (date > std::string(buf)) return false;
 
-    return date >= today && date <= maxDay;
+    // 今天的票，进一步检查发车时间是否已过
+    if (departure_hhmm > 0 && date == today) {
+        return nowHHMM() < departure_hhmm;
+    }
+    return true;
 }
 
 /** 计算两个 HHMM 时间差（分钟），支持跨天（如 2300→0100 = 120min） */

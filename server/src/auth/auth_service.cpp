@@ -5,6 +5,7 @@
 
 #include <sodium.h>
 #include <nlohmann/json.hpp>
+
 #include <fstream>
 #include <filesystem>
 #include <algorithm>

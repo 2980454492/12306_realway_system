@@ -7,6 +7,23 @@
 #include <iomanip>
 #include <filesystem>
 
+namespace {
+std::string timestamp() {
+    auto now = std::chrono::system_clock::now();
+    auto time_t_now = std::chrono::system_clock::to_time_t(now);
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  now.time_since_epoch()) % 1000;
+
+    std::tm tm_now{};
+    localtime_r(&time_t_now, &tm_now);  // 线程安全版本
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S")
+        << '.' << std::setfill('0') << std::setw(3) << ms.count();
+    return oss.str();
+}  
+} // namespace
+
 Logger& Logger::instance() {
     static Logger logger;
     return logger;
@@ -60,19 +77,4 @@ void Logger::write(const std::string& level, const std::string& message) {
         file_ << line << std::endl;
         file_.flush();  // 每条日志立即落盘，崩溃不丢
     }
-}
-
-std::string Logger::timestamp() const {
-    auto now = std::chrono::system_clock::now();
-    auto time_t_now = std::chrono::system_clock::to_time_t(now);
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                  now.time_since_epoch()) % 1000;
-
-    std::tm tm_now{};
-    localtime_r(&time_t_now, &tm_now);  // 线程安全版本
-
-    std::ostringstream oss;
-    oss << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S")
-        << '.' << std::setfill('0') << std::setw(3) << ms.count();
-    return oss.str();
 }

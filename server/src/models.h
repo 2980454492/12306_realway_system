@@ -2,10 +2,11 @@
 // 所有实体定义在一个文件中，避免循环 include。包含 JSON 序列化支持。
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <string>
 #include <vector>
 #include <cstdint>
-#include <nlohmann/json.hpp>
 
 // ═══════════════════════════════════════════════════════════
 // 枚举类型
@@ -131,8 +132,8 @@ struct Station {
     std::string name;
     std::string city;
     StationType type = StationType::NORMAL;
-    double latitude = 0.0;   // 经度
-    double longitude = 0.0;  // 纬度
+    double latitude = 0.0;   // 纬度
+    double longitude = 0.0;  // 经度
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Station, id, name, city, type, latitude, longitude)
 
