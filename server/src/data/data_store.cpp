@@ -57,18 +57,6 @@ const Station* DataStore::getStation(uint32_t id) const {
     return &stations_[it->second];
 }
 
-const Station* DataStore::getStationByName(const std::string& name) const {
-    auto it = station_name_to_id_.find(name);
-    if (it == station_name_to_id_.end()) return nullptr;
-    return getStation(it->second);
-}
-
-const Line* DataStore::getLine(uint32_t id) const {
-    auto it = line_index_.find(id);
-    if (it == line_index_.end()) return nullptr;
-    return &lines_[it->second];
-}
-
 const Train* DataStore::getTrain(const std::string& id) const {
     auto it = train_index_.find(id);
     if (it == train_index_.end()) return nullptr;
@@ -92,16 +80,10 @@ std::vector<const Train*> DataStore::getTrainsByStation(uint32_t station_id) con
 
 void DataStore::buildIndexes() {
     station_index_.clear();
-    line_index_.clear();
     train_index_.clear();
-    station_name_to_id_.clear();
 
     for (size_t i = 0; i < stations_.size(); ++i) {
         station_index_[stations_[i].id] = i;
-        station_name_to_id_[stations_[i].name] = stations_[i].id;
-    }
-    for (size_t i = 0; i < lines_.size(); ++i) {
-        line_index_[lines_[i].id] = i;
     }
     for (size_t i = 0; i < trains_.size(); ++i) {
         train_index_[trains_[i].id] = i;
