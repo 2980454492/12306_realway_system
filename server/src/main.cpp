@@ -1,5 +1,6 @@
 // main.cpp — 12306 铁路票务系统入口
 // 负责数据初始化、信号处理、服务启动、优雅关闭
+#include "core/config.h"
 #include "core/server.h"
 #include "core/routes.h"
 #include "core/logger.h"
@@ -32,7 +33,7 @@ static void signalHandler(int sig) {
 
 int main() {
     // ── 初始化日志 ──
-    Logger::instance().setLogFile("data/server.log");
+    Logger::instance().setLogFile(config::SERVER_LOG_FILE);
     Logger::instance().info("Railway Server v0.1.0 starting...");
 
     // ── 注册信号处理 ──
@@ -43,18 +44,18 @@ int main() {
 
     // ── 初始化数据层 ──
     // 加载站点/线路/列车种子数据，构建索引和铁路网图
-    if (!DataStore::instance().initialize("config")) {
+    if (!DataStore::instance().initialize()) {
         Logger::instance().error("Failed to initialize DataStore");
         return 1;
     }
 
     // 构建铁路网拓扑图（优先从本地缓存加载）
     RailwayGraph graph;
-    graph.build(DataStore::instance().getAllLines(), "data");
+    graph.build(DataStore::instance().getAllLines());
 
     // ── 初始化认证服务 ──
     // 加载或创建用户数据（首次启动生成 admin/staff/passenger 种子用户）
-    if (!AuthService::instance().initialize("config")) {
+    if (!AuthService::instance().initialize()) {
         Logger::instance().error("Failed to initialize AuthService");
         return 1;
     }
@@ -67,11 +68,11 @@ int main() {
     RbacMiddleware::initialize();
 
     // ── 初始化订单服务（加载持久化订单）──
-    OrderService::instance().initialize("data");
+    OrderService::instance().initialize();
 
     // ── 初始化职工端服务（列车管理 + 审批）──
-    TrainManager::instance().initialize("data");
-    ApprovalService::instance().initialize("data");
+    TrainManager::instance().initialize();
+    ApprovalService::instance().initialize();
 
     // ── 创建并启动服务 ──
     RailwayServer server;
@@ -79,8 +80,7 @@ int main() {
 
     registerRoutes(server);
 
-    int port = 8080;  // 默认端口，与 Dockerfile / README 保持一致
-    server.start(port);
+    server.start(config::DEFAULT_PORT);
 
     // start() 在线程中阻塞，这里等它退出
     // 实际上 signalHandler 调用 stop() 后，start 线程退出，然后这里可以继续

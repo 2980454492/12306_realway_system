@@ -181,7 +181,8 @@ fi
 
 # 快速启动测试（检查能否启动到监听状态）
 # 切换到 server/ 目录启动，确保相对路径 config/ data/ 正确
-info "快速启动测试..."
+TEST_PORT="${TEST_PORT:-8080}"
+info "快速启动测试（端口 $TEST_PORT）..."
 cd "$SERVER_DIR"
 "$EXECUTABLE" &
 SERVER_PID=$!
@@ -189,7 +190,7 @@ sleep 1
 
 if kill -0 "$SERVER_PID" 2>/dev/null; then
     # 测试 /health
-    if HEALTH=$(curl -s http://127.0.0.1:8080/health 2>/dev/null); then
+    if HEALTH=$(curl -s "http://127.0.0.1:$TEST_PORT/health" 2>/dev/null); then
         if echo "$HEALTH" | grep -q '"ok":true'; then
             success "/health 响应正常: $(echo "$HEALTH" | grep -o '"version":"[^"]*"')"
         else

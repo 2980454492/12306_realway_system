@@ -1,5 +1,6 @@
 // routes.cpp — 路由注册实现
 #include "core/routes.h"
+#include "core/config.h"
 #include "core/server.h"
 #include "core/logger.h"
 #include "data/data_store.h"
@@ -79,10 +80,10 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    // ── 静态文件托管 — frontend/ 目录 ──
+    // ── 静态文件托管 — FRONTEND_DIR 目录 ──
     // 所有非 API 路径由前端 SPA 处理
     // index.html 作为兜底页面，SPA 路由由 JS 的 hash-based router 接管
-    app.set_mount_point("/", "frontend");
+    app.set_mount_point(config::STATIC_MOUNT_POINT, config::FRONTEND_DIR);
 
     // ── GET /api/debug/stations — 查看所有站点（调试验证用）──
     app.Get("/api/debug/stations", [](const httplib::Request& /*req*/, httplib::Response& res) {

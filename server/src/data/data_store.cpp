@@ -1,6 +1,7 @@
 // data_store.cpp — DataStore 实现
 #include "data/data_store.h"
 #include "data/train_generator.h"
+#include "core/config.h"
 #include "core/utils.h"
 #include "core/logger.h"
 
@@ -11,17 +12,12 @@
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-namespace {
-    /** 车站-线路邻居索引缓存文件 */
-    constexpr const char* STATION_LINE_INDEX_FILE = "data/station_line_index.json";
-}  // namespace
-
 DataStore& DataStore::instance() {
     static DataStore store;
     return store;
 }
 
-bool DataStore::initialize(const std::string& config_dir) {
+bool DataStore::initialize() {
     std::lock_guard<std::mutex> lock(mutex_);
 
     if (ready_) {
@@ -29,19 +25,19 @@ bool DataStore::initialize(const std::string& config_dir) {
         return true;
     }
 
-    Logger::instance().info("Initializing DataStore from: " + config_dir);
+    Logger::instance().info("Initializing DataStore");
 
     // 加载顺序：站点 → 线路 → 列车（列车依赖线路和站点）
-    if (!loadStations(config_dir)) return false;
-    if (!loadLines(config_dir)) return false;
-    if (!loadTrains(config_dir)) return false;
+    if (!loadStations()) return false;
+    if (!loadLines()) return false;
+    if (!loadTrains()) return false;
 
     buildIndexes();
 
     // 车站-线路邻居索引：优先从本地缓存加载
-    if (!tryLoadStationLineIndex("data")) {
+    if (!tryLoadStationLineIndex()) {
         buildStationLineIndex();
-        saveStationLineIndex("data");
+        saveStationLineIndex();
     }
 
     ready_ = true;
@@ -115,8 +111,8 @@ void DataStore::buildIndexes() {
 
 // ── 加载实现 ──
 
-bool DataStore::loadStations(const std::string& config_dir) {
-    std::string path = config_dir + "/stations.json";
+bool DataStore::loadStations() {
+    std::string path = config::STATIONS_FILE;
     std::ifstream file(path);
     if (!file.is_open()) {
         Logger::instance().error("Failed to open: " + path);
@@ -135,8 +131,8 @@ bool DataStore::loadStations(const std::string& config_dir) {
     }
 }
 
-bool DataStore::loadLines(const std::string& config_dir) {
-    std::string path = config_dir + "/lines.json";
+bool DataStore::loadLines() {
+    std::string path = config::LINES_FILE;
     std::ifstream file(path);
     if (!file.is_open()) {
         Logger::instance().error("Failed to open: " + path);
@@ -155,8 +151,8 @@ bool DataStore::loadLines(const std::string& config_dir) {
     }
 }
 
-bool DataStore::loadTrains(const std::string& config_dir) {
-    std::string path = config_dir + "/trains.json";
+bool DataStore::loadTrains() {
+    std::string path = config::TRAINS_FILE;
 
     // 若 trains.json 已存在则直接加载（幂等）
     if (fs::exists(path)) {
@@ -212,9 +208,9 @@ bool DataStore::removeTrain(const std::string& train_id) {
     return true;
 }
 
-bool DataStore::saveTrains(const std::string& config_dir) const {
+bool DataStore::saveTrains() const {
     std::lock_guard<std::mutex> lock(mutex_);
-    std::string path = config_dir + "/trains.json";
+    std::string path = config::TRAINS_FILE;
     try {
         using json = nlohmann::json;
         json j = trains_;
@@ -229,8 +225,8 @@ bool DataStore::saveTrains(const std::string& config_dir) const {
 
 // ── 车站-线路-邻居索引 ──
 
-bool DataStore::tryLoadStationLineIndex(const std::string& data_dir) {
-    std::string path = data_dir + "/station_line_index.json";
+bool DataStore::tryLoadStationLineIndex() {
+    std::string path = config::STATION_LINE_INDEX_FILE;
     if (!fs::exists(path)) return false;
 
     try {
@@ -252,8 +248,8 @@ bool DataStore::tryLoadStationLineIndex(const std::string& data_dir) {
     }
 }
 
-void DataStore::saveStationLineIndex(const std::string& data_dir) const {
-    std::string path = data_dir + "/station_line_index.json";
+void DataStore::saveStationLineIndex() const {
+    std::string path = config::STATION_LINE_INDEX_FILE;
     try {
         json j;
         for (const auto& [sid, neighbors] : station_line_index_) {

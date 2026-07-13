@@ -23,7 +23,7 @@ public:
     DataStore& operator=(const DataStore&) = delete;
 
     /** 从 config 目录加载全部数据。必须在使用前调用且仅调用一次 */
-    bool initialize(const std::string& config_dir);
+    bool initialize();
 
     /** 数据是否已加载 */
     bool isReady() const { return ready_; }
@@ -56,19 +56,19 @@ public:
     bool removeTrain(const std::string& train_id);
 
     /** 回写 trains 到 config/trains.json */
-    bool saveTrains(const std::string& config_dir) const;
+    bool saveTrains() const;
 
 private:
     DataStore() = default;
 
     // ── 加载方法 ──
-    bool loadStations(const std::string& config_dir);
-    bool loadLines(const std::string& config_dir);
-    bool loadTrains(const std::string& config_dir);
+    bool loadStations();
+    bool loadLines();
+    bool loadTrains();
     void buildIndexes();
     void buildStationLineIndex();
-    bool tryLoadStationLineIndex(const std::string& data_dir);
-    void saveStationLineIndex(const std::string& data_dir) const;
+    bool tryLoadStationLineIndex();
+    void saveStationLineIndex() const;
 
     // ── 数据 ──
     std::vector<Station> stations_;

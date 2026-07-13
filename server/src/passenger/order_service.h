@@ -20,8 +20,8 @@ public:
     OrderService(const OrderService&) = delete;
     OrderService& operator=(const OrderService&) = delete;
 
-    /** 从目录加载订单文件，持久化路径为 data_dir/orders.json */
-    bool initialize(const std::string& data_dir);
+    /** 从 config::ORDERS_FILE 加载持久化订单 */
+    bool initialize();
 
     /**
      * 购票请求。
@@ -63,10 +63,9 @@ public:
 private:
     OrderService() = default;
 
-    /** 将订单持久化到 data_dir/orders.json */
+    /** 将订单持久化到 config::ORDERS_FILE */
     void saveOrders() const;
 
     std::vector<Order> orders_;
     mutable std::mutex mutex_;
-    std::string data_dir_;
 };

@@ -22,8 +22,8 @@ public:
     ApprovalService(const ApprovalService&) = delete;
     ApprovalService& operator=(const ApprovalService&) = delete;
 
-    /** 从目录加载审批数据 */
-    bool initialize(const std::string& data_dir);
+    /** 从 config::APPROVALS_FILE 加载审批数据 */
+    bool initialize();
 
     // ── 提交 ──
 
@@ -67,5 +67,4 @@ private:
     std::vector<ApprovalRequest> approvals_;
     mutable std::mutex mutex_;
     std::atomic_flag cas_lock_ = ATOMIC_FLAG_INIT;
-    std::string data_dir_;
 };

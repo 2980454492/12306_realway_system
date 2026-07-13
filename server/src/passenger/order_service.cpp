@@ -2,6 +2,7 @@
 #include "passenger/order_service.h"
 #include "passenger/seat_inventory.h"
 #include "data/data_store.h"
+#include "core/config.h"
 #include "core/utils.h"
 #include "core/logger.h"
 
@@ -45,11 +46,10 @@ OrderService& OrderService::instance() {
 
 // ── 持久化 ──
 
-bool OrderService::initialize(const std::string& data_dir) {
+bool OrderService::initialize() {
     std::lock_guard<std::mutex> lock(mutex_);
-    data_dir_ = data_dir;
 
-    std::string path = data_dir + "/orders.json";
+    std::string path = config::ORDERS_FILE;
     if (!fs::exists(path)) {
         Logger::instance().info("No existing orders file, starting fresh");
         return true;
@@ -84,7 +84,7 @@ bool OrderService::initialize(const std::string& data_dir) {
 
 void OrderService::saveOrders() const {
     // 调用方已持有 mutex_
-    std::string path = data_dir_ + "/orders.json";
+    std::string path = config::ORDERS_FILE;
     try {
         using json = nlohmann::json;
         json j = orders_;

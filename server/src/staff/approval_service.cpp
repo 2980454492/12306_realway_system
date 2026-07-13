@@ -2,6 +2,7 @@
 #include "staff/approval_service.h"
 #include "staff/train_manager.h"
 #include "data/data_store.h"
+#include "core/config.h"
 #include "core/utils.h"
 #include "core/logger.h"
 
@@ -35,11 +36,10 @@ ApprovalService& ApprovalService::instance() {
 
 // ── 持久化 ──
 
-bool ApprovalService::initialize(const std::string& data_dir) {
+bool ApprovalService::initialize() {
     std::lock_guard<std::mutex> lock(mutex_);
-    data_dir_ = data_dir;
 
-    std::string path = data_dir + "/approvals.json";
+    std::string path = config::APPROVALS_FILE;
     if (!fs::exists(path)) {
         Logger::instance().info("No existing approvals file, starting fresh");
         return true;
@@ -59,7 +59,7 @@ bool ApprovalService::initialize(const std::string& data_dir) {
 }
 
 void ApprovalService::saveApprovals() const {
-    std::string path = data_dir_ + "/approvals.json";
+    std::string path = config::APPROVALS_FILE;
     try {
         json j = approvals_;
         std::ofstream out(path);

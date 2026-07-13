@@ -1,6 +1,7 @@
 // train_manager.cpp — TrainManager 实现
 #include "staff/train_manager.h"
 #include "data/data_store.h"
+#include "core/config.h"
 #include "core/utils.h"
 #include "core/logger.h"
 
@@ -29,9 +30,8 @@ TrainManager& TrainManager::instance() {
 
 // ── 持久化 ──
 
-bool TrainManager::initialize(const std::string& data_dir) {
+bool TrainManager::initialize() {
     std::lock_guard<std::mutex> lock(mutex_);
-    data_dir_ = data_dir;
     loadOccupancy();
     return true;
 }

@@ -2,6 +2,7 @@
 #include "passenger/train_query.h"
 #include "data/data_store.h"
 #include "passenger/seat_inventory.h"
+#include "core/config.h"
 #include "core/utils.h"
 #include "core/logger.h"
 
@@ -32,9 +33,6 @@ struct TrainStopEntry {
 using StationTrainIndex = std::unordered_map<uint32_t, std::vector<TrainStopEntry>>;
 
 // ── 索引持久化 ──
-
-/** 索引文件的默认存储路径 */
-const char* INDEX_PATH = "data/station_train_index.json";
 
 /** 将索引序列化为 JSON 并写入文件。key 用车站 ID（转字符串），value 为 [{train_id, stop_idx}] */
 void saveIndex(const std::string& path, const StationTrainIndex& idx) {
@@ -115,15 +113,15 @@ StationTrainIndex buildStationTrainIndex(DataStore& ds) {
  * 只被 getStationIndex() 调用一次。
  */
 StationTrainIndex initStationIndex(DataStore& ds) {
-    auto loaded = loadIndex(INDEX_PATH, ds);
+    auto loaded = loadIndex(config::STATION_TRAIN_INDEX_FILE, ds);
     if (loaded) {
         Logger::instance().info("Station-train index loaded from file");
         return *loaded;
     }
     Logger::instance().info("Building station-train index...");
     auto idx = buildStationTrainIndex(ds);
-    saveIndex(INDEX_PATH, idx);
-    Logger::instance().info("Station-train index saved to " + std::string(INDEX_PATH));
+    saveIndex(config::STATION_TRAIN_INDEX_FILE, idx);
+    Logger::instance().info("Station-train index saved to " + std::string(config::STATION_TRAIN_INDEX_FILE));
     return idx;
 }
 

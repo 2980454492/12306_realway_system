@@ -23,8 +23,8 @@ public:
     TrainManager(const TrainManager&) = delete;
     TrainManager& operator=(const TrainManager&) = delete;
 
-    /** 从目录加载持久化数据 */
-    bool initialize(const std::string& data_dir);
+    /** 从运行时数据加载持久化数据 */
+    bool initialize();
 
     // ── 校验 ──
 
@@ -82,5 +82,4 @@ private:
     // key → [(train_id, (enter, leave)), ...]
 
     mutable std::mutex mutex_;
-    std::string data_dir_;
 };

@@ -21,8 +21,8 @@ public:
     AuthService(const AuthService&) = delete;
     AuthService& operator=(const AuthService&) = delete;
 
-    /** 从 config 目录加载用户文件。必须在使用前调用 */
-    bool initialize(const std::string& config_dir);
+    /** 从 config/users.json 加载用户文件。必须在使用前调用 */
+    bool initialize();
 
     /** 创建新用户（密码自动哈希） */
     std::optional<User> createUser(const std::string& username,
@@ -46,8 +46,8 @@ private:
     AuthService() = default;
 
     // ── 内部 ──
-    bool loadUsers(const std::string& config_dir);
-    bool saveUsers(const std::string& config_dir);
+    bool loadUsers();
+    bool saveUsers() const;
     void createSeedUsers();
 
     /** 重建索引（加载/修改用户后调用） */
@@ -57,7 +57,6 @@ private:
     std::vector<User> users_;
     std::unordered_map<std::string, size_t> username_idx_;  // username → users_ 下标
     std::unordered_map<std::string, size_t> id_idx_;        // user id → users_ 下标
-    std::string config_dir_;
     bool initialized_ = false;
     mutable std::mutex mutex_;
 };

@@ -1,5 +1,6 @@
 // auth_service.cpp — AuthService 实现
 #include "auth/auth_service.h"
+#include "core/config.h"
 #include "core/logger.h"
 #include "core/utils.h"
 
@@ -49,22 +50,20 @@ AuthService& AuthService::instance() {
 
 // ── 初始化 ──
 
-bool AuthService::initialize(const std::string& config_dir) {
+bool AuthService::initialize() {
     std::lock_guard<std::mutex> lock(mutex_);
 
     if (initialized_) return true;
-
-    config_dir_ = config_dir;
 
     if (sodium_init() < 0) {
         Logger::instance().error("libsodium initialization failed");
         return false;
     }
 
-    if (!loadUsers(config_dir)) {
+    if (!loadUsers()) {
         Logger::instance().info("users.json not found, creating seed users...");
         createSeedUsers();
-        saveUsers(config_dir);
+        saveUsers();
     }
 
     initialized_ = true;
@@ -94,7 +93,7 @@ std::optional<User> AuthService::createUser(const std::string& username,
 
     users_.push_back(user);
     rebuildIndexes();
-    saveUsers(config_dir_);
+    saveUsers();
 
     Logger::instance().info("User created: " + username);
     return user;
@@ -147,13 +146,13 @@ std::optional<User> AuthService::verifyUser(const std::string& username,
             Logger::instance().warn("Account locked for 30 min: " + username);
         }
 
-        saveUsers(config_dir_);
+        saveUsers();
         return std::nullopt;
     }
 
     u.failed_attempts = 0;
     u.locked_until.clear();
-    saveUsers(config_dir_);
+    saveUsers();
 
     Logger::instance().info("User logged in: " + username);
     return u;
@@ -184,8 +183,8 @@ void AuthService::rebuildIndexes() {
 
 // ── 持久化 ──
 
-bool AuthService::loadUsers(const std::string& config_dir) {
-    std::string path = config_dir + "/users.json";
+bool AuthService::loadUsers() {
+    std::string path = config::USERS_FILE;
     if (!fs::exists(path)) return false;
 
     std::ifstream file(path);
@@ -204,8 +203,8 @@ bool AuthService::loadUsers(const std::string& config_dir) {
     }
 }
 
-bool AuthService::saveUsers(const std::string& config_dir) {
-    std::string path = config_dir + "/users.json";
+bool AuthService::saveUsers() const {
+    std::string path = config::USERS_FILE;
     try {
         json j = users_;
         std::ofstream out(path);
