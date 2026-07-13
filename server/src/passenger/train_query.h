@@ -63,6 +63,9 @@ struct QueryResult {
  */
 class TrainQuery {
 public:
+    /** 预热索引：强制从缓存加载或全量构建，应在服务启动时调用 */
+    static void initialize();
+
     /**
      * 查询 from → to 的可用列车。
      * @param date 乘车日期（yyyy-MM-dd），用于查询座位库存

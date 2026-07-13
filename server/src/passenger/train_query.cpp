@@ -155,6 +155,11 @@ bool isTransferBetween(uint32_t from, uint32_t transfer, uint32_t to, DataStore&
 
 }  // namespace
 
+/** 预热索引：触发 getStationIndex 的 static 懒惰初始化（由 TrainQuery::initialize 调用） */
+void TrainQuery::initialize() {
+    getStationIndex(DataStore::instance());
+}
+
 // ── 公开接口 ──
 
 QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,

@@ -10,6 +10,7 @@
 #include "auth/jwt_service.h"
 #include "auth/rbac_middleware.h"
 #include "passenger/order_service.h"
+#include "passenger/train_query.h"
 #include "staff/train_manager.h"
 #include "staff/approval_service.h"
 
@@ -65,6 +66,9 @@ int main() {
 
     // ── 初始化 RBAC 中间件 ──
     RbacMiddleware::initialize();
+
+    // ── 预热查询索引（首次查询前构建车站→列车索引，避免第一个用户等）──
+    TrainQuery::initialize();
 
     // ── 初始化订单服务（加载持久化订单）──
     OrderService::instance().initialize();

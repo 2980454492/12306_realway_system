@@ -22,8 +22,7 @@
 │   │   │   └── logger.h/.cpp           #   日志基础设施
 │   │   ├── data/                       # 数据加载 + 铁路网图 + 种子生成
 │   │   │   ├── data_store.h/.cpp       #   单例数据加载器
-│   │   │   ├── railway_graph.h/.cpp    #   邻接表 + JSON 持久化
-│   │   │   └── train_generator.h/.cpp  #   100辆列车自动生成器
+│   │   │   └── railway_graph.h/.cpp    #   邻接表 + JSON 持久化
 │   │   ├── auth/                       # 认证 + JWT + RBAC
 │   │   │   ├── auth_service.h/.cpp     #   argon2id 密码哈希 + 用户管理
 │   │   │   ├── jwt_service.h/.cpp      #   HS256 JWT 生成与校验

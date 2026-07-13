@@ -672,7 +672,7 @@ SeatBitmap
 | P0 | 核心实体定义 + JSON 序列化 | `models.h` |
 | P0 | 20 站点 + 10 线路种子数据 | `stations.json` `lines.json` |
 | P0 | 铁路网图（邻接表） + JSON 持久化 | `railway_graph.h/.cpp` |
-| P1 | 100 辆列车生成器 + 数据加载器 | `train_generator` `data_store` |
+| P1 | 100 辆列车种子数据 + 数据加载器 | `trains.json` `data_store` |
 
 ---
 

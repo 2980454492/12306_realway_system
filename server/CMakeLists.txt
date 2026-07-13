@@ -42,7 +42,6 @@ set(SOURCES
     src/core/routes.cpp
     src/data/data_store.cpp
     src/data/railway_graph.cpp
-    src/data/train_generator.cpp
     src/auth/auth_service.cpp
     src/auth/jwt_service.cpp
     src/auth/rbac_middleware.cpp
@@ -61,7 +60,6 @@ set(HEADERS
     src/core/server.h
     src/core/routes.h
     src/data/data_store.h
-    src/data/train_generator.h
     src/data/railway_graph.h
     src/auth/auth_service.h
     src/auth/jwt_service.h

@@ -1,6 +1,5 @@
 // data_store.cpp — DataStore 实现
 #include "data/data_store.h"
-#include "data/train_generator.h"
 #include "core/config.h"
 #include "core/utils.h"
 #include "core/logger.h"
@@ -154,42 +153,21 @@ bool DataStore::loadLines() {
 bool DataStore::loadTrains() {
     std::string path = config::TRAINS_FILE;
 
-    // 若 trains.json 已存在则直接加载（幂等）
-    if (fs::exists(path)) {
-        std::ifstream file(path);
-        if (!file.is_open()) {
-            Logger::instance().error("Failed to open: " + path);
-            return false;
-        }
-        try {
-            json j;
-            file >> j;
-            trains_ = j.get<std::vector<Train>>();
-            Logger::instance().info("Loaded " + std::to_string(trains_.size()) + " trains from file");
-            return true;
-        } catch (const std::exception& e) {
-            Logger::instance().error(std::string("Failed to parse trains.json: ") + e.what());
-            return false;
-        }
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        Logger::instance().error("Failed to open: " + path);
+        return false;
     }
-
-    // 不存在则自动生成
-    Logger::instance().info("trains.json not found, generating...");
-    trains_ = TrainGenerator::generate(lines_, stations_);
-
-    // 保存生成结果
     try {
-        json j = trains_;
-        std::ofstream out(path);
-        out << j.dump(2);
-        out.close();
-        Logger::instance().info("Generated and saved " + std::to_string(trains_.size()) + " trains");
+        json j;
+        file >> j;
+        trains_ = j.get<std::vector<Train>>();
+        Logger::instance().info("Loaded " + std::to_string(trains_.size()) + " trains");
+        return true;
     } catch (const std::exception& e) {
-        Logger::instance().error(std::string("Failed to save trains.json: ") + e.what());
-        // 生成成功了但保存失败——数据在内存中仍然可用
+        Logger::instance().error(std::string("Failed to parse trains.json: ") + e.what());
+        return false;
     }
-
-    return true;
 }
 
 // ── 运行时变更 ──
