@@ -670,6 +670,10 @@ void registerRoutes(RailwayServer& server) {
 
             json body = json::parse(req.body);
             Train train = body.get<Train>();
+            // 前端未传 route_stations 时，从 stops 自动填充
+            if (train.route_stations.empty()) {
+                for (const auto& s : train.stops) train.route_stations.push_back(s.station_id);
+            }
 
             // 校验
             auto vr = TrainManager::instance().validate(train, true);

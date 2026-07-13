@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>12306 铁路票务系统</title>
-<link rel="stylesheet" href="/style.css?v=13">
+<link rel="stylesheet" href="/style.css?v=15">
 </head>
 <body>
 
@@ -225,6 +225,7 @@
       <!-- 新增列车表单（默认隐藏） -->
       <div id="add-train-form" class="form-card" style="display:none">
         <h3>新增列车</h3>
+        <datalist id="train-station-datalist"></datalist>
         <!-- 车次 -->
         <div class="form-row-3">
           <div class="form-group">
@@ -247,18 +248,32 @@
           </div>
           <div class="form-group">
             <label>列车类型</label>
-            <select id="new-train-type">
+            <select id="new-train-type" onchange="UI.onTrainTypeChange()">
               <option value="0">图定列车</option>
               <option value="1">临客</option>
             </select>
           </div>
         </div>
+        <!-- 日期（动态显示） -->
+        <div id="train-date-row" class="form-row-2" style="margin-top:8px">
+          <div class="form-group" id="train-date-single" style="display:none">
+            <input type="date" id="new-train-valid-from">
+          </div>
+          <div class="form-group" id="train-date-range" style="display:none">
+            <span style="display:flex;gap:8px;align-items:center">
+              <input type="date" id="new-train-range-from">
+              <span style="color:#707090">至</span>
+              <input type="date" id="new-train-range-to">
+            </span>
+          </div>
+        </div>
         <!-- 限速提示 -->
         <div id="speed-limit-hint" class="hint" style="display:none"></div>
         <!-- 停站序列 -->
-        <label style="font-size:13px;color:#9090b0;margin-top:8px;display:block">停站序列</label>
+        <label style="font-size:13px;color:#9090b0;margin-top:12px;display:block">停站序列</label>
         <div id="stop-list"></div>
-        <button class="btn btn-sm" onclick="UI.addStop()" style="margin-top:8px">+ 添加停站</button>
+        <button class="btn btn-sm" onclick="UI.addStop()" style="margin-top:8px">+ 添加途经站</button>
+        <button class="btn btn-sm" onclick="UI.finishStops()" style="margin-top:8px;margin-left:4px">✓ 完成（设终点站）</button>
         <!-- 席位 -->
         <div class="form-group" style="margin-top:16px">
           <label>席位配置</label>
@@ -311,6 +326,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=29"></script>
+<script src="/app.js?v=34"></script>
 </body>
 </html>
