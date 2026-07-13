@@ -244,6 +244,13 @@ void AuthService::createSeedUsers() {
     passenger.role = UserRole::PASSENGER;
     users_.push_back(passenger);
 
+    User approver;
+    approver.id = generateUuid();
+    approver.username = "approver";
+    approver.password_hash = hashPassword("approver123");
+    approver.role = UserRole::APPROVER;
+    users_.push_back(approver);
+
     rebuildIndexes();
-    Logger::instance().info("Created 3 seed users: admin, staff, passenger");
+    Logger::instance().info("Created 4 seed users: admin, staff, approver, passenger");
 }

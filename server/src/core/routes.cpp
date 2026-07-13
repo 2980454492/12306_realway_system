@@ -142,6 +142,7 @@ void registerRoutes(RailwayServer& server) {
             switch (user->role) {
                 case UserRole::ADMIN:     role_str = "ADMIN"; break;
                 case UserRole::STAFF:     role_str = "STAFF"; break;
+                case UserRole::APPROVER:  role_str = "APPROVER"; break;
                 case UserRole::PASSENGER: role_str = "PASSENGER"; break;
             }
             std::string token = JwtService::instance().generateToken(
@@ -722,19 +723,34 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    // ── DELETE /api/admin/trains/{id} — 删除列车 ──
+    // ── DELETE /api/admin/trains/{id} — 删除列车（提交审批）──
     app.Delete(R"(/api/admin/trains/([^/]+))", [](const httplib::Request& req, httplib::Response& res) {
         try {
             auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
             if (!ctx) return;
 
             std::string train_id = req.matches[1];
-            auto result = TrainManager::instance().deleteTrain(train_id);
+            auto& ds = DataStore::instance();
+            auto* train = ds.getTrain(train_id);
+            if (!train) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "列车不存在";
+                res.set_content(j.dump(), "application/json");
+                res.status = 404;
+                return;
+            }
+
+            json payload;
+            payload["id"] = train_id;
+            std::string aid = ApprovalService::instance().submit(
+                ApprovalType::DELETE_TRAIN, ctx->user_id, payload.dump(), "");
+
             json j;
-            j["ok"] = result.success;
-            if (!result.success) j["error"] = result.error;
+            j["ok"] = true;
+            j["approval_id"] = aid;
+            j["message"] = "已提交审批";
             res.set_content(j.dump(), "application/json");
-            res.status = result.success ? 200 : 400;
         } catch (const std::exception& e) {
             json j;
             j["ok"] = false;

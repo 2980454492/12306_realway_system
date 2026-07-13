@@ -140,6 +140,9 @@ ApprovalService::ApproveResult ApprovalService::approve(
             }
             TrainManager::instance().addTrain(train);
             result.train_id = tid;
+        } else if (it->type == ApprovalType::DELETE_TRAIN) {
+            TrainManager::instance().deleteTrain(tid);
+            result.train_id = tid;
         } else if (it->type == ApprovalType::ADJUST_SCHEDULE) {
             auto new_stops = payload["stops"].get<std::vector<Stop>>();
             TrainManager::instance().adjustSchedule(tid, new_stops);

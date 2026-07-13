@@ -119,10 +119,19 @@ const U = {
     var u = U.$('nav-user'), b = U.$('btn-logout');
     if (u) u.textContent = State.user ? State.user.username + ' (' + State.user.role + ')' : '';
     if (b) b.style.display = State.user ? '' : 'none';
-    // 职工/管理员显示 staff 菜单
-    var isStaff = State.user && (State.user.role === 'STAFF' || State.user.role === 'ADMIN');
+    // 按角色显示职工菜单
+    var role = State.user ? State.user.role : '';
+    var isStaff = (role === 'STAFF' || role === 'ADMIN');       // 列车管理
+    var isApprover = (role === 'APPROVER' || role === 'ADMIN'); // 审批中心
     var items = document.querySelectorAll('.staff-only');
-    for (var i = 0; i < items.length; i++) items[i].style.display = isStaff ? '' : 'none';
+    for (var i = 0; i < items.length; i++) {
+      var page = items[i].getAttribute('data-page');
+      if (page === 'trains') items[i].style.display = isStaff ? '' : 'none';
+      else if (page === 'approvals') items[i].style.display = isApprover ? '' : 'none';
+      else items[i].style.display = (isStaff || isApprover) ? '' : 'none';
+    }
+    var divider = document.querySelector('.sidebar-divider');
+    if (divider) divider.style.display = (isStaff || isApprover) ? '' : 'none';
   },
   hideNav: function() {
     var u = U.$('nav-user'), b = U.$('btn-logout');
@@ -175,6 +184,9 @@ const UI = {
   goBack: function() { UI.showPage('query'); },
 
   navTo: function(name, data) {
+    var role = State.user ? State.user.role : '';
+    if (name === 'trains' && role !== 'STAFF' && role !== 'ADMIN') return;
+    if (name === 'approvals' && role !== 'APPROVER' && role !== 'ADMIN') return;
     if (name === 'order-form' && data) State.selectedTrain = data;
     UI.showPage(name);
     if (name === 'order-form') UI.renderOrderForm();
@@ -1363,7 +1375,7 @@ const UI = {
   deleteTrain: async function(trainId) {
     if (!confirm('确定删除列车 ' + trainId + '？')) return;
     var res = await API.del('/api/admin/trains/' + trainId);
-    if (res.ok) { U.toast('已删除', 'success'); UI.loadTrains(); }
+    if (res.ok) { U.toast('已提交审批', 'success'); UI.loadTrains(); }
     else U.toast((res.data && res.data.error) || '删除失败', 'error');
   },
 
@@ -1397,7 +1409,7 @@ const UI = {
   /** 渲染审批列表 */
   renderApprovals: function() {
     var approvals = State._allApprovals || [];
-    var typeLabel = {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点'};
+    var typeLabel = {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车'};
     var html = '';
     for (var i = 0; i < approvals.length; i++) {
       var a = approvals[i];

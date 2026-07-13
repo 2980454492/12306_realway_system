@@ -17,23 +17,28 @@ void RbacMiddleware::initialize() {
     passenger.set(static_cast<size_t>(Permission::VIEW_OWN_ORDERS));
     role_permissions_["PASSENGER"] = passenger;
 
-    // ── 铁路职工权限 — 继承旅客全部 + 新增 ──
+    // ── 铁路职工（普通员工）— 增删改列车，不可审批 ──
     PermissionSet staff = passenger;
     staff.set(static_cast<size_t>(Permission::MANAGE_TRAINS));
     staff.set(static_cast<size_t>(Permission::MANAGE_STATIONS));
     staff.set(static_cast<size_t>(Permission::MANAGE_LINES));
-    staff.set(static_cast<size_t>(Permission::APPROVE));
     role_permissions_["STAFF"] = staff;
 
-    // ── 管理员权限 — 继承职工全部 + 新增 ──
+    // ── 审批职工 — 审批通过/驳回，不可增删改列车 ──
+    PermissionSet approver = passenger;
+    approver.set(static_cast<size_t>(Permission::APPROVE));
+    role_permissions_["APPROVER"] = approver;
+
+    // ── 管理员 — 继承职工 + 审批职工 + 管理权限 ──
     PermissionSet admin = staff;
+    admin.set(static_cast<size_t>(Permission::APPROVE));
     admin.set(static_cast<size_t>(Permission::MANAGE_USERS));
     admin.set(static_cast<size_t>(Permission::VIEW_AUDIT));
     admin.set(static_cast<size_t>(Permission::SYSTEM_CONFIG));
     role_permissions_["ADMIN"] = admin;
 
     initialized_ = true;
-    Logger::instance().info("RBAC middleware initialized: 3 roles, 11 permissions");
+    Logger::instance().info("RBAC middleware initialized: 4 roles, 11 permissions");
 }
 
 std::optional<AuthContext> RbacMiddleware::authenticate(const std::string& auth_header) {

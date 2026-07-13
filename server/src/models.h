@@ -84,16 +84,18 @@ NLOHMANN_JSON_SERIALIZE_ENUM(OrderStatus, {
     {OrderStatus::REFUNDED, "REFUNDED"},
 })
 
-/** 用户角色 — RBAC 三角色 */
+/** 用户角色 — RBAC 四角色 */
 enum class UserRole : uint8_t {
     PASSENGER = 0,  // 普通旅客
-    STAFF     = 1,  // 铁路职工
-    ADMIN     = 2   // 系统管理员
+    STAFF     = 1,  // 铁路职工（增删改列车）
+    ADMIN     = 2,  // 系统管理员
+    APPROVER  = 3   // 审批职工（审核通过/驳回，不可增删改）
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(UserRole, {
     {UserRole::PASSENGER, "PASSENGER"},
     {UserRole::STAFF,     "STAFF"},
     {UserRole::ADMIN,     "ADMIN"},
+    {UserRole::APPROVER,  "APPROVER"},
 })
 
 /** 审批类型 */
@@ -101,13 +103,15 @@ enum class ApprovalType : uint8_t {
     CREATE_TRAIN   = 0,  // 新增列车
     ADJUST_SCHEDULE = 1,  // 调整时刻
     ADD_LINE       = 2,  // 新增线路
-    ADD_STATION    = 3   // 新增站点
+    ADD_STATION    = 3,  // 新增站点
+    DELETE_TRAIN   = 4   // 删除列车
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalType, {
     {ApprovalType::CREATE_TRAIN,   "CREATE_TRAIN"},
     {ApprovalType::ADJUST_SCHEDULE, "ADJUST_SCHEDULE"},
     {ApprovalType::ADD_LINE,       "ADD_LINE"},
     {ApprovalType::ADD_STATION,    "ADD_STATION"},
+    {ApprovalType::DELETE_TRAIN,   "DELETE_TRAIN"},
 })
 
 /** 审批状态 */
