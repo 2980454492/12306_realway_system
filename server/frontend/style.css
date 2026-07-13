@@ -195,7 +195,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
   padding: 16px 20px; margin-bottom: 20px; }
 
 /* ═══ 错误与加载 ═══ */
-.error-msg { color: #e94560; font-size: 13px; margin-top: 8px; }
+.error-msg { color: #e94560; font-size: 13px; margin-top: 8px; white-space: pre-line; }
 .loading { text-align: center; padding: 32px; color: #707090; font-size: 14px; }
 
 /* ═══ 弹窗 / 详情 ═══ */

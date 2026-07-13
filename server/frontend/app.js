@@ -1183,8 +1183,17 @@ const UI = {
     U.$('train-date-range').style.display = (t === 1) ? '' : 'none';
   },
 
-  /** 添加一个停站行 */
+  /** 添加一个停站行。已设终点站时不可再添加 */
   addStop: function() {
+    // 检查是否已设终点站
+    var rows = document.querySelectorAll('.stop-row');
+    for (var r = 0; r < rows.length; r++) {
+      var label = rows[r].querySelector('.stop-label');
+      if (label && label.textContent === '终到') {
+        U.toast('已设终点站，不可再添加途经站', 'error');
+        return;
+      }
+    }
     var list = U.$('stop-list');
     var idx = list.children.length;
     var isFirst = (idx === 0);
@@ -1223,13 +1232,77 @@ const UI = {
     if (btn) btn.style.display = 'none';
   },
 
-  /** 移除停站行 */
+  /**
+   * 移除停站行。删除后重建所有行（修正 ID/事件绑定），
+   * 若终点站被删则恢复"完成"按钮。
+   */
   removeStop: function(idx) {
     var row = U.$('stop-row-' + idx);
-    if (row) row.remove();
-    var rows = document.querySelectorAll('.stop-row');
-    for (var i = 0; i < rows.length; i++) {
-      rows[i].querySelector('.stop-idx').textContent = (i + 1);
+    if (!row) return;
+
+    // 记录被删行是否是终点站
+    var deletedLabel = row.querySelector('.stop-label');
+    var wasTerminal = deletedLabel && deletedLabel.textContent === '终到';
+
+    // 收集剩余行的数据
+    var remaining = [];
+    var allRows = document.querySelectorAll('.stop-row');
+    for (var i = 0; i < allRows.length; i++) {
+      if (allRows[i] === row) continue;
+      var nameEl = allRows[i].querySelector('.stop-station-input');
+      var arrEl  = allRows[i].querySelector('.stop-arrival');
+      var depEl  = allRows[i].querySelector('.stop-depart');
+      var labelEl = allRows[i].querySelector('.stop-label');
+      remaining.push({
+        name: (nameEl ? nameEl.value : ''),
+        arrival: (arrEl ? arrEl.value : ''),
+        depart: (depEl ? depEl.value : ''),
+        isFirstLabel: (labelEl && labelEl.textContent === '始发'),
+        isTerminalLabel: (labelEl && labelEl.textContent === '终到')
+      });
+    }
+    if (remaining.length === 0) {
+      row.remove();
+      // 恢复完成按钮
+      var btn = document.querySelector('button[onclick="UI.finishStops()"]');
+      if (btn) btn.style.display = '';
+      return;
+    }
+
+    // 重建所有行
+    var list = U.$('stop-list');
+    list.innerHTML = '';
+    for (var j = 0; j < remaining.length; j++) {
+      var d = remaining[j];
+      var isFirst = (j === 0);
+      var isLast  = (j === remaining.length - 1);
+      var html = '<div class="stop-row" id="stop-row-' + j + '">' +
+        '<span class="stop-idx">' + (j + 1) + '</span>' +
+        '<input type="text" class="stop-station-input" list="train-station-datalist" placeholder="站名" value="' + U.esc(d.name) + '" onchange="UI.onStopChange(' + j + ')" autocomplete="off">';
+      // 到达列
+      if (isFirst) {
+        html += '<span class="stop-label">始发</span>';
+      } else {
+        html += '<input type="time" class="stop-arrival" value="' + (d.arrival || '') + '" onchange="UI.onStopChange(' + j + ')">';
+      }
+      // 时速
+      html += '<span class="stop-speed" id="stop-speed-' + j + '"></span>';
+      // 发车列
+      if (d.isTerminalLabel && isLast) {
+        html += '<span class="stop-label">终到</span>';
+      } else {
+        html += '<input type="time" class="stop-depart" id="stop-depart-' + j + '" value="' + (d.depart || '') + '" onchange="UI.onStopChange(' + j + ')">';
+      }
+      // 删除列
+      html += '<span class="stop-delete">' + (j > 0 ? '<button class="btn btn-sm btn-danger" onclick="UI.removeStop(' + j + ')">✕</button>' : '') + '</span>';
+      html += '</div>';
+      list.insertAdjacentHTML('beforeend', html);
+    }
+
+    // 终到站被删 → 恢复"完成"按钮
+    if (wasTerminal) {
+      var finishBtn = document.querySelector('button[onclick="UI.finishStops()"]');
+      if (finishBtn) finishBtn.style.display = '';
     }
   },
 
@@ -1349,7 +1422,22 @@ const UI = {
       UI.hideAddTrainForm();
       UI.loadTrains();
     } else {
-      U.$('add-train-error').textContent = (res.data && res.data.error) || '提交失败';
+      var errMsg = (res.data && res.data.error) || '提交失败';
+      // 冲突详情：展示冲突车次和区间
+      var conflicts = (res.data && res.data.conflicts) || [];
+      if (conflicts.length > 0) {
+        for (var c = 0; c < conflicts.length; c++) {
+          var cf = conflicts[c];
+          var sa = '', sb = '';
+          for (var si = 0; si < State.stations.length; si++) {
+            if (State.stations[si].id === cf.station_a) sa = State.stations[si].name;
+            if (State.stations[si].id === cf.station_b) sb = State.stations[si].name;
+          }
+          errMsg += '\n• ' + cf.train_id + ' 占用了 ' + (sa || cf.station_a) + ' → ' + (sb || cf.station_b)
+            + ' 区间 ' + U.fmtTime(cf.conflicting_enter) + '–' + U.fmtTime(cf.conflicting_leave);
+        }
+      }
+      U.$('add-train-error').textContent = errMsg;
     }
   },
 
