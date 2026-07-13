@@ -135,7 +135,7 @@
 | 🔥 运行图冲突检测 | 新增列车在每个运行区间 [站A→站B] 的时间占用段，必须与已有列车在该区间的占用无重叠（含 5 分钟安全裕量） |
 | 临客有效期 | 临客须指定起止日期，过期自动停运 |
 | 🔥 时速校验 | 各段平均时速须在列车种类限速范围内，且不超线路设计时速 |
-| 🔥 列车种类限速 | G(200~350) / D(150~300) / C(150~350) / Z(50~160) / T(50~140) / K(50~120) / S(不限) / 其他(≤120)，单位 km/h |
+| 🔥 列车种类限速 | 只校验最高时速（超过车型设计上限标红），不设下限（进站、弯道、坡道等场景降速正常）。限值：G(350) / D(300) / C(350) / Z(160) / T(140) / K(120) / S(不限) / 其他(120)，单位 km/h |
 
 **冲突检测算法要求**：
 
@@ -262,7 +262,8 @@
 | **列车管理** | `/api/admin/trains` | Staff | 现有列车列表按状态筛选；新增表单：选列车种类→输车次号→逐步添加停站（每段自动计算时速+限速校验）→设置席位→提交审批 |
 | **调整时刻** | `PUT /api/admin/trains/{id}/schedule` | Staff | 同新增表单，预填现有数据；提交后走审批流 |
 | **删除列车** | `DELETE /api/admin/trains/{id}` | Staff | 确认弹窗 → 提交审批 → 审批通过后归档 |
-| **审批中心** | `/api/admin/approvals` | Approver | 待审批/已审批列表；通过/驳回按钮；通过后自动加入运行图，驳回须填写意见 |
+| **我的提交** | `/api/admin/approvals?submitter_id=X` | Staff | 查看自己提交的全部审批记录，按状态筛选（待审批/已通过/已驳回），展示审批人和审批时间 |
+| **审批中心** | `/api/admin/approvals?status=X&approver_id=X` | Approver | 默认显示待审批列表（全部提交），已通过/已驳回只看自己审批过的记录；通过/驳回按钮，驳回须填写意见 |
 | **线路与站点** | `/api/admin/lines` `/api/admin/stations` | Staff | 列表 + 新增表单（走审批） |
 
 #### F-5.4 管理员端
@@ -494,6 +495,18 @@ TrainInterval
   enter_time: TimePoint      # 进入该区间的时刻
   leave_time: TimePoint      # 离开该区间的时刻
 
+LineNeighbor                 # 车站在线路上的邻居（新增列车辅助选线）
+  line_id: uint32_t
+  line_name: string
+  neighbor_station_id: uint32_t
+  neighbor_name: string
+  distance_km: double        # 相邻站间 Haversine 距离
+
+车站-线路-邻居索引 StationLineIndex
+  # map<station_id, vector<LineNeighbor>>
+  # 从 lines.json 派生，启动时缓存到 data/station_line_index.json
+  index: map<uint32_t, vector<LineNeighbor>>
+
 座位表 SeatInventory
   # key = (车次, 日期)
   # value = 各席位座位占用位图
@@ -531,13 +544,15 @@ SeatBitmap
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|:---:|
 | POST | `/api/admin/trains` | 新增列车（提交审批） | Staff+ |
+| GET | `/api/admin/trains` | 查看列车列表 | Staff+ |
 | DELETE | `/api/admin/trains/{id}` | 删除列车（提交审批） | Staff+ |
 | PUT | `/api/admin/trains/{id}/schedule` | 调整时刻（提交审批） | Staff+ |
+| GET | `/api/stations/neighbors` | 车站-线路-邻居索引 | Staff+ |
 | POST | `/api/admin/stations` | 新增站点（提交审批） | Staff+ |
 | POST | `/api/admin/lines` | 新增线路（提交审批） | Staff+ |
 | POST | `/api/admin/approvals/{id}/approve` | 审批通过 | Staff+ (非提交人) |
 | POST | `/api/admin/approvals/{id}/reject` | 审批驳回 | Staff+ (非提交人) |
-| GET | `/api/admin/approvals?status=X` | 查看审批列表 | Staff+ |
+| GET | `/api/admin/approvals?status=X&submitter_id=X&approver_id=X` | 查看审批列表（支持按状态/提交人/审批人筛选） | Staff+ / Approver+ |
 
 ### 5.3 管理员接口
 

@@ -14,7 +14,8 @@
 │   ├── src/
 │   │   ├── main.cpp                    # 入口
 │   │   ├── models.h                    # 全局数据模型（20个结构体+枚举）
-│   │   ├── core/                       # HTTP 服务 + 路由 + 日志
+│   │   ├── core/                       # HTTP 服务 + 路由 + 日志 + 配置
+│   │   │   ├── config.h                 #   全局配置常量（路径、端口、文件名）
 │   │   │   ├── utils.h                 #   全局工具函数（UUID、时间、地理、序列查找、路线计算）
 │   │   │   ├── server.h/.cpp           #   cpp-httplib 包装
 │   │   │   ├── routes.h/.cpp           #   路由注册（10个端点）
@@ -124,9 +125,10 @@ bash scripts/run.sh
 
 | 功能 | 说明 |
 |------|------|
-| 🚂 列车管理 | 新增/删除/时刻调整（均走审批） |
+| 🚂 列车管理 | 新增/删除/时刻调整（均走审批），车站-线路邻居索引辅助选线 |
 | ⚠️ 冲突检测 | 区间占用表 + 5 分钟安全裕量 |
 | ✅ 审批流 | 四眼原则（Staff 提交 → Approver 审批）+ CAS 锁 + 二次冲突校验 |
+| 📤 我的提交 | Staff 查看自己提交的审批记录（按状态筛选） |
 | 🔐 角色拆分 | Staff（增删改列车）+ Approver（审批），权限互斥 |
 
 ### 管理员端 ⏳ 待实现（Phase 8-9）
@@ -155,6 +157,7 @@ bash scripts/run.sh
 | GET | `/api/trains/query?from=&to=&date=` | 查票（直达+换乘） | JWT |
 | GET | `/api/trains/station?station=X&sort=departure\|train_id` | 车站查询 | JWT |
 | GET | `/api/trains/{id}/stops` | 列车经停站详情 | JWT |
+| GET | `/api/stations/neighbors` | 车站-线路邻居索引 | JWT |
 | POST | `/api/orders` | 购票 | JWT |
 | GET | `/api/orders?status=` | 订单查询 | JWT |
 | POST | `/api/orders/{id}/refund` | 退票 | JWT |
