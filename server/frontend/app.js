@@ -1117,6 +1117,198 @@ const UI = {
 
   // ── 职工端：列车管理 ──
 
+  /** 列车速度限制（km/h） */
+  _speedLimits: {
+    G: { min: 200, max: 350 }, D: { min: 150, max: 300 }, C: { min: 150, max: 350 },
+    Z: { min: 50, max: 160 },  T: { min: 50, max: 140 },  K: { min: 50, max: 120 },
+    S: { min: 0, max: 999 },   OTHER: { min: 0, max: 120 }
+  },
+
+  /** 前缀变更 → 显示限速 */
+  onPrefixChange: function() {
+    var p = (U.$('new-train-prefix') || {}).value;
+    var hint = U.$('speed-limit-hint');
+    if (!hint) return;
+    var lim = UI._speedLimits[p];
+    if (lim) {
+      hint.style.display = '';
+      hint.textContent = '限速：' + (lim.min || 0) + ' ~ ' + (lim.max === 999 ? '不限' : lim.max) + ' km/h';
+    } else {
+      hint.style.display = 'none';
+    }
+  },
+
+  /** 始发站时自动添加第一个停站 */
+  showAddTrainForm: function() {
+    U.$('add-train-form').style.display = '';
+    U.$('add-train-error').textContent = '';
+    U.$('stop-list').innerHTML = '';
+    UI.addStop();
+  },
+
+  /** 隐藏表单 */
+  hideAddTrainForm: function() {
+    U.$('add-train-form').style.display = 'none';
+  },
+
+  /** 添加一个停站行 */
+  addStop: function() {
+    var list = U.$('stop-list');
+    var idx = list.children.length;
+    var isFirst = (idx === 0);
+    var stations = State.stations;
+
+    var stationOpts = '';
+    for (var i = 0; i < stations.length; i++) {
+      stationOpts += '<option value="' + stations[i].id + '">' + U.esc(stations[i].name) + '</option>';
+    }
+
+    var html = '<div class="stop-row" id="stop-row-' + idx + '">' +
+      '<span class="stop-idx">' + (idx + 1) + '</span>' +
+      '<select class="stop-station" onchange="UI.onStopChange(' + idx + ')">' +
+        '<option value="">选择车站</option>' + stationOpts + '</select>';
+    if (!isFirst) {
+      html += '<input type="number" class="stop-arrival" placeholder="到达时间 HHMM" onchange="UI.onStopChange(' + idx + ')" style="width:100px">';
+    } else {
+      html += '<span class="stop-label">始发</span>';
+    }
+    html += '<span class="stop-speed" id="stop-speed-' + idx + '"></span>';
+    html += '<input type="number" class="stop-depart" placeholder="发车时间 HHMM" onchange="UI.onStopChange(' + idx + ')" style="width:100px">';
+    if (idx > 0) {
+      html += '<button class="btn btn-sm btn-danger" onclick="UI.removeStop(' + idx + ')">✕</button>';
+    }
+    html += '</div>';
+    list.insertAdjacentHTML('beforeend', html);
+  },
+
+  /** 移除停站行 */
+  removeStop: function(idx) {
+    var row = U.$('stop-row-' + idx);
+    if (row) row.remove();
+    // 重新编号
+    var rows = document.querySelectorAll('.stop-row');
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].querySelector('.stop-idx').textContent = (i + 1);
+    }
+  },
+
+  /** 停站变更 → 计算时速 */
+  onStopChange: function(idx) {
+    var rows = document.querySelectorAll('.stop-row');
+    if (idx === 0) return; // 第一站没有"到达"，无法计算
+    var prevRow = rows[idx - 1], curRow = rows[idx];
+    if (!prevRow || !curRow) return;
+
+    var prevSt = prevRow.querySelector('.stop-station');
+    var curSt = curRow.querySelector('.stop-station');
+    var prevDep = prevRow.querySelector('.stop-depart');
+    var curArr = curRow.querySelector('.stop-arrival');
+    var speedEl = U.$('stop-speed-' + idx);
+    if (!speedEl) return;
+
+    var sid1 = parseInt(prevSt ? prevSt.value : 0);
+    var sid2 = parseInt(curSt ? curSt.value : 0);
+    var dep = parseInt(prevDep ? prevDep.value : 0);
+    var arr = parseInt(curArr ? curArr.value : 0);
+
+    if (!sid1 || !sid2 || !dep || !arr || dep >= arr) {
+      speedEl.textContent = ''; return;
+    }
+
+    // 查找站点的经纬度
+    var s1, s2;
+    for (var i = 0; i < State.stations.length; i++) {
+      if (State.stations[i].id === sid1) s1 = State.stations[i];
+      if (State.stations[i].id === sid2) s2 = State.stations[i];
+    }
+    if (!s1 || !s2) return;
+
+    // Haversine 距离
+    var R = 6371;
+    var dLat = (s2.latitude - s1.latitude) * Math.PI / 180;
+    var dLon = (s2.longitude - s1.longitude) * Math.PI / 180;
+    var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(s1.latitude*Math.PI/180)*Math.cos(s2.latitude*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+    var dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    // 时间差（分钟）
+    var depMin = Math.floor(dep/100)*60 + (dep%100);
+    var arrMin = Math.floor(arr/100)*60 + (arr%100);
+    if (arrMin < depMin) arrMin += 1440;
+    var mins = arrMin - depMin;
+    if (mins <= 0) return;
+
+    var speed = (dist / mins) * 60;
+    speedEl.textContent = Math.round(speed) + ' km/h';
+
+    // 校验限速
+    var prefix = (U.$('new-train-prefix') || {}).value || '';
+    var lim = UI._speedLimits[prefix];
+    if (lim && (speed < lim.min || speed > lim.max)) {
+      speedEl.className = 'stop-speed speed-bad';
+    } else {
+      speedEl.className = 'stop-speed speed-ok';
+    }
+  },
+
+  /** 提交新增列车 */
+  submitNewTrain: async function() {
+    var prefix = (U.$('new-train-prefix') || {}).value || '';
+    var number = (U.$('new-train-number') || {}).value || '';
+    if (!prefix || !number) return U.toast('请选择列车种类并输入车次号', 'error');
+    var tid = prefix + number;
+
+    // 收集停站
+    var rows = document.querySelectorAll('.stop-row');
+    if (rows.length < 2) return U.toast('至少需要始发站和终点站', 'error');
+
+    var stops = [];
+    for (var i = 0; i < rows.length; i++) {
+      var st = rows[i].querySelector('.stop-station');
+      var arr = rows[i].querySelector('.stop-arrival');
+      var dep = rows[i].querySelector('.stop-depart');
+      var sid = parseInt(st ? st.value : 0);
+      if (!sid) return U.toast('第' + (i+1) + '站未选择', 'error');
+      var isFirst = (i === 0), isLast = (i === rows.length - 1);
+      var av = isFirst ? -1 : parseInt(arr ? arr.value : 0);
+      var dv = isLast ? -1 : parseInt(dep ? dep.value : 0);
+      if (!isFirst && !av) return U.toast('第' + (i+1) + '站缺少到达时间', 'error');
+      if (!isLast && !dv) return U.toast('第' + (i+1) + '站缺少发车时间', 'error');
+      stops.push({ station_id: sid, arrival: av, departure: dv, platform: 0 });
+    }
+
+    // 速度校验
+    var lim = UI._speedLimits[prefix];
+    var speeds = document.querySelectorAll('.stop-speed');
+    for (var s = 0; s < speeds.length; s++) {
+      if (speeds[s].classList.contains('speed-bad')) {
+        return U.toast('第' + (s+1) + '段时速不符合列车种类限速', 'error');
+      }
+    }
+
+    var body = {
+      id: tid, type: parseInt((U.$('new-train-type')||{}).value||0), stops: stops,
+      seat_config: {
+        business_seats: parseInt((U.$('sc-business')||{}).value||0),
+        first_seats: parseInt((U.$('sc-first')||{}).value||0),
+        second_seats: parseInt((U.$('sc-second')||{}).value||0),
+        hard_sleeper: parseInt((U.$('sc-sleeper')||{}).value||0),
+        hard_seat: parseInt((U.$('sc-hseat')||{}).value||0),
+        no_seat: parseInt((U.$('sc-noseat')||{}).value||0)
+      }
+    };
+
+    var res = await API.post('/api/admin/trains', body);
+    if (res.ok) {
+      U.toast('已提交审批：' + (res.data.approval_id || ''), 'success');
+      UI.hideAddTrainForm();
+      UI.loadTrains();
+    } else {
+      U.$('add-train-error').textContent = (res.data && res.data.error) || '提交失败';
+    }
+  },
+
+  // ── 职工端：列车管理（列表）──
+
   /** 加载列车列表 */
   loadTrains: async function() {
     var loadingEl = U.$('trains-loading'); if (loadingEl) loadingEl.style.display = 'block';
@@ -1165,50 +1357,6 @@ const UI = {
     }
     if (!html) html = '<div class="loading">暂无列车数据</div>';
     U.$('trains-list').innerHTML = html;
-  },
-
-  /** 显示新增列车表单 */
-  showAddTrainForm: function() {
-    U.$('add-train-form').style.display = '';
-    U.$('add-train-error').textContent = '';
-  },
-
-  /** 隐藏新增列车表单 */
-  hideAddTrainForm: function() {
-    U.$('add-train-form').style.display = 'none';
-  },
-
-  /** 提交新增列车 */
-  submitNewTrain: async function() {
-    var tid = (U.$('new-train-id') || {}).value || '';
-    var type = parseInt((U.$('new-train-type') || {}).value || '0');
-    var stopsRaw = (U.$('new-train-stops') || {}).value || '';
-    if (!tid) return U.toast('请输入车次号', 'error');
-
-    var stops;
-    try { stops = JSON.parse(stopsRaw); } catch (e) { return U.toast('停站序列 JSON 格式错误', 'error'); }
-    if (!stops.length) return U.toast('至少需要一个停站', 'error');
-
-    var body = {
-      id: tid, type: type, stops: stops,
-      seat_config: {
-        business_seats: parseInt((U.$('sc-business')||{}).value||0),
-        first_seats: parseInt((U.$('sc-first')||{}).value||0),
-        second_seats: parseInt((U.$('sc-second')||{}).value||0),
-        hard_sleeper: parseInt((U.$('sc-sleeper')||{}).value||0),
-        hard_seat: parseInt((U.$('sc-hseat')||{}).value||0),
-        no_seat: parseInt((U.$('sc-noseat')||{}).value||0)
-      }
-    };
-
-    var res = await API.post('/api/admin/trains', body);
-    if (res.ok) {
-      U.toast('已提交审批：' + (res.data.approval_id || ''), 'success');
-      UI.hideAddTrainForm();
-      UI.loadTrains();
-    } else {
-      U.$('add-train-error').textContent = (res.data && res.data.error) || '提交失败';
-    }
   },
 
   /** 删除列车 */

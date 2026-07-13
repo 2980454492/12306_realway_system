@@ -225,27 +225,47 @@
       <!-- 新增列车表单（默认隐藏） -->
       <div id="add-train-form" class="form-card" style="display:none">
         <h3>新增列车</h3>
-        <div class="form-group">
-          <label>车次号</label>
-          <input type="text" id="new-train-id" placeholder="如 G9999">
+        <!-- 车次 -->
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>列车种类</label>
+            <select id="new-train-prefix" onchange="UI.onPrefixChange()">
+              <option value="">请选择</option>
+              <option value="G">G 高铁</option>
+              <option value="D">D 动车</option>
+              <option value="C">C 城际</option>
+              <option value="Z">Z 直达</option>
+              <option value="T">T 特快</option>
+              <option value="K">K 快速</option>
+              <option value="S">S 市郊</option>
+              <option value="OTHER">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>车次号</label>
+            <input type="text" id="new-train-number" placeholder="如 2492" style="width:100px">
+          </div>
+          <div class="form-group">
+            <label>列车类型</label>
+            <select id="new-train-type">
+              <option value="0">图定列车</option>
+              <option value="1">临客</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label>列车类型</label>
-          <select id="new-train-type">
-            <option value="0">图定列车</option>
-            <option value="1">临客</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>停站序列（JSON 格式）</label>
-          <textarea id="new-train-stops" rows="5" placeholder='[{"station_id":1,"arrival":-1,"departure":800},{"station_id":3,"arrival":1000,"departure":1005}]'></textarea>
-        </div>
-        <div class="form-group">
+        <!-- 限速提示 -->
+        <div id="speed-limit-hint" class="hint" style="display:none"></div>
+        <!-- 停站序列 -->
+        <label style="font-size:13px;color:#9090b0;margin-top:8px;display:block">停站序列</label>
+        <div id="stop-list"></div>
+        <button class="btn btn-sm" onclick="UI.addStop()" style="margin-top:8px">+ 添加停站</button>
+        <!-- 席位 -->
+        <div class="form-group" style="margin-top:16px">
           <label>席位配置</label>
           <div class="seat-config-row">
             <span>商务座 <input type="number" id="sc-business" value="0" min="0" style="width:60px"></span>
-            <span>一等座 <input type="number" id="sc-first" value="100" min="0" style="width:60px"></span>
-            <span>二等座 <input type="number" id="sc-second" value="200" min="0" style="width:60px"></span>
+            <span>一等座 <input type="number" id="sc-first" value="50" min="0" style="width:60px"></span>
+            <span>二等座 <input type="number" id="sc-second" value="100" min="0" style="width:60px"></span>
             <span>硬卧 <input type="number" id="sc-sleeper" value="0" min="0" style="width:60px"></span>
             <span>硬座 <input type="number" id="sc-hseat" value="0" min="0" style="width:60px"></span>
             <span>无座 <input type="number" id="sc-noseat" value="50" min="0" style="width:60px"></span>
@@ -291,6 +311,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=28"></script>
+<script src="/app.js?v=29"></script>
 </body>
 </html>
