@@ -14,10 +14,9 @@
 namespace fs = std::filesystem;
 
 namespace {
-// 区间 key：小 ID 在前
-std::string makeOccKey(uint32_t a, uint32_t b) {
-    if (a <= b) return std::to_string(a) + "|" + std::to_string(b);
-    return std::to_string(b) + "|" + std::to_string(a);
+// 区间 key：出发站在前，到达站在后（方向敏感，A→B 与 B→A 不同）
+std::string makeOccKey(uint32_t from, uint32_t to) {
+    return std::to_string(from) + "|" + std::to_string(to);
 }
 }  // namespace
 
