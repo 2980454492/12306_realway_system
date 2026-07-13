@@ -42,11 +42,15 @@ int main() {
     std::signal(SIGTERM, signalHandler);
 
     // ── 初始化数据层 ──
-    // 加载站点/线路/列车种子数据，构建铁路网图
+    // 加载站点/线路/列车种子数据，构建索引和铁路网图
     if (!DataStore::instance().initialize("config")) {
         Logger::instance().error("Failed to initialize DataStore");
         return 1;
     }
+
+    // 构建铁路网拓扑图（优先从本地缓存加载）
+    RailwayGraph graph;
+    graph.build(DataStore::instance().getAllLines(), "data");
 
     // ── 初始化认证服务 ──
     // 加载或创建用户数据（首次启动生成 admin/staff/passenger 种子用户）

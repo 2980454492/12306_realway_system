@@ -1,6 +1,7 @@
 // data_store.cpp — DataStore 实现
 #include "data/data_store.h"
 #include "data/train_generator.h"
+#include "core/utils.h"
 #include "core/logger.h"
 
 #include <nlohmann/json.hpp>
@@ -9,6 +10,11 @@
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
+
+namespace {
+    /** 车站-线路邻居索引缓存文件 */
+    constexpr const char* STATION_LINE_INDEX_FILE = "data/station_line_index.json";
+}  // namespace
 
 DataStore& DataStore::instance() {
     static DataStore store;
@@ -31,6 +37,13 @@ bool DataStore::initialize(const std::string& config_dir) {
     if (!loadTrains(config_dir)) return false;
 
     buildIndexes();
+
+    // 车站-线路邻居索引：优先从本地缓存加载
+    if (!tryLoadStationLineIndex("data")) {
+        buildStationLineIndex();
+        saveStationLineIndex("data");
+    }
+
     ready_ = true;
 
     Logger::instance().info("DataStore ready: "
@@ -212,4 +225,92 @@ bool DataStore::saveTrains(const std::string& config_dir) const {
         Logger::instance().error(std::string("Failed to save trains.json: ") + e.what());
         return false;
     }
+}
+
+// ── 车站-线路-邻居索引 ──
+
+bool DataStore::tryLoadStationLineIndex(const std::string& data_dir) {
+    std::string path = data_dir + "/station_line_index.json";
+    if (!fs::exists(path)) return false;
+
+    try {
+        std::ifstream in(path);
+        json j;
+        in >> j;
+
+        station_line_index_.clear();
+        for (auto& [key, neighbors] : j.items()) {
+            uint32_t sid = static_cast<uint32_t>(std::stoul(key));
+            station_line_index_[sid] = neighbors.get<std::vector<LineNeighbor>>();
+        }
+        Logger::instance().info("Station-line index loaded from cache: "
+            + std::to_string(station_line_index_.size()) + " stations");
+        return true;
+    } catch (const std::exception& e) {
+        Logger::instance().warn(std::string("Failed to load station-line index: ") + e.what());
+        return false;
+    }
+}
+
+void DataStore::saveStationLineIndex(const std::string& data_dir) const {
+    std::string path = data_dir + "/station_line_index.json";
+    try {
+        json j;
+        for (const auto& [sid, neighbors] : station_line_index_) {
+            j[std::to_string(sid)] = neighbors;
+        }
+        std::ofstream out(path);
+        out << j.dump();
+        Logger::instance().info("Station-line index saved: "
+            + std::to_string(station_line_index_.size()) + " stations");
+    } catch (const std::exception& e) {
+        Logger::instance().error(std::string("Failed to save station-line index: ") + e.what());
+    }
+}
+
+void DataStore::buildStationLineIndex() {
+    station_line_index_.clear();
+
+    for (const auto& line : lines_) {
+        const auto& ids = line.stations;
+        if (ids.size() < 2) continue;
+
+        for (size_t i = 0; i < ids.size(); ++i) {
+            uint32_t cur = ids[i];
+            std::vector<LineNeighbor> neighbors;
+
+            // 前一站（若存在）
+            if (i > 0) {
+                auto* prev_st = getStation(ids[i - 1]);
+                auto* cur_st = getStation(cur);
+                if (prev_st && cur_st) {
+                    neighbors.push_back({
+                        line.id, line.name,
+                        ids[i - 1], prev_st->name,
+                        haversineDist(*cur_st, *prev_st)
+                    });
+                }
+            }
+
+            // 后一站（若存在）
+            if (i + 1 < ids.size()) {
+                auto* next_st = getStation(ids[i + 1]);
+                auto* cur_st = getStation(cur);
+                if (next_st && cur_st) {
+                    neighbors.push_back({
+                        line.id, line.name,
+                        ids[i + 1], next_st->name,
+                        haversineDist(*cur_st, *next_st)
+                    });
+                }
+            }
+
+            // 合并到已有条目（一个站可能属于多条线路）
+            auto& existing = station_line_index_[cur];
+            existing.insert(existing.end(), neighbors.begin(), neighbors.end());
+        }
+    }
+
+    Logger::instance().info("Station-line index built: "
+        + std::to_string(station_line_index_.size()) + " stations");
 }

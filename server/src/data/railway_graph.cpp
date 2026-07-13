@@ -13,11 +13,12 @@ namespace fs = std::filesystem;
 
 // ── 持久化 ──
 
-bool RailwayGraph::tryLoadFromFile() {
-    if (!fs::exists(GRAPH_FILE)) return false;
+bool RailwayGraph::tryLoadFromFile(const std::string& data_dir) {
+    std::string path = data_dir + "/railway_graph.json";
+    if (!fs::exists(path)) return false;
 
     try {
-        std::ifstream in(GRAPH_FILE);
+        std::ifstream in(path);
         using json = nlohmann::json;
         json j;
         in >> j;
@@ -29,7 +30,7 @@ bool RailwayGraph::tryLoadFromFile() {
                 adjacency_[u][std::stoul(nk)] = nv.get<double>();
             }
         }
-        Logger::instance().info("Railway graph loaded from " + std::string(GRAPH_FILE));
+        Logger::instance().info("Railway graph loaded from " + path);
         return true;
     } catch (const std::exception& e) {
         Logger::instance().warn(std::string("Failed to load graph: ") + e.what());
@@ -37,7 +38,8 @@ bool RailwayGraph::tryLoadFromFile() {
     }
 }
 
-void RailwayGraph::saveToFile() const {
+void RailwayGraph::saveToFile(const std::string& data_dir) const {
+    std::string path = data_dir + "/railway_graph.json";
     try {
         using json = nlohmann::json;
         json j;
@@ -48,9 +50,9 @@ void RailwayGraph::saveToFile() const {
             }
             j[std::to_string(u)] = nj;
         }
-        std::ofstream out(GRAPH_FILE);
+        std::ofstream out(path);
         out << j.dump();
-        Logger::instance().info("Railway graph saved to " + std::string(GRAPH_FILE));
+        Logger::instance().info("Railway graph saved to " + path);
     } catch (const std::exception& e) {
         Logger::instance().error(std::string("Failed to save graph: ") + e.what());
     }
@@ -58,8 +60,8 @@ void RailwayGraph::saveToFile() const {
 
 // ── 构建 ──
 
-void RailwayGraph::build(const std::vector<Line>& lines) {
-    if (tryLoadFromFile()) return;
+void RailwayGraph::build(const std::vector<Line>& lines, const std::string& data_dir) {
+    if (tryLoadFromFile(data_dir)) return;
 
     adjacency_.clear();
 
@@ -87,13 +89,14 @@ void RailwayGraph::build(const std::vector<Line>& lines) {
         }
     }
 
-    saveToFile();
+    saveToFile(data_dir);
 }
 
 // ── 缓存管理 ──
 
-void RailwayGraph::invalidateCache() {
-    if (fs::exists(GRAPH_FILE)) {
-        fs::remove(GRAPH_FILE);
+void RailwayGraph::invalidateCache(const std::string& data_dir) {
+    std::string path = data_dir + "/railway_graph.json";
+    if (fs::exists(path)) {
+        fs::remove(path);
     }
 }

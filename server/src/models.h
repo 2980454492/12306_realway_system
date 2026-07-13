@@ -225,6 +225,18 @@ struct User {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(User,
     id, username, password_hash, role, active, failed_attempts, locked_until)
 
+/** 车站的线路邻居 — 该车站在某条线路上相邻的车站。
+ *  用于职工新增列车时按线路逐站构建 route_stations。 */
+struct LineNeighbor {
+    uint32_t line_id = 0;
+    std::string line_name;
+    uint32_t neighbor_station_id = 0;
+    std::string neighbor_name;
+    double distance_km = 0.0;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LineNeighbor,
+    line_id, line_name, neighbor_station_id, neighbor_name, distance_km)
+
 /** 区间占用记录 — 某列车在某运行区间的时刻占用 */
 struct TrainInterval {
     std::string train_id;

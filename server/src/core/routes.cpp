@@ -217,6 +217,31 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
+    // ── GET /api/stations/neighbors — 车站-线路-邻居索引（职工新增列车选线用）──
+    app.Get("/api/stations/neighbors", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+            if (!ctx) return;
+
+            auto& idx = DataStore::instance().getStationLineIndex();
+            json j;
+            j["ok"] = true;
+            json data = json::object();
+            for (const auto& [sid, neighbors] : idx) {
+                data[std::to_string(sid)] = neighbors;
+            }
+            j["data"] = data;
+            j["count"] = idx.size();
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
     // ═════════════════════════════════════════════════
     // 旅客端点
     // ═════════════════════════════════════════════════
@@ -960,5 +985,5 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    Logger::instance().info("Routes registered: 16 endpoints (auth, passenger, staff, debug)");
+    Logger::instance().info("Routes registered: 17 endpoints (auth, passenger, staff, debug)");
 }

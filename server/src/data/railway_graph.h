@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <string>
 #include <optional>
 #include <limits>
 
@@ -18,10 +19,10 @@ public:
     RailwayGraph() = default;
 
     /** 根据线路列表构建邻接表，优先从本地缓存加载 */
-    void build(const std::vector<Line>& lines);
+    void build(const std::vector<Line>& lines, const std::string& data_dir = "data");
 
     /** 使所有缓存失效（新增线路后调用，同时删除持久化文件） */
-    void invalidateCache();
+    void invalidateCache(const std::string& data_dir = "data");
 
     /** 获取邻接表 */
     const std::map<uint32_t, std::map<uint32_t, double>>&
@@ -31,11 +32,8 @@ public:
     bool isBuilt() const { return !adjacency_.empty(); }
 
 private:
-    bool tryLoadFromFile();
-    void saveToFile() const;
-
-    /** 铁路网图持久化文件路径 */
-    static constexpr const char* GRAPH_FILE = "data/railway_graph.json";
+    bool tryLoadFromFile(const std::string& data_dir);
+    void saveToFile(const std::string& data_dir) const;
 
     std::map<uint32_t, std::map<uint32_t, double>> adjacency_;
 };

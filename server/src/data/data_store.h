@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <unordered_map>
 #include <optional>
 #include <mutex>
@@ -41,6 +42,11 @@ public:
     /** 按站点 ID 查找所有经过的列车（通过检查列车的停站序列） */
     std::vector<const Train*> getTrainsByStation(uint32_t station_id) const;
 
+    /** 车站-线路-邻居索引：每个站在每条线路上的相邻站 */
+    const std::map<uint32_t, std::vector<LineNeighbor>>& getStationLineIndex() const {
+        return station_line_index_;
+    }
+
     // ── 运行时变更（职工端）──
 
     /** 添加列车（审批通过后调用），自动重建索引 */
@@ -60,6 +66,9 @@ private:
     bool loadLines(const std::string& config_dir);
     bool loadTrains(const std::string& config_dir);
     void buildIndexes();
+    void buildStationLineIndex();
+    bool tryLoadStationLineIndex(const std::string& data_dir);
+    void saveStationLineIndex(const std::string& data_dir) const;
 
     // ── 数据 ──
     std::vector<Station> stations_;
@@ -71,6 +80,9 @@ private:
     std::unordered_map<uint32_t, size_t> line_index_;
     std::unordered_map<std::string, size_t> train_index_;
     std::unordered_map<std::string, uint32_t> station_name_to_id_;
+
+    // 车站-线路-邻居索引：map<station_id, vector<LineNeighbor>>
+    std::map<uint32_t, std::vector<LineNeighbor>> station_line_index_;
 
     bool ready_ = false;
 
