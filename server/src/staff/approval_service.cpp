@@ -17,14 +17,6 @@ namespace fs = std::filesystem;
 using json = nlohmann::json;
 
 namespace {
-    // ISO 8601 时间戳
-    std::string nowIsoLocal() {
-        auto now = std::chrono::system_clock::now();
-        auto t = std::chrono::system_clock::to_time_t(now);
-        std::ostringstream oss;
-        oss << std::put_time(std::gmtime(&t), "%Y-%m-%dT%H:%M:%SZ");
-        return oss.str();
-    }
 }  // namespace
 
 // ── 单例 ──
@@ -81,7 +73,7 @@ std::string ApprovalService::submit(ApprovalType type, const std::string& submit
     req.submitter_id = submitter_id;
     req.payload = payload;
     req.snapshot = snapshot;
-    req.submitted_at = nowIsoLocal();
+    req.submitted_at = nowIso();
 
     approvals_.push_back(req);
     saveApprovals();
@@ -151,7 +143,7 @@ ApprovalService::ApproveResult ApprovalService::approve(
 
         it->status = ApprovalState::APPROVED;
         it->approver_id = approver_id;
-        it->decided_at = nowIsoLocal();
+        it->decided_at = nowIso();
         saveApprovals();
         result.success = true;
         Logger::instance().info("Approval approved: " + approval_id);
@@ -198,7 +190,7 @@ ApprovalService::RejectResult ApprovalService::reject(
     it->status = ApprovalState::REJECTED;
     it->approver_id = approver_id;
     it->comment = comment;
-    it->decided_at = nowIsoLocal();
+    it->decided_at = nowIso();
     saveApprovals();
     result.success = true;
     Logger::instance().info("Approval rejected: " + approval_id);

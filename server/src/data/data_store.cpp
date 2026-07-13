@@ -225,6 +225,7 @@ bool DataStore::saveTrains() const {
 
 // ── 车站-线路-邻居索引 ──
 
+// 从 data/station_line_index.json 加载索引缓存，失败返回 false
 bool DataStore::tryLoadStationLineIndex() {
     std::string path = config::STATION_LINE_INDEX_FILE;
     if (!fs::exists(path)) return false;
@@ -248,6 +249,7 @@ bool DataStore::tryLoadStationLineIndex() {
     }
 }
 
+// 将索引序列化为 JSON 并写入 data/station_line_index.json
 void DataStore::saveStationLineIndex() const {
     std::string path = config::STATION_LINE_INDEX_FILE;
     try {
@@ -264,6 +266,7 @@ void DataStore::saveStationLineIndex() const {
     }
 }
 
+// 从 lines_ 构建索引：遍历每条线路的站点序列，取相邻站对，Haversine 算距离，合并到 map
 void DataStore::buildStationLineIndex() {
     station_line_index_.clear();
 

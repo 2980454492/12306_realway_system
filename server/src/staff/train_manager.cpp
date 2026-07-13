@@ -14,11 +14,11 @@
 namespace fs = std::filesystem;
 
 namespace {
-    // 区间 key：小 ID 在前
-    std::string makeOccKey(uint32_t a, uint32_t b) {
-        if (a <= b) return std::to_string(a) + "|" + std::to_string(b);
-        return std::to_string(b) + "|" + std::to_string(a);
-    }
+// 区间 key：小 ID 在前
+std::string makeOccKey(uint32_t a, uint32_t b) {
+    if (a <= b) return std::to_string(a) + "|" + std::to_string(b);
+    return std::to_string(b) + "|" + std::to_string(a);
+}
 }  // namespace
 
 // ── 单例 ──

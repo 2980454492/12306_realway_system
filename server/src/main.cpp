@@ -32,8 +32,7 @@ static void signalHandler(int sig) {
 }
 
 int main() {
-    // ── 初始化日志 ──
-    Logger::instance().setLogFile(config::SERVER_LOG_FILE);
+    // ── 初始化日志（首次写日志时自动打开 config::SERVER_LOG_FILE）──
     Logger::instance().info("Railway Server v0.1.0 starting...");
 
     // ── 注册信号处理 ──

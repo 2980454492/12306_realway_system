@@ -15,95 +15,95 @@ using json = nlohmann::json;
 
 namespace {
 
-    // ── Base64URL 编码/解码 ──
-    // JWT 使用 URL-safe base64（+ → -, / → _, 去尾 =
+// ── Base64URL 编码/解码 ──
+// JWT 使用 URL-safe base64（+ → -, / → _, 去尾 =
 
-    /** Base64 字符集 */
-    const std::string BASE64_CHARS =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+/** Base64 字符集 */
+const std::string BASE64_CHARS =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-    // Base64 URL-safe 编码（去尾 = 替换 +-/）
-    std::string base64urlEncode(const std::string& input) {
-        std::string encoded;
-        int val = 0, valb = -6;
-        for (unsigned char c : input) {
-            val = (val << 8) + c;
-            valb += 8;
-            while (valb >= 0) {
-                encoded.push_back(BASE64_CHARS[(val >> valb) & 0x3F]);
-                valb -= 6;
-            }
+// Base64 URL-safe 编码（去尾 = 替换 +-/）
+std::string base64urlEncode(const std::string& input) {
+    std::string encoded;
+    int val = 0, valb = -6;
+    for (unsigned char c : input) {
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0) {
+            encoded.push_back(BASE64_CHARS[(val >> valb) & 0x3F]);
+            valb -= 6;
         }
-        if (valb > -6) {
-            encoded.push_back(BASE64_CHARS[((val << 8) >> (valb + 8)) & 0x3F]);
-        }
-        // URL-safe: + → -, / → _
-        for (auto& ch : encoded) {
-            if (ch == '+') ch = '-';
-            if (ch == '/') ch = '_';
-        }
-        // 去掉尾部 padding =
-        while (!encoded.empty() && encoded.back() == '=') {
-            encoded.pop_back();
-        }
-        return encoded;
+    }
+    if (valb > -6) {
+        encoded.push_back(BASE64_CHARS[((val << 8) >> (valb + 8)) & 0x3F]);
+    }
+    // URL-safe: + → -, / → _
+    for (auto& ch : encoded) {
+        if (ch == '+') ch = '-';
+        if (ch == '/') ch = '_';
+    }
+    // 去掉尾部 padding =
+    while (!encoded.empty() && encoded.back() == '=') {
+        encoded.pop_back();
+    }
+    return encoded;
+}
+
+// Base64 URL-safe 解码
+std::string base64urlDecode(const std::string& input) {
+    std::string decoded_input = input;
+    // 恢复 padding
+    while (decoded_input.size() % 4 != 0) {
+        decoded_input += '=';
+    }
+    // URL-safe → standard
+    for (auto& ch : decoded_input) {
+        if (ch == '-') ch = '+';
+        if (ch == '_') ch = '/';
     }
 
-    // Base64 URL-safe 解码
-    std::string base64urlDecode(const std::string& input) {
-        std::string decoded_input = input;
-        // 恢复 padding
-        while (decoded_input.size() % 4 != 0) {
-            decoded_input += '=';
+    std::string decoded;
+    int val = 0, valb = -8;
+    for (unsigned char c : decoded_input) {
+        if (c == '=') break;
+        auto pos = BASE64_CHARS.find(c);
+        if (pos == std::string::npos) return "";
+        val = (val << 6) + static_cast<int>(pos);
+        valb += 6;
+        if (valb >= 0) {
+            decoded.push_back(static_cast<char>((val >> valb) & 0xFF));
+            valb -= 8;
         }
-        // URL-safe → standard
-        for (auto& ch : decoded_input) {
-            if (ch == '-') ch = '+';
-            if (ch == '_') ch = '/';
-        }
-
-        std::string decoded;
-        int val = 0, valb = -8;
-        for (unsigned char c : decoded_input) {
-            if (c == '=') break;
-            auto pos = BASE64_CHARS.find(c);
-            if (pos == std::string::npos) return "";
-            val = (val << 6) + static_cast<int>(pos);
-            valb += 6;
-            if (valb >= 0) {
-                decoded.push_back(static_cast<char>((val >> valb) & 0xFF));
-                valb -= 8;
-            }
-        }
-        return decoded;
     }
+    return decoded;
+}
 
-    // ── HMAC-SHA256（使用 libsodium）──
+// ── HMAC-SHA256（使用 libsodium）──
 
-    // 用 libsodium crypto_auth_hmacsha256 计算 HMAC-SHA256
-    std::string hmacSha256(const std::string& key, const std::string& data) {
-        unsigned char mac[crypto_auth_hmacsha256_BYTES];
-        crypto_auth_hmacsha256_state state;
-        crypto_auth_hmacsha256_init(&state,
-            reinterpret_cast<const unsigned char*>(key.data()), key.size());
-        crypto_auth_hmacsha256_update(&state,
-            reinterpret_cast<const unsigned char*>(data.data()), data.size());
-        crypto_auth_hmacsha256_final(&state, mac);
-        return std::string(reinterpret_cast<char*>(mac), sizeof(mac));
+// 用 libsodium crypto_auth_hmacsha256 计算 HMAC-SHA256
+std::string hmacSha256(const std::string& key, const std::string& data) {
+    unsigned char mac[crypto_auth_hmacsha256_BYTES];
+    crypto_auth_hmacsha256_state state;
+    crypto_auth_hmacsha256_init(&state,
+        reinterpret_cast<const unsigned char*>(key.data()), key.size());
+    crypto_auth_hmacsha256_update(&state,
+        reinterpret_cast<const unsigned char*>(data.data()), data.size());
+    crypto_auth_hmacsha256_final(&state, mac);
+    return std::string(reinterpret_cast<char*>(mac), sizeof(mac));
+}
+
+// 生成随机密钥（256 位 = 32 字节，hex 编码）
+std::string generateRandomKey() {
+    std::random_device rd;
+    std::mt19937_64 rng(rd());
+    std::uniform_int_distribution<uint64_t> dist;
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (int i = 0; i < 4; ++i) {  // 4 × 64bit = 256bit
+        oss << std::setw(16) << dist(rng);
     }
-
-    // 生成随机密钥（256 位 = 32 字节，hex 编码）
-    std::string generateRandomKey() {
-        std::random_device rd;
-        std::mt19937_64 rng(rd());
-        std::uniform_int_distribution<uint64_t> dist;
-        std::ostringstream oss;
-        oss << std::hex << std::setfill('0');
-        for (int i = 0; i < 4; ++i) {  // 4 × 64bit = 256bit
-            oss << std::setw(16) << dist(rng);
-        }
-        return oss.str();
-    }
+    return oss.str();
+}
 }
 
 // ── 单例 ──

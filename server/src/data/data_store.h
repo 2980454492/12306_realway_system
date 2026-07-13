@@ -67,7 +67,9 @@ private:
     bool loadTrains();
     void buildIndexes();
     void buildStationLineIndex();
+    /** 从 data/station_line_index.json 加载索引缓存 */
     bool tryLoadStationLineIndex();
+    /** 将索引序列化为 JSON 并写入缓存文件 */
     void saveStationLineIndex() const;
 
     // ── 数据 ──

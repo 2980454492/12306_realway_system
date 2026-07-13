@@ -8,14 +8,14 @@
 #include <algorithm>
 
 namespace {
-    // 伪随机数生成器（固定种子确保每次生成结果一致）
-    std::mt19937 rng(42);  // 固定种子，幂等
+// 伪随机数生成器（固定种子确保每次生成结果一致）
+std::mt19937 rng(42);  // 固定种子，幂等
 
-    // 生成 [min, max] 区间内的随机整数
-    int randomInt(int min, int max) {
-        std::uniform_int_distribution<int> dist(min, max);
-        return dist(rng);
-    }
+// 生成 [min, max] 区间内的随机整数
+int randomInt(int min, int max) {
+    std::uniform_int_distribution<int> dist(min, max);
+    return dist(rng);
+}
 }
 
 // ── 公开接口 ──

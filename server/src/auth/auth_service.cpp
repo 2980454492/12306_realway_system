@@ -117,12 +117,7 @@ std::optional<User> AuthService::verifyUser(const std::string& username,
     }
 
     if (!u.locked_until.empty()) {
-        auto now = std::chrono::system_clock::now();
-        auto t = std::chrono::system_clock::to_time_t(now);
-        std::ostringstream now_str;
-        now_str << std::put_time(std::gmtime(&t), "%Y-%m-%dT%H:%M:%SZ");
-
-        if (u.locked_until > now_str.str()) {
+        if (u.locked_until > nowIso()) {
             Logger::instance().warn("Login attempt on locked account: " + username);
             return std::nullopt;
         } else {

@@ -18,21 +18,21 @@
 #include <ctime>
 
 namespace {
-    // ── 退票费率 ──
 
-    // 根据距发车时间计算退票费率：>24h→95%, 2-24h→90%, <2h→80%
-    double calcRefund(const std::string& date, int departure_hhmm) {
-        // 非今天的票（未来），距发车 >24 小时，最高费率
-        if (!isToday(date)) return 0.95;
+// ── 退票费率 ──
 
-        // 今天的票，按时距计算（已发车由 refundOrder 提前拦截）
-        int minutes_before = timeDiff(nowHHMM(), departure_hhmm);
+// 根据距发车时间计算退票费率：>24h→95%, 2-24h→90%, <2h→80%
+double calcRefund(const std::string& date, int departure_hhmm) {
+    // 非今天的票（未来），距发车 >24 小时，最高费率
+    if (!isToday(date)) return 0.95;
 
-        if (minutes_before < 120) return 0.80;        // 2 小时内
-        if (minutes_before < 1440) return 0.90;       // 2-24 小时
-        return 0.95;                                   // 24 小时以上
-    }
+    // 今天的票，按时距计算（已发车由 refundOrder 提前拦截）
+    int minutes_before = timeDiff(nowHHMM(), departure_hhmm);
 
+    if (minutes_before < 120) return 0.80;        // 2 小时内
+    if (minutes_before < 1440) return 0.90;       // 2-24 小时
+    return 0.95;                                   // 24 小时以上
+}
 }
 
 namespace fs = std::filesystem;

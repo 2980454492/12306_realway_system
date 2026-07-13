@@ -23,7 +23,7 @@ public:
     TrainManager(const TrainManager&) = delete;
     TrainManager& operator=(const TrainManager&) = delete;
 
-    /** 从运行时数据加载持久化数据 */
+    /** 从 DataStore 重建区间占用表（读取所有 ACTIVE 列车的停站数据） */
     bool initialize();
 
     // ── 校验 ──

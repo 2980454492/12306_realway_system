@@ -1,5 +1,6 @@
 // logger.cpp — Logger 单例实现
 #include "core/logger.h"
+#include "core/config.h"
 
 #include <iostream>
 #include <chrono>
@@ -22,29 +23,24 @@ std::string timestamp() {
     oss << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S")
         << '.' << std::setfill('0') << std::setw(3) << ms.count();
     return oss.str();
-}  
-} // namespace
+}
+}  // namespace
 
 Logger& Logger::instance() {
     static Logger logger;
     return logger;
 }
 
-void Logger::setLogFile(const std::string& file_path) {
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    // 确保父目录存在
+void Logger::ensureFileOpen() {
+    // 调用方已持有 mutex_
+    if (file_opened_) return;
     namespace fs = std::filesystem;
-    fs::path path(file_path);
+    fs::path path(config::SERVER_LOG_FILE);
     if (auto parent = path.parent_path(); !parent.empty() && !fs::exists(parent)) {
         fs::create_directories(parent);
     }
-
-    if (file_.is_open()) {
-        file_.close();
-    }
-    file_.open(file_path, std::ios::app);
-    
+    file_.open(config::SERVER_LOG_FILE, std::ios::app);
+    file_opened_ = true;
 }
 
 void Logger::info(const std::string& message) {
@@ -73,7 +69,8 @@ void Logger::write(const std::string& level, const std::string& message) {
         std::cout << line << std::endl;
     }
 
-    // 文件输出
+    // 文件输出（首次调用时惰性打开）
+    if (!file_opened_) ensureFileOpen();
     if (file_.is_open()) {
         file_ << line << std::endl;
         file_.flush();  // 每条日志立即落盘，崩溃不丢

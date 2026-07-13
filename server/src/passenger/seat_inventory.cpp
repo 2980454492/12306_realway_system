@@ -11,7 +11,6 @@ namespace {
 std::string makeKey(const std::string& train_id, const std::string& date) {
     return train_id + "|" + date;
 }
-
 }  // namespace
 
 // ── 单例 ──
