@@ -23,7 +23,9 @@ const State = {
   _allTrains: [],          // 列车列表
   _trainStatusFilter: '',  // 列车状态筛选
   _allApprovals: [],       // 审批列表
-  _approvalFilter: '',     // 审批状态筛选
+  _approvalFilter: '',     // 审批状态筛选（默认待审批）
+  _mySubmissions: [],      // 我的提交列表
+  _mySubFilter: '',        // 我的提交状态筛选
 };
 
 // ═══════════════════════════════════════════
@@ -126,7 +128,7 @@ const U = {
     var items = document.querySelectorAll('.staff-only');
     for (var i = 0; i < items.length; i++) {
       var page = items[i].getAttribute('data-page');
-      if (page === 'trains') items[i].style.display = isStaff ? '' : 'none';
+      if (page === 'trains' || page === 'my-submissions') items[i].style.display = isStaff ? '' : 'none';
       else if (page === 'approvals') items[i].style.display = isApprover ? '' : 'none';
       else items[i].style.display = (isStaff || isApprover) ? '' : 'none';
     }
@@ -177,6 +179,7 @@ const UI = {
     if (name === 'query') UI.populateStationSelects();
     if (name === 'orders') UI.loadOrders();
     if (name === 'trains') UI.loadTrains();
+    if (name === 'my-submissions') UI.loadMySubmissions();
     if (name === 'approvals') UI.loadApprovals();
   },
 
@@ -185,7 +188,7 @@ const UI = {
 
   navTo: function(name, data) {
     var role = State.user ? State.user.role : '';
-    if (name === 'trains' && role !== 'STAFF' && role !== 'ADMIN') return;
+    if ((name === 'trains' || name === 'my-submissions') && role !== 'STAFF' && role !== 'ADMIN') return;
     if (name === 'approvals' && role !== 'APPROVER' && role !== 'ADMIN') return;
     if (name === 'order-form' && data) State.selectedTrain = data;
     UI.showPage(name);
@@ -1472,25 +1475,28 @@ const UI = {
     var status = State._trainStatusFilter;
     if (status) trains = trains.filter(function(t) { return t.status == (status === 'ACTIVE' ? 0 : status === 'SUSPENDED' ? 1 : 2); });
 
-    var html = '';
+    var tpl = U.$('tpl-train-mgmt-card');
+    var listEl = U.$('trains-list');
+    listEl.innerHTML = '';
+    if (!trains.length) { listEl.innerHTML = '<div class="loading">暂无列车数据</div>'; return; }
     for (var i = 0; i < trains.length; i++) {
       var t = trains[i];
-      var statusLabel = t.status === 0 ? '运行中' : t.status === 1 ? '已停运' : '已归档';
-      var typeLabel = t.type === 0 ? '图定' : '临客';
-      html += '<div class="train-mgmt-card">' +
-        '<div class="train-mgmt-info">' +
-          '<span class="train-mgmt-id">' + U.esc(t.id) + '</span>' +
-          '<span class="tag">' + typeLabel + '</span>' +
-          '<span class="tag tag-' + (t.status === 0 ? 'active' : 'archived') + '">' + statusLabel + '</span>' +
-          '<span class="train-mgmt-stops">' + (t.stops_count || 0) + ' 站</span>' +
-        '</div>' +
-        '<div class="train-mgmt-actions">' +
-          (t.status === 0 ? '<button class="btn btn-sm btn-danger" onclick="UI.deleteTrain(\'' + U.esc(t.id) + '\')">删除</button>' : '') +
-        '</div>' +
-      '</div>';
+      var card = tpl.content.cloneNode(true);
+      card.querySelector('.train-mgmt-id').textContent = t.id;
+      card.querySelector('.train-tag-type').textContent = t.type === 0 ? '图定' : '临客';
+      var tagEl = card.querySelector('.train-tag-status');
+      tagEl.textContent = t.status === 0 ? '运行中' : t.status === 1 ? '已停运' : '已归档';
+      tagEl.className = 'tag train-tag-status tag-' + (t.status === 0 ? 'active' : 'archived');
+      card.querySelector('.train-mgmt-stops').textContent = (t.stops_count || 0) + ' 站';
+      if (t.status === 0) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn-sm btn-danger';
+        btn.textContent = '删除';
+        btn.onclick = function() { UI.deleteTrain(t.id); };
+        card.querySelector('.train-mgmt-actions').appendChild(btn);
+      }
+      listEl.appendChild(card);
     }
-    if (!html) html = '<div class="loading">暂无列车数据</div>';
-    U.$('trains-list').innerHTML = html;
   },
 
   /** 删除列车 */
@@ -1501,13 +1507,82 @@ const UI = {
     else U.toast((res.data && res.data.error) || '删除失败', 'error');
   },
 
-  // ── 职工端：审批中心 ──
+  // ── 职工端：我的提交 ──
 
-  /** 加载审批列表 */
+  /** 加载我的提交（STAFF 查看自己提交的审批） */
+  loadMySubmissions: async function() {
+    var loadingEl = U.$('my-submissions-loading'); if (loadingEl) loadingEl.style.display = 'block';
+    var status = State._mySubFilter || '';
+    var userId = State.user ? State.user.username : '';
+    var url = '/api/admin/approvals?submitter_id=' + encodeURIComponent(userId);
+    if (status) url += '&status=' + status;
+    var res = await API.get(url);
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (!res.ok) return U.toast((res.data && res.data.error) || '加载失败', 'error');
+
+    State._mySubmissions = res.data.data || [];
+    UI.renderMySubmissions();
+  },
+
+  /** 按状态筛选我的提交 */
+  filterMySubmissions: function(status) {
+    State._mySubFilter = status;
+    var labels = {'': '全部', 'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回'};
+    var btns = document.querySelectorAll('#page-my-submissions .filter-bar .btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('active', btns[i].textContent.trim() === (labels[status] || '全部'));
+    }
+    UI.loadMySubmissions();
+  },
+
+  /** 渲染我的提交列表 */
+  renderMySubmissions: function() {
+    var items = State._mySubmissions || [];
+    var typeLabel = {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车'};
+    var statusLabel = {0:'待审批',1:'已通过',2:'已驳回',3:'已过期'};
+    var statusCls = {0:'submitted',1:'approved',2:'rejected',3:'expired'};
+    var tpl = U.$('tpl-submission-card');
+    var listEl = U.$('my-submissions-list');
+    listEl.innerHTML = '';
+    if (!items.length) { listEl.innerHTML = '<div class="loading">暂无提交记录</div>'; return; }
+    for (var i = 0; i < items.length; i++) {
+      var a = items[i];
+      var card = tpl.content.cloneNode(true);
+      card.querySelector('.approval-type').textContent = typeLabel[a.type] || '未知';
+      var stEl = card.querySelector('.approval-status');
+      stEl.textContent = statusLabel[a.status] || '未知';
+      stEl.className = 'approval-status ' + (statusCls[a.status] || 'submitted');
+      // 车次 + 提交时间
+      var trainName = '';
+      try { trainName = U.esc((typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload).id || '?'); } catch (e) {}
+      card.querySelector('.approval-meta-submitter').textContent = '车次: ' + trainName + ' | 提交时间: ' + (a.submitted_at || '');
+      // 审批人 + 审批时间（已决定的才有）
+      var deciderEl = card.querySelector('.approval-meta-decider');
+      if (a.approver_id) {
+        deciderEl.textContent = '审批人: ' + a.approver_id + ' | 审批时间: ' + (a.decided_at || '');
+      } else {
+        deciderEl.style.display = 'none';
+      }
+      // 驳回意见
+      var cmtEl = card.querySelector('.approval-comment');
+      if (a.comment) { cmtEl.textContent = '驳回意见: ' + a.comment; }
+      else { cmtEl.style.display = 'none'; }
+      listEl.appendChild(card);
+    }
+  },
+
+  // ── 职工端：审批中心（审核员）──
+
+  /** 加载审批列表（默认待审批，历史记录只看自己审批过的） */
   loadApprovals: async function() {
     var loadingEl = U.$('approvals-loading'); if (loadingEl) loadingEl.style.display = 'block';
-    var status = State._approvalFilter || '';
-    var url = '/api/admin/approvals' + (status ? '?status=' + status : '');
+    var status = State._approvalFilter || 'SUBMITTED';  // 默认待审批
+    var userId = State.user ? State.user.username : '';
+    var url = '/api/admin/approvals?status=' + status;
+    // 查看已通过/已驳回时只看自己的审批记录
+    if (status === 'APPROVED' || status === 'REJECTED') {
+      url += '&approver_id=' + encodeURIComponent(userId);
+    }
     var res = await API.get(url);
     if (loadingEl) loadingEl.style.display = 'none';
     if (!res.ok) return U.toast((res.data && res.data.error) || '加载失败', 'error');
@@ -1519,11 +1594,10 @@ const UI = {
   /** 按状态筛选审批 */
   filterApprovals: function(status) {
     State._approvalFilter = status;
+    var labels = {'': '全部', 'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回'};
     var btns = document.querySelectorAll('#page-approvals .filter-bar .btn');
     for (var i = 0; i < btns.length; i++) {
-      var txt = btns[i].textContent.trim();
-      var match = (status === '' ? '全部' : status === 'SUBMITTED' ? '待审批' : status === 'APPROVED' ? '已通过' : '已驳回');
-      btns[i].classList.toggle('active', txt === match);
+      btns[i].classList.toggle('active', btns[i].textContent.trim() === (labels[status] || '待审批'));
     }
     UI.loadApprovals();
   },
@@ -1532,33 +1606,49 @@ const UI = {
   renderApprovals: function() {
     var approvals = State._allApprovals || [];
     var typeLabel = {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车'};
-    var html = '';
+    var statusLabel = {0:'待审批',1:'已通过',2:'已驳回',3:'已过期'};
+    var statusCls = {0:'submitted',1:'approved',2:'rejected',3:'expired'};
+    var tpl = U.$('tpl-approval-card');
+    var listEl = U.$('approvals-list');
+    listEl.innerHTML = '';
+    if (!approvals.length) { listEl.innerHTML = '<div class="loading">暂无审批</div>'; return; }
     for (var i = 0; i < approvals.length; i++) {
       var a = approvals[i];
-      var statusCls = a.status === 0 ? 'submitted' : a.status === 1 ? 'approved' : 'rejected';
-      var statusLabel = a.status === 0 ? '待审批' : a.status === 1 ? '已通过' : '已驳回';
-      html += '<div class="approval-card">' +
-        '<div class="approval-header">' +
-          '<span class="approval-type">' + (typeLabel[a.type] || '未知') + '</span>' +
-          '<span class="approval-status ' + statusCls + '">' + statusLabel + '</span>' +
-        '</div>' +
-        '<div class="approval-meta">提交人: ' + U.esc(a.submitter_id || '?') +
-          ' | ' + U.esc(a.submitted_at || '') + '</div>';
+      var card = tpl.content.cloneNode(true);
+      card.querySelector('.approval-type').textContent = typeLabel[a.type] || '未知';
+      var stEl = card.querySelector('.approval-status');
+      stEl.textContent = statusLabel[a.status] || '未知';
+      stEl.className = 'approval-status ' + (statusCls[a.status] || 'submitted');
+      // 提交人
+      card.querySelector('.approval-meta-submitter').textContent = '提交人: ' + (a.submitter_id || '?') + ' | ' + (a.submitted_at || '');
+      // 车次
       try {
-        var payload = (typeof a.payload === 'string') ? JSON.parse(a.payload) : a.payload;
-        html += '<div class="approval-payload">车次: ' + U.esc(payload.id || '?') + '</div>';
-      } catch (e) {}
+        var p = (typeof a.payload === 'string') ? JSON.parse(a.payload) : a.payload;
+        card.querySelector('.approval-payload').textContent = '车次: ' + (p.id || '?');
+      } catch (e) { card.querySelector('.approval-payload').style.display = 'none'; }
+      // 审批操作按钮（仅待审批状态）
+      var actionsEl = card.querySelector('.approval-actions');
       if (a.status === 0) {
-        html += '<div class="approval-actions">' +
-          '<button class="btn btn-sm btn-primary" onclick="UI.approveOne(\'' + U.esc(a.id) + '\')">通过</button>' +
-          '<button class="btn btn-sm btn-danger" onclick="UI.rejectOne(\'' + U.esc(a.id) + '\')">驳回</button>' +
-        '</div>';
+        actionsEl.innerHTML = '<button class="btn btn-sm btn-primary">通过</button><button class="btn btn-sm btn-danger">驳回</button>';
+        var btns = actionsEl.querySelectorAll('button');
+        btns[0].onclick = function() { UI.approveOne(a.id); };
+        btns[1].onclick = function() { UI.rejectOne(a.id); };
+      } else {
+        actionsEl.style.display = 'none';
       }
-      if (a.comment) html += '<div class="approval-comment">驳回意见: ' + U.esc(a.comment) + '</div>';
-      html += '</div>';
+      // 审批人（已决定才有）
+      var deciderEl = card.querySelector('.approval-meta-decider');
+      if (a.approver_id) {
+        deciderEl.textContent = '审批人: ' + a.approver_id + ' | ' + (a.decided_at || '');
+      } else {
+        deciderEl.style.display = 'none';
+      }
+      // 驳回意见
+      var cmtEl = card.querySelector('.approval-comment');
+      if (a.comment) { cmtEl.textContent = '驳回意见: ' + a.comment; }
+      else { cmtEl.style.display = 'none'; }
+      listEl.appendChild(card);
     }
-    if (!html) html = '<div class="loading">暂无审批</div>';
-    U.$('approvals-list').innerHTML = html;
   },
 
   /** 审批通过 */

@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>12306 铁路票务系统</title>
-<link rel="stylesheet" href="/style.css?v=16">
+<link rel="stylesheet" href="/style.css?v=18">
 </head>
 <body>
 
@@ -51,6 +51,9 @@
       <div class="sidebar-divider staff-only" style="display:none"></div>
       <a class="sidebar-item staff-only" data-page="trains" style="display:none" onclick="UI.navTo('trains')">
         <span class="sidebar-icon">🚂</span> 列车管理
+      </a>
+      <a class="sidebar-item staff-only" data-page="my-submissions" style="display:none" onclick="UI.navTo('my-submissions')">
+        <span class="sidebar-icon">📤</span> 我的提交
       </a>
       <a class="sidebar-item staff-only" data-page="approvals" style="display:none" onclick="UI.navTo('approvals')">
         <span class="sidebar-icon">✅</span> 审批中心
@@ -296,12 +299,25 @@
       <div id="trains-list"></div>
     </section>
 
-    <!-- ═══ 审批中心（职工）═══ -->
+    <!-- ═══ 我的提交（职工）═══ -->
+    <section id="page-my-submissions" class="page">
+      <h2>我的提交</h2>
+      <div class="filter-bar">
+        <button class="btn btn-sm active" onclick="UI.filterMySubmissions('')">全部</button>
+        <button class="btn btn-sm" onclick="UI.filterMySubmissions('SUBMITTED')">待审批</button>
+        <button class="btn btn-sm" onclick="UI.filterMySubmissions('APPROVED')">已通过</button>
+        <button class="btn btn-sm" onclick="UI.filterMySubmissions('REJECTED')">已驳回</button>
+      </div>
+      <div id="my-submissions-loading" class="loading" style="display:none">加载中…</div>
+      <div id="my-submissions-list"></div>
+    </section>
+
+    <!-- ═══ 审批中心（审核员）═══ -->
     <section id="page-approvals" class="page">
       <h2>审批中心</h2>
       <div class="filter-bar">
-        <button class="btn btn-sm active" onclick="UI.filterApprovals('')">全部</button>
-        <button class="btn btn-sm" onclick="UI.filterApprovals('SUBMITTED')">待审批</button>
+        <button class="btn btn-sm active" onclick="UI.filterApprovals('SUBMITTED')">待审批</button>
+        <button class="btn btn-sm" onclick="UI.filterApprovals('')">全部</button>
         <button class="btn btn-sm" onclick="UI.filterApprovals('APPROVED')">已通过</button>
         <button class="btn btn-sm" onclick="UI.filterApprovals('REJECTED')">已驳回</button>
       </div>
@@ -311,6 +327,45 @@
 
   </main>
 </div>
+
+<!-- ═══ 模板：审批卡片 / 提交卡片 ═══ -->
+<template id="tpl-approval-card">
+  <div class="approval-card">
+    <div class="approval-header">
+      <span class="approval-type"></span>
+      <span class="approval-status"></span>
+    </div>
+    <div class="approval-meta-submitter"></div>
+    <div class="approval-payload"></div>
+    <div class="approval-actions"></div>
+    <div class="approval-meta-decider"></div>
+    <div class="approval-comment"></div>
+  </div>
+</template>
+
+<template id="tpl-submission-card">
+  <div class="approval-card">
+    <div class="approval-header">
+      <span class="approval-type"></span>
+      <span class="approval-status"></span>
+    </div>
+    <div class="approval-meta-submitter"></div>
+    <div class="approval-meta-decider"></div>
+    <div class="approval-comment"></div>
+  </div>
+</template>
+
+<template id="tpl-train-mgmt-card">
+  <div class="train-mgmt-card">
+    <div class="train-mgmt-info">
+      <span class="train-mgmt-id"></span>
+      <span class="tag train-tag-type"></span>
+      <span class="tag train-tag-status"></span>
+      <span class="train-mgmt-stops"></span>
+    </div>
+    <div class="train-mgmt-actions"></div>
+  </div>
+</template>
 
 <!-- ═══ 车次详情弹窗 ═══ -->
 <div id="detail-overlay" class="overlay" onclick="UI.closeDetail()">
@@ -326,6 +381,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=36"></script>
+<script src="/app.js?v=39"></script>
 </body>
 </html>

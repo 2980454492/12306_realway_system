@@ -839,21 +839,40 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    // ── GET /api/admin/approvals — 审批列表 ──
+    // ── GET /api/admin/approvals — 审批列表（STAFF 看自己提交 / APPROVER 看所有+审批记录）──
     app.Get("/api/admin/approvals", [](const httplib::Request& req, httplib::Response& res) {
         try {
-            auto ctx = checkAuth(req, res, Permission::APPROVE);
-            if (!ctx) return;
+            // STAFF 和 APPROVER 均可访问（STAFF 只能看自己的提交）
+            auto ctx = RbacMiddleware::authenticate(
+                req.has_header("Authorization") ? req.get_header_value("Authorization") : "");
+            if (!ctx || (!RbacMiddleware::authorize(*ctx, Permission::APPROVE)
+                      && !RbacMiddleware::authorize(*ctx, Permission::MANAGE_TRAINS))) {
+                json j;
+                j["ok"] = false;
+                j["error"] = ctx ? "Forbidden" : "Unauthorized";
+                res.set_content(j.dump(), "application/json");
+                res.status = ctx ? 403 : 401;
+                return;
+            }
 
             std::string status = req.get_param_value("status");
             std::optional<ApprovalState> filter;
             if (status == "SUBMITTED") filter = ApprovalState::SUBMITTED;
             else if (status == "APPROVED") filter = ApprovalState::APPROVED;
             else if (status == "REJECTED") filter = ApprovalState::REJECTED;
+            else if (status == "EXPIRED") filter = ApprovalState::EXPIRED;
+
+            std::string submitter_id = req.get_param_value("submitter_id");
+            std::string approver_id = req.get_param_value("approver_id");
 
             auto approvals = ApprovalService::instance().getApprovals(filter);
             json arr = json::array();
             for (const auto& a : approvals) {
+                // submitter_id 筛选（STAFF 只能看自己的提交）
+                if (!submitter_id.empty() && a.submitter_id != submitter_id) continue;
+                // approver_id 筛选（查看审批人的历史记录）
+                if (!approver_id.empty() && a.approver_id != approver_id) continue;
+
                 json ja;
                 ja["id"] = a.id;
                 ja["type"] = static_cast<int>(a.type);
