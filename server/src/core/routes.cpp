@@ -724,6 +724,7 @@ void registerRoutes(RailwayServer& server) {
                     cd["train_id"] = c.train_id;
                     cd["station_a"] = c.station_a;
                     cd["station_b"] = c.station_b;
+                    cd["line_id"] = c.line_id;
                     cd["conflicting_enter"] = c.conflicting_enter;
                     cd["conflicting_leave"] = c.conflicting_leave;
                     details.push_back(cd);

@@ -295,3 +295,27 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .speed-bad { color: #ff4444; background: #330000; }
 .form-row-2 { display: flex; gap: 16px; }
 .form-row-2 .form-group { flex: 1; }
+
+/* ── 逐步选线 ── */
+.neighbor-options { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
+.neighbor-card {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  background: #0a0a1e; border: 1px solid #0f3460; border-radius: 6px;
+  cursor: pointer; transition: border-color .15s;
+}
+.neighbor-card:hover { border-color: #53a8ff; }
+.neighbor-line { font-size: 14px; font-weight: 600; color: #e0e0e0; min-width: 80px; }
+.neighbor-arrow { color: #53a8ff; font-size: 16px; }
+.neighbor-station { font-size: 14px; color: #e0e0e0; flex: 1; }
+.neighbor-meta { font-size: 12px; color: #707090; white-space: nowrap; }
+
+.route-row {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  background: #0a0a1e; border: 1px solid #0f3460; border-radius: 6px; margin-bottom: 4px;
+}
+.route-idx { font-size: 14px; font-weight: 700; color: #e94560; min-width: 20px; text-align: center; }
+.route-station { font-size: 14px; color: #e0e0e0; font-weight: 600; }
+.route-line { font-size: 12px; color: #53a8ff; }
+.route-tag { font-size: 11px; padding: 1px 8px; border-radius: 4px; background: #0f3460; color: #9090b0; }
+.route-time { font-size: 13px; color: #53a8ff; }
+.route-dist { font-size: 12px; color: #707090; }

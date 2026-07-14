@@ -14,9 +14,9 @@
 namespace fs = std::filesystem;
 
 namespace {
-// 区间 key：出发站在前，到达站在后（方向敏感，A→B 与 B→A 不同）
-std::string makeOccKey(uint32_t from, uint32_t to) {
-    return std::to_string(from) + "|" + std::to_string(to);
+// 区间 key：出发站|到达站|线路ID（方向敏感 + 线路隔离）
+std::string makeOccKey(uint32_t from, uint32_t to, uint32_t line_id) {
+    return std::to_string(from) + "|" + std::to_string(to) + "|" + std::to_string(line_id);
 }
 }  // namespace
 
@@ -35,8 +35,8 @@ bool TrainManager::initialize() {
     return true;
 }
 
-std::string TrainManager::occKey(uint32_t a, uint32_t b) const {
-    return makeOccKey(a, b);
+std::string TrainManager::occKey(uint32_t from, uint32_t to, uint32_t line_id) const {
+    return makeOccKey(from, to, line_id);
 }
 
 void TrainManager::loadOccupancy() {
@@ -60,8 +60,10 @@ void TrainManager::addToOccupancy(const Train& train) {
     for (size_t i = 0; i + 1 < train.stops.size(); ++i) {
         int enter = train.stops[i].departure;
         int leave = train.stops[i + 1].arrival;
-        if (enter <= 0 || leave <= 0) continue;
-        auto key = occKey(train.stops[i].station_id, train.stops[i + 1].station_id);
+        // 取到达站的 line_id（始发站 line_id=0 的边跳过）
+        uint32_t line_id = train.stops[i + 1].line_id;
+        if (enter <= 0 || leave <= 0 || line_id == 0) continue;
+        auto key = occKey(train.stops[i].station_id, train.stops[i + 1].station_id, line_id);
         occupancy_[key].insert({enter, leave});
         occ_detail_[key].push_back({train.id, {enter, leave}});
     }
@@ -71,8 +73,9 @@ void TrainManager::removeFromOccupancy(const Train& train) {
     for (size_t i = 0; i + 1 < train.stops.size(); ++i) {
         int enter = train.stops[i].departure;
         int leave = train.stops[i + 1].arrival;
-        if (enter <= 0 || leave <= 0) continue;
-        auto key = occKey(train.stops[i].station_id, train.stops[i + 1].station_id);
+        uint32_t line_id = train.stops[i + 1].line_id;
+        if (enter <= 0 || leave <= 0 || line_id == 0) continue;
+        auto key = occKey(train.stops[i].station_id, train.stops[i + 1].station_id, line_id);
         auto& set_ref = occupancy_[key];
         set_ref.erase({enter, leave});
         // 清理 detail
@@ -151,9 +154,10 @@ std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Tr
     for (size_t i = 0; i + 1 < train.stops.size(); ++i) {
         int new_enter = train.stops[i].departure;
         int new_leave = train.stops[i + 1].arrival;
-        if (new_enter <= 0 || new_leave <= 0) continue;
+        uint32_t line_id = train.stops[i + 1].line_id;
+        if (new_enter <= 0 || new_leave <= 0 || line_id == 0) continue;
 
-        auto key = occKey(train.stops[i].station_id, train.stops[i + 1].station_id);
+        auto key = occKey(train.stops[i].station_id, train.stops[i + 1].station_id, line_id);
         auto it = occupancy_.find(key);
         if (it == occupancy_.end()) continue;
 
@@ -174,7 +178,7 @@ std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Tr
                 }
                 conflicts.push_back({conflict_train,
                     train.stops[i].station_id, train.stops[i + 1].station_id,
-                    ex_enter, ex_leave});
+                    line_id, ex_enter, ex_leave});
             }
         }
     }

@@ -132,14 +132,15 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalState, {
 
 /** 经停站 — 列车在一个站点的到发信息。时间用 HHMM 整数（如 1430=14:30）。
  *  arrival/departure 默认 0 表示未初始化；-1 表示无到达（始发站）或无发车（终到站）。
- *  实际运行中不存在 0000 时刻的列车，故 0 不会产生歧义。 */
+ *  line_id 记录到达该站的线路，用于冲突检测（始发站为 0）。 */
 struct Stop {
     uint32_t station_id = 0;
+    uint32_t line_id = 0;   // 到达该站的线路 ID，始发站为 0
     int arrival = 0;        // 到站时间 HHMM，-1 表示始发站（无到达）
     int departure = 0;      // 发车时间 HHMM，-1 表示终到站（无出发）
     uint8_t platform = 0;   // 站台号，0 表示未指定
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Stop, station_id, arrival, departure, platform)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Stop, station_id, line_id, arrival, departure, platform)
 
 /** 席位配置 — 一列车各席位的座位数量 */
 struct SeatConfig {
@@ -226,16 +227,18 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(User,
     id, username, password_hash, role, active, failed_attempts, locked_until)
 
 /** 车站的线路邻居 — 该车站在某条线路上相邻的车站。
- *  用于职工新增列车时按线路逐站构建 route_stations。 */
+ *  用于职工新增列车时按线路逐站构建 route_stations。
+ *  max_speed_kmh 为该段线路限速，用于时速校验（取线路设计时速）。 */
 struct LineNeighbor {
     uint32_t line_id = 0;
     std::string line_name;
     uint32_t neighbor_station_id = 0;
     std::string neighbor_name;
     double distance_km = 0.0;
+    uint32_t max_speed_kmh = 0;  // 该段线路限速 km/h，后续可精细化到区间级
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LineNeighbor,
-    line_id, line_name, neighbor_station_id, neighbor_name, distance_km)
+    line_id, line_name, neighbor_station_id, neighbor_name, distance_km, max_speed_kmh)
 
 /** 区间占用记录 — 某列车在某运行区间的时刻占用 */
 struct TrainInterval {

@@ -246,7 +246,8 @@ void DataStore::buildStationLineIndex() {
                     neighbors.push_back({
                         line.id, line.name,
                         ids[i - 1], prev_st->name,
-                        haversineDist(*cur_st, *prev_st)
+                        haversineDist(*cur_st, *prev_st),
+                        line.max_speed_kmh
                     });
                 }
             }
@@ -259,7 +260,8 @@ void DataStore::buildStationLineIndex() {
                     neighbors.push_back({
                         line.id, line.name,
                         ids[i + 1], next_st->name,
-                        haversineDist(*cur_st, *next_st)
+                        haversineDist(*cur_st, *next_st),
+                        line.max_speed_kmh
                     });
                 }
             }

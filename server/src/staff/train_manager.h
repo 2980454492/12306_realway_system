@@ -42,6 +42,7 @@ public:
         std::string train_id;      // 与哪个车次冲突
         uint32_t station_a;        // 区间起点
         uint32_t station_b;        // 区间终点
+        uint32_t line_id;          // 冲突所在线路
         int conflicting_enter;     // 已有进入时间
         int conflicting_leave;     // 已有离开时间
     };
@@ -71,8 +72,8 @@ private:
     void loadOccupancy();
     void saveOccupancy() const;
 
-    // 区间 key = station_a|station_b（用 station_a 较小者在前确保无序）
-    std::string occKey(uint32_t a, uint32_t b) const;
+    // 区间 key = 出发站|到达站|线路ID（方向敏感 + 线路隔离，A→B 与 B→A 不同 key）
+    std::string occKey(uint32_t from, uint32_t to, uint32_t line_id) const;
     void addToOccupancy(const Train& train);
     void removeFromOccupancy(const Train& train);
 

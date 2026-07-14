@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>12306 铁路票务系统</title>
-<link rel="stylesheet" href="/style.css?v=18">
+<link rel="stylesheet" href="/style.css?v=20">
 </head>
 <body>
 
@@ -219,8 +219,7 @@
     <section id="page-add-train" class="page">
       <button class="btn btn-back" onclick="UI.navTo('trains')">← 返回列车管理</button>
       <h2>新增列车</h2>
-      <datalist id="train-station-datalist"></datalist>
-      <!-- 车次 -->
+      <!-- 车次配置 -->
       <div class="form-row-3">
         <div class="form-group">
           <label>列车种类</label>
@@ -238,7 +237,7 @@
         </div>
         <div class="form-group">
           <label>车次号</label>
-          <input type="text" id="new-train-number" placeholder="如 2492" style="width:100px">
+          <input type="text" id="new-train-number" placeholder="如 2492">
         </div>
         <div class="form-group">
           <label>列车类型</label>
@@ -248,6 +247,7 @@
           </select>
         </div>
       </div>
+      <div class="hint" id="speed-limit-hint" style="display:none"></div>
       <!-- 日期 -->
       <div id="train-date-row" class="form-row-2" style="margin-top:8px">
         <div class="form-group" id="train-date-single" style="display:none">
@@ -261,13 +261,62 @@
           </span>
         </div>
       </div>
-      <!-- 限速提示 -->
-      <div id="speed-limit-hint" class="hint" style="display:none"></div>
-      <!-- 停站序列 -->
-      <label style="font-size:13px;color:#9090b0;margin-top:12px;display:block">停站序列</label>
-      <div id="stop-list"></div>
-      <button class="btn btn-sm" onclick="UI.addStop()" style="margin-top:8px">+ 添加途经站</button>
-      <button class="btn btn-sm" onclick="UI.finishStops()" style="margin-top:8px;margin-left:4px">✓ 完成（设终点站）</button>
+
+      <!-- ── 选线：始发站 ── -->
+      <label style="font-size:13px;color:#9090b0;margin-top:16px;display:block">始发站</label>
+      <div class="form-row-2">
+        <div class="form-group">
+          <input type="text" id="first-station-input" list="train-station-datalist" placeholder="始发站名" autocomplete="off">
+          <datalist id="train-station-datalist"></datalist>
+        </div>
+        <div class="form-group">
+          <input type="time" id="first-depart-time">
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="UI.onFirstStationChange()" style="margin-top:10px;padding:12px;font-size:15px">下一步：选择线路</button>
+
+      <!-- ── 已选路径 ── -->
+      <label style="font-size:13px;color:#9090b0;margin-top:16px;display:block">运行路径</label>
+      <div id="route-path-list"></div>
+
+      <!-- ── 可选邻居（当前站出发的线路）── -->
+      <div id="neighbor-panel" style="display:none;margin-top:12px;padding:12px;background:#16213e;border:1px solid #0f3460;border-radius:8px">
+        <label style="font-size:14px;color:#53a8ff;display:block;margin-bottom:8px">选择下一站（点击线路卡片）</label>
+        <div id="neighbor-options" class="neighbor-options"></div>
+        <button class="btn btn-primary btn-sm" onclick="UI.finishRoute()" style="margin-top:10px">✓ 设为终点站</button>
+      </div>
+
+      <!-- ── 到发时间弹窗 ── -->
+      <div id="stop-time-modal" class="overlay" style="display:none">
+        <div class="detail-card" style="width:360px" onclick="event.stopPropagation()">
+          <h3 id="stop-time-title"></h3>
+          <div class="form-group" style="margin-top:12px">
+            <label class="filter-check" style="margin-bottom:8px">
+              <input type="checkbox" id="stop-is-stop" checked onchange="UI.onStopToggle()"> 停靠本站
+            </label>
+          </div>
+          <div class="form-row-2" id="stop-time-fields">
+            <div class="form-group">
+              <label>到站时间</label>
+              <input type="time" id="stop-arrival-time">
+            </div>
+            <div class="form-group">
+              <label>发车时间</label>
+              <input type="time" id="stop-depart-time">
+            </div>
+          </div>
+          <div class="form-group" id="pass-time-field" style="display:none">
+            <label>通过时间</label>
+            <input type="time" id="stop-pass-time">
+          </div>
+          <div id="stop-speed-info" class="hint" style="margin-top:8px"></div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="UI.confirmStop()">确认</button>
+            <button class="btn" onclick="UI.cancelStop()">取消</button>
+          </div>
+        </div>
+      </div>
+
       <!-- 席位 -->
       <div class="form-group" style="margin-top:16px">
         <label>席位配置</label>
@@ -383,6 +432,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=40"></script>
+<script src="/app.js?v=44"></script>
 </body>
 </html>
