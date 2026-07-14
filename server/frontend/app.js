@@ -178,6 +178,7 @@ const UI = {
     }
     if (name === 'query') UI.populateStationSelects();
     if (name === 'orders') UI.loadOrders();
+    if (name === 'add-train') UI.showAddTrainForm();
     if (name === 'trains') UI.loadTrains();
     if (name === 'my-submissions') UI.loadMySubmissions();
     if (name === 'approvals') UI.loadApprovals();
@@ -188,7 +189,7 @@ const UI = {
 
   navTo: function(name, data) {
     var role = State.user ? State.user.role : '';
-    if ((name === 'trains' || name === 'my-submissions') && role !== 'STAFF' && role !== 'ADMIN') return;
+    if ((name === 'trains' || name === 'my-submissions' || name === 'add-train') && role !== 'STAFF' && role !== 'ADMIN') return;
     if (name === 'approvals' && role !== 'APPROVER' && role !== 'ADMIN') return;
     if (name === 'order-form' && data) State.selectedTrain = data;
     UI.showPage(name);
@@ -1157,9 +1158,8 @@ const UI = {
     }
   },
 
-  /** 始发站时自动添加第一个停站 */
+  /** 初始化新增列车表单（由 showPage 触发） */
   showAddTrainForm: function() {
-    U.$('add-train-form').style.display = '';
     U.$('add-train-error').textContent = '';
     U.$('stop-list').innerHTML = '';
     // 填充 datalist
@@ -1172,11 +1172,6 @@ const UI = {
     U.$('train-date-single').style.display = '';
     U.$('train-date-range').style.display = 'none';
     UI.addStop();
-  },
-
-  /** 隐藏表单 */
-  hideAddTrainForm: function() {
-    U.$('add-train-form').style.display = 'none';
   },
 
   /** 列车类型切换 → 日期字段 */
@@ -1422,8 +1417,7 @@ const UI = {
     var res = await API.post('/api/admin/trains', body);
     if (res.ok) {
       U.toast('已提交审批：' + (res.data.approval_id || ''), 'success');
-      UI.hideAddTrainForm();
-      UI.loadTrains();
+      UI.navTo('trains');
     } else {
       var errMsg = (res.data && res.data.error) || '提交失败';
       // 冲突详情：展示冲突车次和区间

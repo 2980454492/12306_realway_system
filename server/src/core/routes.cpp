@@ -365,41 +365,41 @@ void registerRoutes(RailwayServer& server) {
 
             json transfer_arr = json::array();
             for (const auto& item : qr.transfers) {
-                json t;
-                t["is_transfer"] = true;
-                t["train_id"] = item.train_id;
-                t["from_station"] = item.from_station;
-                t["to_station"] = item.to_station;
-                t["second_train_id"] = item.second_train_id;
-                t["transfer_station"] = item.transfer_station;
-                t["transfer_arrival_time"] = item.transfer_arrival_time;
-                t["transfer_departure_time"] = item.transfer_departure_time;
-                t["transfer_gap_minutes"] = item.transfer_gap_minutes;
-                t["departure_time"] = item.departure_time;
-                t["arrival_time"] = item.arrival_time;
-                t["duration_minutes"] = item.duration_minutes;
-                t["distance_km"] = item.distance_km;
-                t["price"] = item.price;
+                json j;
+                j["is_transfer"] = true;
+                j["train_id"] = item.train_id;
+                j["from_station"] = item.from_station;
+                j["to_station"] = item.to_station;
+                j["second_train_id"] = item.second_train_id;
+                j["transfer_station"] = item.transfer_station;
+                j["transfer_arrival_time"] = item.transfer_arrival_time;
+                j["transfer_departure_time"] = item.transfer_departure_time;
+                j["transfer_gap_minutes"] = item.transfer_gap_minutes;
+                j["departure_time"] = item.departure_time;
+                j["arrival_time"] = item.arrival_time;
+                j["duration_minutes"] = item.duration_minutes;
+                j["distance_km"] = item.distance_km;
+                j["price"] = item.price;
                 // 始发/终到 + 各席位票价
                 if (!item.stops.empty()) {
                     auto* orig = ds.getStation(item.stops.front().station_id);
                     auto* term = ds.getStation(item.stops.back().station_id);
-                    t["origin_station"] = orig ? orig->name : "?";
-                    t["terminal_station"] = term ? term->name : "?";
+                    j["origin_station"] = orig ? orig->name : "?";
+                    j["terminal_station"] = term ? term->name : "?";
                 }
-                t["first_leg_seats"] = item.first_leg_seats;
-                t["second_leg_seats"] = item.second_leg_seats;
-                t["first_leg_price"] = item.first_leg_price;
-                t["second_leg_price"] = item.second_leg_price;
-                addSeatPrices(t, "seat_prices", item.price);
+                j["first_leg_seats"] = item.first_leg_seats;
+                j["second_leg_seats"] = item.second_leg_seats;
+                j["first_leg_price"] = item.first_leg_price;
+                j["second_leg_price"] = item.second_leg_price;
+                addSeatPrices(j, "seat_prices", item.price);
                 // 每程独立票价
-                addSeatPrices(t, "first_leg_seat_prices", item.first_leg_price);
-                addSeatPrices(t, "second_leg_seat_prices", item.second_leg_price);
+                addSeatPrices(j, "first_leg_seat_prices", item.first_leg_price);
+                addSeatPrices(j, "second_leg_seat_prices", item.second_leg_price);
                 // 停站详情（第一段 + 第二段）
                 
-                t["stops"] = stopsToJson(item.stops, ds);
-                t["second_stops"] = stopsToJson(item.second_stops, ds);
-                transfer_arr.push_back(t);
+                j["stops"] = stopsToJson(item.stops, ds);
+                j["second_stops"] = stopsToJson(item.second_stops, ds);
+                transfer_arr.push_back(j);
             }
             j["transfers"] = transfer_arr;
 
@@ -457,17 +457,17 @@ void registerRoutes(RailwayServer& server) {
 
             json all_items = json::array();
             for (auto& item : items) {
-                json t;
-                t["train_id"] = item.train_id;
-                t["train_type"] = static_cast<int>(item.train_type);
-                t["from_station_name"] = item.from_station_name;
-                t["to_station_name"] = item.to_station_name;
-                t["arrival_time"] = item.arrival_time;
-                t["departure_time"] = item.departure_time;
-                t["stops"] = stopsToJson(item.stops, ds);
-                t["station_id"] = item.station_id;
-                t["station_name"] = item.station_name;
-                all_items.push_back(t);
+                json j;
+                j["train_id"] = item.train_id;
+                j["train_type"] = static_cast<int>(item.train_type);
+                j["from_station_name"] = item.from_station_name;
+                j["to_station_name"] = item.to_station_name;
+                j["arrival_time"] = item.arrival_time;
+                j["departure_time"] = item.departure_time;
+                j["stops"] = stopsToJson(item.stops, ds);
+                j["station_id"] = item.station_id;
+                j["station_name"] = item.station_name;
+                all_items.push_back(j);
             }
 
             json j;
@@ -664,13 +664,13 @@ void registerRoutes(RailwayServer& server) {
 
             auto& trains = TrainManager::instance().getAllTrains();
             json arr = json::array();
-            for (const auto& t : trains) {
+            for (const auto& train : trains) {
                 json jt;
-                jt["id"] = t.id;
-                jt["type"] = static_cast<int>(t.type);
-                jt["status"] = static_cast<int>(t.status);
-                jt["stops_count"] = t.stops.size();
-                jt["stops"] = stopsToJson(t.stops, DataStore::instance());
+                jt["id"] = train.id;
+                jt["type"] = static_cast<int>(train.type);
+                jt["status"] = static_cast<int>(train.status);
+                jt["stops_count"] = train.stops.size();
+                jt["stops"] = stopsToJson(train.stops, DataStore::instance());
                 arr.push_back(jt);
             }
 

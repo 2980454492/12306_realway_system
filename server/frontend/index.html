@@ -215,6 +215,78 @@
       <div id="orders-list"></div>
     </section>
 
+    <!-- ═══ 新增列车页（职工）═══ -->
+    <section id="page-add-train" class="page">
+      <button class="btn btn-back" onclick="UI.navTo('trains')">← 返回列车管理</button>
+      <h2>新增列车</h2>
+      <datalist id="train-station-datalist"></datalist>
+      <!-- 车次 -->
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>列车种类</label>
+          <select id="new-train-prefix" onchange="UI.onPrefixChange()">
+            <option value="">请选择</option>
+            <option value="G">G 高铁</option>
+            <option value="D">D 动车</option>
+            <option value="C">C 城际</option>
+            <option value="Z">Z 直达</option>
+            <option value="T">T 特快</option>
+            <option value="K">K 快速</option>
+            <option value="S">S 市郊</option>
+            <option value="OTHER">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>车次号</label>
+          <input type="text" id="new-train-number" placeholder="如 2492" style="width:100px">
+        </div>
+        <div class="form-group">
+          <label>列车类型</label>
+          <select id="new-train-type" onchange="UI.onTrainTypeChange()">
+            <option value="0">图定列车</option>
+            <option value="1">临客</option>
+          </select>
+        </div>
+      </div>
+      <!-- 日期 -->
+      <div id="train-date-row" class="form-row-2" style="margin-top:8px">
+        <div class="form-group" id="train-date-single" style="display:none">
+          <input type="date" id="new-train-valid-from">
+        </div>
+        <div class="form-group" id="train-date-range" style="display:none">
+          <span style="display:flex;gap:8px;align-items:center">
+            <input type="date" id="new-train-range-from">
+            <span style="color:#707090">至</span>
+            <input type="date" id="new-train-range-to">
+          </span>
+        </div>
+      </div>
+      <!-- 限速提示 -->
+      <div id="speed-limit-hint" class="hint" style="display:none"></div>
+      <!-- 停站序列 -->
+      <label style="font-size:13px;color:#9090b0;margin-top:12px;display:block">停站序列</label>
+      <div id="stop-list"></div>
+      <button class="btn btn-sm" onclick="UI.addStop()" style="margin-top:8px">+ 添加途经站</button>
+      <button class="btn btn-sm" onclick="UI.finishStops()" style="margin-top:8px;margin-left:4px">✓ 完成（设终点站）</button>
+      <!-- 席位 -->
+      <div class="form-group" style="margin-top:16px">
+        <label>席位配置</label>
+        <div class="seat-config-row">
+          <span>商务座 <input type="number" id="sc-business" value="0" min="0" style="width:60px"></span>
+          <span>一等座 <input type="number" id="sc-first" value="50" min="0" style="width:60px"></span>
+          <span>二等座 <input type="number" id="sc-second" value="100" min="0" style="width:60px"></span>
+          <span>硬卧 <input type="number" id="sc-sleeper" value="0" min="0" style="width:60px"></span>
+          <span>硬座 <input type="number" id="sc-hseat" value="0" min="0" style="width:60px"></span>
+          <span>无座 <input type="number" id="sc-noseat" value="50" min="0" style="width:60px"></span>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="UI.submitNewTrain()">提交审批</button>
+        <button class="btn" onclick="UI.navTo('trains')">取消</button>
+      </div>
+      <p id="add-train-error" class="error-msg"></p>
+    </section>
+
     <!-- ═══ 列车管理页（职工）═══ -->
     <section id="page-trains" class="page">
       <h2>列车管理</h2>
@@ -223,77 +295,7 @@
         <button class="btn btn-sm" onclick="UI.filterTrains('ACTIVE')">运行中</button>
         <button class="btn btn-sm" onclick="UI.filterTrains('SUSPENDED')">已停运</button>
         <button class="btn btn-sm" onclick="UI.filterTrains('ARCHIVED')">已归档</button>
-        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="UI.showAddTrainForm()">+ 新增列车</button>
-      </div>
-      <!-- 新增列车表单（默认隐藏） -->
-      <div id="add-train-form" class="form-card" style="display:none">
-        <h3>新增列车</h3>
-        <datalist id="train-station-datalist"></datalist>
-        <!-- 车次 -->
-        <div class="form-row-3">
-          <div class="form-group">
-            <label>列车种类</label>
-            <select id="new-train-prefix" onchange="UI.onPrefixChange()">
-              <option value="">请选择</option>
-              <option value="G">G 高铁</option>
-              <option value="D">D 动车</option>
-              <option value="C">C 城际</option>
-              <option value="Z">Z 直达</option>
-              <option value="T">T 特快</option>
-              <option value="K">K 快速</option>
-              <option value="S">S 市郊</option>
-              <option value="OTHER">其他</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>车次号</label>
-            <input type="text" id="new-train-number" placeholder="如 2492" style="width:100px">
-          </div>
-          <div class="form-group">
-            <label>列车类型</label>
-            <select id="new-train-type" onchange="UI.onTrainTypeChange()">
-              <option value="0">图定列车</option>
-              <option value="1">临客</option>
-            </select>
-          </div>
-        </div>
-        <!-- 日期（动态显示） -->
-        <div id="train-date-row" class="form-row-2" style="margin-top:8px">
-          <div class="form-group" id="train-date-single" style="display:none">
-            <input type="date" id="new-train-valid-from">
-          </div>
-          <div class="form-group" id="train-date-range" style="display:none">
-            <span style="display:flex;gap:8px;align-items:center">
-              <input type="date" id="new-train-range-from">
-              <span style="color:#707090">至</span>
-              <input type="date" id="new-train-range-to">
-            </span>
-          </div>
-        </div>
-        <!-- 限速提示 -->
-        <div id="speed-limit-hint" class="hint" style="display:none"></div>
-        <!-- 停站序列 -->
-        <label style="font-size:13px;color:#9090b0;margin-top:12px;display:block">停站序列</label>
-        <div id="stop-list"></div>
-        <button class="btn btn-sm" onclick="UI.addStop()" style="margin-top:8px">+ 添加途经站</button>
-        <button class="btn btn-sm" onclick="UI.finishStops()" style="margin-top:8px;margin-left:4px">✓ 完成（设终点站）</button>
-        <!-- 席位 -->
-        <div class="form-group" style="margin-top:16px">
-          <label>席位配置</label>
-          <div class="seat-config-row">
-            <span>商务座 <input type="number" id="sc-business" value="0" min="0" style="width:60px"></span>
-            <span>一等座 <input type="number" id="sc-first" value="50" min="0" style="width:60px"></span>
-            <span>二等座 <input type="number" id="sc-second" value="100" min="0" style="width:60px"></span>
-            <span>硬卧 <input type="number" id="sc-sleeper" value="0" min="0" style="width:60px"></span>
-            <span>硬座 <input type="number" id="sc-hseat" value="0" min="0" style="width:60px"></span>
-            <span>无座 <input type="number" id="sc-noseat" value="50" min="0" style="width:60px"></span>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-primary" onclick="UI.submitNewTrain()">提交审批</button>
-          <button class="btn" onclick="UI.hideAddTrainForm()">取消</button>
-        </div>
-        <p id="add-train-error" class="error-msg"></p>
+        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="UI.navTo('add-train')">+ 新增列车</button>
       </div>
       <div id="trains-loading" class="loading" style="display:none">加载中…</div>
       <div id="trains-list"></div>
@@ -381,6 +383,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=39"></script>
+<script src="/app.js?v=40"></script>
 </body>
 </html>
