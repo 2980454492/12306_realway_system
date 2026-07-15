@@ -1203,7 +1203,7 @@ const UI = {
       if (State.stations[i].name === name) { sid = State.stations[i].id; break; }
     }
     if (!sid) return;
-    State._routePath = [{ station_id: sid, station_name: name, departure: UI._toHHMM(depTime), is_stop: true }];
+    State._routePath = [{ station_id: sid, station_name: name, departure: UI._toHHMM(depTime), is_stop: true, is_terminal: false }];
     UI.renderRoutePath();
     UI.showNeighbors(sid);
   },
@@ -1310,8 +1310,9 @@ const UI = {
       line_id: n.line_id,
       line_name: n.line_name,
       arrival: curArr,
-      departure: isStop ? UI._toHHMM(depTime) : -1,
+      departure: isStop ? UI._toHHMM(depTime) : curArr,  // 通过=到发同刻
       is_stop: isStop,
+      is_terminal: false,
       distance_km: n.distance_km,
       max_speed_kmh: n.max_speed_kmh
     });
@@ -1331,7 +1332,10 @@ const UI = {
   finishRoute: function() {
     U.$('neighbor-panel').style.display = 'none';
     var path = State._routePath;
-    if (path.length > 0) path[path.length - 1].departure = -1;
+    if (path.length > 0) {
+      path[path.length - 1].is_terminal = true;
+      path[path.length - 1].departure = -1;
+    }
     UI.renderRoutePath();
     U.toast('已设终点站', 'success');
   },
@@ -1343,7 +1347,7 @@ const UI = {
     var html = '';
     for (var i = 0; i < path.length; i++) {
       var s = path[i];
-      var isFirst = (i === 0), isLast = (s.departure === -1);
+      var isFirst = (i === 0), isLast = s.is_terminal === true;
       html += '<div class="route-row">' +
         '<span class="route-idx">' + (i + 1) + '</span>' +
         '<span class="route-station">' + U.esc(s.station_name) + '</span>';
@@ -1368,6 +1372,7 @@ const UI = {
   removeRouteStop: function(idx) {
     State._routePath.splice(idx);
     var last = State._routePath[State._routePath.length - 1];
+    last.is_terminal = false;
     if (last.departure === -1) last.departure = 0;
     U.$('neighbor-panel').style.display = '';
     UI.renderRoutePath();
