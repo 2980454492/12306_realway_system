@@ -1340,31 +1340,42 @@ const UI = {
     U.toast('已设终点站', 'success');
   },
 
-  /** 渲染运行路径 */
+  /** 渲染运行路径（表格对齐） */
   renderRoutePath: function() {
     var path = State._routePath;
     if (!path.length) { U.$('route-path-list').innerHTML = ''; return; }
-    var html = '';
+    var html = '<table class="route-table">' +
+      '<tr><th>#</th><th>站点</th><th>线路</th><th>类型</th><th>到</th><th>发</th><th>里程</th><th>时速</th><th></th></tr>';
     for (var i = 0; i < path.length; i++) {
       var s = path[i];
       var isFirst = (i === 0), isLast = s.is_terminal === true;
-      html += '<div class="route-row">' +
-        '<span class="route-idx">' + (i + 1) + '</span>' +
-        '<span class="route-station">' + U.esc(s.station_name) + '</span>';
-      if (s.line_name && i > 0) {
-        html += '<span class="route-line">（' + U.esc(s.line_name) + '）</span>';
+      var tag = isFirst ? '始发' : isLast ? '终到' : s.is_stop ? '停靠' : '通过';
+      var arrTime = isFirst ? '---' : U.fmtTime(s.arrival);
+      var depTime = isLast ? '---' : (s.departure > 0 ? U.fmtTime(s.departure) : U.fmtTime(s.arrival));
+      var dist = (s.distance_km && i > 0) ? s.distance_km.toFixed(0) + ' km' : '';
+      // 算时速
+      var speedStr = '';
+      if (i > 0 && s.arrival > 0 && path[i-1].departure > 0) {
+        var prevDep = path[i-1].departure;
+        var prevMin = Math.floor(prevDep/100)*60 + (prevDep%100);
+        var curMin = Math.floor(s.arrival/100)*60 + (s.arrival%100);
+        if (curMin > prevMin && s.distance_km) {
+          speedStr = Math.round(s.distance_km / ((curMin - prevMin) / 60)) + ' km/h';
+        }
       }
-      html += '<span class="route-tag">' + (isFirst ? '始发' : isLast ? '终到' : s.is_stop ? '停靠' : '通过') + '</span>';
-      if (!isFirst) html += '<span class="route-time">' + U.fmtTime(s.arrival) + ' 到</span>';
-      if (!isLast) html += '<span class="route-time">' + U.fmtTime(s.departure) + ' 发</span>';
-      if (s.distance_km && i > 0) {
-        html += '<span class="route-dist">' + s.distance_km.toFixed(0) + ' km</span>';
-      }
-      if (i > 0 && !isLast) {
-        html += '<button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="UI.removeRouteStop(' + i + ')">✕</button>';
-      }
-      html += '</div>';
+      html += '<tr>' +
+        '<td class="route-idx">' + (i + 1) + '</td>' +
+        '<td class="route-sta">' + U.esc(s.station_name) + '</td>' +
+        '<td class="route-ln">' + (i > 0 ? U.esc(s.line_name || '') : '') + '</td>' +
+        '<td><span class="route-tag">' + tag + '</span></td>' +
+        '<td class="route-time">' + arrTime + '</td>' +
+        '<td class="route-time">' + depTime + '</td>' +
+        '<td class="route-dist">' + dist + '</td>' +
+        '<td class="route-speed">' + speedStr + '</td>' +
+        '<td class="route-del">' + (i > 0 && !isLast ? '<button class="btn btn-sm btn-danger" onclick="UI.removeRouteStop(' + i + ')">✕</button>' : '') + '</td>' +
+      '</tr>';
     }
+    html += '</table>';
     U.$('route-path-list').innerHTML = html;
   },
 
