@@ -1185,7 +1185,15 @@ const UI = {
     }
   },
 
-  /** 始发站选择 → 展示可选线路 */
+  /** 始发站+发车时间都填好 → 自动展示可选线路 */
+  tryShowNeighbors: function() {
+    var name = (U.$('first-station-input') || {}).value || '';
+    var depTime = (U.$('first-depart-time') || {}).value || '';
+    if (!name || !depTime) return;
+    UI.onFirstStationChange();
+  },
+
+  /** 解析始发站并展示邻居线路 */
   onFirstStationChange: function() {
     var name = (U.$('first-station-input') || {}).value || '';
     var depTime = (U.$('first-depart-time') || {}).value || '';
