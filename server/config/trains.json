@@ -56,7 +56,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 14,
+        "line_id": 1,
+        "enter_time": 600,
+        "leave_time": 611
+      },
+      {
+        "from_station": 14,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 613,
+        "leave_time": 624
+      },
+      {
+        "from_station": 13,
+        "to_station": 4,
+        "line_id": 4,
+        "enter_time": 629,
+        "leave_time": 640
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 644,
+        "leave_time": 655
+      }
+    ]
   },
   {
     "id": "G1020",
@@ -108,7 +138,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 13,
+        "line_id": 1,
+        "enter_time": 811,
+        "leave_time": 822
+      },
+      {
+        "from_station": 13,
+        "to_station": 4,
+        "line_id": 4,
+        "enter_time": 825,
+        "leave_time": 836
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 838,
+        "leave_time": 849
+      }
+    ]
   },
   {
     "id": "G1040",
@@ -160,7 +213,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 14,
+        "line_id": 1,
+        "enter_time": 1110,
+        "leave_time": 1121
+      },
+      {
+        "from_station": 14,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1126,
+        "leave_time": 1137
+      },
+      {
+        "from_station": 13,
+        "to_station": 3,
+        "line_id": 1,
+        "enter_time": 1139,
+        "leave_time": 1150
+      }
+    ]
   },
   {
     "id": "G1060",
@@ -205,7 +281,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 13,
+        "line_id": 1,
+        "enter_time": 1251,
+        "leave_time": 1302
+      },
+      {
+        "from_station": 13,
+        "to_station": 3,
+        "line_id": 1,
+        "enter_time": 1305,
+        "leave_time": 1316
+      }
+    ]
   },
   {
     "id": "G1080",
@@ -264,7 +356,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 14,
+        "line_id": 1,
+        "enter_time": 1540,
+        "leave_time": 1551
+      },
+      {
+        "from_station": 14,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1553,
+        "leave_time": 1604
+      },
+      {
+        "from_station": 13,
+        "to_station": 4,
+        "line_id": 4,
+        "enter_time": 1607,
+        "leave_time": 1618
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1621,
+        "leave_time": 1632
+      }
+    ]
   },
   {
     "id": "G1038",
@@ -309,7 +431,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 14,
+        "line_id": 1,
+        "enter_time": 600,
+        "leave_time": 611
+      },
+      {
+        "from_station": 14,
+        "to_station": 1,
+        "line_id": 1,
+        "enter_time": 616,
+        "leave_time": 627
+      }
+    ]
   },
   {
     "id": "G1058",
@@ -354,7 +492,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 745,
+        "leave_time": 756
+      },
+      {
+        "from_station": 4,
+        "to_station": 1,
+        "line_id": 1,
+        "enter_time": 758,
+        "leave_time": 809
+      }
+    ]
   },
   {
     "id": "G1078",
@@ -413,7 +567,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1154,
+        "leave_time": 1205
+      },
+      {
+        "from_station": 4,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1210,
+        "leave_time": 1221
+      },
+      {
+        "from_station": 13,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 1224,
+        "leave_time": 1235
+      },
+      {
+        "from_station": 14,
+        "to_station": 1,
+        "line_id": 1,
+        "enter_time": 1237,
+        "leave_time": 1248
+      }
+    ]
   },
   {
     "id": "G1098",
@@ -465,7 +649,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1103,
+        "leave_time": 1114
+      },
+      {
+        "from_station": 4,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1117,
+        "leave_time": 1128
+      },
+      {
+        "from_station": 13,
+        "to_station": 1,
+        "line_id": 1,
+        "enter_time": 1130,
+        "leave_time": 1141
+      }
+    ]
   },
   {
     "id": "G1118",
@@ -524,7 +731,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1332,
+        "leave_time": 1343
+      },
+      {
+        "from_station": 4,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1347,
+        "leave_time": 1358
+      },
+      {
+        "from_station": 13,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 1401,
+        "leave_time": 1412
+      },
+      {
+        "from_station": 14,
+        "to_station": 1,
+        "line_id": 1,
+        "enter_time": 1416,
+        "leave_time": 1427
+      }
+    ]
   },
   {
     "id": "C1070",
@@ -583,7 +820,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 15,
+        "line_id": 2,
+        "enter_time": 630,
+        "leave_time": 652
+      },
+      {
+        "from_station": 15,
+        "to_station": 11,
+        "line_id": 5,
+        "enter_time": 657,
+        "leave_time": 719
+      },
+      {
+        "from_station": 11,
+        "to_station": 6,
+        "line_id": 2,
+        "enter_time": 724,
+        "leave_time": 746
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 751,
+        "leave_time": 813
+      }
+    ]
   },
   {
     "id": "C1090",
@@ -642,7 +909,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 15,
+        "line_id": 2,
+        "enter_time": 854,
+        "leave_time": 916
+      },
+      {
+        "from_station": 15,
+        "to_station": 11,
+        "line_id": 5,
+        "enter_time": 921,
+        "leave_time": 943
+      },
+      {
+        "from_station": 11,
+        "to_station": 6,
+        "line_id": 2,
+        "enter_time": 945,
+        "leave_time": 1007
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1009,
+        "leave_time": 1031
+      }
+    ]
   },
   {
     "id": "C1110",
@@ -701,7 +998,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 15,
+        "line_id": 2,
+        "enter_time": 1028,
+        "leave_time": 1050
+      },
+      {
+        "from_station": 15,
+        "to_station": 11,
+        "line_id": 5,
+        "enter_time": 1053,
+        "leave_time": 1115
+      },
+      {
+        "from_station": 11,
+        "to_station": 6,
+        "line_id": 2,
+        "enter_time": 1118,
+        "leave_time": 1140
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1145,
+        "leave_time": 1207
+      }
+    ]
   },
   {
     "id": "C1130",
@@ -760,7 +1087,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 15,
+        "line_id": 2,
+        "enter_time": 1215,
+        "leave_time": 1237
+      },
+      {
+        "from_station": 15,
+        "to_station": 11,
+        "line_id": 5,
+        "enter_time": 1241,
+        "leave_time": 1303
+      },
+      {
+        "from_station": 11,
+        "to_station": 6,
+        "line_id": 2,
+        "enter_time": 1305,
+        "leave_time": 1327
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1332,
+        "leave_time": 1354
+      }
+    ]
   },
   {
     "id": "C1150",
@@ -805,7 +1162,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 15,
+        "line_id": 2,
+        "enter_time": 1450,
+        "leave_time": 1512
+      },
+      {
+        "from_station": 15,
+        "to_station": 5,
+        "line_id": 2,
+        "enter_time": 1515,
+        "leave_time": 1537
+      }
+    ]
   },
   {
     "id": "C1108",
@@ -864,7 +1237,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 630,
+        "leave_time": 652
+      },
+      {
+        "from_station": 6,
+        "to_station": 11,
+        "line_id": 2,
+        "enter_time": 656,
+        "leave_time": 718
+      },
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 723,
+        "leave_time": 745
+      },
+      {
+        "from_station": 15,
+        "to_station": 1,
+        "line_id": 2,
+        "enter_time": 749,
+        "leave_time": 811
+      }
+    ]
   },
   {
     "id": "C1128",
@@ -923,7 +1326,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 859,
+        "leave_time": 921
+      },
+      {
+        "from_station": 6,
+        "to_station": 11,
+        "line_id": 2,
+        "enter_time": 926,
+        "leave_time": 948
+      },
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 953,
+        "leave_time": 1015
+      },
+      {
+        "from_station": 15,
+        "to_station": 1,
+        "line_id": 2,
+        "enter_time": 1018,
+        "leave_time": 1040
+      }
+    ]
   },
   {
     "id": "C1148",
@@ -975,7 +1408,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 11,
+        "line_id": 2,
+        "enter_time": 1130,
+        "leave_time": 1152
+      },
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 1156,
+        "leave_time": 1218
+      },
+      {
+        "from_station": 15,
+        "to_station": 1,
+        "line_id": 2,
+        "enter_time": 1222,
+        "leave_time": 1244
+      }
+    ]
   },
   {
     "id": "C1168",
@@ -1034,7 +1490,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1333,
+        "leave_time": 1355
+      },
+      {
+        "from_station": 6,
+        "to_station": 11,
+        "line_id": 2,
+        "enter_time": 1358,
+        "leave_time": 1420
+      },
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 1425,
+        "leave_time": 1447
+      },
+      {
+        "from_station": 15,
+        "to_station": 1,
+        "line_id": 2,
+        "enter_time": 1452,
+        "leave_time": 1514
+      }
+    ]
   },
   {
     "id": "C1188",
@@ -1093,7 +1579,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1354,
+        "leave_time": 1416
+      },
+      {
+        "from_station": 6,
+        "to_station": 11,
+        "line_id": 2,
+        "enter_time": 1419,
+        "leave_time": 1441
+      },
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 1443,
+        "leave_time": 1505
+      },
+      {
+        "from_station": 15,
+        "to_station": 1,
+        "line_id": 2,
+        "enter_time": 1509,
+        "leave_time": 1531
+      }
+    ]
   },
   {
     "id": "K1140",
@@ -1144,7 +1660,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 700,
+        "leave_time": 736
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 738,
+        "leave_time": 814
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 816,
+        "leave_time": 852
+      }
+    ]
   },
   {
     "id": "K1160",
@@ -1195,7 +1734,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 913,
+        "leave_time": 949
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 953,
+        "leave_time": 1029
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1033,
+        "leave_time": 1109
+      }
+    ]
   },
   {
     "id": "K1180",
@@ -1246,7 +1808,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1044,
+        "leave_time": 1120
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1123,
+        "leave_time": 1159
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1204,
+        "leave_time": 1240
+      }
+    ]
   },
   {
     "id": "K1200",
@@ -1297,7 +1882,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1545,
+        "leave_time": 1621
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1625,
+        "leave_time": 1701
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1705,
+        "leave_time": 1741
+      }
+    ]
   },
   {
     "id": "K1220",
@@ -1348,7 +1956,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1836,
+        "leave_time": 1912
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1917,
+        "leave_time": 1953
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1957,
+        "leave_time": 2033
+      }
+    ]
   },
   {
     "id": "K1178",
@@ -1399,7 +2030,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 700,
+        "leave_time": 736
+      },
+      {
+        "from_station": 6,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 738,
+        "leave_time": 814
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 817,
+        "leave_time": 853
+      }
+    ]
   },
   {
     "id": "K1198",
@@ -1450,7 +2104,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 919,
+        "leave_time": 955
+      },
+      {
+        "from_station": 6,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1000,
+        "leave_time": 1036
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1041,
+        "leave_time": 1117
+      }
+    ]
   },
   {
     "id": "K1218",
@@ -1501,7 +2178,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1244,
+        "leave_time": 1320
+      },
+      {
+        "from_station": 6,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1323,
+        "leave_time": 1359
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1403,
+        "leave_time": 1439
+      }
+    ]
   },
   {
     "id": "K1238",
@@ -1552,7 +2252,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1512,
+        "leave_time": 1548
+      },
+      {
+        "from_station": 6,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1553,
+        "leave_time": 1629
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1631,
+        "leave_time": 1707
+      }
+    ]
   },
   {
     "id": "K1258",
@@ -1603,7 +2326,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1612,
+        "leave_time": 1648
+      },
+      {
+        "from_station": 6,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1651,
+        "leave_time": 1727
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1731,
+        "leave_time": 1807
+      }
+    ]
   },
   {
     "id": "K1210",
@@ -1694,7 +2440,65 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 7,
+        "to_station": 19,
+        "line_id": 4,
+        "enter_time": 700,
+        "leave_time": 733
+      },
+      {
+        "from_station": 19,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 735,
+        "leave_time": 808
+      },
+      {
+        "from_station": 20,
+        "to_station": 1,
+        "line_id": 7,
+        "enter_time": 810,
+        "leave_time": 843
+      },
+      {
+        "from_station": 1,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 847,
+        "leave_time": 920
+      },
+      {
+        "from_station": 2,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 923,
+        "leave_time": 956
+      },
+      {
+        "from_station": 14,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 958,
+        "leave_time": 1031
+      },
+      {
+        "from_station": 13,
+        "to_station": 4,
+        "line_id": 4,
+        "enter_time": 1034,
+        "leave_time": 1107
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1109,
+        "leave_time": 1142
+      }
+    ]
   },
   {
     "id": "K1230",
@@ -1785,7 +2589,65 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 7,
+        "to_station": 19,
+        "line_id": 4,
+        "enter_time": 934,
+        "leave_time": 1007
+      },
+      {
+        "from_station": 19,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1009,
+        "leave_time": 1042
+      },
+      {
+        "from_station": 20,
+        "to_station": 1,
+        "line_id": 7,
+        "enter_time": 1047,
+        "leave_time": 1120
+      },
+      {
+        "from_station": 1,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 1123,
+        "leave_time": 1156
+      },
+      {
+        "from_station": 2,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 1201,
+        "leave_time": 1234
+      },
+      {
+        "from_station": 14,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1237,
+        "leave_time": 1310
+      },
+      {
+        "from_station": 13,
+        "to_station": 4,
+        "line_id": 4,
+        "enter_time": 1312,
+        "leave_time": 1345
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1348,
+        "leave_time": 1421
+      }
+    ]
   },
   {
     "id": "K1250",
@@ -1862,7 +2724,51 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 7,
+        "to_station": 19,
+        "line_id": 4,
+        "enter_time": 1128,
+        "leave_time": 1201
+      },
+      {
+        "from_station": 19,
+        "to_station": 1,
+        "line_id": 4,
+        "enter_time": 1206,
+        "leave_time": 1239
+      },
+      {
+        "from_station": 1,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 1241,
+        "leave_time": 1314
+      },
+      {
+        "from_station": 2,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1318,
+        "leave_time": 1351
+      },
+      {
+        "from_station": 13,
+        "to_station": 4,
+        "line_id": 4,
+        "enter_time": 1356,
+        "leave_time": 1429
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1431,
+        "leave_time": 1504
+      }
+    ]
   },
   {
     "id": "K1270",
@@ -1953,7 +2859,65 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 7,
+        "to_station": 19,
+        "line_id": 4,
+        "enter_time": 1309,
+        "leave_time": 1342
+      },
+      {
+        "from_station": 19,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1346,
+        "leave_time": 1419
+      },
+      {
+        "from_station": 20,
+        "to_station": 1,
+        "line_id": 7,
+        "enter_time": 1423,
+        "leave_time": 1456
+      },
+      {
+        "from_station": 1,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 1500,
+        "leave_time": 1533
+      },
+      {
+        "from_station": 2,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 1535,
+        "leave_time": 1608
+      },
+      {
+        "from_station": 14,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1613,
+        "leave_time": 1646
+      },
+      {
+        "from_station": 13,
+        "to_station": 4,
+        "line_id": 4,
+        "enter_time": 1649,
+        "leave_time": 1722
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1724,
+        "leave_time": 1757
+      }
+    ]
   },
   {
     "id": "K1290",
@@ -2044,7 +3008,65 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 7,
+        "to_station": 19,
+        "line_id": 4,
+        "enter_time": 1632,
+        "leave_time": 1705
+      },
+      {
+        "from_station": 19,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1709,
+        "leave_time": 1742
+      },
+      {
+        "from_station": 20,
+        "to_station": 1,
+        "line_id": 7,
+        "enter_time": 1744,
+        "leave_time": 1817
+      },
+      {
+        "from_station": 1,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 1821,
+        "leave_time": 1854
+      },
+      {
+        "from_station": 2,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 1856,
+        "leave_time": 1929
+      },
+      {
+        "from_station": 14,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1933,
+        "leave_time": 2006
+      },
+      {
+        "from_station": 13,
+        "to_station": 4,
+        "line_id": 4,
+        "enter_time": 2008,
+        "leave_time": 2041
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 2045,
+        "leave_time": 2118
+      }
+    ]
   },
   {
     "id": "K1248",
@@ -2135,7 +3157,65 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 700,
+        "leave_time": 733
+      },
+      {
+        "from_station": 4,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 735,
+        "leave_time": 808
+      },
+      {
+        "from_station": 13,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 811,
+        "leave_time": 844
+      },
+      {
+        "from_station": 14,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 846,
+        "leave_time": 919
+      },
+      {
+        "from_station": 2,
+        "to_station": 1,
+        "line_id": 4,
+        "enter_time": 924,
+        "leave_time": 957
+      },
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1002,
+        "leave_time": 1035
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1038,
+        "leave_time": 1111
+      },
+      {
+        "from_station": 19,
+        "to_station": 7,
+        "line_id": 4,
+        "enter_time": 1115,
+        "leave_time": 1148
+      }
+    ]
   },
   {
     "id": "K1268",
@@ -2226,7 +3306,65 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 920,
+        "leave_time": 953
+      },
+      {
+        "from_station": 4,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 957,
+        "leave_time": 1030
+      },
+      {
+        "from_station": 13,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 1032,
+        "leave_time": 1105
+      },
+      {
+        "from_station": 14,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 1107,
+        "leave_time": 1140
+      },
+      {
+        "from_station": 2,
+        "to_station": 1,
+        "line_id": 4,
+        "enter_time": 1145,
+        "leave_time": 1218
+      },
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1223,
+        "leave_time": 1256
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1300,
+        "leave_time": 1333
+      },
+      {
+        "from_station": 19,
+        "to_station": 7,
+        "line_id": 4,
+        "enter_time": 1336,
+        "leave_time": 1409
+      }
+    ]
   },
   {
     "id": "K1288",
@@ -2317,7 +3455,65 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1212,
+        "leave_time": 1245
+      },
+      {
+        "from_station": 4,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1250,
+        "leave_time": 1323
+      },
+      {
+        "from_station": 13,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 1328,
+        "leave_time": 1401
+      },
+      {
+        "from_station": 14,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 1406,
+        "leave_time": 1439
+      },
+      {
+        "from_station": 2,
+        "to_station": 1,
+        "line_id": 4,
+        "enter_time": 1443,
+        "leave_time": 1516
+      },
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1518,
+        "leave_time": 1551
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1553,
+        "leave_time": 1626
+      },
+      {
+        "from_station": 19,
+        "to_station": 7,
+        "line_id": 4,
+        "enter_time": 1631,
+        "leave_time": 1704
+      }
+    ]
   },
   {
     "id": "K1308",
@@ -2408,7 +3604,65 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1130,
+        "leave_time": 1203
+      },
+      {
+        "from_station": 4,
+        "to_station": 13,
+        "line_id": 4,
+        "enter_time": 1205,
+        "leave_time": 1238
+      },
+      {
+        "from_station": 13,
+        "to_station": 14,
+        "line_id": 4,
+        "enter_time": 1242,
+        "leave_time": 1315
+      },
+      {
+        "from_station": 14,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 1317,
+        "leave_time": 1350
+      },
+      {
+        "from_station": 2,
+        "to_station": 1,
+        "line_id": 4,
+        "enter_time": 1352,
+        "leave_time": 1425
+      },
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1429,
+        "leave_time": 1502
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1506,
+        "leave_time": 1539
+      },
+      {
+        "from_station": 19,
+        "to_station": 7,
+        "line_id": 4,
+        "enter_time": 1543,
+        "leave_time": 1616
+      }
+    ]
   },
   {
     "id": "K1328",
@@ -2485,7 +3739,51 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 13,
+        "line_id": 1,
+        "enter_time": 1556,
+        "leave_time": 1629
+      },
+      {
+        "from_station": 13,
+        "to_station": 2,
+        "line_id": 4,
+        "enter_time": 1631,
+        "leave_time": 1704
+      },
+      {
+        "from_station": 2,
+        "to_station": 1,
+        "line_id": 4,
+        "enter_time": 1707,
+        "leave_time": 1740
+      },
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1744,
+        "leave_time": 1817
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1821,
+        "leave_time": 1854
+      },
+      {
+        "from_station": 19,
+        "to_station": 7,
+        "line_id": 4,
+        "enter_time": 1857,
+        "leave_time": 1930
+      }
+    ]
   },
   {
     "id": "K1280",
@@ -2528,7 +3826,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 700,
+        "leave_time": 806
+      },
+      {
+        "from_station": 15,
+        "to_station": 11,
+        "line_id": 5,
+        "enter_time": 809,
+        "leave_time": 915
+      }
+    ]
   },
   {
     "id": "K1300",
@@ -2571,7 +3885,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 852,
+        "leave_time": 918
+      },
+      {
+        "from_station": 15,
+        "to_station": 11,
+        "line_id": 5,
+        "enter_time": 922,
+        "leave_time": 1028
+      }
+    ]
   },
   {
     "id": "K1320",
@@ -2614,7 +3944,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 1110,
+        "leave_time": 1216
+      },
+      {
+        "from_station": 15,
+        "to_station": 11,
+        "line_id": 5,
+        "enter_time": 1221,
+        "leave_time": 1327
+      }
+    ]
   },
   {
     "id": "K1340",
@@ -2657,7 +4003,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 1327,
+        "leave_time": 1433
+      },
+      {
+        "from_station": 15,
+        "to_station": 11,
+        "line_id": 5,
+        "enter_time": 1436,
+        "leave_time": 1502
+      }
+    ]
   },
   {
     "id": "K1360",
@@ -2700,7 +4062,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 1628,
+        "leave_time": 1734
+      },
+      {
+        "from_station": 15,
+        "to_station": 11,
+        "line_id": 5,
+        "enter_time": 1737,
+        "leave_time": 1803
+      }
+    ]
   },
   {
     "id": "K1318",
@@ -2743,7 +4121,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 700,
+        "leave_time": 806
+      },
+      {
+        "from_station": 15,
+        "to_station": 2,
+        "line_id": 5,
+        "enter_time": 809,
+        "leave_time": 915
+      }
+    ]
   },
   {
     "id": "K1338",
@@ -2786,7 +4180,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 832,
+        "leave_time": 938
+      },
+      {
+        "from_station": 15,
+        "to_station": 2,
+        "line_id": 5,
+        "enter_time": 942,
+        "leave_time": 1008
+      }
+    ]
   },
   {
     "id": "K1358",
@@ -2829,7 +4239,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 1300,
+        "leave_time": 1406
+      },
+      {
+        "from_station": 15,
+        "to_station": 2,
+        "line_id": 5,
+        "enter_time": 1409,
+        "leave_time": 1515
+      }
+    ]
   },
   {
     "id": "K1378",
@@ -2872,7 +4298,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 1539,
+        "leave_time": 1605
+      },
+      {
+        "from_station": 15,
+        "to_station": 2,
+        "line_id": 5,
+        "enter_time": 1608,
+        "leave_time": 1714
+      }
+    ]
   },
   {
     "id": "K1398",
@@ -2915,7 +4357,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 11,
+        "to_station": 15,
+        "line_id": 5,
+        "enter_time": 1844,
+        "leave_time": 1910
+      },
+      {
+        "from_station": 15,
+        "to_station": 2,
+        "line_id": 5,
+        "enter_time": 1913,
+        "leave_time": 2019
+      }
+    ]
   },
   {
     "id": "K1350",
@@ -2958,7 +4416,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 700,
+        "leave_time": 908
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 913,
+        "leave_time": 1121
+      }
+    ]
   },
   {
     "id": "K1370",
@@ -3001,7 +4475,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 836,
+        "leave_time": 1004
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 1007,
+        "leave_time": 1215
+      }
+    ]
   },
   {
     "id": "K1390",
@@ -3044,7 +4534,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1234,
+        "leave_time": 1402
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 1405,
+        "leave_time": 1613
+      }
+    ]
   },
   {
     "id": "K1410",
@@ -3087,7 +4593,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1309,
+        "leave_time": 1517
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 1520,
+        "leave_time": 1728
+      }
+    ]
   },
   {
     "id": "K1430",
@@ -3130,7 +4652,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1712,
+        "leave_time": 1920
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 1924,
+        "leave_time": 2132
+      }
+    ]
   },
   {
     "id": "K1388",
@@ -3173,7 +4711,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 700,
+        "leave_time": 908
+      },
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 912,
+        "leave_time": 1120
+      }
+    ]
   },
   {
     "id": "K1408",
@@ -3216,7 +4770,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 842,
+        "leave_time": 1010
+      },
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1014,
+        "leave_time": 1222
+      }
+    ]
   },
   {
     "id": "K1428",
@@ -3259,7 +4829,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1058,
+        "leave_time": 1226
+      },
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1231,
+        "leave_time": 1439
+      }
+    ]
   },
   {
     "id": "K1448",
@@ -3302,7 +4888,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1439,
+        "leave_time": 1607
+      },
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1610,
+        "leave_time": 1818
+      }
+    ]
   },
   {
     "id": "K1468",
@@ -3345,7 +4947,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1444,
+        "leave_time": 1612
+      },
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1615,
+        "leave_time": 1823
+      }
+    ]
   },
   {
     "id": "G1420",
@@ -3396,7 +5014,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 8,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 600,
+        "leave_time": 612
+      },
+      {
+        "from_station": 19,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 617,
+        "leave_time": 629
+      },
+      {
+        "from_station": 20,
+        "to_station": 1,
+        "line_id": 7,
+        "enter_time": 633,
+        "leave_time": 645
+      }
+    ]
   },
   {
     "id": "G1440",
@@ -3447,7 +5088,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 8,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 827,
+        "leave_time": 839
+      },
+      {
+        "from_station": 19,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 841,
+        "leave_time": 853
+      },
+      {
+        "from_station": 20,
+        "to_station": 1,
+        "line_id": 7,
+        "enter_time": 855,
+        "leave_time": 907
+      }
+    ]
   },
   {
     "id": "G1460",
@@ -3498,7 +5162,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 8,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1124,
+        "leave_time": 1136
+      },
+      {
+        "from_station": 19,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1141,
+        "leave_time": 1153
+      },
+      {
+        "from_station": 20,
+        "to_station": 1,
+        "line_id": 7,
+        "enter_time": 1156,
+        "leave_time": 1208
+      }
+    ]
   },
   {
     "id": "G1480",
@@ -3549,7 +5236,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 8,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1306,
+        "leave_time": 1318
+      },
+      {
+        "from_station": 19,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1321,
+        "leave_time": 1333
+      },
+      {
+        "from_station": 20,
+        "to_station": 1,
+        "line_id": 7,
+        "enter_time": 1337,
+        "leave_time": 1349
+      }
+    ]
   },
   {
     "id": "G1500",
@@ -3600,7 +5310,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 8,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1448,
+        "leave_time": 1500
+      },
+      {
+        "from_station": 19,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1504,
+        "leave_time": 1516
+      },
+      {
+        "from_station": 20,
+        "to_station": 1,
+        "line_id": 7,
+        "enter_time": 1519,
+        "leave_time": 1531
+      }
+    ]
   },
   {
     "id": "G1458",
@@ -3651,7 +5384,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 600,
+        "leave_time": 612
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 615,
+        "leave_time": 627
+      },
+      {
+        "from_station": 19,
+        "to_station": 8,
+        "line_id": 7,
+        "enter_time": 629,
+        "leave_time": 641
+      }
+    ]
   },
   {
     "id": "G1478",
@@ -3702,7 +5458,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 802,
+        "leave_time": 814
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 816,
+        "leave_time": 828
+      },
+      {
+        "from_station": 19,
+        "to_station": 8,
+        "line_id": 7,
+        "enter_time": 832,
+        "leave_time": 844
+      }
+    ]
   },
   {
     "id": "G1498",
@@ -3753,7 +5532,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 948,
+        "leave_time": 1000
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1005,
+        "leave_time": 1017
+      },
+      {
+        "from_station": 19,
+        "to_station": 8,
+        "line_id": 7,
+        "enter_time": 1020,
+        "leave_time": 1032
+      }
+    ]
   },
   {
     "id": "G1518",
@@ -3804,7 +5606,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1042,
+        "leave_time": 1054
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1058,
+        "leave_time": 1110
+      },
+      {
+        "from_station": 19,
+        "to_station": 8,
+        "line_id": 7,
+        "enter_time": 1114,
+        "leave_time": 1126
+      }
+    ]
   },
   {
     "id": "G1538",
@@ -3855,7 +5680,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 1,
+        "to_station": 20,
+        "line_id": 7,
+        "enter_time": 1248,
+        "leave_time": 1300
+      },
+      {
+        "from_station": 20,
+        "to_station": 19,
+        "line_id": 7,
+        "enter_time": 1302,
+        "leave_time": 1314
+      },
+      {
+        "from_station": 19,
+        "to_station": 8,
+        "line_id": 7,
+        "enter_time": 1319,
+        "leave_time": 1331
+      }
+    ]
   },
   {
     "id": "K1490",
@@ -3906,7 +5754,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 4,
+        "line_id": 8,
+        "enter_time": 700,
+        "leave_time": 806
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 811,
+        "leave_time": 917
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 920,
+        "leave_time": 1026
+      }
+    ]
   },
   {
     "id": "K1510",
@@ -3957,7 +5828,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 4,
+        "line_id": 8,
+        "enter_time": 937,
+        "leave_time": 1043
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1046,
+        "leave_time": 1152
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1154,
+        "leave_time": 1300
+      }
+    ]
   },
   {
     "id": "K1530",
@@ -4008,7 +5902,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 4,
+        "line_id": 8,
+        "enter_time": 1232,
+        "leave_time": 1338
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1342,
+        "leave_time": 1448
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1451,
+        "leave_time": 1557
+      }
+    ]
   },
   {
     "id": "K1550",
@@ -4059,7 +5976,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 4,
+        "line_id": 8,
+        "enter_time": 1539,
+        "leave_time": 1645
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1648,
+        "leave_time": 1754
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1756,
+        "leave_time": 1902
+      }
+    ]
   },
   {
     "id": "K1570",
@@ -4110,7 +6050,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 2,
+        "to_station": 4,
+        "line_id": 8,
+        "enter_time": 1720,
+        "leave_time": 1826
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1830,
+        "leave_time": 1936
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1939,
+        "leave_time": 2045
+      }
+    ]
   },
   {
     "id": "K1528",
@@ -4161,7 +6124,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 700,
+        "leave_time": 806
+      },
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 810,
+        "leave_time": 916
+      },
+      {
+        "from_station": 4,
+        "to_station": 2,
+        "line_id": 8,
+        "enter_time": 919,
+        "leave_time": 1025
+      }
+    ]
   },
   {
     "id": "K1548",
@@ -4212,7 +6198,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 908,
+        "leave_time": 1014
+      },
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1016,
+        "leave_time": 1122
+      },
+      {
+        "from_station": 4,
+        "to_station": 2,
+        "line_id": 8,
+        "enter_time": 1125,
+        "leave_time": 1231
+      }
+    ]
   },
   {
     "id": "K1568",
@@ -4263,7 +6272,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1020,
+        "leave_time": 1126
+      },
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1129,
+        "leave_time": 1235
+      },
+      {
+        "from_station": 4,
+        "to_station": 2,
+        "line_id": 8,
+        "enter_time": 1237,
+        "leave_time": 1343
+      }
+    ]
   },
   {
     "id": "K1588",
@@ -4314,7 +6346,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1139,
+        "leave_time": 1245
+      },
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1250,
+        "leave_time": 1356
+      },
+      {
+        "from_station": 4,
+        "to_station": 2,
+        "line_id": 8,
+        "enter_time": 1400,
+        "leave_time": 1506
+      }
+    ]
   },
   {
     "id": "K1608",
@@ -4365,7 +6420,30 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1304,
+        "leave_time": 1410
+      },
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1415,
+        "leave_time": 1521
+      },
+      {
+        "from_station": 4,
+        "to_station": 2,
+        "line_id": 8,
+        "enter_time": 1526,
+        "leave_time": 1632
+      }
+    ]
   },
   {
     "id": "K1560",
@@ -4408,7 +6486,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 700,
+        "leave_time": 815
+      },
+      {
+        "from_station": 4,
+        "to_station": 17,
+        "line_id": 9,
+        "enter_time": 818,
+        "leave_time": 933
+      }
+    ]
   },
   {
     "id": "K1580",
@@ -4451,7 +6545,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 834,
+        "leave_time": 909
+      },
+      {
+        "from_station": 4,
+        "to_station": 17,
+        "line_id": 9,
+        "enter_time": 914,
+        "leave_time": 1029
+      }
+    ]
   },
   {
     "id": "K1600",
@@ -4494,7 +6604,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1008,
+        "leave_time": 1123
+      },
+      {
+        "from_station": 4,
+        "to_station": 17,
+        "line_id": 9,
+        "enter_time": 1126,
+        "leave_time": 1201
+      }
+    ]
   },
   {
     "id": "K1620",
@@ -4537,7 +6663,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1542,
+        "leave_time": 1617
+      },
+      {
+        "from_station": 4,
+        "to_station": 17,
+        "line_id": 9,
+        "enter_time": 1621,
+        "leave_time": 1736
+      }
+    ]
   },
   {
     "id": "K1640",
@@ -4580,7 +6722,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 3,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1656,
+        "leave_time": 1731
+      },
+      {
+        "from_station": 4,
+        "to_station": 17,
+        "line_id": 9,
+        "enter_time": 1733,
+        "leave_time": 1808
+      }
+    ]
   },
   {
     "id": "K1598",
@@ -4623,7 +6781,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 17,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 700,
+        "leave_time": 815
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 820,
+        "leave_time": 935
+      }
+    ]
   },
   {
     "id": "K1618",
@@ -4666,7 +6840,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 17,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 923,
+        "leave_time": 1038
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1043,
+        "leave_time": 1118
+      }
+    ]
   },
   {
     "id": "K1638",
@@ -4709,7 +6899,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 17,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1202,
+        "leave_time": 1317
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1321,
+        "leave_time": 1436
+      }
+    ]
   },
   {
     "id": "K1658",
@@ -4752,7 +6958,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 17,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1333,
+        "leave_time": 1408
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1412,
+        "leave_time": 1527
+      }
+    ]
   },
   {
     "id": "K1678",
@@ -4795,7 +7017,23 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 17,
+        "to_station": 4,
+        "line_id": 9,
+        "enter_time": 1644,
+        "leave_time": 1719
+      },
+      {
+        "from_station": 4,
+        "to_station": 3,
+        "line_id": 9,
+        "enter_time": 1724,
+        "leave_time": 1839
+      }
+    ]
   },
   {
     "id": "K1630",
@@ -4862,7 +7100,44 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 700,
+        "leave_time": 803
+      },
+      {
+        "from_station": 6,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 806,
+        "leave_time": 909
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 911,
+        "leave_time": 1014
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1017,
+        "leave_time": 1120
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 1122,
+        "leave_time": 1225
+      }
+    ]
   },
   {
     "id": "K1650",
@@ -4929,7 +7204,44 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 900,
+        "leave_time": 1003
+      },
+      {
+        "from_station": 6,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1007,
+        "leave_time": 1110
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1113,
+        "leave_time": 1216
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1220,
+        "leave_time": 1323
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 1326,
+        "leave_time": 1429
+      }
+    ]
   },
   {
     "id": "K1670",
@@ -4989,7 +7301,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1206,
+        "leave_time": 1309
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1312,
+        "leave_time": 1415
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1420,
+        "leave_time": 1523
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 1525,
+        "leave_time": 1628
+      }
+    ]
   },
   {
     "id": "K1690",
@@ -5056,7 +7398,44 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1554,
+        "leave_time": 1617
+      },
+      {
+        "from_station": 6,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1621,
+        "leave_time": 1724
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1727,
+        "leave_time": 1830
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1834,
+        "leave_time": 1937
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 1941,
+        "leave_time": 2004
+      }
+    ]
   },
   {
     "id": "K1710",
@@ -5123,7 +7502,44 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 5,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1344,
+        "leave_time": 1407
+      },
+      {
+        "from_station": 6,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1410,
+        "leave_time": 1513
+      },
+      {
+        "from_station": 12,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1517,
+        "leave_time": 1620
+      },
+      {
+        "from_station": 3,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1625,
+        "leave_time": 1728
+      },
+      {
+        "from_station": 9,
+        "to_station": 10,
+        "line_id": 10,
+        "enter_time": 1732,
+        "leave_time": 1835
+      }
+    ]
   },
   {
     "id": "K1668",
@@ -5190,7 +7606,44 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 700,
+        "leave_time": 803
+      },
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 807,
+        "leave_time": 910
+      },
+      {
+        "from_station": 3,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 912,
+        "leave_time": 1015
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1018,
+        "leave_time": 1121
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1125,
+        "leave_time": 1228
+      }
+    ]
   },
   {
     "id": "K1688",
@@ -5257,7 +7710,44 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 905,
+        "leave_time": 1008
+      },
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1011,
+        "leave_time": 1114
+      },
+      {
+        "from_station": 3,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1116,
+        "leave_time": 1219
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1221,
+        "leave_time": 1324
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1329,
+        "leave_time": 1432
+      }
+    ]
   },
   {
     "id": "K1708",
@@ -5317,7 +7807,37 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1254,
+        "leave_time": 1317
+      },
+      {
+        "from_station": 9,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1321,
+        "leave_time": 1424
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1427,
+        "leave_time": 1530
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1533,
+        "leave_time": 1636
+      }
+    ]
   },
   {
     "id": "K1728",
@@ -5384,7 +7904,44 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1154,
+        "leave_time": 1217
+      },
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1221,
+        "leave_time": 1324
+      },
+      {
+        "from_station": 3,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1328,
+        "leave_time": 1431
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1433,
+        "leave_time": 1536
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1541,
+        "leave_time": 1604
+      }
+    ]
   },
   {
     "id": "K1748",
@@ -5451,6 +8008,43 @@
     ],
     "type": "REGULAR",
     "valid_from": "",
-    "valid_until": ""
+    "valid_until": "",
+    "segments": [
+      {
+        "from_station": 10,
+        "to_station": 9,
+        "line_id": 10,
+        "enter_time": 1340,
+        "leave_time": 1403
+      },
+      {
+        "from_station": 9,
+        "to_station": 3,
+        "line_id": 10,
+        "enter_time": 1408,
+        "leave_time": 1511
+      },
+      {
+        "from_station": 3,
+        "to_station": 12,
+        "line_id": 10,
+        "enter_time": 1516,
+        "leave_time": 1619
+      },
+      {
+        "from_station": 12,
+        "to_station": 6,
+        "line_id": 10,
+        "enter_time": 1624,
+        "leave_time": 1727
+      },
+      {
+        "from_station": 6,
+        "to_station": 5,
+        "line_id": 10,
+        "enter_time": 1729,
+        "leave_time": 1832
+      }
+    ]
   }
 ]

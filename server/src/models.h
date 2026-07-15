@@ -178,19 +178,31 @@ struct Line {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Line,
     id, name, stations, distance_km, max_speed_kmh, type)
 
+/** 运行区段 — 列车在相邻两站之间的走行信息，用于冲突检测 */
+struct RouteSegment {
+    uint32_t from_station = 0;
+    uint32_t to_station = 0;
+    uint32_t line_id = 0;
+    int enter_time = 0;    // 离开 from 站的时间 HHMM
+    int leave_time = 0;    // 到达 to 站的时间 HHMM
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RouteSegment,
+    from_station, to_station, line_id, enter_time, leave_time)
+
 /** 列车 — 一列在铁路上运行的客运列车 */
 struct Train {
     std::string id;               // 车次号（如 G2492 / K7901 / C1003 / L6601）
     TrainType type = TrainType::REGULAR;
-    std::vector<Stop> stops;      // 停站序列（有到发时间，仅办客站）
-    std::vector<uint32_t> route_stations;  // 经过站序列（含停站+经过不停车，用于计算票价里程）
+    std::vector<Stop> stops;      // 停站序列（仅办客站：始发、停靠、终到，不含通过）
+    std::vector<uint32_t> route_stations;  // 经过站序列（含停站+通过站，用于计算票价里程）
+    std::vector<RouteSegment> segments;    // 运行区段（所有相邻站对的进入/离开时间+线路ID，用于冲突检测）
     TrainStatus status = TrainStatus::ACTIVE;
     SeatConfig seat_config;       // 各席位座位数
     std::string valid_from;       // 有效期起始（临客必填，图定可为空）
     std::string valid_until;      // 有效期截止
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Train,
-    id, type, stops, route_stations, status, seat_config, valid_from, valid_until)
+    id, type, stops, route_stations, segments, status, seat_config, valid_from, valid_until)
 
 /** 订单 — 旅客购票记录。Phase 5 实现完整业务逻辑 */
 struct Order {

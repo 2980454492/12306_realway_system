@@ -1094,13 +1094,34 @@ const UI = {
   },
 
   /** 车站查询 → 车次详情弹窗 */
+  /**
+   * 渲染停站时间线。highlightIds 为需要绿色高亮的站 ID 集合（可为空）。
+   * 被 showDetail / showStationDetail / showTrainDetail 共用。
+   */
+  _renderTimeline: function(stops, highlightIds) {
+    if (!stops || !stops.length) return '';
+    var ids = highlightIds || {};
+    var h = '<div class="timeline">';
+    for (var i = 0; i < stops.length; i++) {
+      var s = stops[i];
+      var isFirst = i === 0, isLast = i === stops.length - 1;
+      var arrTime = isFirst ? '---' : U.fmtTime(s.arrival);
+      var depTime = isLast ? '---' : U.fmtTime(s.departure);
+      var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
+      if (ids[s.station_id]) cls += ' user-stop';
+      h += '<div class="timeline-item ' + cls + '">' +
+        '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
+        '<div class="timeline-time"><span>' + arrTime + '</span> 到  <span>' + depTime + '</span> 发</div>' +
+        '</div>';
+    }
+    h += '</div>';
+    return h;
+  },
+
   showStationDetail: function(itemKey) {
     var item = (State._trainItems || {})[itemKey];
     if (!item) return;
-
     U.$('detail-train-id').textContent = item.train_id + ' 经停时刻表';
-
-    // 构建高亮站 ID 集合：城市查询时该城市所有车站都高亮，单站查询时仅该站
     var highlightIds = {};
     if (State.stationIsCity) {
       for (var ci = 0; ci < State.stationCityStations.length; ci++) {
@@ -1109,28 +1130,7 @@ const UI = {
     } else {
       highlightIds[item.station_id] = true;
     }
-
-    function renderTimeline(stops) {
-      if (!stops || !stops.length) return '';
-      var h = '<div class="timeline">';
-      for (var i = 0; i < stops.length; i++) {
-        var s = stops[i];
-        var isFirst = i === 0, isLast = i === stops.length - 1;
-        var isQuery = highlightIds[s.station_id];
-        var arrTime = isFirst ? '---' : U.fmtTime(s.arrival);
-        var depTime = isLast ? '---' : U.fmtTime(s.departure);
-        var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
-        if (isQuery) cls += ' user-stop';
-        h += '<div class="timeline-item ' + cls + '">' +
-          '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
-          '<div class="timeline-time"><span>' + arrTime + '</span> 到  <span>' + depTime + '</span> 发</div>' +
-          '</div>';
-      }
-      h += '</div>';
-      return h;
-    }
-
-    U.$('detail-stops').innerHTML = renderTimeline(item.stops);
+    U.$('detail-stops').innerHTML = UI._renderTimeline(item.stops, highlightIds);
     U.$('detail-overlay').classList.add('show');
   },
 
@@ -1407,18 +1407,33 @@ const UI = {
     var path = State._routePath;
     if (path.length < 2) return U.toast('至少需要始发站和终点站', 'error');
 
-    var stops = [], routeStations = [];
+    // stops: 仅办客站（始发+停靠+终到），不含通过
+    // route_stations: 全部站（含通过），按此序列逐段累加里程
+    // segments: 每对相邻站的运行区段（用于冲突检测）
+    var stops = [], routeStations = [], segments = [];
     for (var i = 0; i < path.length; i++) {
       var s = path[i];
+      routeStations.push(s.station_id);
+      // 通过站：只入 route_stations，不入 stops
+      if (!s.is_stop && i > 0 && i < path.length - 1) continue;
       var isFirst = (i === 0), isLast = (i === path.length - 1);
-      var av = isFirst ? -1 : s.arrival;
-      var dv = isLast ? -1 : s.departure;
-      if (isFirst) dv = s.departure;
       stops.push({
         station_id: s.station_id, line_id: s.line_id || 0,
-        arrival: av, departure: dv, platform: 0
+        arrival: isFirst ? -1 : s.arrival,
+        departure: isLast ? -1 : s.departure,
+        platform: 0
       });
-      routeStations.push(s.station_id);
+    }
+    // 构建区段（每对相邻站，含通过站）
+    for (var i = 0; i + 1 < path.length; i++) {
+      var cur = path[i], next = path[i + 1];
+      segments.push({
+        from_station: cur.station_id,
+        to_station: next.station_id,
+        line_id: next.line_id || 0,
+        enter_time: cur.departure,
+        leave_time: next.arrival
+      });
     }
 
     var validFrom = '', validUntil = '';
@@ -1433,7 +1448,7 @@ const UI = {
 
     var body = {
       id: tid, type: trainType, stops: stops,
-      route_stations: routeStations, status: 0,
+      route_stations: routeStations, segments: segments, status: 0,
       valid_from: validFrom, valid_until: validUntil,
       seat_config: {
         business_seats: parseInt((U.$('sc-business') || {}).value || 0),
@@ -1506,21 +1521,38 @@ const UI = {
     for (var i = 0; i < trains.length; i++) {
       var t = trains[i];
       var card = tpl.content.cloneNode(true);
+      var key = 'train_' + i;
+      State._trainItems[key] = t;
+      var root = card.querySelector('.train-mgmt-card');
+      root.onclick = function(k) { return function() { UI.showTrainDetail(k); }; }(key);
+      root.style.cursor = 'pointer';
       card.querySelector('.train-mgmt-id').textContent = t.id;
       card.querySelector('.train-tag-type').textContent = t.type === 0 ? '图定' : '临客';
       var tagEl = card.querySelector('.train-tag-status');
       tagEl.textContent = t.status === 0 ? '运行中' : t.status === 1 ? '已停运' : '已归档';
       tagEl.className = 'tag train-tag-status tag-' + (t.status === 0 ? 'active' : 'archived');
-      card.querySelector('.train-mgmt-stops').textContent = (t.stops_count || 0) + ' 站';
+      var stops = t.stops || [];
+      var origin = stops.length ? (stops[0].station_name || '?') : '?';
+      var terminal = stops.length ? (stops[stops.length - 1].station_name || '?') : '?';
+      card.querySelector('.train-mgmt-route').textContent = origin + ' → ' + terminal;
       if (t.status === 0) {
         var btn = document.createElement('button');
         btn.className = 'btn btn-sm btn-danger';
         btn.textContent = '删除';
-        btn.onclick = function() { UI.deleteTrain(t.id); };
+        btn.onclick = function(e) { e.stopPropagation(); UI.deleteTrain(t.id); };
         card.querySelector('.train-mgmt-actions').appendChild(btn);
       }
       listEl.appendChild(card);
     }
+  },
+
+  /** 列车详情弹窗 */
+  showTrainDetail: function(itemKey) {
+    var t = (State._trainItems || {})[itemKey];
+    if (!t) return;
+    U.$('detail-train-id').textContent = t.id + ' 停站时刻表';
+    U.$('detail-stops').innerHTML = UI._renderTimeline(t.stops, {});
+    U.$('detail-overlay').classList.add('show');
   },
 
   /** 删除列车 */

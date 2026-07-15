@@ -57,28 +57,20 @@ void TrainManager::saveOccupancy() const {
 // ── 占用表操作 ──
 
 void TrainManager::addToOccupancy(const Train& train) {
-    for (size_t i = 0; i + 1 < train.stops.size(); ++i) {
-        int enter = train.stops[i].departure;
-        int leave = train.stops[i + 1].arrival;
-        // 取到达站的 line_id（始发站 line_id=0 的边跳过）
-        uint32_t line_id = train.stops[i + 1].line_id;
-        if (enter <= 0 || leave <= 0 || line_id == 0) continue;
-        auto key = occKey(train.stops[i].station_id, train.stops[i + 1].station_id, line_id);
-        occupancy_[key].insert({enter, leave});
-        occ_detail_[key].push_back({train.id, {enter, leave}});
+    for (const auto& seg : train.segments) {
+        if (seg.enter_time <= 0 || seg.leave_time <= 0 || seg.line_id == 0) continue;
+        auto key = occKey(seg.from_station, seg.to_station, seg.line_id);
+        occupancy_[key].insert({seg.enter_time, seg.leave_time});
+        occ_detail_[key].push_back({train.id, {seg.enter_time, seg.leave_time}});
     }
 }
 
 void TrainManager::removeFromOccupancy(const Train& train) {
-    for (size_t i = 0; i + 1 < train.stops.size(); ++i) {
-        int enter = train.stops[i].departure;
-        int leave = train.stops[i + 1].arrival;
-        uint32_t line_id = train.stops[i + 1].line_id;
-        if (enter <= 0 || leave <= 0 || line_id == 0) continue;
-        auto key = occKey(train.stops[i].station_id, train.stops[i + 1].station_id, line_id);
+    for (const auto& seg : train.segments) {
+        if (seg.enter_time <= 0 || seg.leave_time <= 0 || seg.line_id == 0) continue;
+        auto key = occKey(seg.from_station, seg.to_station, seg.line_id);
         auto& set_ref = occupancy_[key];
-        set_ref.erase({enter, leave});
-        // 清理 detail
+        set_ref.erase({seg.enter_time, seg.leave_time});
         auto& vec = occ_detail_[key];
         vec.erase(std::remove_if(vec.begin(), vec.end(),
             [&](const auto& p) { return p.first == train.id; }), vec.end());
@@ -97,13 +89,13 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
         return result;
     }
 
-    // 2. 停站数至少 2
+    // 2. 办客站至少 2（始发+终到）
     if (train.stops.size() < 2) {
-        result.error = "至少需要 2 个停站";
+        result.error = "至少需要始发站和终点站";
         return result;
     }
 
-    // 3. 所有站在系统注册站内
+    // 3. 所有 stops 中的站在系统注册站内
     for (const auto& stop : train.stops) {
         if (!ds.getStation(stop.station_id)) {
             result.error = "站 ID " + std::to_string(stop.station_id) + " 不存在";
@@ -123,8 +115,8 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
             result.error = "第 " + std::to_string(i + 1) + " 站缺少发车时间";
             return result;
         }
-        // 到站时间 < 发车时间（同一站）
-        if (s.arrival > 0 && s.departure > 0 && s.arrival >= s.departure) {
+        // 到站时间 ≤ 发车时间（同一站，通过站到=发合法，停靠站到<发由前端保证）
+        if (s.arrival > 0 && s.departure > 0 && s.arrival > s.departure) {
             result.error = "第 " + std::to_string(i + 1) + " 站到站时间须早于发车时间";
             return result;
         }
@@ -151,13 +143,12 @@ std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Tr
     std::vector<ConflictDetail> conflicts;
     std::lock_guard<std::mutex> lock(mutex_);
 
-    for (size_t i = 0; i + 1 < train.stops.size(); ++i) {
-        int new_enter = train.stops[i].departure;
-        int new_leave = train.stops[i + 1].arrival;
-        uint32_t line_id = train.stops[i + 1].line_id;
-        if (new_enter <= 0 || new_leave <= 0 || line_id == 0) continue;
+    for (const auto& seg : train.segments) {
+        int new_enter = seg.enter_time;
+        int new_leave = seg.leave_time;
+        if (new_enter <= 0 || new_leave <= 0 || seg.line_id == 0) continue;
 
-        auto key = occKey(train.stops[i].station_id, train.stops[i + 1].station_id, line_id);
+        auto key = occKey(seg.from_station, seg.to_station, seg.line_id);
         auto it = occupancy_.find(key);
         if (it == occupancy_.end()) continue;
 
@@ -177,8 +168,8 @@ std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Tr
                     }
                 }
                 conflicts.push_back({conflict_train,
-                    train.stops[i].station_id, train.stops[i + 1].station_id,
-                    line_id, ex_enter, ex_leave});
+                    seg.from_station, seg.to_station,
+                    seg.line_id, ex_enter, ex_leave});
             }
         }
     }
