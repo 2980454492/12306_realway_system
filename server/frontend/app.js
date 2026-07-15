@@ -1227,7 +1227,7 @@ const UI = {
     var n = neighbors[idx];
     if (!n) return;
     State._pendingNeighbor = n;
-    U.$('stop-time-title').textContent = n.line_name + ' → ' + n.neighbor_name;
+    U.$('stop-config-title').textContent = n.line_name + ' → ' + n.neighbor_name;
     U.$('stop-is-stop').checked = true;
     U.$('stop-time-fields').style.display = '';
     U.$('pass-time-field').style.display = 'none';
@@ -1235,12 +1235,7 @@ const UI = {
     U.$('stop-depart-time').value = '';
     U.$('stop-pass-time').value = '';
     U.$('stop-speed-info').textContent = '';
-    U.$('stop-time-modal').style.display = 'flex';
-    var updateSpeed = function() { UI.computeSpeed(); };
-    var arrEl = U.$('stop-arrival-time'), depEl = U.$('stop-depart-time'), passEl = U.$('stop-pass-time');
-    if (arrEl) arrEl.onchange = updateSpeed;
-    if (depEl) depEl.onchange = updateSpeed;
-    if (passEl) passEl.onchange = updateSpeed;
+    U.$('stop-config').style.display = '';
   },
 
   /** 停靠/通过切换 */
@@ -1312,7 +1307,7 @@ const UI = {
       distance_km: n.distance_km,
       max_speed_kmh: n.max_speed_kmh
     });
-    U.$('stop-time-modal').style.display = 'none';
+    U.$('stop-config').style.display = 'none';
     State._pendingNeighbor = null;
     UI.renderRoutePath();
     UI.showNeighbors(n.neighbor_station_id);
@@ -1320,7 +1315,7 @@ const UI = {
 
   /** 取消时间设置 */
   cancelStop: function() {
-    U.$('stop-time-modal').style.display = 'none';
+    U.$('stop-config').style.display = 'none';
     State._pendingNeighbor = null;
   },
 

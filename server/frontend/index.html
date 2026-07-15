@@ -283,38 +283,33 @@
       <div id="neighbor-panel" style="display:none;margin-top:12px;padding:12px;background:#16213e;border:1px solid #0f3460;border-radius:8px">
         <label style="font-size:14px;color:#53a8ff;display:block;margin-bottom:8px">选择下一站（点击线路卡片）</label>
         <div id="neighbor-options" class="neighbor-options"></div>
-        <button class="btn btn-primary btn-sm" onclick="UI.finishRoute()" style="margin-top:10px">✓ 设为终点站</button>
-      </div>
-
-      <!-- ── 到发时间弹窗 ── -->
-      <div id="stop-time-modal" class="overlay" style="display:none">
-        <div class="detail-card" style="width:360px" onclick="event.stopPropagation()">
-          <h3 id="stop-time-title"></h3>
-          <div class="form-group" style="margin-top:12px">
-            <label class="filter-check" style="margin-bottom:8px">
-              <input type="checkbox" id="stop-is-stop" checked onchange="UI.onStopToggle()"> 停靠本站
-            </label>
-          </div>
+        <!-- 选中线路后出现的到发时间设置（内联） -->
+        <div id="stop-config" style="display:none;margin-top:12px;padding:12px;background:#0a0a1e;border:1px solid #0f3460;border-radius:6px">
+          <div style="font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:8px" id="stop-config-title"></div>
+          <label class="filter-check" style="margin-bottom:8px;display:flex;align-items:center;gap:4px">
+            <input type="checkbox" id="stop-is-stop" checked onchange="UI.onStopToggle()"> 停靠本站
+          </label>
           <div class="form-row-2" id="stop-time-fields">
             <div class="form-group">
               <label>到站时间</label>
-              <input type="time" id="stop-arrival-time">
+              <input type="time" id="stop-arrival-time" onchange="UI.computeSpeed()">
             </div>
             <div class="form-group">
               <label>发车时间</label>
-              <input type="time" id="stop-depart-time">
+              <input type="time" id="stop-depart-time" onchange="UI.computeSpeed()">
             </div>
           </div>
           <div class="form-group" id="pass-time-field" style="display:none">
             <label>通过时间</label>
-            <input type="time" id="stop-pass-time">
+            <input type="time" id="stop-pass-time" onchange="UI.computeSpeed()">
           </div>
           <div id="stop-speed-info" class="hint" style="margin-top:8px"></div>
-          <div class="form-actions">
-            <button class="btn btn-primary" onclick="UI.confirmStop()">确认</button>
-            <button class="btn" onclick="UI.cancelStop()">取消</button>
+          <div class="form-actions" style="margin-top:8px">
+            <button class="btn btn-primary btn-sm" onclick="UI.confirmStop()">确认</button>
+            <button class="btn btn-sm" onclick="UI.cancelStop()">取消</button>
           </div>
         </div>
+        <button class="btn btn-primary btn-sm" onclick="UI.finishRoute()" style="margin-top:10px">✓ 设为终点站</button>
       </div>
 
       <!-- 席位 -->
@@ -432,6 +427,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=44"></script>
+<script src="/app.js?v=45"></script>
 </body>
 </html>
