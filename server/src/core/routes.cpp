@@ -154,6 +154,7 @@ void registerRoutes(RailwayServer& server) {
             j["token"] = token;
             j["token_type"] = "Bearer";
             j["expires_in"] = 1800;
+            j["user_id"] = user->id;
             j["username"] = user->username;
             j["role"] = role_str;
             res.set_content(j.dump(), "application/json");
@@ -892,12 +893,21 @@ void registerRoutes(RailwayServer& server) {
             std::string submitter_id = req.get_param_value("submitter_id");
             std::string approver_id = req.get_param_value("approver_id");
 
+            // 如果传入的是用户名而非 UUID，解析为 user_id（前端可能只有 username）
+            auto& auth = AuthService::instance();
+            if (!submitter_id.empty()) {
+                auto* u = auth.findUser(submitter_id);  // 先当 username 查
+                if (u) submitter_id = u->id;             // 转为 UUID
+            }
+            if (!approver_id.empty()) {
+                auto* u = auth.findUser(approver_id);
+                if (u) approver_id = u->id;
+            }
+
             auto approvals = ApprovalService::instance().getApprovals(filter);
             json arr = json::array();
             for (const auto& a : approvals) {
-                // submitter_id 筛选（STAFF 只能看自己的提交）
                 if (!submitter_id.empty() && a.submitter_id != submitter_id) continue;
-                // approver_id 筛选（查看审批人的历史记录）
                 if (!approver_id.empty() && a.approver_id != approver_id) continue;
 
                 json ja;

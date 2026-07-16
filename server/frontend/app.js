@@ -8,7 +8,7 @@
 
 const State = {
   token: localStorage.getItem('jwt_token') || '',
-  user: (function(){ try { return JSON.parse(localStorage.getItem('jwt_user') || 'null'); } catch(e){ return null; } })(),
+  user: (function(){ try { var u = JSON.parse(localStorage.getItem('jwt_user') || 'null'); if (!u || !u.id) { localStorage.removeItem('jwt_token'); localStorage.removeItem('jwt_user'); return null; } return u; } catch(e){ return null; } })(),
   stations: [],
   currentTab: 'direct',
   queryResult: null,
@@ -50,9 +50,9 @@ const Auth = {
       return;
     }
     State.token = res.data.token;
-    State.user = { username: res.data.username, role: res.data.role };
+    State.user = { id: res.data.user_id, username: res.data.username, role: res.data.role };
     localStorage.setItem('jwt_token', State.token);
-    localStorage.setItem('jwt_user', JSON.stringify(State.user));
+    localStorage.setItem('jwt_user', JSON.stringify({id: res.data.user_id || State.user.id, username: res.data.username, role: res.data.role}));
 
     U.showNav();
     try { await U.loadStations(); } catch (_) {}
@@ -1569,7 +1569,7 @@ const UI = {
   loadMySubmissions: async function() {
     var loadingEl = U.$('my-submissions-loading'); if (loadingEl) loadingEl.style.display = 'block';
     var status = State._mySubFilter || '';
-    var userId = State.user ? State.user.username : '';
+    var userId = State.user ? State.user.id : '';
     var url = '/api/admin/approvals?submitter_id=' + encodeURIComponent(userId);
     if (status) url += '&status=' + status;
     var res = await API.get(url);
@@ -1633,7 +1633,7 @@ const UI = {
   loadApprovals: async function() {
     var loadingEl = U.$('approvals-loading'); if (loadingEl) loadingEl.style.display = 'block';
     var status = State._approvalFilter || 'SUBMITTED';  // 默认待审批
-    var userId = State.user ? State.user.username : '';
+    var userId = State.user ? State.user.id : '';
     var url = '/api/admin/approvals?status=' + status;
     // 查看已通过/已驳回时只看自己的审批记录
     if (status === 'APPROVED' || status === 'REJECTED') {
