@@ -1195,6 +1195,11 @@ const UI = {
     U.$('train-station-datalist').innerHTML = html;
     U.$('train-date-single').style.display = '';
     U.$('train-date-range').style.display = 'none';
+    // 新增列车须至少 3 天后生效
+    var minDate = new Date(); minDate.setDate(minDate.getDate() + 3);
+    var minStr = minDate.toISOString().slice(0,10);
+    U.$('new-train-valid-from').setAttribute('min', minStr);
+    U.$('new-train-range-from').setAttribute('min', minStr);
     U.$('speed-limit-hint').style.display = 'none';
     if (Object.keys(State._neighborIndex).length === 0) {
       UI.loadNeighborIndex();

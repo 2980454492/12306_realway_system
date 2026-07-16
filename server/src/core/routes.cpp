@@ -773,6 +773,13 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
+            // 只能删除 14 天后的列车
+            auto delErr = TrainManager::instance().canDelete(*train);
+            if (!delErr.empty()) {
+                json j; j["ok"] = false; j["error"] = delErr;
+                res.set_content(j.dump(), "application/json"); res.status = 400; return;
+            }
+
             json payload;
             payload["id"] = train_id;
             std::string aid = ApprovalService::instance().submit(

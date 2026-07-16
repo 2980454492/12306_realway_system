@@ -83,19 +83,35 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
     ValidationResult result;
     auto& ds = DataStore::instance();
 
-    // 1. 车次号唯一
+    // 1. 车次号唯一（O(1) map 查）
     if (is_new && ds.getTrain(train.id)) {
         result.error = "车次号 " + train.id + " 已存在";
         return result;
     }
 
-    // 2. 办客站至少 2（始发+终到）
+    // 2. 日期校验：新增列车须至少 3 天后生效（O(1) 字符串比较，最轻量）
+    if (is_new) {
+        if (train.valid_from.empty()) {
+            result.error = "请选择生效日期"; return result;
+        }
+        if (!isFuture(train.valid_from, 365)) {
+            result.error = "生效日期不能是过去"; return result;
+        }
+        auto tm = nowTm();
+        tm.tm_mday += 3; std::mktime(&tm);
+        char buf[11]; std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+        if (train.valid_from < std::string(buf)) {
+            result.error = "新增列车须至少 3 天后生效（给乘客留购票时间）"; return result;
+        }
+    }
+
+    // 3. 办客站至少 2（始发+终到）
     if (train.stops.size() < 2) {
         result.error = "至少需要始发站和终点站";
         return result;
     }
 
-    // 3. 所有 stops 中的站在系统注册站内
+    // 4. 所有 stops 中的站在系统注册站内（O(n) 遍历 + O(1) 查）
     for (const auto& stop : train.stops) {
         if (!ds.getStation(stop.station_id)) {
             result.error = "站 ID " + std::to_string(stop.station_id) + " 不存在";
@@ -103,7 +119,7 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
         }
     }
 
-    // 4. 时间合法性：到站 < 发车（始发站无到达、终到站无发车除外）
+    // 5. 同站时间合法性：到站 ≤ 发车（始发无到达、终到无发车、通过站到=发合法）
     for (size_t i = 0; i < train.stops.size(); ++i) {
         const auto& s = train.stops[i];
         bool is_first = (i == 0), is_last = (i == train.stops.size() - 1);
@@ -115,14 +131,13 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
             result.error = "第 " + std::to_string(i + 1) + " 站缺少发车时间";
             return result;
         }
-        // 到站时间 ≤ 发车时间（同一站，通过站到=发合法，停靠站到<发由前端保证）
         if (s.arrival > 0 && s.departure > 0 && s.arrival > s.departure) {
             result.error = "第 " + std::to_string(i + 1) + " 站到站时间须早于发车时间";
             return result;
         }
     }
 
-    // 5. 相邻停站：前站发车 < 后站到达
+    // 6. 相邻停站：前站发车 < 后站到达（O(n) 遍历）
     for (size_t i = 0; i + 1 < train.stops.size(); ++i) {
         int dep = train.stops[i].departure;
         int arr = train.stops[i + 1].arrival;
@@ -185,6 +200,18 @@ bool TrainManager::addTrain(const Train& train) {
     addToOccupancy(train);
     Logger::instance().info("Train added: " + train.id);
     return true;
+}
+
+std::string TrainManager::canDelete(const Train& train) const {
+    if (!train.valid_from.empty()) {
+        auto tm = nowTm();
+        tm.tm_mday += 14; std::mktime(&tm);
+        char buf[11]; std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+        if (train.valid_from < std::string(buf)) {
+            return "只能删除 14 天后的列车（14 天内已放票）";
+        }
+    }
+    return "";
 }
 
 TrainManager::DeleteResult TrainManager::deleteTrain(const std::string& train_id) {
