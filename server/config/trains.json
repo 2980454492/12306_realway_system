@@ -23,35 +23,44 @@
         "departure": 600,
         "platform": 8,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 611,
         "departure": 613,
         "platform": 6,
         "station_id": 14,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "察素齐",
+        "line_name": "京包高铁"
       },
       {
         "arrival": 624,
         "departure": 629,
         "platform": 5,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 640,
         "departure": 644,
         "platform": 2,
         "station_id": 4,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "包头东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 655,
         "departure": -1,
         "platform": 4,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -62,29 +71,41 @@
         "from_station": 1,
         "to_station": 14,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 600,
-        "leave_time": 611
+        "leave_time": 611,
+        "distance_km": 49.9,
+        "speed_kmh": 272
       },
       {
         "from_station": 14,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 613,
-        "leave_time": 624
+        "leave_time": 624,
+        "distance_km": 62.5,
+        "speed_kmh": 341
       },
       {
         "from_station": 13,
         "to_station": 4,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 629,
-        "leave_time": 640
+        "leave_time": 640,
+        "distance_km": 40.7,
+        "speed_kmh": 222
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 644,
-        "leave_time": 655
+        "leave_time": 655,
+        "distance_km": 18.3,
+        "speed_kmh": 100
       }
     ]
   },
@@ -112,28 +133,35 @@
         "departure": 811,
         "platform": 7,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 822,
         "departure": 825,
         "platform": 5,
         "station_id": 13,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "萨拉齐",
+        "line_name": "京包高铁"
       },
       {
         "arrival": 836,
         "departure": 838,
         "platform": 6,
         "station_id": 4,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "包头东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 849,
         "departure": -1,
         "platform": 6,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -144,22 +172,31 @@
         "from_station": 1,
         "to_station": 13,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 811,
-        "leave_time": 822
+        "leave_time": 822,
+        "distance_km": 111.6,
+        "speed_kmh": 608
       },
       {
         "from_station": 13,
         "to_station": 4,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 825,
-        "leave_time": 836
+        "leave_time": 836,
+        "distance_km": 40.7,
+        "speed_kmh": 222
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 838,
-        "leave_time": 849
+        "leave_time": 849,
+        "distance_km": 18.3,
+        "speed_kmh": 100
       }
     ]
   },
@@ -187,28 +224,35 @@
         "departure": 1110,
         "platform": 7,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 1121,
         "departure": 1126,
         "platform": 2,
         "station_id": 14,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "察素齐",
+        "line_name": "京包高铁"
       },
       {
         "arrival": 1137,
         "departure": 1139,
         "platform": 2,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1150,
         "departure": -1,
         "platform": 8,
         "station_id": 3,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "包头",
+        "line_name": "京包高铁"
       }
     ],
     "type": "REGULAR",
@@ -219,22 +263,31 @@
         "from_station": 1,
         "to_station": 14,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 1110,
-        "leave_time": 1121
+        "leave_time": 1121,
+        "distance_km": 49.9,
+        "speed_kmh": 272
       },
       {
         "from_station": 14,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1126,
-        "leave_time": 1137
+        "leave_time": 1137,
+        "distance_km": 62.5,
+        "speed_kmh": 341
       },
       {
         "from_station": 13,
         "to_station": 3,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 1139,
-        "leave_time": 1150
+        "leave_time": 1150,
+        "distance_km": 57.9,
+        "speed_kmh": 316
       }
     ]
   },
@@ -262,21 +315,26 @@
         "departure": 1251,
         "platform": 1,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 1302,
         "departure": 1305,
         "platform": 1,
         "station_id": 13,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "萨拉齐",
+        "line_name": "京包高铁"
       },
       {
         "arrival": 1316,
         "departure": -1,
         "platform": 3,
         "station_id": 3,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "包头",
+        "line_name": "京包高铁"
       }
     ],
     "type": "REGULAR",
@@ -287,15 +345,21 @@
         "from_station": 1,
         "to_station": 13,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 1251,
-        "leave_time": 1302
+        "leave_time": 1302,
+        "distance_km": 111.6,
+        "speed_kmh": 608
       },
       {
         "from_station": 13,
         "to_station": 3,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 1305,
-        "leave_time": 1316
+        "leave_time": 1316,
+        "distance_km": 57.9,
+        "speed_kmh": 316
       }
     ]
   },
@@ -323,35 +387,44 @@
         "departure": 1540,
         "platform": 4,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 1551,
         "departure": 1553,
         "platform": 1,
         "station_id": 14,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "察素齐",
+        "line_name": "京包高铁"
       },
       {
         "arrival": 1604,
         "departure": 1607,
         "platform": 8,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1618,
         "departure": 1621,
         "platform": 2,
         "station_id": 4,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "包头东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1632,
         "departure": -1,
         "platform": 4,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -362,29 +435,41 @@
         "from_station": 1,
         "to_station": 14,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 1540,
-        "leave_time": 1551
+        "leave_time": 1551,
+        "distance_km": 49.9,
+        "speed_kmh": 272
       },
       {
         "from_station": 14,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1553,
-        "leave_time": 1604
+        "leave_time": 1604,
+        "distance_km": 62.5,
+        "speed_kmh": 341
       },
       {
         "from_station": 13,
         "to_station": 4,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1607,
-        "leave_time": 1618
+        "leave_time": 1618,
+        "distance_km": 40.7,
+        "speed_kmh": 222
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1621,
-        "leave_time": 1632
+        "leave_time": 1632,
+        "distance_km": 18.3,
+        "speed_kmh": 100
       }
     ]
   },
@@ -412,21 +497,26 @@
         "departure": 600,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 611,
         "departure": 616,
         "platform": 5,
         "station_id": 14,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "察素齐",
+        "line_name": "京包高铁"
       },
       {
         "arrival": 627,
         "departure": -1,
         "platform": 4,
         "station_id": 1,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "呼和浩特东",
+        "line_name": "京包高铁"
       }
     ],
     "type": "REGULAR",
@@ -437,15 +527,21 @@
         "from_station": 3,
         "to_station": 14,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 600,
-        "leave_time": 611
+        "leave_time": 611,
+        "distance_km": 117.3,
+        "speed_kmh": 640
       },
       {
         "from_station": 14,
         "to_station": 1,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 616,
-        "leave_time": 627
+        "leave_time": 627,
+        "distance_km": 49.9,
+        "speed_kmh": 272
       }
     ]
   },
@@ -473,21 +569,26 @@
         "departure": 745,
         "platform": 4,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 756,
         "departure": 758,
         "platform": 1,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 809,
         "departure": -1,
         "platform": 8,
         "station_id": 1,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "呼和浩特东",
+        "line_name": "京包高铁"
       }
     ],
     "type": "REGULAR",
@@ -498,15 +599,21 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 745,
-        "leave_time": 756
+        "leave_time": 756,
+        "distance_km": 18.3,
+        "speed_kmh": 100
       },
       {
         "from_station": 4,
         "to_station": 1,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 758,
-        "leave_time": 809
+        "leave_time": 809,
+        "distance_km": 149.5,
+        "speed_kmh": 816
       }
     ]
   },
@@ -534,35 +641,44 @@
         "departure": 1154,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1205,
         "departure": 1210,
         "platform": 4,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1221,
         "departure": 1224,
         "platform": 1,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1235,
         "departure": 1237,
         "platform": 2,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1248,
         "departure": -1,
         "platform": 6,
         "station_id": 1,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "呼和浩特东",
+        "line_name": "京包高铁"
       }
     ],
     "type": "REGULAR",
@@ -573,29 +689,41 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1154,
-        "leave_time": 1205
+        "leave_time": 1205,
+        "distance_km": 18.3,
+        "speed_kmh": 100
       },
       {
         "from_station": 4,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1210,
-        "leave_time": 1221
+        "leave_time": 1221,
+        "distance_km": 40.7,
+        "speed_kmh": 222
       },
       {
         "from_station": 13,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1224,
-        "leave_time": 1235
+        "leave_time": 1235,
+        "distance_km": 62.5,
+        "speed_kmh": 341
       },
       {
         "from_station": 14,
         "to_station": 1,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 1237,
-        "leave_time": 1248
+        "leave_time": 1248,
+        "distance_km": 49.9,
+        "speed_kmh": 272
       }
     ]
   },
@@ -623,28 +751,35 @@
         "departure": 1103,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1114,
         "departure": 1117,
         "platform": 7,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1128,
         "departure": 1130,
         "platform": 2,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1141,
         "departure": -1,
         "platform": 8,
         "station_id": 1,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "呼和浩特东",
+        "line_name": "京包高铁"
       }
     ],
     "type": "REGULAR",
@@ -655,22 +790,31 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1103,
-        "leave_time": 1114
+        "leave_time": 1114,
+        "distance_km": 18.3,
+        "speed_kmh": 100
       },
       {
         "from_station": 4,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1117,
-        "leave_time": 1128
+        "leave_time": 1128,
+        "distance_km": 40.7,
+        "speed_kmh": 222
       },
       {
         "from_station": 13,
         "to_station": 1,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 1130,
-        "leave_time": 1141
+        "leave_time": 1141,
+        "distance_km": 111.6,
+        "speed_kmh": 608
       }
     ]
   },
@@ -698,35 +842,44 @@
         "departure": 1332,
         "platform": 2,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1343,
         "departure": 1347,
         "platform": 7,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1358,
         "departure": 1401,
         "platform": 4,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1412,
         "departure": 1416,
         "platform": 2,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1427,
         "departure": -1,
         "platform": 5,
         "station_id": 1,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "呼和浩特东",
+        "line_name": "京包高铁"
       }
     ],
     "type": "REGULAR",
@@ -737,29 +890,41 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1332,
-        "leave_time": 1343
+        "leave_time": 1343,
+        "distance_km": 18.3,
+        "speed_kmh": 100
       },
       {
         "from_station": 4,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1347,
-        "leave_time": 1358
+        "leave_time": 1358,
+        "distance_km": 40.7,
+        "speed_kmh": 222
       },
       {
         "from_station": 13,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1401,
-        "leave_time": 1412
+        "leave_time": 1412,
+        "distance_km": 62.5,
+        "speed_kmh": 341
       },
       {
         "from_station": 14,
         "to_station": 1,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 1416,
-        "leave_time": 1427
+        "leave_time": 1427,
+        "distance_km": 49.9,
+        "speed_kmh": 272
       }
     ]
   },
@@ -787,35 +952,44 @@
         "departure": 630,
         "platform": 1,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 652,
         "departure": 657,
         "platform": 7,
         "station_id": 15,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "托克托东",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 719,
         "departure": 724,
         "platform": 4,
         "station_id": 11,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "准格尔",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 746,
         "departure": 751,
         "platform": 4,
         "station_id": 6,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "东胜西",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 813,
         "departure": -1,
         "platform": 8,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -826,29 +1000,41 @@
         "from_station": 1,
         "to_station": 15,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 630,
-        "leave_time": 652
+        "leave_time": 652,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       },
       {
         "from_station": 15,
         "to_station": 11,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 657,
-        "leave_time": 719
+        "leave_time": 719,
+        "distance_km": 71.8,
+        "speed_kmh": 196
       },
       {
         "from_station": 11,
         "to_station": 6,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 724,
-        "leave_time": 746
+        "leave_time": 746,
+        "distance_km": 76.6,
+        "speed_kmh": 209
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 751,
-        "leave_time": 813
+        "leave_time": 813,
+        "distance_km": 28.6,
+        "speed_kmh": 78
       }
     ]
   },
@@ -876,35 +1062,44 @@
         "departure": 854,
         "platform": 6,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 916,
         "departure": 921,
         "platform": 3,
         "station_id": 15,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "托克托东",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 943,
         "departure": 945,
         "platform": 5,
         "station_id": 11,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "准格尔",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1007,
         "departure": 1009,
         "platform": 5,
         "station_id": 6,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "东胜西",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1031,
         "departure": -1,
         "platform": 1,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -915,29 +1110,41 @@
         "from_station": 1,
         "to_station": 15,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 854,
-        "leave_time": 916
+        "leave_time": 916,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       },
       {
         "from_station": 15,
         "to_station": 11,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 921,
-        "leave_time": 943
+        "leave_time": 943,
+        "distance_km": 71.8,
+        "speed_kmh": 196
       },
       {
         "from_station": 11,
         "to_station": 6,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 945,
-        "leave_time": 1007
+        "leave_time": 1007,
+        "distance_km": 76.6,
+        "speed_kmh": 209
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1009,
-        "leave_time": 1031
+        "leave_time": 1031,
+        "distance_km": 28.6,
+        "speed_kmh": 78
       }
     ]
   },
@@ -965,35 +1172,44 @@
         "departure": 1028,
         "platform": 7,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 1050,
         "departure": 1053,
         "platform": 6,
         "station_id": 15,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "托克托东",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1115,
         "departure": 1118,
         "platform": 5,
         "station_id": 11,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "准格尔",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1140,
         "departure": 1145,
         "platform": 5,
         "station_id": 6,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "东胜西",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1207,
         "departure": -1,
         "platform": 3,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -1004,29 +1220,41 @@
         "from_station": 1,
         "to_station": 15,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1028,
-        "leave_time": 1050
+        "leave_time": 1050,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       },
       {
         "from_station": 15,
         "to_station": 11,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1053,
-        "leave_time": 1115
+        "leave_time": 1115,
+        "distance_km": 71.8,
+        "speed_kmh": 196
       },
       {
         "from_station": 11,
         "to_station": 6,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1118,
-        "leave_time": 1140
+        "leave_time": 1140,
+        "distance_km": 76.6,
+        "speed_kmh": 209
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1145,
-        "leave_time": 1207
+        "leave_time": 1207,
+        "distance_km": 28.6,
+        "speed_kmh": 78
       }
     ]
   },
@@ -1054,35 +1282,44 @@
         "departure": 1215,
         "platform": 5,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 1237,
         "departure": 1241,
         "platform": 3,
         "station_id": 15,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "托克托东",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1303,
         "departure": 1305,
         "platform": 3,
         "station_id": 11,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "准格尔",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1327,
         "departure": 1332,
         "platform": 2,
         "station_id": 6,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "东胜西",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1354,
         "departure": -1,
         "platform": 1,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -1093,29 +1330,41 @@
         "from_station": 1,
         "to_station": 15,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1215,
-        "leave_time": 1237
+        "leave_time": 1237,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       },
       {
         "from_station": 15,
         "to_station": 11,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1241,
-        "leave_time": 1303
+        "leave_time": 1303,
+        "distance_km": 71.8,
+        "speed_kmh": 196
       },
       {
         "from_station": 11,
         "to_station": 6,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1305,
-        "leave_time": 1327
+        "leave_time": 1327,
+        "distance_km": 76.6,
+        "speed_kmh": 209
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1332,
-        "leave_time": 1354
+        "leave_time": 1354,
+        "distance_km": 28.6,
+        "speed_kmh": 78
       }
     ]
   },
@@ -1143,21 +1392,26 @@
         "departure": 1450,
         "platform": 2,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 1512,
         "departure": 1515,
         "platform": 1,
         "station_id": 15,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "托克托东",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1537,
         "departure": -1,
         "platform": 1,
         "station_id": 5,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "鄂尔多斯",
+        "line_name": "呼鄂城际"
       }
     ],
     "type": "REGULAR",
@@ -1168,15 +1422,21 @@
         "from_station": 1,
         "to_station": 15,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1450,
-        "leave_time": 1512
+        "leave_time": 1512,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       },
       {
         "from_station": 15,
         "to_station": 5,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1515,
-        "leave_time": 1537
+        "leave_time": 1537,
+        "distance_km": 140.7,
+        "speed_kmh": 384
       }
     ]
   },
@@ -1204,35 +1464,44 @@
         "departure": 630,
         "platform": 6,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 652,
         "departure": 656,
         "platform": 6,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 718,
         "departure": 723,
         "platform": 7,
         "station_id": 11,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "准格尔",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 745,
         "departure": 749,
         "platform": 1,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 811,
         "departure": -1,
         "platform": 8,
         "station_id": 1,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "呼和浩特东",
+        "line_name": "呼鄂城际"
       }
     ],
     "type": "REGULAR",
@@ -1243,29 +1512,41 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 630,
-        "leave_time": 652
+        "leave_time": 652,
+        "distance_km": 28.6,
+        "speed_kmh": 78
       },
       {
         "from_station": 6,
         "to_station": 11,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 656,
-        "leave_time": 718
+        "leave_time": 718,
+        "distance_km": 76.6,
+        "speed_kmh": 209
       },
       {
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 723,
-        "leave_time": 745
+        "leave_time": 745,
+        "distance_km": 71.8,
+        "speed_kmh": 196
       },
       {
         "from_station": 15,
         "to_station": 1,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 749,
-        "leave_time": 811
+        "leave_time": 811,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       }
     ]
   },
@@ -1293,35 +1574,44 @@
         "departure": 859,
         "platform": 1,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 921,
         "departure": 926,
         "platform": 7,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 948,
         "departure": 953,
         "platform": 5,
         "station_id": 11,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "准格尔",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1015,
         "departure": 1018,
         "platform": 3,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1040,
         "departure": -1,
         "platform": 1,
         "station_id": 1,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "呼和浩特东",
+        "line_name": "呼鄂城际"
       }
     ],
     "type": "REGULAR",
@@ -1332,29 +1622,41 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 859,
-        "leave_time": 921
+        "leave_time": 921,
+        "distance_km": 28.6,
+        "speed_kmh": 78
       },
       {
         "from_station": 6,
         "to_station": 11,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 926,
-        "leave_time": 948
+        "leave_time": 948,
+        "distance_km": 76.6,
+        "speed_kmh": 209
       },
       {
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 953,
-        "leave_time": 1015
+        "leave_time": 1015,
+        "distance_km": 71.8,
+        "speed_kmh": 196
       },
       {
         "from_station": 15,
         "to_station": 1,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1018,
-        "leave_time": 1040
+        "leave_time": 1040,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       }
     ]
   },
@@ -1382,28 +1684,35 @@
         "departure": 1130,
         "platform": 3,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1152,
         "departure": 1156,
         "platform": 6,
         "station_id": 11,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "准格尔",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1218,
         "departure": 1222,
         "platform": 6,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1244,
         "departure": -1,
         "platform": 3,
         "station_id": 1,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "呼和浩特东",
+        "line_name": "呼鄂城际"
       }
     ],
     "type": "REGULAR",
@@ -1414,22 +1723,31 @@
         "from_station": 5,
         "to_station": 11,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1130,
-        "leave_time": 1152
+        "leave_time": 1152,
+        "distance_km": 93.7,
+        "speed_kmh": 255
       },
       {
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1156,
-        "leave_time": 1218
+        "leave_time": 1218,
+        "distance_km": 71.8,
+        "speed_kmh": 196
       },
       {
         "from_station": 15,
         "to_station": 1,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1222,
-        "leave_time": 1244
+        "leave_time": 1244,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       }
     ]
   },
@@ -1457,35 +1775,44 @@
         "departure": 1333,
         "platform": 4,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1355,
         "departure": 1358,
         "platform": 1,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1420,
         "departure": 1425,
         "platform": 6,
         "station_id": 11,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "准格尔",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1447,
         "departure": 1452,
         "platform": 7,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1514,
         "departure": -1,
         "platform": 6,
         "station_id": 1,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "呼和浩特东",
+        "line_name": "呼鄂城际"
       }
     ],
     "type": "REGULAR",
@@ -1496,29 +1823,41 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1333,
-        "leave_time": 1355
+        "leave_time": 1355,
+        "distance_km": 28.6,
+        "speed_kmh": 78
       },
       {
         "from_station": 6,
         "to_station": 11,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1358,
-        "leave_time": 1420
+        "leave_time": 1420,
+        "distance_km": 76.6,
+        "speed_kmh": 209
       },
       {
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1425,
-        "leave_time": 1447
+        "leave_time": 1447,
+        "distance_km": 71.8,
+        "speed_kmh": 196
       },
       {
         "from_station": 15,
         "to_station": 1,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1452,
-        "leave_time": 1514
+        "leave_time": 1514,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       }
     ]
   },
@@ -1546,35 +1885,44 @@
         "departure": 1354,
         "platform": 7,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1416,
         "departure": 1419,
         "platform": 4,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1441,
         "departure": 1443,
         "platform": 5,
         "station_id": 11,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "准格尔",
+        "line_name": "呼鄂城际"
       },
       {
         "arrival": 1505,
         "departure": 1509,
         "platform": 4,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1531,
         "departure": -1,
         "platform": 1,
         "station_id": 1,
-        "line_id": 2
+        "line_id": 2,
+        "station_name": "呼和浩特东",
+        "line_name": "呼鄂城际"
       }
     ],
     "type": "REGULAR",
@@ -1585,29 +1933,41 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1354,
-        "leave_time": 1416
+        "leave_time": 1416,
+        "distance_km": 28.6,
+        "speed_kmh": 78
       },
       {
         "from_station": 6,
         "to_station": 11,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1419,
-        "leave_time": 1441
+        "leave_time": 1441,
+        "distance_km": 76.6,
+        "speed_kmh": 209
       },
       {
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1443,
-        "leave_time": 1505
+        "leave_time": 1505,
+        "distance_km": 71.8,
+        "speed_kmh": 196
       },
       {
         "from_station": 15,
         "to_station": 1,
         "line_id": 2,
+        "line_name": "呼鄂城际",
         "enter_time": 1509,
-        "leave_time": 1531
+        "leave_time": 1531,
+        "distance_km": 82.8,
+        "speed_kmh": 226
       }
     ]
   },
@@ -1634,28 +1994,35 @@
         "departure": 700,
         "platform": 4,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 736,
         "departure": 738,
         "platform": 2,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 814,
         "departure": 816,
         "platform": 8,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 852,
         "departure": -1,
         "platform": 6,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -1666,22 +2033,31 @@
         "from_station": 3,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 700,
-        "leave_time": 736
+        "leave_time": 736,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 738,
-        "leave_time": 814
+        "leave_time": 814,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 816,
-        "leave_time": 852
+        "leave_time": 852,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       }
     ]
   },
@@ -1708,28 +2084,35 @@
         "departure": 913,
         "platform": 3,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 949,
         "departure": 953,
         "platform": 5,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1029,
         "departure": 1033,
         "platform": 8,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1109,
         "departure": -1,
         "platform": 2,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -1740,22 +2123,31 @@
         "from_station": 3,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 913,
-        "leave_time": 949
+        "leave_time": 949,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 953,
-        "leave_time": 1029
+        "leave_time": 1029,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1033,
-        "leave_time": 1109
+        "leave_time": 1109,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       }
     ]
   },
@@ -1782,28 +2174,35 @@
         "departure": 1044,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1120,
         "departure": 1123,
         "platform": 5,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1159,
         "departure": 1204,
         "platform": 2,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1240,
         "departure": -1,
         "platform": 2,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -1814,22 +2213,31 @@
         "from_station": 3,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1044,
-        "leave_time": 1120
+        "leave_time": 1120,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1123,
-        "leave_time": 1159
+        "leave_time": 1159,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1204,
-        "leave_time": 1240
+        "leave_time": 1240,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       }
     ]
   },
@@ -1856,28 +2264,35 @@
         "departure": 1545,
         "platform": 1,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1621,
         "departure": 1625,
         "platform": 3,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1701,
         "departure": 1705,
         "platform": 2,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1741,
         "departure": -1,
         "platform": 8,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -1888,22 +2303,31 @@
         "from_station": 3,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1545,
-        "leave_time": 1621
+        "leave_time": 1621,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1625,
-        "leave_time": 1701
+        "leave_time": 1701,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1705,
-        "leave_time": 1741
+        "leave_time": 1741,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       }
     ]
   },
@@ -1930,28 +2354,35 @@
         "departure": 1836,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1912,
         "departure": 1917,
         "platform": 3,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1953,
         "departure": 1957,
         "platform": 1,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 2033,
         "departure": -1,
         "platform": 7,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -1962,22 +2393,31 @@
         "from_station": 3,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1836,
-        "leave_time": 1912
+        "leave_time": 1912,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1917,
-        "leave_time": 1953
+        "leave_time": 1953,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1957,
-        "leave_time": 2033
+        "leave_time": 2033,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       }
     ]
   },
@@ -2004,28 +2444,35 @@
         "departure": 700,
         "platform": 7,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 736,
         "departure": 738,
         "platform": 2,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 814,
         "departure": 817,
         "platform": 8,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 853,
         "departure": -1,
         "platform": 8,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -2036,22 +2483,31 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 700,
-        "leave_time": 736
+        "leave_time": 736,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       },
       {
         "from_station": 6,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 738,
-        "leave_time": 814
+        "leave_time": 814,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 817,
-        "leave_time": 853
+        "leave_time": 853,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       }
     ]
   },
@@ -2078,28 +2534,35 @@
         "departure": 919,
         "platform": 3,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 955,
         "departure": 1000,
         "platform": 1,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1036,
         "departure": 1041,
         "platform": 3,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1117,
         "departure": -1,
         "platform": 3,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -2110,22 +2573,31 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 919,
-        "leave_time": 955
+        "leave_time": 955,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       },
       {
         "from_station": 6,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1000,
-        "leave_time": 1036
+        "leave_time": 1036,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1041,
-        "leave_time": 1117
+        "leave_time": 1117,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       }
     ]
   },
@@ -2152,28 +2624,35 @@
         "departure": 1244,
         "platform": 1,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1320,
         "departure": 1323,
         "platform": 2,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1359,
         "departure": 1403,
         "platform": 4,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1439,
         "departure": -1,
         "platform": 1,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -2184,22 +2663,31 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1244,
-        "leave_time": 1320
+        "leave_time": 1320,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       },
       {
         "from_station": 6,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1323,
-        "leave_time": 1359
+        "leave_time": 1359,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1403,
-        "leave_time": 1439
+        "leave_time": 1439,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       }
     ]
   },
@@ -2226,28 +2714,35 @@
         "departure": 1512,
         "platform": 3,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1548,
         "departure": 1553,
         "platform": 3,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1629,
         "departure": 1631,
         "platform": 2,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1707,
         "departure": -1,
         "platform": 5,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -2258,22 +2753,31 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1512,
-        "leave_time": 1548
+        "leave_time": 1548,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       },
       {
         "from_station": 6,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1553,
-        "leave_time": 1629
+        "leave_time": 1629,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1631,
-        "leave_time": 1707
+        "leave_time": 1707,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       }
     ]
   },
@@ -2300,28 +2804,35 @@
         "departure": 1612,
         "platform": 4,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1648,
         "departure": 1651,
         "platform": 2,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1727,
         "departure": 1731,
         "platform": 1,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1807,
         "departure": -1,
         "platform": 3,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -2332,22 +2843,31 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1612,
-        "leave_time": 1648
+        "leave_time": 1648,
+        "distance_km": 28.6,
+        "speed_kmh": 48
       },
       {
         "from_station": 6,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1651,
-        "leave_time": 1727
+        "leave_time": 1727,
+        "distance_km": 44.5,
+        "speed_kmh": 74
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1731,
-        "leave_time": 1807
+        "leave_time": 1807,
+        "distance_km": 51.8,
+        "speed_kmh": 86
       }
     ]
   },
@@ -2379,63 +2899,80 @@
         "departure": 700,
         "platform": 8,
         "station_id": 7,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "集宁南"
       },
       {
         "arrival": 733,
         "departure": 735,
         "platform": 3,
         "station_id": 19,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "卓资东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 808,
         "departure": 810,
         "platform": 5,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 843,
         "departure": 847,
         "platform": 6,
         "station_id": 1,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "呼和浩特东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 920,
         "departure": 923,
         "platform": 3,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 956,
         "departure": 958,
         "platform": 8,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1031,
         "departure": 1034,
         "platform": 8,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1107,
         "departure": 1109,
         "platform": 3,
         "station_id": 4,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "包头东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1142,
         "departure": -1,
         "platform": 6,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -2446,57 +2983,81 @@
         "from_station": 7,
         "to_station": 19,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 700,
-        "leave_time": 733
+        "leave_time": 733,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       },
       {
         "from_station": 19,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 735,
-        "leave_time": 808
+        "leave_time": 808,
+        "distance_km": 30.8,
+        "speed_kmh": 56
       },
       {
         "from_station": 20,
         "to_station": 1,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 810,
-        "leave_time": 843
+        "leave_time": 843,
+        "distance_km": 37.2,
+        "speed_kmh": 68
       },
       {
         "from_station": 1,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 847,
-        "leave_time": 920
+        "leave_time": 920,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 2,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 923,
-        "leave_time": 956
+        "leave_time": 956,
+        "distance_km": 39.4,
+        "speed_kmh": 72
       },
       {
         "from_station": 14,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 958,
-        "leave_time": 1031
+        "leave_time": 1031,
+        "distance_km": 62.5,
+        "speed_kmh": 114
       },
       {
         "from_station": 13,
         "to_station": 4,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1034,
-        "leave_time": 1107
+        "leave_time": 1107,
+        "distance_km": 40.7,
+        "speed_kmh": 74
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1109,
-        "leave_time": 1142
+        "leave_time": 1142,
+        "distance_km": 18.3,
+        "speed_kmh": 33
       }
     ]
   },
@@ -2528,63 +3089,80 @@
         "departure": 934,
         "platform": 3,
         "station_id": 7,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "集宁南"
       },
       {
         "arrival": 1007,
         "departure": 1009,
         "platform": 3,
         "station_id": 19,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "卓资东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1042,
         "departure": 1047,
         "platform": 1,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1120,
         "departure": 1123,
         "platform": 5,
         "station_id": 1,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "呼和浩特东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1156,
         "departure": 1201,
         "platform": 5,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1234,
         "departure": 1237,
         "platform": 1,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1310,
         "departure": 1312,
         "platform": 3,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1345,
         "departure": 1348,
         "platform": 8,
         "station_id": 4,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "包头东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1421,
         "departure": -1,
         "platform": 6,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -2595,57 +3173,81 @@
         "from_station": 7,
         "to_station": 19,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 934,
-        "leave_time": 1007
+        "leave_time": 1007,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       },
       {
         "from_station": 19,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1009,
-        "leave_time": 1042
+        "leave_time": 1042,
+        "distance_km": 30.8,
+        "speed_kmh": 56
       },
       {
         "from_station": 20,
         "to_station": 1,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1047,
-        "leave_time": 1120
+        "leave_time": 1120,
+        "distance_km": 37.2,
+        "speed_kmh": 68
       },
       {
         "from_station": 1,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1123,
-        "leave_time": 1156
+        "leave_time": 1156,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 2,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1201,
-        "leave_time": 1234
+        "leave_time": 1234,
+        "distance_km": 39.4,
+        "speed_kmh": 72
       },
       {
         "from_station": 14,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1237,
-        "leave_time": 1310
+        "leave_time": 1310,
+        "distance_km": 62.5,
+        "speed_kmh": 114
       },
       {
         "from_station": 13,
         "to_station": 4,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1312,
-        "leave_time": 1345
+        "leave_time": 1345,
+        "distance_km": 40.7,
+        "speed_kmh": 74
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1348,
-        "leave_time": 1421
+        "leave_time": 1421,
+        "distance_km": 18.3,
+        "speed_kmh": 33
       }
     ]
   },
@@ -2677,49 +3279,62 @@
         "departure": 1128,
         "platform": 4,
         "station_id": 7,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "集宁南"
       },
       {
         "arrival": 1201,
         "departure": 1206,
         "platform": 5,
         "station_id": 19,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "卓资东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1239,
         "departure": 1241,
         "platform": 5,
         "station_id": 1,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1314,
         "departure": 1318,
         "platform": 1,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1351,
         "departure": 1356,
         "platform": 3,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1429,
         "departure": 1431,
         "platform": 2,
         "station_id": 4,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "包头东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1504,
         "departure": -1,
         "platform": 6,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -2730,43 +3345,61 @@
         "from_station": 7,
         "to_station": 19,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1128,
-        "leave_time": 1201
+        "leave_time": 1201,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       },
       {
         "from_station": 19,
         "to_station": 1,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1206,
-        "leave_time": 1239
+        "leave_time": 1239,
+        "distance_km": 67.3,
+        "speed_kmh": 122
       },
       {
         "from_station": 1,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1241,
-        "leave_time": 1314
+        "leave_time": 1314,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 2,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1318,
-        "leave_time": 1351
+        "leave_time": 1351,
+        "distance_km": 101.5,
+        "speed_kmh": 185
       },
       {
         "from_station": 13,
         "to_station": 4,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1356,
-        "leave_time": 1429
+        "leave_time": 1429,
+        "distance_km": 40.7,
+        "speed_kmh": 74
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1431,
-        "leave_time": 1504
+        "leave_time": 1504,
+        "distance_km": 18.3,
+        "speed_kmh": 33
       }
     ]
   },
@@ -2798,63 +3431,80 @@
         "departure": 1309,
         "platform": 4,
         "station_id": 7,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "集宁南"
       },
       {
         "arrival": 1342,
         "departure": 1346,
         "platform": 8,
         "station_id": 19,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "卓资东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1419,
         "departure": 1423,
         "platform": 4,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1456,
         "departure": 1500,
         "platform": 7,
         "station_id": 1,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "呼和浩特东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1533,
         "departure": 1535,
         "platform": 7,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1608,
         "departure": 1613,
         "platform": 2,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1646,
         "departure": 1649,
         "platform": 5,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1722,
         "departure": 1724,
         "platform": 6,
         "station_id": 4,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "包头东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1757,
         "departure": -1,
         "platform": 1,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -2865,57 +3515,81 @@
         "from_station": 7,
         "to_station": 19,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1309,
-        "leave_time": 1342
+        "leave_time": 1342,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       },
       {
         "from_station": 19,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1346,
-        "leave_time": 1419
+        "leave_time": 1419,
+        "distance_km": 30.8,
+        "speed_kmh": 56
       },
       {
         "from_station": 20,
         "to_station": 1,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1423,
-        "leave_time": 1456
+        "leave_time": 1456,
+        "distance_km": 37.2,
+        "speed_kmh": 68
       },
       {
         "from_station": 1,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1500,
-        "leave_time": 1533
+        "leave_time": 1533,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 2,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1535,
-        "leave_time": 1608
+        "leave_time": 1608,
+        "distance_km": 39.4,
+        "speed_kmh": 72
       },
       {
         "from_station": 14,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1613,
-        "leave_time": 1646
+        "leave_time": 1646,
+        "distance_km": 62.5,
+        "speed_kmh": 114
       },
       {
         "from_station": 13,
         "to_station": 4,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1649,
-        "leave_time": 1722
+        "leave_time": 1722,
+        "distance_km": 40.7,
+        "speed_kmh": 74
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1724,
-        "leave_time": 1757
+        "leave_time": 1757,
+        "distance_km": 18.3,
+        "speed_kmh": 33
       }
     ]
   },
@@ -2947,63 +3621,80 @@
         "departure": 1632,
         "platform": 3,
         "station_id": 7,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "集宁南"
       },
       {
         "arrival": 1705,
         "departure": 1709,
         "platform": 2,
         "station_id": 19,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "卓资东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1742,
         "departure": 1744,
         "platform": 6,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1817,
         "departure": 1821,
         "platform": 7,
         "station_id": 1,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "呼和浩特东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1854,
         "departure": 1856,
         "platform": 3,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1929,
         "departure": 1933,
         "platform": 1,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 2006,
         "departure": 2008,
         "platform": 8,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 2041,
         "departure": 2045,
         "platform": 4,
         "station_id": 4,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "包头东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 2118,
         "departure": -1,
         "platform": 4,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -3014,57 +3705,81 @@
         "from_station": 7,
         "to_station": 19,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1632,
-        "leave_time": 1705
+        "leave_time": 1705,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       },
       {
         "from_station": 19,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1709,
-        "leave_time": 1742
+        "leave_time": 1742,
+        "distance_km": 30.8,
+        "speed_kmh": 56
       },
       {
         "from_station": 20,
         "to_station": 1,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1744,
-        "leave_time": 1817
+        "leave_time": 1817,
+        "distance_km": 37.2,
+        "speed_kmh": 68
       },
       {
         "from_station": 1,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1821,
-        "leave_time": 1854
+        "leave_time": 1854,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 2,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1856,
-        "leave_time": 1929
+        "leave_time": 1929,
+        "distance_km": 39.4,
+        "speed_kmh": 72
       },
       {
         "from_station": 14,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1933,
-        "leave_time": 2006
+        "leave_time": 2006,
+        "distance_km": 62.5,
+        "speed_kmh": 114
       },
       {
         "from_station": 13,
         "to_station": 4,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 2008,
-        "leave_time": 2041
+        "leave_time": 2041,
+        "distance_km": 40.7,
+        "speed_kmh": 74
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 2045,
-        "leave_time": 2118
+        "leave_time": 2118,
+        "distance_km": 18.3,
+        "speed_kmh": 33
       }
     ]
   },
@@ -3096,63 +3811,80 @@
         "departure": 700,
         "platform": 7,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 733,
         "departure": 735,
         "platform": 6,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 808,
         "departure": 811,
         "platform": 6,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 844,
         "departure": 846,
         "platform": 2,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 919,
         "departure": 924,
         "platform": 5,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 957,
         "departure": 1002,
         "platform": 6,
         "station_id": 1,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1035,
         "departure": 1038,
         "platform": 2,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1111,
         "departure": 1115,
         "platform": 2,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1148,
         "departure": -1,
         "platform": 7,
         "station_id": 7,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "集宁南",
+        "line_name": "集包铁路"
       }
     ],
     "type": "REGULAR",
@@ -3163,57 +3895,81 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 700,
-        "leave_time": 733
+        "leave_time": 733,
+        "distance_km": 18.3,
+        "speed_kmh": 33
       },
       {
         "from_station": 4,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 735,
-        "leave_time": 808
+        "leave_time": 808,
+        "distance_km": 40.7,
+        "speed_kmh": 74
       },
       {
         "from_station": 13,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 811,
-        "leave_time": 844
+        "leave_time": 844,
+        "distance_km": 62.5,
+        "speed_kmh": 114
       },
       {
         "from_station": 14,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 846,
-        "leave_time": 919
+        "leave_time": 919,
+        "distance_km": 39.4,
+        "speed_kmh": 72
       },
       {
         "from_station": 2,
         "to_station": 1,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 924,
-        "leave_time": 957
+        "leave_time": 957,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1002,
-        "leave_time": 1035
+        "leave_time": 1035,
+        "distance_km": 37.2,
+        "speed_kmh": 68
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1038,
-        "leave_time": 1111
+        "leave_time": 1111,
+        "distance_km": 30.8,
+        "speed_kmh": 56
       },
       {
         "from_station": 19,
         "to_station": 7,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1115,
-        "leave_time": 1148
+        "leave_time": 1148,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       }
     ]
   },
@@ -3245,63 +4001,80 @@
         "departure": 920,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 953,
         "departure": 957,
         "platform": 3,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1030,
         "departure": 1032,
         "platform": 8,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1105,
         "departure": 1107,
         "platform": 8,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1140,
         "departure": 1145,
         "platform": 5,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1218,
         "departure": 1223,
         "platform": 8,
         "station_id": 1,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1256,
         "departure": 1300,
         "platform": 2,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1333,
         "departure": 1336,
         "platform": 3,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1409,
         "departure": -1,
         "platform": 3,
         "station_id": 7,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "集宁南",
+        "line_name": "集包铁路"
       }
     ],
     "type": "REGULAR",
@@ -3312,57 +4085,81 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 920,
-        "leave_time": 953
+        "leave_time": 953,
+        "distance_km": 18.3,
+        "speed_kmh": 33
       },
       {
         "from_station": 4,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 957,
-        "leave_time": 1030
+        "leave_time": 1030,
+        "distance_km": 40.7,
+        "speed_kmh": 74
       },
       {
         "from_station": 13,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1032,
-        "leave_time": 1105
+        "leave_time": 1105,
+        "distance_km": 62.5,
+        "speed_kmh": 114
       },
       {
         "from_station": 14,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1107,
-        "leave_time": 1140
+        "leave_time": 1140,
+        "distance_km": 39.4,
+        "speed_kmh": 72
       },
       {
         "from_station": 2,
         "to_station": 1,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1145,
-        "leave_time": 1218
+        "leave_time": 1218,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1223,
-        "leave_time": 1256
+        "leave_time": 1256,
+        "distance_km": 37.2,
+        "speed_kmh": 68
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1300,
-        "leave_time": 1333
+        "leave_time": 1333,
+        "distance_km": 30.8,
+        "speed_kmh": 56
       },
       {
         "from_station": 19,
         "to_station": 7,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1336,
-        "leave_time": 1409
+        "leave_time": 1409,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       }
     ]
   },
@@ -3394,63 +4191,80 @@
         "departure": 1212,
         "platform": 7,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1245,
         "departure": 1250,
         "platform": 7,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1323,
         "departure": 1328,
         "platform": 4,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1401,
         "departure": 1406,
         "platform": 8,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1439,
         "departure": 1443,
         "platform": 7,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1516,
         "departure": 1518,
         "platform": 8,
         "station_id": 1,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1551,
         "departure": 1553,
         "platform": 7,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1626,
         "departure": 1631,
         "platform": 6,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1704,
         "departure": -1,
         "platform": 5,
         "station_id": 7,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "集宁南",
+        "line_name": "集包铁路"
       }
     ],
     "type": "REGULAR",
@@ -3461,57 +4275,81 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1212,
-        "leave_time": 1245
+        "leave_time": 1245,
+        "distance_km": 18.3,
+        "speed_kmh": 33
       },
       {
         "from_station": 4,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1250,
-        "leave_time": 1323
+        "leave_time": 1323,
+        "distance_km": 40.7,
+        "speed_kmh": 74
       },
       {
         "from_station": 13,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1328,
-        "leave_time": 1401
+        "leave_time": 1401,
+        "distance_km": 62.5,
+        "speed_kmh": 114
       },
       {
         "from_station": 14,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1406,
-        "leave_time": 1439
+        "leave_time": 1439,
+        "distance_km": 39.4,
+        "speed_kmh": 72
       },
       {
         "from_station": 2,
         "to_station": 1,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1443,
-        "leave_time": 1516
+        "leave_time": 1516,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1518,
-        "leave_time": 1551
+        "leave_time": 1551,
+        "distance_km": 37.2,
+        "speed_kmh": 68
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1553,
-        "leave_time": 1626
+        "leave_time": 1626,
+        "distance_km": 30.8,
+        "speed_kmh": 56
       },
       {
         "from_station": 19,
         "to_station": 7,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1631,
-        "leave_time": 1704
+        "leave_time": 1704,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       }
     ]
   },
@@ -3543,63 +4381,80 @@
         "departure": 1130,
         "platform": 3,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1203,
         "departure": 1205,
         "platform": 8,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1238,
         "departure": 1242,
         "platform": 8,
         "station_id": 13,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "萨拉齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1315,
         "departure": 1317,
         "platform": 3,
         "station_id": 14,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "察素齐",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1350,
         "departure": 1352,
         "platform": 3,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1425,
         "departure": 1429,
         "platform": 4,
         "station_id": 1,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1502,
         "departure": 1506,
         "platform": 4,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1539,
         "departure": 1543,
         "platform": 8,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1616,
         "departure": -1,
         "platform": 2,
         "station_id": 7,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "集宁南",
+        "line_name": "集包铁路"
       }
     ],
     "type": "REGULAR",
@@ -3610,57 +4465,81 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1130,
-        "leave_time": 1203
+        "leave_time": 1203,
+        "distance_km": 18.3,
+        "speed_kmh": 33
       },
       {
         "from_station": 4,
         "to_station": 13,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1205,
-        "leave_time": 1238
+        "leave_time": 1238,
+        "distance_km": 40.7,
+        "speed_kmh": 74
       },
       {
         "from_station": 13,
         "to_station": 14,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1242,
-        "leave_time": 1315
+        "leave_time": 1315,
+        "distance_km": 62.5,
+        "speed_kmh": 114
       },
       {
         "from_station": 14,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1317,
-        "leave_time": 1350
+        "leave_time": 1350,
+        "distance_km": 39.4,
+        "speed_kmh": 72
       },
       {
         "from_station": 2,
         "to_station": 1,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1352,
-        "leave_time": 1425
+        "leave_time": 1425,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1429,
-        "leave_time": 1502
+        "leave_time": 1502,
+        "distance_km": 37.2,
+        "speed_kmh": 68
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1506,
-        "leave_time": 1539
+        "leave_time": 1539,
+        "distance_km": 30.8,
+        "speed_kmh": 56
       },
       {
         "from_station": 19,
         "to_station": 7,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1543,
-        "leave_time": 1616
+        "leave_time": 1616,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       }
     ]
   },
@@ -3692,49 +4571,62 @@
         "departure": 1556,
         "platform": 3,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1629,
         "departure": 1631,
         "platform": 6,
         "station_id": 13,
-        "line_id": 1
+        "line_id": 1,
+        "station_name": "萨拉齐",
+        "line_name": "京包高铁"
       },
       {
         "arrival": 1704,
         "departure": 1707,
         "platform": 6,
         "station_id": 2,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1740,
         "departure": 1744,
         "platform": 7,
         "station_id": 1,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "呼和浩特东",
+        "line_name": "集包铁路"
       },
       {
         "arrival": 1817,
         "departure": 1821,
         "platform": 6,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1854,
         "departure": 1857,
         "platform": 5,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1930,
         "departure": -1,
         "platform": 5,
         "station_id": 7,
-        "line_id": 4
+        "line_id": 4,
+        "station_name": "集宁南",
+        "line_name": "集包铁路"
       }
     ],
     "type": "REGULAR",
@@ -3745,43 +4637,61 @@
         "from_station": 3,
         "to_station": 13,
         "line_id": 1,
+        "line_name": "京包高铁",
         "enter_time": 1556,
-        "leave_time": 1629
+        "leave_time": 1629,
+        "distance_km": 57.9,
+        "speed_kmh": 105
       },
       {
         "from_station": 13,
         "to_station": 2,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1631,
-        "leave_time": 1704
+        "leave_time": 1704,
+        "distance_km": 101.5,
+        "speed_kmh": 185
       },
       {
         "from_station": 2,
         "to_station": 1,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1707,
-        "leave_time": 1740
+        "leave_time": 1740,
+        "distance_km": 10.7,
+        "speed_kmh": 20
       },
       {
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1744,
-        "leave_time": 1817
+        "leave_time": 1817,
+        "distance_km": 37.2,
+        "speed_kmh": 68
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1821,
-        "leave_time": 1854
+        "leave_time": 1854,
+        "distance_km": 30.8,
+        "speed_kmh": 56
       },
       {
         "from_station": 19,
         "to_station": 7,
         "line_id": 4,
+        "line_name": "集包铁路",
         "enter_time": 1857,
-        "leave_time": 1930
+        "leave_time": 1930,
+        "distance_km": 47.3,
+        "speed_kmh": 86
       }
     ]
   },
@@ -3807,21 +4717,26 @@
         "departure": 700,
         "platform": 5,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 806,
         "departure": 809,
         "platform": 6,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 915,
         "departure": -1,
         "platform": 3,
         "station_id": 11,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "准格尔",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -3832,15 +4747,21 @@
         "from_station": 2,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 700,
-        "leave_time": 806
+        "leave_time": 806,
+        "distance_km": 72.5,
+        "speed_kmh": 66
       },
       {
         "from_station": 15,
         "to_station": 11,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 809,
-        "leave_time": 915
+        "leave_time": 915,
+        "distance_km": 71.8,
+        "speed_kmh": 65
       }
     ]
   },
@@ -3866,21 +4787,26 @@
         "departure": 852,
         "platform": 2,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 918,
         "departure": 922,
         "platform": 8,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1028,
         "departure": -1,
         "platform": 8,
         "station_id": 11,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "准格尔",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -3891,15 +4817,21 @@
         "from_station": 2,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 852,
-        "leave_time": 918
+        "leave_time": 918,
+        "distance_km": 72.5,
+        "speed_kmh": 167
       },
       {
         "from_station": 15,
         "to_station": 11,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 922,
-        "leave_time": 1028
+        "leave_time": 1028,
+        "distance_km": 71.8,
+        "speed_kmh": 65
       }
     ]
   },
@@ -3925,21 +4857,26 @@
         "departure": 1110,
         "platform": 4,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 1216,
         "departure": 1221,
         "platform": 8,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1327,
         "departure": -1,
         "platform": 6,
         "station_id": 11,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "准格尔",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -3950,15 +4887,21 @@
         "from_station": 2,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1110,
-        "leave_time": 1216
+        "leave_time": 1216,
+        "distance_km": 72.5,
+        "speed_kmh": 66
       },
       {
         "from_station": 15,
         "to_station": 11,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1221,
-        "leave_time": 1327
+        "leave_time": 1327,
+        "distance_km": 71.8,
+        "speed_kmh": 65
       }
     ]
   },
@@ -3984,21 +4927,26 @@
         "departure": 1327,
         "platform": 7,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 1433,
         "departure": 1436,
         "platform": 5,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1502,
         "departure": -1,
         "platform": 6,
         "station_id": 11,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "准格尔",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -4009,15 +4957,21 @@
         "from_station": 2,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1327,
-        "leave_time": 1433
+        "leave_time": 1433,
+        "distance_km": 72.5,
+        "speed_kmh": 66
       },
       {
         "from_station": 15,
         "to_station": 11,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1436,
-        "leave_time": 1502
+        "leave_time": 1502,
+        "distance_km": 71.8,
+        "speed_kmh": 166
       }
     ]
   },
@@ -4043,21 +4997,26 @@
         "departure": 1628,
         "platform": 6,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 1734,
         "departure": 1737,
         "platform": 7,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1803,
         "departure": -1,
         "platform": 2,
         "station_id": 11,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "准格尔",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -4068,15 +5027,21 @@
         "from_station": 2,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1628,
-        "leave_time": 1734
+        "leave_time": 1734,
+        "distance_km": 72.5,
+        "speed_kmh": 66
       },
       {
         "from_station": 15,
         "to_station": 11,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1737,
-        "leave_time": 1803
+        "leave_time": 1803,
+        "distance_km": 71.8,
+        "speed_kmh": 166
       }
     ]
   },
@@ -4102,21 +5067,26 @@
         "departure": 700,
         "platform": 6,
         "station_id": 11,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "准格尔"
       },
       {
         "arrival": 806,
         "departure": 809,
         "platform": 3,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 915,
         "departure": -1,
         "platform": 5,
         "station_id": 2,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "呼和浩特",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -4127,15 +5097,21 @@
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 700,
-        "leave_time": 806
+        "leave_time": 806,
+        "distance_km": 71.8,
+        "speed_kmh": 65
       },
       {
         "from_station": 15,
         "to_station": 2,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 809,
-        "leave_time": 915
+        "leave_time": 915,
+        "distance_km": 72.5,
+        "speed_kmh": 66
       }
     ]
   },
@@ -4161,21 +5137,26 @@
         "departure": 832,
         "platform": 7,
         "station_id": 11,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "准格尔"
       },
       {
         "arrival": 938,
         "departure": 942,
         "platform": 1,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1008,
         "departure": -1,
         "platform": 2,
         "station_id": 2,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "呼和浩特",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -4186,15 +5167,21 @@
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 832,
-        "leave_time": 938
+        "leave_time": 938,
+        "distance_km": 71.8,
+        "speed_kmh": 65
       },
       {
         "from_station": 15,
         "to_station": 2,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 942,
-        "leave_time": 1008
+        "leave_time": 1008,
+        "distance_km": 72.5,
+        "speed_kmh": 167
       }
     ]
   },
@@ -4220,21 +5207,26 @@
         "departure": 1300,
         "platform": 8,
         "station_id": 11,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "准格尔"
       },
       {
         "arrival": 1406,
         "departure": 1409,
         "platform": 8,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1515,
         "departure": -1,
         "platform": 3,
         "station_id": 2,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "呼和浩特",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -4245,15 +5237,21 @@
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1300,
-        "leave_time": 1406
+        "leave_time": 1406,
+        "distance_km": 71.8,
+        "speed_kmh": 65
       },
       {
         "from_station": 15,
         "to_station": 2,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1409,
-        "leave_time": 1515
+        "leave_time": 1515,
+        "distance_km": 72.5,
+        "speed_kmh": 66
       }
     ]
   },
@@ -4279,21 +5277,26 @@
         "departure": 1539,
         "platform": 8,
         "station_id": 11,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "准格尔"
       },
       {
         "arrival": 1605,
         "departure": 1608,
         "platform": 6,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 1714,
         "departure": -1,
         "platform": 1,
         "station_id": 2,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "呼和浩特",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -4304,15 +5307,21 @@
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1539,
-        "leave_time": 1605
+        "leave_time": 1605,
+        "distance_km": 71.8,
+        "speed_kmh": 166
       },
       {
         "from_station": 15,
         "to_station": 2,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1608,
-        "leave_time": 1714
+        "leave_time": 1714,
+        "distance_km": 72.5,
+        "speed_kmh": 66
       }
     ]
   },
@@ -4338,21 +5347,26 @@
         "departure": 1844,
         "platform": 8,
         "station_id": 11,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "准格尔"
       },
       {
         "arrival": 1910,
         "departure": 1913,
         "platform": 4,
         "station_id": 15,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "托克托东",
+        "line_name": "呼准鄂铁路"
       },
       {
         "arrival": 2019,
         "departure": -1,
         "platform": 5,
         "station_id": 2,
-        "line_id": 5
+        "line_id": 5,
+        "station_name": "呼和浩特",
+        "line_name": "呼准鄂铁路"
       }
     ],
     "type": "REGULAR",
@@ -4363,15 +5377,21 @@
         "from_station": 11,
         "to_station": 15,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1844,
-        "leave_time": 1910
+        "leave_time": 1910,
+        "distance_km": 71.8,
+        "speed_kmh": 166
       },
       {
         "from_station": 15,
         "to_station": 2,
         "line_id": 5,
+        "line_name": "呼准鄂铁路",
         "enter_time": 1913,
-        "leave_time": 2019
+        "leave_time": 2019,
+        "distance_km": 72.5,
+        "speed_kmh": 66
       }
     ]
   },
@@ -4397,21 +5417,26 @@
         "departure": 700,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 908,
         "departure": 913,
         "platform": 8,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1121,
         "departure": -1,
         "platform": 7,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4422,15 +5447,21 @@
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 700,
-        "leave_time": 908
+        "leave_time": 908,
+        "distance_km": 206.8,
+        "speed_kmh": 97
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 913,
-        "leave_time": 1121
+        "leave_time": 1121,
+        "distance_km": 130.5,
+        "speed_kmh": 61
       }
     ]
   },
@@ -4456,21 +5487,26 @@
         "departure": 836,
         "platform": 3,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1004,
         "departure": 1007,
         "platform": 4,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1215,
         "departure": -1,
         "platform": 2,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4481,15 +5517,21 @@
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 836,
-        "leave_time": 1004
+        "leave_time": 1004,
+        "distance_km": 206.8,
+        "speed_kmh": 141
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1007,
-        "leave_time": 1215
+        "leave_time": 1215,
+        "distance_km": 130.5,
+        "speed_kmh": 61
       }
     ]
   },
@@ -4515,21 +5557,26 @@
         "departure": 1234,
         "platform": 3,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1402,
         "departure": 1405,
         "platform": 4,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1613,
         "departure": -1,
         "platform": 2,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4540,15 +5587,21 @@
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1234,
-        "leave_time": 1402
+        "leave_time": 1402,
+        "distance_km": 206.8,
+        "speed_kmh": 141
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1405,
-        "leave_time": 1613
+        "leave_time": 1613,
+        "distance_km": 130.5,
+        "speed_kmh": 61
       }
     ]
   },
@@ -4574,21 +5627,26 @@
         "departure": 1309,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1517,
         "departure": 1520,
         "platform": 8,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1728,
         "departure": -1,
         "platform": 7,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4599,15 +5657,21 @@
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1309,
-        "leave_time": 1517
+        "leave_time": 1517,
+        "distance_km": 206.8,
+        "speed_kmh": 97
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1520,
-        "leave_time": 1728
+        "leave_time": 1728,
+        "distance_km": 130.5,
+        "speed_kmh": 61
       }
     ]
   },
@@ -4633,21 +5697,26 @@
         "departure": 1712,
         "platform": 8,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1920,
         "departure": 1924,
         "platform": 1,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 2132,
         "departure": -1,
         "platform": 1,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4658,15 +5727,21 @@
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1712,
-        "leave_time": 1920
+        "leave_time": 1920,
+        "distance_km": 206.8,
+        "speed_kmh": 97
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1924,
-        "leave_time": 2132
+        "leave_time": 2132,
+        "distance_km": 130.5,
+        "speed_kmh": 61
       }
     ]
   },
@@ -4692,21 +5767,26 @@
         "departure": 700,
         "platform": 5,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 908,
         "departure": 912,
         "platform": 8,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1120,
         "departure": -1,
         "platform": 3,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4717,15 +5797,21 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 700,
-        "leave_time": 908
+        "leave_time": 908,
+        "distance_km": 130.5,
+        "speed_kmh": 61
       },
       {
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 912,
-        "leave_time": 1120
+        "leave_time": 1120,
+        "distance_km": 206.8,
+        "speed_kmh": 97
       }
     ]
   },
@@ -4751,21 +5837,26 @@
         "departure": 842,
         "platform": 3,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 1010,
         "departure": 1014,
         "platform": 3,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1222,
         "departure": -1,
         "platform": 8,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4776,15 +5867,21 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 842,
-        "leave_time": 1010
+        "leave_time": 1010,
+        "distance_km": 130.5,
+        "speed_kmh": 89
       },
       {
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1014,
-        "leave_time": 1222
+        "leave_time": 1222,
+        "distance_km": 206.8,
+        "speed_kmh": 97
       }
     ]
   },
@@ -4810,21 +5907,26 @@
         "departure": 1058,
         "platform": 6,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 1226,
         "departure": 1231,
         "platform": 6,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1439,
         "departure": -1,
         "platform": 2,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4835,15 +5937,21 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1058,
-        "leave_time": 1226
+        "leave_time": 1226,
+        "distance_km": 130.5,
+        "speed_kmh": 89
       },
       {
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1231,
-        "leave_time": 1439
+        "leave_time": 1439,
+        "distance_km": 206.8,
+        "speed_kmh": 97
       }
     ]
   },
@@ -4869,21 +5977,26 @@
         "departure": 1439,
         "platform": 6,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 1607,
         "departure": 1610,
         "platform": 5,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1818,
         "departure": -1,
         "platform": 3,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4894,15 +6007,21 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1439,
-        "leave_time": 1607
+        "leave_time": 1607,
+        "distance_km": 130.5,
+        "speed_kmh": 89
       },
       {
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1610,
-        "leave_time": 1818
+        "leave_time": 1818,
+        "distance_km": 206.8,
+        "speed_kmh": 97
       }
     ]
   },
@@ -4928,21 +6047,26 @@
         "departure": 1444,
         "platform": 7,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 1612,
         "departure": 1615,
         "platform": 7,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1823,
         "departure": -1,
         "platform": 3,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -4953,15 +6077,21 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1444,
-        "leave_time": 1612
+        "leave_time": 1612,
+        "distance_km": 130.5,
+        "speed_kmh": 89
       },
       {
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1615,
-        "leave_time": 1823
+        "leave_time": 1823,
+        "distance_km": 206.8,
+        "speed_kmh": 97
       }
     ]
   },
@@ -4988,28 +6118,35 @@
         "departure": 600,
         "platform": 5,
         "station_id": 8,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌兰察布"
       },
       {
         "arrival": 612,
         "departure": 617,
         "platform": 1,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 629,
         "departure": 633,
         "platform": 1,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 645,
         "departure": -1,
         "platform": 5,
         "station_id": 1,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "呼和浩特东",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5020,22 +6157,31 @@
         "from_station": 8,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 600,
-        "leave_time": 612
+        "leave_time": 612,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       },
       {
         "from_station": 19,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 617,
-        "leave_time": 629
+        "leave_time": 629,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 20,
         "to_station": 1,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 633,
-        "leave_time": 645
+        "leave_time": 645,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       }
     ]
   },
@@ -5062,28 +6208,35 @@
         "departure": 827,
         "platform": 7,
         "station_id": 8,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌兰察布"
       },
       {
         "arrival": 839,
         "departure": 841,
         "platform": 6,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 853,
         "departure": 855,
         "platform": 6,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 907,
         "departure": -1,
         "platform": 4,
         "station_id": 1,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "呼和浩特东",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5094,22 +6247,31 @@
         "from_station": 8,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 827,
-        "leave_time": 839
+        "leave_time": 839,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       },
       {
         "from_station": 19,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 841,
-        "leave_time": 853
+        "leave_time": 853,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 20,
         "to_station": 1,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 855,
-        "leave_time": 907
+        "leave_time": 907,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       }
     ]
   },
@@ -5136,28 +6298,35 @@
         "departure": 1124,
         "platform": 1,
         "station_id": 8,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌兰察布"
       },
       {
         "arrival": 1136,
         "departure": 1141,
         "platform": 8,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1153,
         "departure": 1156,
         "platform": 1,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1208,
         "departure": -1,
         "platform": 4,
         "station_id": 1,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "呼和浩特东",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5168,22 +6337,31 @@
         "from_station": 8,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1124,
-        "leave_time": 1136
+        "leave_time": 1136,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       },
       {
         "from_station": 19,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1141,
-        "leave_time": 1153
+        "leave_time": 1153,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 20,
         "to_station": 1,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1156,
-        "leave_time": 1208
+        "leave_time": 1208,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       }
     ]
   },
@@ -5210,28 +6388,35 @@
         "departure": 1306,
         "platform": 1,
         "station_id": 8,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌兰察布"
       },
       {
         "arrival": 1318,
         "departure": 1321,
         "platform": 5,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1333,
         "departure": 1337,
         "platform": 1,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1349,
         "departure": -1,
         "platform": 3,
         "station_id": 1,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "呼和浩特东",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5242,22 +6427,31 @@
         "from_station": 8,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1306,
-        "leave_time": 1318
+        "leave_time": 1318,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       },
       {
         "from_station": 19,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1321,
-        "leave_time": 1333
+        "leave_time": 1333,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 20,
         "to_station": 1,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1337,
-        "leave_time": 1349
+        "leave_time": 1349,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       }
     ]
   },
@@ -5284,28 +6478,35 @@
         "departure": 1448,
         "platform": 2,
         "station_id": 8,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌兰察布"
       },
       {
         "arrival": 1500,
         "departure": 1504,
         "platform": 8,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1516,
         "departure": 1519,
         "platform": 7,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1531,
         "departure": -1,
         "platform": 5,
         "station_id": 1,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "呼和浩特东",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5316,22 +6517,31 @@
         "from_station": 8,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1448,
-        "leave_time": 1500
+        "leave_time": 1500,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       },
       {
         "from_station": 19,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1504,
-        "leave_time": 1516
+        "leave_time": 1516,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 20,
         "to_station": 1,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1519,
-        "leave_time": 1531
+        "leave_time": 1531,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       }
     ]
   },
@@ -5358,28 +6568,35 @@
         "departure": 600,
         "platform": 1,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 612,
         "departure": 615,
         "platform": 1,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 627,
         "departure": 629,
         "platform": 7,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 641,
         "departure": -1,
         "platform": 3,
         "station_id": 8,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "乌兰察布",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5390,22 +6607,31 @@
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 600,
-        "leave_time": 612
+        "leave_time": 612,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 615,
-        "leave_time": 627
+        "leave_time": 627,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 19,
         "to_station": 8,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 629,
-        "leave_time": 641
+        "leave_time": 641,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       }
     ]
   },
@@ -5432,28 +6658,35 @@
         "departure": 802,
         "platform": 5,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 814,
         "departure": 816,
         "platform": 3,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 828,
         "departure": 832,
         "platform": 7,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 844,
         "departure": -1,
         "platform": 7,
         "station_id": 8,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "乌兰察布",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5464,22 +6697,31 @@
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 802,
-        "leave_time": 814
+        "leave_time": 814,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 816,
-        "leave_time": 828
+        "leave_time": 828,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 19,
         "to_station": 8,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 832,
-        "leave_time": 844
+        "leave_time": 844,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       }
     ]
   },
@@ -5506,28 +6748,35 @@
         "departure": 948,
         "platform": 2,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 1000,
         "departure": 1005,
         "platform": 5,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1017,
         "departure": 1020,
         "platform": 1,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1032,
         "departure": -1,
         "platform": 7,
         "station_id": 8,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "乌兰察布",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5538,22 +6787,31 @@
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 948,
-        "leave_time": 1000
+        "leave_time": 1000,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1005,
-        "leave_time": 1017
+        "leave_time": 1017,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 19,
         "to_station": 8,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1020,
-        "leave_time": 1032
+        "leave_time": 1032,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       }
     ]
   },
@@ -5580,28 +6838,35 @@
         "departure": 1042,
         "platform": 2,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 1054,
         "departure": 1058,
         "platform": 4,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1110,
         "departure": 1114,
         "platform": 6,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1126,
         "departure": -1,
         "platform": 6,
         "station_id": 8,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "乌兰察布",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5612,22 +6877,31 @@
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1042,
-        "leave_time": 1054
+        "leave_time": 1054,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1058,
-        "leave_time": 1110
+        "leave_time": 1110,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 19,
         "to_station": 8,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1114,
-        "leave_time": 1126
+        "leave_time": 1126,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       }
     ]
   },
@@ -5654,28 +6928,35 @@
         "departure": 1248,
         "platform": 6,
         "station_id": 1,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特东"
       },
       {
         "arrival": 1300,
         "departure": 1302,
         "platform": 8,
         "station_id": 20,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "旗下营南",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1314,
         "departure": 1319,
         "platform": 5,
         "station_id": 19,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "卓资东",
+        "line_name": "集呼高铁"
       },
       {
         "arrival": 1331,
         "departure": -1,
         "platform": 6,
         "station_id": 8,
-        "line_id": 7
+        "line_id": 7,
+        "station_name": "乌兰察布",
+        "line_name": "集呼高铁"
       }
     ],
     "type": "REGULAR",
@@ -5686,22 +6967,31 @@
         "from_station": 1,
         "to_station": 20,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1248,
-        "leave_time": 1300
+        "leave_time": 1300,
+        "distance_km": 37.2,
+        "speed_kmh": 186
       },
       {
         "from_station": 20,
         "to_station": 19,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1302,
-        "leave_time": 1314
+        "leave_time": 1314,
+        "distance_km": 30.8,
+        "speed_kmh": 154
       },
       {
         "from_station": 19,
         "to_station": 8,
         "line_id": 7,
+        "line_name": "集呼高铁",
         "enter_time": 1319,
-        "leave_time": 1331
+        "leave_time": 1331,
+        "distance_km": 50.6,
+        "speed_kmh": 253
       }
     ]
   },
@@ -5728,28 +7018,35 @@
         "departure": 700,
         "platform": 1,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 806,
         "departure": 811,
         "platform": 4,
         "station_id": 4,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "包头东",
+        "line_name": "呼临铁路"
       },
       {
         "arrival": 917,
         "departure": 920,
         "platform": 4,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1026,
         "departure": -1,
         "platform": 4,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -5760,22 +7057,31 @@
         "from_station": 2,
         "to_station": 4,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 700,
-        "leave_time": 806
+        "leave_time": 806,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 811,
-        "leave_time": 917
+        "leave_time": 917,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 920,
-        "leave_time": 1026
+        "leave_time": 1026,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       }
     ]
   },
@@ -5802,28 +7108,35 @@
         "departure": 937,
         "platform": 1,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 1043,
         "departure": 1046,
         "platform": 1,
         "station_id": 4,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "包头东",
+        "line_name": "呼临铁路"
       },
       {
         "arrival": 1152,
         "departure": 1154,
         "platform": 8,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1300,
         "departure": -1,
         "platform": 1,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -5834,22 +7147,31 @@
         "from_station": 2,
         "to_station": 4,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 937,
-        "leave_time": 1043
+        "leave_time": 1043,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1046,
-        "leave_time": 1152
+        "leave_time": 1152,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1154,
-        "leave_time": 1300
+        "leave_time": 1300,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       }
     ]
   },
@@ -5876,28 +7198,35 @@
         "departure": 1232,
         "platform": 4,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 1338,
         "departure": 1342,
         "platform": 6,
         "station_id": 4,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "包头东",
+        "line_name": "呼临铁路"
       },
       {
         "arrival": 1448,
         "departure": 1451,
         "platform": 1,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1557,
         "departure": -1,
         "platform": 2,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -5908,22 +7237,31 @@
         "from_station": 2,
         "to_station": 4,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 1232,
-        "leave_time": 1338
+        "leave_time": 1338,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1342,
-        "leave_time": 1448
+        "leave_time": 1448,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1451,
-        "leave_time": 1557
+        "leave_time": 1557,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       }
     ]
   },
@@ -5950,28 +7288,35 @@
         "departure": 1539,
         "platform": 2,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 1645,
         "departure": 1648,
         "platform": 3,
         "station_id": 4,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "包头东",
+        "line_name": "呼临铁路"
       },
       {
         "arrival": 1754,
         "departure": 1756,
         "platform": 5,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1902,
         "departure": -1,
         "platform": 1,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -5982,22 +7327,31 @@
         "from_station": 2,
         "to_station": 4,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 1539,
-        "leave_time": 1645
+        "leave_time": 1645,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1648,
-        "leave_time": 1754
+        "leave_time": 1754,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1756,
-        "leave_time": 1902
+        "leave_time": 1902,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       }
     ]
   },
@@ -6024,28 +7378,35 @@
         "departure": 1720,
         "platform": 2,
         "station_id": 2,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "呼和浩特"
       },
       {
         "arrival": 1826,
         "departure": 1830,
         "platform": 8,
         "station_id": 4,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "包头东",
+        "line_name": "呼临铁路"
       },
       {
         "arrival": 1936,
         "departure": 1939,
         "platform": 6,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 2045,
         "departure": -1,
         "platform": 8,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -6056,22 +7417,31 @@
         "from_station": 2,
         "to_station": 4,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 1720,
-        "leave_time": 1826
+        "leave_time": 1826,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1830,
-        "leave_time": 1936
+        "leave_time": 1936,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1939,
-        "leave_time": 2045
+        "leave_time": 2045,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       }
     ]
   },
@@ -6098,28 +7468,35 @@
         "departure": 700,
         "platform": 6,
         "station_id": 9,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "临河"
       },
       {
         "arrival": 806,
         "departure": 810,
         "platform": 5,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 916,
         "departure": 919,
         "platform": 5,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1025,
         "departure": -1,
         "platform": 6,
         "station_id": 2,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "呼和浩特",
+        "line_name": "呼临铁路"
       }
     ],
     "type": "REGULAR",
@@ -6130,22 +7507,31 @@
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 700,
-        "leave_time": 806
+        "leave_time": 806,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       },
       {
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 810,
-        "leave_time": 916
+        "leave_time": 916,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 4,
         "to_station": 2,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 919,
-        "leave_time": 1025
+        "leave_time": 1025,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       }
     ]
   },
@@ -6172,28 +7558,35 @@
         "departure": 908,
         "platform": 1,
         "station_id": 9,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "临河"
       },
       {
         "arrival": 1014,
         "departure": 1016,
         "platform": 5,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1122,
         "departure": 1125,
         "platform": 2,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1231,
         "departure": -1,
         "platform": 7,
         "station_id": 2,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "呼和浩特",
+        "line_name": "呼临铁路"
       }
     ],
     "type": "REGULAR",
@@ -6204,22 +7597,31 @@
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 908,
-        "leave_time": 1014
+        "leave_time": 1014,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       },
       {
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1016,
-        "leave_time": 1122
+        "leave_time": 1122,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 4,
         "to_station": 2,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 1125,
-        "leave_time": 1231
+        "leave_time": 1231,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       }
     ]
   },
@@ -6246,28 +7648,35 @@
         "departure": 1020,
         "platform": 1,
         "station_id": 9,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "临河"
       },
       {
         "arrival": 1126,
         "departure": 1129,
         "platform": 1,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1235,
         "departure": 1237,
         "platform": 1,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1343,
         "departure": -1,
         "platform": 1,
         "station_id": 2,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "呼和浩特",
+        "line_name": "呼临铁路"
       }
     ],
     "type": "REGULAR",
@@ -6278,22 +7687,31 @@
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1020,
-        "leave_time": 1126
+        "leave_time": 1126,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       },
       {
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1129,
-        "leave_time": 1235
+        "leave_time": 1235,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 4,
         "to_station": 2,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 1237,
-        "leave_time": 1343
+        "leave_time": 1343,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       }
     ]
   },
@@ -6320,28 +7738,35 @@
         "departure": 1139,
         "platform": 3,
         "station_id": 9,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "临河"
       },
       {
         "arrival": 1245,
         "departure": 1250,
         "platform": 8,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1356,
         "departure": 1400,
         "platform": 2,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1506,
         "departure": -1,
         "platform": 4,
         "station_id": 2,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "呼和浩特",
+        "line_name": "呼临铁路"
       }
     ],
     "type": "REGULAR",
@@ -6352,22 +7777,31 @@
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1139,
-        "leave_time": 1245
+        "leave_time": 1245,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       },
       {
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1250,
-        "leave_time": 1356
+        "leave_time": 1356,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 4,
         "to_station": 2,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 1400,
-        "leave_time": 1506
+        "leave_time": 1506,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       }
     ]
   },
@@ -6394,28 +7828,35 @@
         "departure": 1304,
         "platform": 1,
         "station_id": 9,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "临河"
       },
       {
         "arrival": 1410,
         "departure": 1415,
         "platform": 4,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1521,
         "departure": 1526,
         "platform": 4,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1632,
         "departure": -1,
         "platform": 3,
         "station_id": 2,
-        "line_id": 8
+        "line_id": 8,
+        "station_name": "呼和浩特",
+        "line_name": "呼临铁路"
       }
     ],
     "type": "REGULAR",
@@ -6426,22 +7867,31 @@
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1304,
-        "leave_time": 1410
+        "leave_time": 1410,
+        "distance_km": 206.8,
+        "speed_kmh": 188
       },
       {
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1415,
-        "leave_time": 1521
+        "leave_time": 1521,
+        "distance_km": 18.3,
+        "speed_kmh": 17
       },
       {
         "from_station": 4,
         "to_station": 2,
         "line_id": 8,
+        "line_name": "呼临铁路",
         "enter_time": 1526,
-        "leave_time": 1632
+        "leave_time": 1632,
+        "distance_km": 140.0,
+        "speed_kmh": 127
       }
     ]
   },
@@ -6467,21 +7917,26 @@
         "departure": 700,
         "platform": 4,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 815,
         "departure": 818,
         "platform": 6,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 933,
         "departure": -1,
         "platform": 4,
         "station_id": 17,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "白云鄂博",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -6492,15 +7947,21 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 700,
-        "leave_time": 815
+        "leave_time": 815,
+        "distance_km": 18.3,
+        "speed_kmh": 15
       },
       {
         "from_station": 4,
         "to_station": 17,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 818,
-        "leave_time": 933
+        "leave_time": 933,
+        "distance_km": 132.4,
+        "speed_kmh": 106
       }
     ]
   },
@@ -6526,21 +7987,26 @@
         "departure": 834,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 909,
         "departure": 914,
         "platform": 6,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1029,
         "departure": -1,
         "platform": 8,
         "station_id": 17,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "白云鄂博",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -6551,15 +8017,21 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 834,
-        "leave_time": 909
+        "leave_time": 909,
+        "distance_km": 18.3,
+        "speed_kmh": 31
       },
       {
         "from_station": 4,
         "to_station": 17,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 914,
-        "leave_time": 1029
+        "leave_time": 1029,
+        "distance_km": 132.4,
+        "speed_kmh": 106
       }
     ]
   },
@@ -6585,21 +8057,26 @@
         "departure": 1008,
         "platform": 3,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1123,
         "departure": 1126,
         "platform": 1,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1201,
         "departure": -1,
         "platform": 6,
         "station_id": 17,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "白云鄂博",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -6610,15 +8087,21 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1008,
-        "leave_time": 1123
+        "leave_time": 1123,
+        "distance_km": 18.3,
+        "speed_kmh": 15
       },
       {
         "from_station": 4,
         "to_station": 17,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1126,
-        "leave_time": 1201
+        "leave_time": 1201,
+        "distance_km": 132.4,
+        "speed_kmh": 227
       }
     ]
   },
@@ -6644,21 +8127,26 @@
         "departure": 1542,
         "platform": 5,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1617,
         "departure": 1621,
         "platform": 7,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1736,
         "departure": -1,
         "platform": 5,
         "station_id": 17,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "白云鄂博",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -6669,15 +8157,21 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1542,
-        "leave_time": 1617
+        "leave_time": 1617,
+        "distance_km": 18.3,
+        "speed_kmh": 31
       },
       {
         "from_station": 4,
         "to_station": 17,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1621,
-        "leave_time": 1736
+        "leave_time": 1736,
+        "distance_km": 132.4,
+        "speed_kmh": 106
       }
     ]
   },
@@ -6703,21 +8197,26 @@
         "departure": 1656,
         "platform": 6,
         "station_id": 3,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "包头"
       },
       {
         "arrival": 1731,
         "departure": 1733,
         "platform": 5,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1808,
         "departure": -1,
         "platform": 1,
         "station_id": 17,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "白云鄂博",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -6728,15 +8227,21 @@
         "from_station": 3,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1656,
-        "leave_time": 1731
+        "leave_time": 1731,
+        "distance_km": 18.3,
+        "speed_kmh": 31
       },
       {
         "from_station": 4,
         "to_station": 17,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1733,
-        "leave_time": 1808
+        "leave_time": 1808,
+        "distance_km": 132.4,
+        "speed_kmh": 227
       }
     ]
   },
@@ -6762,21 +8267,26 @@
         "departure": 700,
         "platform": 6,
         "station_id": 17,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "白云鄂博"
       },
       {
         "arrival": 815,
         "departure": 820,
         "platform": 1,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 935,
         "departure": -1,
         "platform": 7,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -6787,15 +8297,21 @@
         "from_station": 17,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 700,
-        "leave_time": 815
+        "leave_time": 815,
+        "distance_km": 132.4,
+        "speed_kmh": 106
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 820,
-        "leave_time": 935
+        "leave_time": 935,
+        "distance_km": 18.3,
+        "speed_kmh": 15
       }
     ]
   },
@@ -6821,21 +8337,26 @@
         "departure": 923,
         "platform": 6,
         "station_id": 17,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "白云鄂博"
       },
       {
         "arrival": 1038,
         "departure": 1043,
         "platform": 7,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1118,
         "departure": -1,
         "platform": 5,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -6846,15 +8367,21 @@
         "from_station": 17,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 923,
-        "leave_time": 1038
+        "leave_time": 1038,
+        "distance_km": 132.4,
+        "speed_kmh": 106
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1043,
-        "leave_time": 1118
+        "leave_time": 1118,
+        "distance_km": 18.3,
+        "speed_kmh": 31
       }
     ]
   },
@@ -6880,21 +8407,26 @@
         "departure": 1202,
         "platform": 4,
         "station_id": 17,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "白云鄂博"
       },
       {
         "arrival": 1317,
         "departure": 1321,
         "platform": 6,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1436,
         "departure": -1,
         "platform": 2,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -6905,15 +8437,21 @@
         "from_station": 17,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1202,
-        "leave_time": 1317
+        "leave_time": 1317,
+        "distance_km": 132.4,
+        "speed_kmh": 106
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1321,
-        "leave_time": 1436
+        "leave_time": 1436,
+        "distance_km": 18.3,
+        "speed_kmh": 15
       }
     ]
   },
@@ -6939,21 +8477,26 @@
         "departure": 1333,
         "platform": 7,
         "station_id": 17,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "白云鄂博"
       },
       {
         "arrival": 1408,
         "departure": 1412,
         "platform": 7,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1527,
         "departure": -1,
         "platform": 8,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -6964,15 +8507,21 @@
         "from_station": 17,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1333,
-        "leave_time": 1408
+        "leave_time": 1408,
+        "distance_km": 132.4,
+        "speed_kmh": 227
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1412,
-        "leave_time": 1527
+        "leave_time": 1527,
+        "distance_km": 18.3,
+        "speed_kmh": 15
       }
     ]
   },
@@ -6998,21 +8547,26 @@
         "departure": 1644,
         "platform": 4,
         "station_id": 17,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "白云鄂博"
       },
       {
         "arrival": 1719,
         "departure": 1724,
         "platform": 8,
         "station_id": 4,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头东",
+        "line_name": "包白铁路"
       },
       {
         "arrival": 1839,
         "departure": -1,
         "platform": 6,
         "station_id": 3,
-        "line_id": 9
+        "line_id": 9,
+        "station_name": "包头",
+        "line_name": "包白铁路"
       }
     ],
     "type": "REGULAR",
@@ -7023,15 +8577,21 @@
         "from_station": 17,
         "to_station": 4,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1644,
-        "leave_time": 1719
+        "leave_time": 1719,
+        "distance_km": 132.4,
+        "speed_kmh": 227
       },
       {
         "from_station": 4,
         "to_station": 3,
         "line_id": 9,
+        "line_name": "包白铁路",
         "enter_time": 1724,
-        "leave_time": 1839
+        "leave_time": 1839,
+        "distance_km": 18.3,
+        "speed_kmh": 15
       }
     ]
   },
@@ -7060,42 +8620,53 @@
         "departure": 700,
         "platform": 2,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 803,
         "departure": 806,
         "platform": 1,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 909,
         "departure": 911,
         "platform": 1,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1014,
         "departure": 1017,
         "platform": 1,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1120,
         "departure": 1122,
         "platform": 1,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1225,
         "departure": -1,
         "platform": 5,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -7106,36 +8677,51 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 700,
-        "leave_time": 803
+        "leave_time": 803,
+        "distance_km": 28.6,
+        "speed_kmh": 27
       },
       {
         "from_station": 6,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 806,
-        "leave_time": 909
+        "leave_time": 909,
+        "distance_km": 44.5,
+        "speed_kmh": 42
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 911,
-        "leave_time": 1014
+        "leave_time": 1014,
+        "distance_km": 51.8,
+        "speed_kmh": 49
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1017,
-        "leave_time": 1120
+        "leave_time": 1120,
+        "distance_km": 206.8,
+        "speed_kmh": 197
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1122,
-        "leave_time": 1225
+        "leave_time": 1225,
+        "distance_km": 130.5,
+        "speed_kmh": 124
       }
     ]
   },
@@ -7164,42 +8750,53 @@
         "departure": 900,
         "platform": 1,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1003,
         "departure": 1007,
         "platform": 3,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1110,
         "departure": 1113,
         "platform": 7,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1216,
         "departure": 1220,
         "platform": 1,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1323,
         "departure": 1326,
         "platform": 7,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1429,
         "departure": -1,
         "platform": 3,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -7210,36 +8807,51 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 900,
-        "leave_time": 1003
+        "leave_time": 1003,
+        "distance_km": 28.6,
+        "speed_kmh": 27
       },
       {
         "from_station": 6,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1007,
-        "leave_time": 1110
+        "leave_time": 1110,
+        "distance_km": 44.5,
+        "speed_kmh": 42
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1113,
-        "leave_time": 1216
+        "leave_time": 1216,
+        "distance_km": 51.8,
+        "speed_kmh": 49
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1220,
-        "leave_time": 1323
+        "leave_time": 1323,
+        "distance_km": 206.8,
+        "speed_kmh": 197
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1326,
-        "leave_time": 1429
+        "leave_time": 1429,
+        "distance_km": 130.5,
+        "speed_kmh": 124
       }
     ]
   },
@@ -7268,35 +8880,44 @@
         "departure": 1206,
         "platform": 6,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1309,
         "departure": 1312,
         "platform": 6,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1415,
         "departure": 1420,
         "platform": 8,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1523,
         "departure": 1525,
         "platform": 6,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1628,
         "departure": -1,
         "platform": 4,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -7307,29 +8928,41 @@
         "from_station": 5,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1206,
-        "leave_time": 1309
+        "leave_time": 1309,
+        "distance_km": 69.3,
+        "speed_kmh": 66
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1312,
-        "leave_time": 1415
+        "leave_time": 1415,
+        "distance_km": 51.8,
+        "speed_kmh": 49
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1420,
-        "leave_time": 1523
+        "leave_time": 1523,
+        "distance_km": 206.8,
+        "speed_kmh": 197
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1525,
-        "leave_time": 1628
+        "leave_time": 1628,
+        "distance_km": 130.5,
+        "speed_kmh": 124
       }
     ]
   },
@@ -7358,42 +8991,53 @@
         "departure": 1554,
         "platform": 3,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1617,
         "departure": 1621,
         "platform": 2,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1724,
         "departure": 1727,
         "platform": 7,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1830,
         "departure": 1834,
         "platform": 7,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1937,
         "departure": 1941,
         "platform": 8,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 2004,
         "departure": -1,
         "platform": 6,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -7404,36 +9048,51 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1554,
-        "leave_time": 1617
+        "leave_time": 1617,
+        "distance_km": 28.6,
+        "speed_kmh": 75
       },
       {
         "from_station": 6,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1621,
-        "leave_time": 1724
+        "leave_time": 1724,
+        "distance_km": 44.5,
+        "speed_kmh": 42
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1727,
-        "leave_time": 1830
+        "leave_time": 1830,
+        "distance_km": 51.8,
+        "speed_kmh": 49
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1834,
-        "leave_time": 1937
+        "leave_time": 1937,
+        "distance_km": 206.8,
+        "speed_kmh": 197
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1941,
-        "leave_time": 2004
+        "leave_time": 2004,
+        "distance_km": 130.5,
+        "speed_kmh": 340
       }
     ]
   },
@@ -7462,42 +9121,53 @@
         "departure": 1344,
         "platform": 3,
         "station_id": 5,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "鄂尔多斯"
       },
       {
         "arrival": 1407,
         "departure": 1410,
         "platform": 7,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1513,
         "departure": 1517,
         "platform": 3,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1620,
         "departure": 1625,
         "platform": 8,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1728,
         "departure": 1732,
         "platform": 7,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1835,
         "departure": -1,
         "platform": 2,
         "station_id": 10,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "乌海",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -7508,36 +9178,51 @@
         "from_station": 5,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1344,
-        "leave_time": 1407
+        "leave_time": 1407,
+        "distance_km": 28.6,
+        "speed_kmh": 75
       },
       {
         "from_station": 6,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1410,
-        "leave_time": 1513
+        "leave_time": 1513,
+        "distance_km": 44.5,
+        "speed_kmh": 42
       },
       {
         "from_station": 12,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1517,
-        "leave_time": 1620
+        "leave_time": 1620,
+        "distance_km": 51.8,
+        "speed_kmh": 49
       },
       {
         "from_station": 3,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1625,
-        "leave_time": 1728
+        "leave_time": 1728,
+        "distance_km": 206.8,
+        "speed_kmh": 197
       },
       {
         "from_station": 9,
         "to_station": 10,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1732,
-        "leave_time": 1835
+        "leave_time": 1835,
+        "distance_km": 130.5,
+        "speed_kmh": 124
       }
     ]
   },
@@ -7566,42 +9251,53 @@
         "departure": 700,
         "platform": 7,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 803,
         "departure": 807,
         "platform": 7,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 910,
         "departure": 912,
         "platform": 1,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1015,
         "departure": 1018,
         "platform": 8,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1121,
         "departure": 1125,
         "platform": 5,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1228,
         "departure": -1,
         "platform": 4,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -7612,36 +9308,51 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 700,
-        "leave_time": 803
+        "leave_time": 803,
+        "distance_km": 130.5,
+        "speed_kmh": 124
       },
       {
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 807,
-        "leave_time": 910
+        "leave_time": 910,
+        "distance_km": 206.8,
+        "speed_kmh": 197
       },
       {
         "from_station": 3,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 912,
-        "leave_time": 1015
+        "leave_time": 1015,
+        "distance_km": 51.8,
+        "speed_kmh": 49
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1018,
-        "leave_time": 1121
+        "leave_time": 1121,
+        "distance_km": 44.5,
+        "speed_kmh": 42
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1125,
-        "leave_time": 1228
+        "leave_time": 1228,
+        "distance_km": 28.6,
+        "speed_kmh": 27
       }
     ]
   },
@@ -7670,42 +9381,53 @@
         "departure": 905,
         "platform": 3,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 1008,
         "departure": 1011,
         "platform": 8,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1114,
         "departure": 1116,
         "platform": 4,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1219,
         "departure": 1221,
         "platform": 1,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1324,
         "departure": 1329,
         "platform": 8,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1432,
         "departure": -1,
         "platform": 7,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -7716,36 +9438,51 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 905,
-        "leave_time": 1008
+        "leave_time": 1008,
+        "distance_km": 130.5,
+        "speed_kmh": 124
       },
       {
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1011,
-        "leave_time": 1114
+        "leave_time": 1114,
+        "distance_km": 206.8,
+        "speed_kmh": 197
       },
       {
         "from_station": 3,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1116,
-        "leave_time": 1219
+        "leave_time": 1219,
+        "distance_km": 51.8,
+        "speed_kmh": 49
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1221,
-        "leave_time": 1324
+        "leave_time": 1324,
+        "distance_km": 44.5,
+        "speed_kmh": 42
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1329,
-        "leave_time": 1432
+        "leave_time": 1432,
+        "distance_km": 28.6,
+        "speed_kmh": 27
       }
     ]
   },
@@ -7774,35 +9511,44 @@
         "departure": 1254,
         "platform": 8,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 1317,
         "departure": 1321,
         "platform": 8,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1424,
         "departure": 1427,
         "platform": 5,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1530,
         "departure": 1533,
         "platform": 6,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1636,
         "departure": -1,
         "platform": 1,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -7813,29 +9559,41 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1254,
-        "leave_time": 1317
+        "leave_time": 1317,
+        "distance_km": 130.5,
+        "speed_kmh": 340
       },
       {
         "from_station": 9,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1321,
-        "leave_time": 1424
+        "leave_time": 1424,
+        "distance_km": 228.8,
+        "speed_kmh": 218
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1427,
-        "leave_time": 1530
+        "leave_time": 1530,
+        "distance_km": 44.5,
+        "speed_kmh": 42
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1533,
-        "leave_time": 1636
+        "leave_time": 1636,
+        "distance_km": 28.6,
+        "speed_kmh": 27
       }
     ]
   },
@@ -7864,42 +9622,53 @@
         "departure": 1154,
         "platform": 3,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 1217,
         "departure": 1221,
         "platform": 3,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1324,
         "departure": 1328,
         "platform": 6,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1431,
         "departure": 1433,
         "platform": 7,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1536,
         "departure": 1541,
         "platform": 7,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1604,
         "departure": -1,
         "platform": 7,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -7910,36 +9679,51 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1154,
-        "leave_time": 1217
+        "leave_time": 1217,
+        "distance_km": 130.5,
+        "speed_kmh": 340
       },
       {
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1221,
-        "leave_time": 1324
+        "leave_time": 1324,
+        "distance_km": 206.8,
+        "speed_kmh": 197
       },
       {
         "from_station": 3,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1328,
-        "leave_time": 1431
+        "leave_time": 1431,
+        "distance_km": 51.8,
+        "speed_kmh": 49
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1433,
-        "leave_time": 1536
+        "leave_time": 1536,
+        "distance_km": 44.5,
+        "speed_kmh": 42
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1541,
-        "leave_time": 1604
+        "leave_time": 1604,
+        "distance_km": 28.6,
+        "speed_kmh": 75
       }
     ]
   },
@@ -7968,42 +9752,53 @@
         "departure": 1340,
         "platform": 1,
         "station_id": 10,
-        "line_id": 0
+        "line_id": 0,
+        "station_name": "乌海"
       },
       {
         "arrival": 1403,
         "departure": 1408,
         "platform": 4,
         "station_id": 9,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "临河",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1511,
         "departure": 1516,
         "platform": 1,
         "station_id": 3,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "包头",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1619,
         "departure": 1624,
         "platform": 5,
         "station_id": 12,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "达拉特西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1727,
         "departure": 1729,
         "platform": 4,
         "station_id": 6,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "东胜西",
+        "line_name": "沿黄铁路"
       },
       {
         "arrival": 1832,
         "departure": -1,
         "platform": 6,
         "station_id": 5,
-        "line_id": 10
+        "line_id": 10,
+        "station_name": "鄂尔多斯",
+        "line_name": "沿黄铁路"
       }
     ],
     "type": "REGULAR",
@@ -8014,36 +9809,51 @@
         "from_station": 10,
         "to_station": 9,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1340,
-        "leave_time": 1403
+        "leave_time": 1403,
+        "distance_km": 130.5,
+        "speed_kmh": 340
       },
       {
         "from_station": 9,
         "to_station": 3,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1408,
-        "leave_time": 1511
+        "leave_time": 1511,
+        "distance_km": 206.8,
+        "speed_kmh": 197
       },
       {
         "from_station": 3,
         "to_station": 12,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1516,
-        "leave_time": 1619
+        "leave_time": 1619,
+        "distance_km": 51.8,
+        "speed_kmh": 49
       },
       {
         "from_station": 12,
         "to_station": 6,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1624,
-        "leave_time": 1727
+        "leave_time": 1727,
+        "distance_km": 44.5,
+        "speed_kmh": 42
       },
       {
         "from_station": 6,
         "to_station": 5,
         "line_id": 10,
+        "line_name": "沿黄铁路",
         "enter_time": 1729,
-        "leave_time": 1832
+        "leave_time": 1832,
+        "distance_km": 28.6,
+        "speed_kmh": 27
       }
     ]
   }

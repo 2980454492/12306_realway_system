@@ -178,16 +178,18 @@ struct Line {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Line,
     id, name, stations, distance_km, max_speed_kmh, type)
 
-/** 运行区段 — 列车在相邻两站之间的走行信息，用于冲突检测 */
+/** 运行区段 — 列车在相邻两站之间的走行信息，用于冲突检测和前端展示 */
 struct RouteSegment {
     uint32_t from_station = 0;
     uint32_t to_station = 0;
     uint32_t line_id = 0;
-    int enter_time = 0;    // 离开 from 站的时间 HHMM
-    int leave_time = 0;    // 到达 to 站的时间 HHMM
+    int enter_time = 0;       // 离开 from 站的时间 HHMM
+    int leave_time = 0;       // 到达 to 站的时间 HHMM
+    double distance_km = 0.0; // Haversine 距离
+    int speed_kmh = 0;        // 平均时速
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RouteSegment,
-    from_station, to_station, line_id, enter_time, leave_time)
+    from_station, to_station, line_id, enter_time, leave_time, distance_km, speed_kmh)
 
 /** 列车 — 一列在铁路上运行的客运列车 */
 struct Train {

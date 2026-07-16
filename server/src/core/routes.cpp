@@ -673,6 +673,7 @@ void registerRoutes(RailwayServer& server) {
                 jt["status"] = static_cast<int>(train.status);
                 jt["stops_count"] = train.stops.size();
                 jt["stops"] = stopsToJson(train.stops, DataStore::instance());
+                jt["segments"] = train.segments;  // 含预计算的 distance_km / speed_kmh
                 arr.push_back(jt);
             }
 

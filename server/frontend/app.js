@@ -1334,17 +1334,24 @@ const UI = {
     if (curArr <= (prev.departure || 0)) { U.toast('到达须晚于上一站发车', 'error'); return; }
     if (isStop && UI._toHHMM(depTime) <= curArr) { U.toast('发车须晚于到站', 'error'); return; }
 
+    // 预计算时速（和 segments 的 speed_kmh 同构）
+    var segSpeed = 0;
+    if (prev.departure > 0 && curArr > 0 && n.distance_km > 0) {
+      var dm = Math.floor(prev.departure/100)*60 + (prev.departure%100);
+      var am = Math.floor(curArr/100)*60 + (curArr%100);
+      if (am > dm) segSpeed = Math.round(n.distance_km / ((am - dm) / 60));
+    }
     State._routePath.push({
       station_id: n.neighbor_station_id,
       station_name: n.neighbor_name,
       line_id: n.line_id,
       line_name: n.line_name,
       arrival: curArr,
-      departure: isStop ? UI._toHHMM(depTime) : curArr,  // 通过=到发同刻
+      departure: isStop ? UI._toHHMM(depTime) : curArr,
       is_stop: isStop,
       is_terminal: false,
       distance_km: n.distance_km,
-      max_speed_kmh: n.max_speed_kmh
+      speed_kmh: segSpeed
     });
     U.$('stop-config').style.display = 'none';
     State._pendingNeighbor = null;
@@ -1382,16 +1389,13 @@ const UI = {
       var tag = isFirst ? '始发' : isLast ? '终到' : s.is_stop ? '停靠' : '通过';
       var arrTime = isFirst ? '---' : U.fmtTime(s.arrival);
       var depTime = isLast ? '---' : (s.departure > 0 ? U.fmtTime(s.departure) : U.fmtTime(s.arrival));
-      var dist = (s.distance_km && i > 0) ? s.distance_km.toFixed(0) + ' km' : '';
-      // 算时速
+      // 里程：neighbor API 提供；时速：本地根据时间差计算
+      var dist = (i > 0 && s.distance_km) ? Number(s.distance_km).toFixed(0) + ' km' : '';
       var speedStr = '';
-      if (i > 0 && s.arrival > 0 && path[i-1].departure > 0) {
-        var prevDep = path[i-1].departure;
-        var prevMin = Math.floor(prevDep/100)*60 + (prevDep%100);
+      if (i > 0 && s.distance_km && s.arrival > 0 && path[i-1].departure > 0) {
+        var prevMin = Math.floor(path[i-1].departure/100)*60 + (path[i-1].departure%100);
         var curMin = Math.floor(s.arrival/100)*60 + (s.arrival%100);
-        if (curMin > prevMin && s.distance_km) {
-          speedStr = Math.round(s.distance_km / ((curMin - prevMin) / 60)) + ' km/h';
-        }
+        if (curMin > prevMin) speedStr = Math.round(Number(s.distance_km) / ((curMin - prevMin) / 60)) + ' km/h';
       }
       html += '<tr>' +
         '<td class="route-idx">' + (i + 1) + '</td>' +
@@ -1454,7 +1458,7 @@ const UI = {
         platform: 0
       });
     }
-    // 构建区段（每对相邻站，含通过站）
+    // 构建区段（每对相邻站，含通过站），只传冲突检测需要的字段
     for (var i = 0; i + 1 < path.length; i++) {
       var cur = path[i], next = path[i + 1];
       segments.push({
@@ -1649,28 +1653,26 @@ const UI = {
       var arrTime = isFirst ? '---' : U.fmtTime(s.arrival);
       var depTime = (isLast || isPass) ? '---' : U.fmtTime(s.departure);
 
-      // 里程和时速
+      // 里程和时速：优先从 segments 取预计算值，否则现场算
       var distStr = '', speedStr = '';
-      if (i > 0) {
+      if (i > 0 && segments && segments[i - 1] && segments[i - 1].distance_km) {
+        var seg = segments[i - 1];
+        distStr = seg.distance_km.toFixed(0) + ' km';
+        speedStr = seg.speed_kmh ? seg.speed_kmh + ' km/h' : '';
+      } else if (i > 0) {
         var prev = fullStops[i - 1];
-        // 查找两站的经纬度算距离
         var sa = null, sb = null;
         for (var si = 0; si < State.stations.length; si++) {
           if (State.stations[si].id === prev.station_id) sa = State.stations[si];
           if (State.stations[si].id === s.station_id) sb = State.stations[si];
         }
         if (sa && sb) {
-          var dist = UI._haversine(sa.latitude, sa.longitude, sb.latitude, sb.longitude);
-          distStr = dist.toFixed(0) + ' km';
-          // 算时速
-          var prevDep = prev.departure;
-          if (isFirst) prevDep = prev.departure;
-          if (prevDep > 0 && s.arrival > 0) {
-            var prevMin = Math.floor(prevDep/100)*60 + (prevDep%100);
-            var curMin = Math.floor(s.arrival/100)*60 + (s.arrival%100);
-            if (curMin > prevMin) {
-              speedStr = Math.round(dist / ((curMin - prevMin) / 60)) + ' km/h';
-            }
+          var d = UI._haversine(sa.latitude, sa.longitude, sb.latitude, sb.longitude);
+          distStr = d.toFixed(0) + ' km';
+          if (prev.departure > 0 && s.arrival > 0) {
+            var pm = Math.floor(prev.departure/100)*60 + (prev.departure%100);
+            var cm = Math.floor(s.arrival/100)*60 + (s.arrival%100);
+            if (cm > pm) speedStr = Math.round(d / ((cm - pm) / 60)) + ' km/h';
           }
         }
       }
@@ -1733,6 +1735,8 @@ const UI = {
 
   /** 加载我的提交（STAFF 查看自己提交的审批） */
   loadMySubmissions: async function() {
+    // 先加载列车列表（删除列车需要从中查找 stops 数据）
+    if (!State._allTrains.length) await UI.loadTrains();
     var loadingEl = U.$('my-submissions-loading'); if (loadingEl) loadingEl.style.display = 'block';
     var status = State._mySubFilter || '';
     var userId = State.user ? State.user.id : '';
@@ -1774,7 +1778,20 @@ const UI = {
       var train = null;
       try { train = (typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload); } catch (e) {}
       var key = 'sub_' + i;
-      State._trainItems[key] = { train_id: train ? train.id : '?', stops: train ? (train.stops || []) : [], segments: train ? (train.segments || []) : [] };
+      var tid = train ? train.id : '?';
+      var tstops = train ? (train.stops || []) : [];
+      var tsegs = train ? (train.segments || []) : [];
+      // 删除列车：payload 无 stops，从列车列表查找
+      if (a.type === 4 && !tstops.length && State._allTrains.length) {
+        for (var ti = 0; ti < State._allTrains.length; ti++) {
+          if (State._allTrains[ti].id === tid) {
+            tstops = State._allTrains[ti].stops || [];
+            tsegs = State._allTrains[ti].segments || [];
+            break;
+          }
+        }
+      }
+      State._trainItems[key] = { train_id: tid, stops: tstops, segments: tsegs };
       // 卡片可点击查看详情
       card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(key);
       card.querySelector('.approval-card').style.cursor = 'pointer';
