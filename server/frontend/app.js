@@ -1750,12 +1750,13 @@ const UI = {
       card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(key);
       card.querySelector('.approval-card').style.cursor = 'pointer';
       // 填充数据
-      card.querySelector('.approval-type').textContent = typeLabel[a.type] || '未知';
-      var stEl = card.querySelector('.approval-status');
-      stEl.textContent = statusLabel[a.status] || '未知';
-      stEl.className = 'approval-status ' + (statusCls[a.status] || 'submitted');
       var trainName = train ? U.esc(train.id || '?') : '?';
-      card.querySelector('.approval-meta-submitter').textContent = '车次: ' + trainName + ' | 提交时间: ' + (a.submitted_at || '');
+      card.querySelector('.submission-train-id').textContent = trainName;
+      card.querySelector('.submission-time').textContent = (a.submitted_at || '');
+      card.querySelector('.submission-type-tag').textContent = typeLabel[a.type] || '未知';
+      var stEl = card.querySelector('.submission-status-tag');
+      stEl.textContent = statusLabel[a.status] || '未知';
+      stEl.className = 'submission-status-tag ' + (statusCls[a.status] || 'submitted');
       var deciderEl = card.querySelector('.approval-meta-decider');
       if (a.approver_id) {
         deciderEl.textContent = '审批人: ' + a.approver_id + ' | 审批时间: ' + (a.decided_at || '');

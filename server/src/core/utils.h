@@ -55,14 +55,14 @@ inline int nowHHMM() {
     return tm.tm_hour * 100 + tm.tm_min;
 }
 
-/** 当前 UTC 时间，ISO 8601 格式（订单时间戳用） */
+/** 当前本地时间，ISO 8601 格式（订单/审批时间戳用） */
 inline std::string nowIso() {
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
-    std::tm utc{};
-    gmtime_r(&t, &utc);
+    std::tm local{};
+    localtime_r(&t, &local);
     std::ostringstream oss;
-    oss << std::put_time(&utc, "%Y-%m-%dT%H:%M:%SZ");
+    oss << std::put_time(&local, "%Y-%m-%dT%H:%M:%S");
     return oss.str();
 }
 
