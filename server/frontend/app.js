@@ -30,6 +30,7 @@ const State = {
   _routePath: [],          // 当前正在构建的运行路径 [{station_id, station_name, line_id, line_name, arrival, departure, is_stop, distance_km, max_speed}]
   _pendingNeighbor: null,  // 待确认的邻居选择
   _pendingDeleteTrain: null,  // 待删除的列车 ID
+  _lineNameIndex: null,     // line_id → line_name 反向索引（懒构建）
 };
 
 // ═══════════════════════════════════════════
@@ -149,22 +150,49 @@ const U = {
     var res = await API.get('/api/debug/stations');
     if (res.ok && res.data && res.data.data) State.stations = res.data.data;
   },
+
+  /** 构建站名+城市名 datalist（populateStationSelects 和 onStationInput 共用） */
+  buildStationDatalist: function(datalistId) {
+    var dl = U.$(datalistId);
+    if (!dl || !State.stations.length) return;
+    var cities = {};
+    var html = '';
+    for (var i = 0; i < State.stations.length; i++) {
+      var s = State.stations[i];
+      html += '<option value="' + U.esc(s.name) + '">';
+      if (!cities[s.city]) { cities[s.city] = true; }
+    }
+    var cityNames = Object.keys(cities);
+    for (var c = 0; c < cityNames.length; c++) {
+      html += '<option value="🏠 ' + U.esc(cityNames[c]) + '">';
+    }
+    dl.innerHTML = html;
+  },
 };
 
 // ═══════════════════════════════════════════
 // UI 模块
 // ═══════════════════════════════════════════
 
-var SEAT_MAP = [
-  {key: 'business_seats', label: '商务座', priceKey: 'BUSINESS'},
-  {key: 'first_seats',    label: '一等座', priceKey: 'FIRST'},
-  {key: 'second_seats',   label: '二等座', priceKey: 'SECOND'},
-  {key: 'hard_sleeper',   label: '硬卧',   priceKey: 'HARD_SLEEPER'},
-  {key: 'hard_seat',      label: '硬座',   priceKey: 'HARD_SEAT'},
-  {key: 'no_seat',        label: '无座',   priceKey: 'NO_SEAT'}
-];
-
 const UI = {
+  // ── 共享常量 ──
+
+  /** 席位类型映射（key → 前端展示标签 + 后端价格字段） */
+  SEAT_MAP: [
+    {key: 'business_seats', label: '商务座', priceKey: 'BUSINESS'},
+    {key: 'first_seats',    label: '一等座', priceKey: 'FIRST'},
+    {key: 'second_seats',   label: '二等座', priceKey: 'SECOND'},
+    {key: 'hard_sleeper',   label: '硬卧',   priceKey: 'HARD_SLEEPER'},
+    {key: 'hard_seat',      label: '硬座',   priceKey: 'HARD_SEAT'},
+    {key: 'no_seat',        label: '无座',   priceKey: 'NO_SEAT'}
+  ],
+
+  /** 审批类型/状态/样式映射（renderMySubmissions 和 renderApprovals 共用） */
+  TYPE_LABEL: {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车'},
+  STATUS_LABEL: {0:'待审批',1:'已通过',2:'已驳回',3:'已取消'},
+  STATUS_CLS: {0:'submitted',1:'approved',2:'rejected',3:'withdrawn'},
+
+
   showPage: function(name) {
     // 隐藏所有页面
     var pages = document.querySelectorAll('.page');
@@ -204,19 +232,7 @@ const UI = {
   populateStationSelects: function() {
     var from = U.$('query-from'), to = U.$('query-to');
     if (!from || !to) return;
-    // 构建 datalist：所有站名 + 城市名（去重，城市前缀 🌆）
-    var cities = {};
-    var html = '';
-    for (var i = 0; i < State.stations.length; i++) {
-      var s = State.stations[i];
-      html += '<option value="' + U.esc(s.name) + '">';
-      if (!cities[s.city]) { cities[s.city] = true; }
-    }
-    var cityNames = Object.keys(cities);
-    for (var c = 0; c < cityNames.length; c++) {
-      html += '<option value="🏠 ' + U.esc(cityNames[c]) + '">';
-    }
-    U.$('stations-datalist').innerHTML = html;
+    U.buildStationDatalist('stations-datalist');
     // 绑定 datalist
     from.setAttribute('list', 'stations-datalist');
     to.setAttribute('list', 'stations-datalist');
@@ -358,9 +374,9 @@ const UI = {
       var seats = item.available_seats || {};
       var prices = item.seat_prices || {};
       var best = Infinity;
-      for (var m = 0; m < SEAT_MAP.length; m++) {
-        if ((seats[SEAT_MAP[m].key] || 0) > 0) {
-          var p = prices[SEAT_MAP[m].priceKey];
+      for (var m = 0; m < UI.SEAT_MAP.length; m++) {
+        if ((seats[UI.SEAT_MAP[m].key] || 0) > 0) {
+          var p = prices[UI.SEAT_MAP[m].priceKey];
           if (p != null && p < best) best = p;
         }
       }
@@ -414,8 +430,8 @@ const UI = {
 
       function buildSeatRow(avail, priceMap, itemKey, seatType) {
         var h = '';
-        for (var s = 0; s < SEAT_MAP.length; s++) {
-          var st = SEAT_MAP[s];
+        for (var s = 0; s < UI.SEAT_MAP.length; s++) {
+          var st = UI.SEAT_MAP[s];
           var cnt = avail[st.key] || 0;
           if (cnt > 0) {
             var p = (priceMap || {})[st.priceKey] || 0;
@@ -745,7 +761,7 @@ const UI = {
     UI.renderOrderForm();
   },
 
-  // ── 车次详情弹窗 ──
+  // ── 车次详情弹窗（直达/换乘共用 _renderTimeline）──
   showDetail: function(itemKey) {
     var item = (State._trainItems || {})[itemKey];
     if (!item) return;
@@ -754,50 +770,17 @@ const UI = {
     var fromId = item.from_station, toId = item.to_station;
     var transferName = item.transfer_station || '';
 
-    /**
-     * 渲染时间线，highlight 是两个站 ID 的集合（通过 station_id 匹配绿色高亮）。
-     * 换乘时额外传入 highlightName 用于中转站名匹配。
-     */
-    /**
-     * 渲染时间线。
-     * @param {Array} stops
-     * @param {string} label 段落标签
-     * @param {Array} greenIds 绿色高亮的站 ID 列表
-     * @param {string|null} blueName 蓝色高亮的中转站名（仅换乘）
-     */
-    function renderTimeline(stops, label, greenIds, blueName) {
-      if (!stops || !stops.length) return '';
-      var h = (label ? '<div class="timeline-label">' + U.esc(label) + '</div>' : '');
-      h += '<div class="timeline">';
-      for (var i = 0; i < stops.length; i++) {
-        var s = stops[i];
-        var isFirst = i === 0, isLast = i === stops.length - 1;
-        var isGreen = (greenIds.indexOf(s.station_id) >= 0);
-        var isBlue  = (blueName && s.station_name === blueName);
-        var arrTime = isFirst ? '---' : U.fmtTime(s.arrival);
-        var depTime = isLast ? '---' : U.fmtTime(s.departure);
-        var cls = (isFirst || isLast || (s.arrival >= 0 && s.departure >= 0)) ? 'stop' : 'pass';
-        if (isGreen) cls += ' user-stop';
-        if (isBlue)  cls += ' transfer-stop';
-        h += '<div class="timeline-item ' + cls + '">' +
-          '<div class="timeline-station">' + U.esc(s.station_name || ('站#' + s.station_id)) + '</div>' +
-          '<div class="timeline-time"><span>' + arrTime + '</span> 到  <span>' + depTime + '</span> 发</div>' +
-          '</div>';
-      }
-      h += '</div>';
-      return h;
-    }
-
     var html;
     if (item.second_stops && item.second_stops.length) {
-      html  = renderTimeline(item.stops,
-                '第一段 ' + U.esc(item.train_id.split(' → ')[0] || ''),
-                [fromId], transferName);
-      html += renderTimeline(item.second_stops,
-                '第二段 ' + U.esc(item.second_train_id || ''),
-                [toId], transferName);
+      var fromIds = {}; fromIds[fromId] = true;
+      var toIds = {}; toIds[toId] = true;
+      html  = UI._renderTimeline(item.stops, fromIds,
+                '第一段 ' + U.esc(item.train_id.split(' → ')[0] || ''), transferName);
+      html += UI._renderTimeline(item.second_stops, toIds,
+                '第二段 ' + U.esc(item.second_train_id || ''), transferName);
     } else {
-      html = renderTimeline(item.stops, '', [fromId, toId], null);
+      var bothIds = {}; bothIds[fromId] = true; bothIds[toId] = true;
+      html = UI._renderTimeline(item.stops, bothIds, '', null);
     }
     U.$('detail-stops').innerHTML = html;
     U.$('detail-overlay').classList.add('show');
@@ -927,18 +910,7 @@ const UI = {
     var el = U.$('station-query-input');
     var dl = U.$('station-query-datalist');
     if (!el || !dl || !State.stations.length) return;
-    var cities = {};
-    var html = '';
-    for (var i = 0; i < State.stations.length; i++) {
-      var s = State.stations[i];
-      html += '<option value="' + U.esc(s.name) + '">';
-      if (!cities[s.city]) { cities[s.city] = true; }
-    }
-    var cityNames = Object.keys(cities);
-    for (var c = 0; c < cityNames.length; c++) {
-      html += '<option value="🏠 ' + U.esc(cityNames[c]) + '">';
-    }
-    dl.innerHTML = html;
+    U.buildStationDatalist('station-query-datalist');
     el.setAttribute('list', 'station-query-datalist');
   },
 
@@ -1103,10 +1075,11 @@ const UI = {
    * 渲染停站时间线。
    * 自动识别始发(-1)/终到(-1)/通过(arrival===departure)/停靠。
    */
-  _renderTimeline: function(stops, highlightIds) {
+  _renderTimeline: function(stops, highlightIds, label, blueName) {
     if (!stops || !stops.length) return '';
     var ids = highlightIds || {};
-    var h = '<div class="timeline">';
+    var h = (label ? '<div class="timeline-label">' + U.esc(label) + '</div>' : '');
+    h += '<div class="timeline">';
     for (var i = 0; i < stops.length; i++) {
       var s = stops[i];
       var isFirst = (i === 0), isLast = (i === stops.length - 1);
@@ -1115,6 +1088,7 @@ const UI = {
       var tag = isFirst ? '始发' : isLast ? '终到' : isPass ? '通过' : '停靠';
       var cls = isPass ? 'pass' : 'stop';
       if (ids[s.station_id]) cls += ' user-stop';
+      if (blueName && s.station_name === blueName) cls += ' transfer-stop';
 
       // 解析站名：优先用已有 station_name，否则从 State.stations 查找
       var name = s.station_name || '';
@@ -1589,24 +1563,24 @@ const UI = {
     return '站#' + id;
   },
 
-  /** 查找线路名（从 neighborIndex 中查） */
+  /** 查找线路名（懒构建 line_id→line_name 索引，O(1) 查） */
   _lineName: function(lineId) {
-    if (!lineId || !State._neighborIndex) return '';
-    for (var sid in State._neighborIndex) {
-      var nb = State._neighborIndex[sid];
-      for (var n = 0; n < nb.length; n++) {
-        if (nb[n].line_id === lineId) return nb[n].line_name;
+    if (!lineId) return '';
+    if (!State._lineNameIndex) {
+      State._lineNameIndex = {};
+      var idx = State._neighborIndex || {};
+      for (var sid in idx) {
+        var nb = idx[sid];
+        for (var n = 0; n < nb.length; n++) {
+          if (nb[n].line_id && !State._lineNameIndex[nb[n].line_id])
+            State._lineNameIndex[nb[n].line_id] = nb[n].line_name;
+        }
       }
     }
-    return '';
+    return State._lineNameIndex[lineId] || '';
   },
 
-  /** Haversine 距离（简化版，仅依赖 State.stations） */
-  _haversine: function(lat1, lon1, lat2, lon2) {
-    var R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
-    var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  },
+
 
   /** 从 segments 重建完整停站序列（含通过站），或回退到 stops */
   _buildFullStops: function(stops, segments) {
@@ -1659,22 +1633,6 @@ const UI = {
         var seg = segments[i - 1];
         distStr = seg.distance_km.toFixed(0) + ' km';
         speedStr = seg.speed_kmh ? seg.speed_kmh + ' km/h' : '';
-      } else if (i > 0) {
-        var prev = fullStops[i - 1];
-        var sa = null, sb = null;
-        for (var si = 0; si < State.stations.length; si++) {
-          if (State.stations[si].id === prev.station_id) sa = State.stations[si];
-          if (State.stations[si].id === s.station_id) sb = State.stations[si];
-        }
-        if (sa && sb) {
-          var d = UI._haversine(sa.latitude, sa.longitude, sb.latitude, sb.longitude);
-          distStr = d.toFixed(0) + ' km';
-          if (prev.departure > 0 && s.arrival > 0) {
-            var pm = Math.floor(prev.departure/100)*60 + (prev.departure%100);
-            var cm = Math.floor(s.arrival/100)*60 + (s.arrival%100);
-            if (cm > pm) speedStr = Math.round(d / ((cm - pm) / 60)) + ' km/h';
-          }
-        }
       }
 
       html += '<tr>' +
@@ -1764,9 +1722,6 @@ const UI = {
   /** 渲染我的提交列表 */
   renderMySubmissions: function() {
     var items = State._mySubmissions || [];
-    var typeLabel = {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车'};
-    var statusLabel = {0:'待审批',1:'已通过',2:'已驳回',3:'已取消'};
-    var statusCls = {0:'submitted',1:'approved',2:'rejected',3:'withdrawn'};
     var tpl = U.$('tpl-submission-card');
     var listEl = U.$('my-submissions-list');
     listEl.innerHTML = '';
@@ -1791,18 +1746,21 @@ const UI = {
           }
         }
       }
-      State._trainItems[key] = { train_id: tid, stops: tstops, segments: tsegs };
-      // 卡片可点击查看详情
-      card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(key);
-      card.querySelector('.approval-card').style.cursor = 'pointer';
+      State._trainItems[key] = { train_id: tid, stops: tstops, segments: tsegs, approval_type: a.type, payload: train };
+      // 卡片可点击查看详情（仅新增/删除列车有时刻表可展示）
+      var hasStops = (a.type === 0 || a.type === 4) || (tstops && tstops.length > 0);
+      if (hasStops) {
+        card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(key);
+        card.querySelector('.approval-card').style.cursor = 'pointer';
+      }
       // 填充数据
       var trainName = train ? U.esc(train.id || '?') : '?';
       card.querySelector('.submission-train-id').textContent = trainName;
       card.querySelector('.submission-time').textContent = (a.submitted_at || '');
-      card.querySelector('.submission-type-tag').textContent = typeLabel[a.type] || '未知';
+      card.querySelector('.submission-type-tag').textContent = UI.TYPE_LABEL[a.type] || '未知';
       var stEl = card.querySelector('.submission-status-tag');
-      stEl.textContent = statusLabel[a.status] || '未知';
-      stEl.className = 'submission-status-tag ' + (statusCls[a.status] || 'submitted');
+      stEl.textContent = UI.STATUS_LABEL[a.status] || '未知';
+      stEl.className = 'submission-status-tag ' + (UI.STATUS_CLS[a.status] || 'submitted');
       var deciderEl = card.querySelector('.approval-meta-decider');
       if (a.approver_id) {
         deciderEl.textContent = '审批人: ' + a.approver_id + ' | 审批时间: ' + (a.decided_at || '');
@@ -1836,7 +1794,17 @@ const UI = {
     var item = (State._trainItems || {})[key];
     if (!item) return;
     if (Object.keys(State._neighborIndex).length === 0) await UI.loadNeighborIndex();
-    UI._showStopTable(item.train_id + ' 停站时刻表', item.stops || [], item.segments || []);
+    var title = item.train_id + ' 停站时刻表';
+    // 调整时刻/新增线路/新增站点等类型无 stops 数据时，显示基本信息
+    if (!item.stops || !item.stops.length) {
+      var p = item.payload || {};
+      title = item.train_id + ' — ' + UI.TYPE_LABEL[item.approval_type];
+      U.$('detail-train-id').textContent = title;
+      U.$('detail-stops').innerHTML = '<div style="padding:16px;color:#9090b0">暂无停站数据（审批类型：' + UI.TYPE_LABEL[item.approval_type] + '）</div>';
+      U.$('detail-overlay').classList.add('show');
+      return;
+    }
+    UI._showStopTable(title, item.stops, item.segments || []);
   },
 
   // ── 职工端：审批中心（审核员）──
@@ -1873,9 +1841,6 @@ const UI = {
   /** 渲染审批列表 */
   renderApprovals: function() {
     var approvals = State._allApprovals || [];
-    var typeLabel = {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车'};
-    var statusLabel = {0:'待审批',1:'已通过',2:'已驳回',3:'已取消'};
-    var statusCls = {0:'submitted',1:'approved',2:'rejected',3:'withdrawn'};
     var tpl = U.$('tpl-approval-card');
     var listEl = U.$('approvals-list');
     listEl.innerHTML = '';
@@ -1883,10 +1848,10 @@ const UI = {
     for (var i = 0; i < approvals.length; i++) {
       var a = approvals[i];
       var card = tpl.content.cloneNode(true);
-      card.querySelector('.approval-type').textContent = typeLabel[a.type] || '未知';
+      card.querySelector('.approval-type').textContent = UI.TYPE_LABEL[a.type] || '未知';
       var stEl = card.querySelector('.approval-status');
-      stEl.textContent = statusLabel[a.status] || '未知';
-      stEl.className = 'approval-status ' + (statusCls[a.status] || 'submitted');
+      stEl.textContent = UI.STATUS_LABEL[a.status] || '未知';
+      stEl.className = 'approval-status ' + (UI.STATUS_CLS[a.status] || 'submitted');
       // 提交人
       card.querySelector('.approval-meta-submitter').textContent = '提交人: ' + (a.submitter_id || '?') + ' | ' + (a.submitted_at || '');
       // 车次
