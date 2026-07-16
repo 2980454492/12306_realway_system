@@ -888,7 +888,7 @@ void registerRoutes(RailwayServer& server) {
             if (status == "SUBMITTED") filter = ApprovalState::SUBMITTED;
             else if (status == "APPROVED") filter = ApprovalState::APPROVED;
             else if (status == "REJECTED") filter = ApprovalState::REJECTED;
-            else if (status == "EXPIRED") filter = ApprovalState::EXPIRED;
+            else if (status == "WITHDRAWN") filter = ApprovalState::WITHDRAWN;
 
             std::string submitter_id = req.get_param_value("submitter_id");
             std::string approver_id = req.get_param_value("approver_id");

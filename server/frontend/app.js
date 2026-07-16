@@ -1720,7 +1720,7 @@ const UI = {
   /** 按状态筛选我的提交 */
   filterMySubmissions: function(status) {
     State._mySubFilter = status;
-    var labels = {'': '全部', 'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回'};
+    var labels = {'': '全部', 'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回', 'WITHDRAWN': '已取消'};
     var btns = document.querySelectorAll('#page-my-submissions .filter-bar .btn');
     for (var i = 0; i < btns.length; i++) {
       btns[i].classList.toggle('active', btns[i].textContent.trim() === (labels[status] || '全部'));
@@ -1732,8 +1732,8 @@ const UI = {
   renderMySubmissions: function() {
     var items = State._mySubmissions || [];
     var typeLabel = {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车'};
-    var statusLabel = {0:'待审批',1:'已通过',2:'已驳回',3:'已过期'};
-    var statusCls = {0:'submitted',1:'approved',2:'rejected',3:'expired'};
+    var statusLabel = {0:'待审批',1:'已通过',2:'已驳回',3:'已取消'};
+    var statusCls = {0:'submitted',1:'approved',2:'rejected',3:'withdrawn'};
     var tpl = U.$('tpl-submission-card');
     var listEl = U.$('my-submissions-list');
     listEl.innerHTML = '';
@@ -1764,7 +1764,7 @@ const UI = {
         deciderEl.style.display = 'none';
       }
       var cmtEl = card.querySelector('.approval-comment');
-      if (a.comment) { cmtEl.textContent = '驳回意见: ' + a.comment; }
+      if (a.status === 2 && a.comment) { cmtEl.textContent = '驳回意见: ' + a.comment; }
       else { cmtEl.style.display = 'none'; }
       // 撤回按钮（仅待审批）
       if (a.status === 0) {
@@ -1816,7 +1816,7 @@ const UI = {
   /** 按状态筛选审批 */
   filterApprovals: function(status) {
     State._approvalFilter = status;
-    var labels = {'': '全部', 'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回'};
+    var labels = {'': '全部', 'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回', 'WITHDRAWN': '已取消'};
     var btns = document.querySelectorAll('#page-approvals .filter-bar .btn');
     for (var i = 0; i < btns.length; i++) {
       btns[i].classList.toggle('active', btns[i].textContent.trim() === (labels[status] || '待审批'));
@@ -1828,8 +1828,8 @@ const UI = {
   renderApprovals: function() {
     var approvals = State._allApprovals || [];
     var typeLabel = {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车'};
-    var statusLabel = {0:'待审批',1:'已通过',2:'已驳回',3:'已过期'};
-    var statusCls = {0:'submitted',1:'approved',2:'rejected',3:'expired'};
+    var statusLabel = {0:'待审批',1:'已通过',2:'已驳回',3:'已取消'};
+    var statusCls = {0:'submitted',1:'approved',2:'rejected',3:'withdrawn'};
     var tpl = U.$('tpl-approval-card');
     var listEl = U.$('approvals-list');
     listEl.innerHTML = '';
@@ -1867,7 +1867,7 @@ const UI = {
       }
       // 驳回意见
       var cmtEl = card.querySelector('.approval-comment');
-      if (a.comment) { cmtEl.textContent = '驳回意见: ' + a.comment; }
+      if (a.status === 2 && a.comment) { cmtEl.textContent = '驳回意见: ' + a.comment; }
       else { cmtEl.style.display = 'none'; }
       listEl.appendChild(card);
     }

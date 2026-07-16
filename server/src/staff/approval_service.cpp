@@ -210,8 +210,7 @@ ApprovalService::WithdrawResult ApprovalService::withdraw(
     if (it->status != ApprovalState::SUBMITTED) { result.error = "只能撤回待审批的申请"; return result; }
     if (it->submitter_id != submitter_id) { result.error = "只能撤回自己的提交"; return result; }
 
-    it->status = ApprovalState::REJECTED;
-    it->comment = "提交人撤回";
+    it->status = ApprovalState::WITHDRAWN;
     it->decided_at = nowIso();
     saveApprovals();
     result.success = true;

@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <!-- build:20260718-v3 -->
 <title>12306 铁路票务系统</title>
-<link rel="stylesheet" href="/style.css?v=25">
+<link rel="stylesheet" href="/style.css?v=26">
 </head>
 <body>
 
@@ -353,6 +353,7 @@
         <button class="btn btn-sm" onclick="UI.filterMySubmissions('SUBMITTED')">待审批</button>
         <button class="btn btn-sm" onclick="UI.filterMySubmissions('APPROVED')">已通过</button>
         <button class="btn btn-sm" onclick="UI.filterMySubmissions('REJECTED')">已驳回</button>
+        <button class="btn btn-sm" onclick="UI.filterMySubmissions('WITHDRAWN')">已取消</button>
       </div>
       <div id="my-submissions-loading" class="loading" style="display:none">加载中…</div>
       <div id="my-submissions-list"></div>
@@ -429,6 +430,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=20260720"></script>
+<script src="/app.js?v=20260720b"></script>
 </body>
 </html>

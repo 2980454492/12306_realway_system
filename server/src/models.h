@@ -119,13 +119,13 @@ enum class ApprovalState : uint8_t {
     SUBMITTED = 0,  // 待审批
     APPROVED  = 1,  // 已通过
     REJECTED  = 2,  // 已驳回
-    EXPIRED   = 3   // 已过期
+    WITHDRAWN = 3   // 已取消（提交人撤回）
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalState, {
     {ApprovalState::SUBMITTED, "SUBMITTED"},
     {ApprovalState::APPROVED,  "APPROVED"},
     {ApprovalState::REJECTED,  "REJECTED"},
-    {ApprovalState::EXPIRED,   "EXPIRED"},
+    {ApprovalState::WITHDRAWN, "WITHDRAWN"},
 })
 
 // ── 核心数据结构 ──
