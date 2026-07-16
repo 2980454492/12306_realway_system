@@ -997,5 +997,27 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
-    Logger::instance().info("Routes registered: 17 endpoints (auth, passenger, staff, debug)");
+    // ── POST /api/admin/approvals/{id}/withdraw — 提交人撤回 ──
+    app.Post(R"(/api/admin/approvals/([^/]+)/withdraw)", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+            if (!ctx) return;
+
+            std::string approval_id = req.matches[1];
+            auto result = ApprovalService::instance().withdraw(approval_id, ctx->user_id);
+            json j;
+            j["ok"] = result.success;
+            if (!result.success) j["error"] = result.error;
+            else j["message"] = "已撤回";
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    Logger::instance().info("Routes registered: 18 endpoints (auth, passenger, staff, debug)");
 }

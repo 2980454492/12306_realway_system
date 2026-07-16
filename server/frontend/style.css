@@ -286,6 +286,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 
 /* ── 我的提交卡片行 ── */
 .submission-row { display: flex; align-items: center; gap: 16px; }
+.submission-actions { margin-left: auto; }
 .submission-train-id { font-size: 18px; font-weight: 700; color: #53a8ff; }
 .submission-time { font-size: 13px; color: #9090b0; }
 .submission-type-tag { font-size: 12px; padding: 2px 10px; border-radius: 4px; background: #0f3460; color: #9090b0; }

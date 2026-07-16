@@ -1766,8 +1766,24 @@ const UI = {
       var cmtEl = card.querySelector('.approval-comment');
       if (a.comment) { cmtEl.textContent = '驳回意见: ' + a.comment; }
       else { cmtEl.style.display = 'none'; }
+      // 撤回按钮（仅待审批）
+      if (a.status === 0) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn-sm btn-danger';
+        btn.textContent = '撤回';
+        btn.onclick = (function(id) { return function(e) { e.stopPropagation(); UI.withdrawSubmission(id); }; })(a.id);
+        card.querySelector('.submission-actions').appendChild(btn);
+      }
       listEl.appendChild(card);
     }
+  },
+
+  /** 撤回提交 */
+  withdrawSubmission: async function(id) {
+    if (!confirm('确定撤回该提交？')) return;
+    var res = await API.post('/api/admin/approvals/' + id + '/withdraw');
+    if (res.ok) { U.toast('已撤回', 'success'); UI.loadMySubmissions(); }
+    else U.toast((res.data && res.data.error) || '撤回失败', 'error');
   },
 
   showSubmissionDetail: async function(key) {

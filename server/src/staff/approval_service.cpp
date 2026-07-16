@@ -199,6 +199,26 @@ ApprovalService::RejectResult ApprovalService::reject(
     return result;
 }
 
+ApprovalService::WithdrawResult ApprovalService::withdraw(
+    const std::string& approval_id, const std::string& submitter_id) {
+    WithdrawResult result;
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    auto it = std::find_if(approvals_.begin(), approvals_.end(),
+        [&](const ApprovalRequest& a) { return a.id == approval_id; });
+    if (it == approvals_.end()) { result.error = "审批不存在"; return result; }
+    if (it->status != ApprovalState::SUBMITTED) { result.error = "只能撤回待审批的申请"; return result; }
+    if (it->submitter_id != submitter_id) { result.error = "只能撤回自己的提交"; return result; }
+
+    it->status = ApprovalState::REJECTED;
+    it->comment = "提交人撤回";
+    it->decided_at = nowIso();
+    saveApprovals();
+    result.success = true;
+    Logger::instance().info("Approval withdrawn: " + approval_id);
+    return result;
+}
+
 // ── 查询 ──
 
 std::vector<ApprovalRequest> ApprovalService::getApprovals(

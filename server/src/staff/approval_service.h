@@ -49,6 +49,13 @@ public:
     RejectResult reject(const std::string& approval_id, const std::string& approver_id,
                        const std::string& comment);
 
+    /** 提交人撤回审批 */
+    struct WithdrawResult {
+        bool success = false;
+        std::string error;
+    };
+    WithdrawResult withdraw(const std::string& approval_id, const std::string& submitter_id);
+
     // ── 查询 ──
 
     /** 按状态筛选审批列表 */
