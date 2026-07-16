@@ -83,31 +83,37 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
     ValidationResult result;
     auto& ds = DataStore::instance();
 
-    // 1. 车次号唯一（O(1) map 查）
-    if (is_new && ds.getTrain(train.id)) {
+    // 1. 车次号校验：新增须唯一，修改须存在（O(1) map 查）
+    auto* existing = ds.getTrain(train.id);
+    if (is_new && existing) {
         result.error = "车次号 " + train.id + " 已存在";
         return result;
     }
+    if (!is_new && !existing) {
+        result.error = "列车 " + train.id + " 不存在";
+        return result;
+    }
 
-    // 2. 日期校验：新增列车须 ≥ 预售期+1 天后生效（预售票已放出，O(1) 字符串比较）
-    if (is_new) {
-        if (train.valid_from.empty()) {
-            result.error = "请选择生效日期";
-            return result;
-        }
+    // 2. 日期校验：新增 ≥ MIN_NEW_TRAIN_DAYS 天，修改 ≥ MAX_ADVANCE_DAYS+1 天
+    if (!train.valid_from.empty()) {
         if (!isFuture(train.valid_from, 365)) {
             result.error = "生效日期不能是过去";
             return result;
         }
+        int min_days = is_new ? MIN_NEW_TRAIN_DAYS : (MAX_ADVANCE_DAYS + 1);
         auto tm = nowTm();
-        tm.tm_mday += MAX_ADVANCE_DAYS + 1;  // 须 ≥15 天
+        tm.tm_mday += min_days;
         std::mktime(&tm);
         char buf[11];
         std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
         if (train.valid_from < std::string(buf)) {
-            result.error = "生效日期须至少 15 天后";
+            result.error = std::string(is_new ? "新增" : "修改")
+                + "列车须至少 " + std::to_string(min_days) + " 天后生效";
             return result;
         }
+    } else if (is_new) {
+        result.error = "请选择生效日期";
+        return result;
     }
 
     // 3. 办客站至少 2（始发+终到）

@@ -692,7 +692,8 @@ void registerRoutes(RailwayServer& server) {
     });
 
     // ── POST /api/admin/trains — 新增列车（提交审批）──
-    app.Post("/api/admin/trains", [](const httplib::Request& req, httplib::Response& res) {
+    // ── PUT  /api/admin/trains/{id} — 修改列车（与新增共用逻辑，is_new 由 URL 是否有 id 决定）──
+    auto handleTrainSubmit = [](const httplib::Request& req, httplib::Response& res, bool is_new) {
         try {
             auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
             if (!ctx) return;
@@ -701,11 +702,12 @@ void registerRoutes(RailwayServer& server) {
             Train train = body.get<Train>();
             // 前端未传 route_stations 时，从 stops 自动填充
             if (train.route_stations.empty()) {
-                for (const auto& s : train.stops) train.route_stations.push_back(s.station_id);
+                for (const auto& s : train.stops)
+                    train.route_stations.push_back(s.station_id);
             }
 
-            // 校验
-            auto vr = TrainManager::instance().validate(train, true);
+            // 校验（ID唯一/存在/日期/停站，均由 validate 根据 is_new 区分）
+            auto vr = TrainManager::instance().validate(train, is_new);
             if (!vr.valid) {
                 json j;
                 j["ok"] = false;
@@ -739,9 +741,9 @@ void registerRoutes(RailwayServer& server) {
             }
 
             // 提交审批
-            std::string snapshot = body.dump();
+            auto type = is_new ? ApprovalType::CREATE_TRAIN : ApprovalType::ADJUST_SCHEDULE;
             std::string aid = ApprovalService::instance().submit(
-                ApprovalType::CREATE_TRAIN, ctx->user_id, body.dump(), "");
+                type, ctx->user_id, body.dump(), "");
 
             json j;
             j["ok"] = true;
@@ -755,6 +757,14 @@ void registerRoutes(RailwayServer& server) {
             res.set_content(j.dump(), "application/json");
             res.status = 500;
         }
+    };
+
+    app.Post("/api/admin/trains", [handleTrainSubmit](const httplib::Request& req, httplib::Response& res) {
+        handleTrainSubmit(req, res, true);
+    });
+
+    app.Put(R"(/api/admin/trains/([^/]+))", [handleTrainSubmit](const httplib::Request& req, httplib::Response& res) {
+        handleTrainSubmit(req, res, false);
     });
 
     // ── DELETE /api/admin/trains/{id} — 删除列车（提交审批）──
@@ -777,100 +787,22 @@ void registerRoutes(RailwayServer& server) {
 
             std::string del_date = req.get_param_value("date");
 
-            json payload;
-            payload["id"] = train_id;
-            if (!del_date.empty()) payload["delete_date"] = del_date;
-            std::string aid = ApprovalService::instance().submit(
-                ApprovalType::DELETE_TRAIN, ctx->user_id, payload.dump(), "");
-
-            json j;
-            j["ok"] = true;
-            j["approval_id"] = aid;
-            j["message"] = "已提交审批";
-            res.set_content(j.dump(), "application/json");
-        } catch (const std::exception& e) {
-            json j;
-            j["ok"] = false;
-            j["error"] = e.what();
-            res.set_content(j.dump(), "application/json");
-            res.status = 500;
-        }
-    });
-
-    // ── PUT /api/admin/trains/{id}/schedule — 调整时刻（提交审批）──
-    app.Put(R"(/api/admin/trains/([^/]+)/schedule)", [](const httplib::Request& req, httplib::Response& res) {
-        try {
-            auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
-            if (!ctx) return;
-
-            std::string train_id = req.matches[1];
-            json body = json::parse(req.body);
-
-            // 构建临时列车做校验（合并新数据到已有列车）
-            auto& ds = DataStore::instance();
-            auto* existing = ds.getTrain(train_id);
-            if (!existing) {
+            // 删除日期须 ≥15 天（14 天内的票已放出）
+            if (!del_date.empty()
+                && !(isFuture(del_date, 365) && !isFuture(del_date, MAX_ADVANCE_DAYS))) {
                 json j;
                 j["ok"] = false;
-                j["error"] = "列车不存在";
-                res.set_content(j.dump(), "application/json");
-                res.status = 404;
-                return;
-            }
-
-            Train temp = *existing;
-            temp.stops = body["stops"].get<std::vector<Stop>>();
-            if (body.contains("segments"))
-                temp.segments = body["segments"].get<std::vector<RouteSegment>>();
-            if (body.contains("route_stations"))
-                temp.route_stations = body["route_stations"].get<std::vector<uint32_t>>();
-            else {
-                temp.route_stations.clear();
-                for (const auto& s : temp.stops)
-                    temp.route_stations.push_back(s.station_id);
-            }
-
-            auto vr = TrainManager::instance().validate(temp, false);
-            if (!vr.valid) {
-                json j;
-                j["ok"] = false;
-                j["error"] = vr.error;
+                j["error"] = "删除日期须至少 15 天后（第14天已放票）";
                 res.set_content(j.dump(), "application/json");
                 res.status = 400;
                 return;
             }
 
-            // 冲突检测
-            auto conflicts = TrainManager::instance().detectConflicts(temp);
-            if (!conflicts.empty()) {
-                json j;
-                j["ok"] = false;
-                j["error"] = "运行图冲突：与 " + conflicts[0].train_id + " 在区间重叠";
-                json details = json::array();
-                for (const auto& c : conflicts) {
-                    json cd;
-                    cd["train_id"] = c.train_id;
-                    cd["station_a"] = c.station_a;
-                    cd["station_b"] = c.station_b;
-                    cd["line_id"] = c.line_id;
-                    cd["conflicting_enter"] = c.conflicting_enter;
-                    cd["conflicting_leave"] = c.conflicting_leave;
-                    details.push_back(cd);
-                }
-                j["conflicts"] = details;
-                res.set_content(j.dump(), "application/json");
-                res.status = 409;
-                return;
-            }
-
-            // 提交审批（payload 含完整数据）
             json payload;
             payload["id"] = train_id;
-            payload["stops"] = body["stops"];
-            payload["segments"] = body.value("segments", json::array());
-            payload["route_stations"] = body.value("route_stations", json::array());
+            if (!del_date.empty()) payload["delete_date"] = del_date;
             std::string aid = ApprovalService::instance().submit(
-                ApprovalType::ADJUST_SCHEDULE, ctx->user_id, payload.dump(), "");
+                ApprovalType::DELETE_TRAIN, ctx->user_id, payload.dump(), "");
 
             json j;
             j["ok"] = true;

@@ -83,6 +83,7 @@ const Auth = {
 const API = {
   get: function(url) { return this._fetch('GET', url); },
   post: function(url, body) { return this._fetch('POST', url, body); },
+  put: function(url, body) { return this._fetch('PUT', url, body); },
   del: function(url) { return this._fetch('DELETE', url); },
   _fetch: async function(method, url, body) {
     var headers = { 'Content-Type': 'application/json' };
@@ -1326,7 +1327,7 @@ const UI = {
     }
     U.$('train-station-datalist').innerHTML = html;
     var minDate = new Date();
-    minDate.setDate(minDate.getDate() + 15);  // 第14天已放票，须 ≥15 天
+    minDate.setDate(minDate.getDate() + 3);  // 新增列车须 ≥3 天
     var minStr = minDate.toISOString().slice(0,10);
     U.$('new-train-valid-from').setAttribute('min', minStr);
     U.$('new-train-range-from').setAttribute('min', minStr);
@@ -1445,7 +1446,7 @@ const UI = {
     U.$('new-train-number').value = train.id.substring(1);
     U.$('new-train-number').disabled = true;
 
-    // 类型 + 日期
+    // 类型 + 日期（修改须 ≥15 天，覆盖新增的 +3 天）
     U.$('new-train-type').value = String(train.type || 0);
     UI.onTrainTypeChange();
     if (train.type === 1) {
@@ -1454,6 +1455,11 @@ const UI = {
     } else {
       U.$('new-train-valid-from').value = train.valid_from || '';
     }
+    var min15 = new Date();
+    min15.setDate(min15.getDate() + 15);
+    var min15Str = min15.toISOString().slice(0,10);
+    U.$('new-train-valid-from').setAttribute('min', min15Str);
+    U.$('new-train-range-from').setAttribute('min', min15Str);
 
     // 席位
     var sc = train.seat_config || {};
@@ -1774,7 +1780,7 @@ const UI = {
         platform: 0
       });
     }
-    // 构建区段（每对相邻站，含通过站），只传冲突检测需要的字段
+    // 构建区段（每对相邻站，含通过站）
     for (var i = 0; i + 1 < path.length; i++) {
       var cur = path[i], next = path[i + 1];
       segments.push({
@@ -1782,7 +1788,9 @@ const UI = {
         to_station: next.station_id,
         line_id: next.line_id || 0,
         enter_time: cur.departure,
-        leave_time: next.arrival
+        leave_time: next.arrival,
+        distance_km: next.distance_km || 0,
+        speed_kmh: next.speed_kmh || 0
       });
     }
 
@@ -1813,8 +1821,8 @@ const UI = {
     };
 
     var isEdit = !!State._editingTrainId;
-    var url = isEdit ? '/api/admin/trains/' + encodeURIComponent(State._editingTrainId) + '/schedule' : '/api/admin/trains';
-    var res = isEdit ? await API.post(url, body) : await API.post(url, body);
+    var url = isEdit ? '/api/admin/trains/' + encodeURIComponent(State._editingTrainId) : '/api/admin/trains';
+    var res = isEdit ? await API.put(url, body) : await API.post(url, body);
     if (res.ok) {
       U.toast('已提交审批：' + (res.data.approval_id || ''), 'success');
       State._editingTrainId = null;

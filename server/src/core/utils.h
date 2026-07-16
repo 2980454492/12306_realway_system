@@ -150,6 +150,9 @@ inline constexpr double BASE_RATE_PER_KM = 0.30;
 /** 购票/查票最大提前天数（12306 为 15 天即 today+14） */
 inline constexpr int MAX_ADVANCE_DAYS = 14;
 
+/** 新增列车最少提前天数 */
+inline constexpr int MIN_NEW_TRAIN_DAYS = 3;
+
 // ── 路线计算 ──
 
 /** 计算列车从 from 到 to 的实际走行里程，沿 route_stations 逐段累加 Haversine */
