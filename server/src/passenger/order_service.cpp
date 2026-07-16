@@ -72,9 +72,8 @@ bool OrderService::initialize() {
                 restored++;
             }
         }
-        if (restored > 0) {
+        if (restored > 0)
             Logger::instance().info("Restored " + std::to_string(restored) + " seat reservations");
-        }
         return true;
     } catch (const std::exception& e) {
         Logger::instance().error(std::string("Failed to load orders: ") + e.what());

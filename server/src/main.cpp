@@ -27,9 +27,9 @@ static RailwayServer* g_server = nullptr;  // 信号处理期间访问
 static void signalHandler(int sig) {
     const char* name = (sig == SIGINT) ? "SIGINT" : "SIGTERM";
     Logger::instance().info(std::string("Received ") + name + ", shutting down...");
-    if (g_server) {
+    if (g_server)
+
         g_server->stop();
-    }
 }
 
 int main() {

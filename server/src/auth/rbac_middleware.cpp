@@ -51,9 +51,8 @@ std::optional<AuthContext> RbacMiddleware::authenticate(const std::string& auth_
 
     std::string token = auth_header.substr(prefix.size());
     auto payload = JwtService::instance().verifyToken(token);
-    if (!payload) {
+    if (!payload)
         return std::nullopt;  // 签名错误或已过期
-    }
 
     AuthContext ctx;
     ctx.user_id = payload->user_id;

@@ -34,9 +34,8 @@ std::string base64urlEncode(const std::string& input) {
             valb -= 6;
         }
     }
-    if (valb > -6) {
+    if (valb > -6)
         encoded.push_back(BASE64_CHARS[((val << 8) >> (valb + 8)) & 0x3F]);
-    }
     // URL-safe: + → -, / → _
     for (auto& ch : encoded) {
         if (ch == '+') ch = '-';
@@ -163,9 +162,8 @@ std::optional<JwtService::Payload> JwtService::verifyToken(const std::string& to
     // 1. 拆分 token
     size_t dot1 = token.find('.');
     size_t dot2 = token.rfind('.');
-    if (dot1 == std::string::npos || dot2 == std::string::npos || dot1 == dot2) {
+    if (dot1 == std::string::npos || dot2 == std::string::npos || dot1 == dot2)
         return std::nullopt;  // 格式错误
-    }
 
     std::string header_b64 = token.substr(0, dot1);
     std::string payload_b64 = token.substr(dot1 + 1, dot2 - dot1 - 1);
@@ -176,9 +174,8 @@ std::optional<JwtService::Payload> JwtService::verifyToken(const std::string& to
     std::string expected_sig = hmacSha256(secret_key_, signing_input);
     std::string expected_sig_b64 = base64urlEncode(expected_sig);
 
-    if (signature_b64 != expected_sig_b64) {
+    if (signature_b64 != expected_sig_b64)
         return std::nullopt;  // 签名不匹配
-    }
 
     // 3. 解析 payload
     std::string payload_json = base64urlDecode(payload_b64);
@@ -195,9 +192,8 @@ std::optional<JwtService::Payload> JwtService::verifyToken(const std::string& to
         // 4. 检查过期
         auto now_sec = std::chrono::duration_cast<std::chrono::seconds>(
                            std::chrono::system_clock::now().time_since_epoch()).count();
-        if (now_sec > p.exp) {
+        if (now_sec > p.exp)
             return std::nullopt;  // 已过期
-        }
 
         return p;
     } catch (const std::exception&) {

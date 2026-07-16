@@ -92,16 +92,21 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
     // 2. 日期校验：新增列车须至少 3 天后生效（O(1) 字符串比较，最轻量）
     if (is_new) {
         if (train.valid_from.empty()) {
-            result.error = "请选择生效日期"; return result;
+            result.error = "请选择生效日期";
+            return result;
         }
         if (!isFuture(train.valid_from, 365)) {
-            result.error = "生效日期不能是过去"; return result;
+            result.error = "生效日期不能是过去";
+            return result;
         }
         auto tm = nowTm();
-        tm.tm_mday += 3; std::mktime(&tm);
-        char buf[11]; std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+        tm.tm_mday += 3;
+        std::mktime(&tm);
+        char buf[11];
+        std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
         if (train.valid_from < std::string(buf)) {
-            result.error = "新增列车须至少 3 天后生效（给乘客留购票时间）"; return result;
+            result.error = "新增列车须至少 3 天后生效";
+            return result;
         }
     }
 
@@ -178,7 +183,8 @@ std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Tr
                 if (dit != occ_detail_.end()) {
                     for (const auto& [tid, times] : dit->second) {
                         if (times.first == ex_enter && times.second == ex_leave) {
-                            conflict_train = tid; break;
+                            conflict_train = tid;
+                            break;
                         }
                     }
                 }
@@ -208,9 +214,13 @@ TrainManager::DeleteResult TrainManager::deleteTrain(const std::string& train_id
     auto& ds = DataStore::instance();
 
     auto* train = ds.getTrain(train_id);
-    if (!train) { result.error = "列车不存在"; return result; }
+    if (!train) { 
+        result.error = "列车不存在";
+        return result; 
+    }
     if (train->status != TrainStatus::ACTIVE) {
-        result.error = "列车非运行中状态"; return result;
+        result.error = "列车非运行中状态";
+        return result;
     }
 
     // TODO: 检查未出发已售车票（需要 OrderService 暴露跨用户查询接口）

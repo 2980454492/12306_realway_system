@@ -206,9 +206,18 @@ ApprovalService::WithdrawResult ApprovalService::withdraw(
 
     auto it = std::find_if(approvals_.begin(), approvals_.end(),
         [&](const ApprovalRequest& a) { return a.id == approval_id; });
-    if (it == approvals_.end()) { result.error = "审批不存在"; return result; }
-    if (it->status != ApprovalState::SUBMITTED) { result.error = "只能撤回待审批的申请"; return result; }
-    if (it->submitter_id != submitter_id) { result.error = "只能撤回自己的提交"; return result; }
+    if (it == approvals_.end()) {
+        result.error = "审批不存在";
+        return result;
+    }
+    if (it->status != ApprovalState::SUBMITTED) {
+        result.error = "只能撤回待审批的申请";
+        return result;
+    }
+    if (it->submitter_id != submitter_id) {
+        result.error = "只能撤回自己的提交";
+        return result;
+    }
 
     it->status = ApprovalState::WITHDRAWN;
     it->decided_at = nowIso();

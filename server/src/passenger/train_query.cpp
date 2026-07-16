@@ -70,9 +70,8 @@ std::optional<StationTrainIndex> loadIndex(const std::string& path, DataStore& d
                 std::string train_id = entry["train_id"].get<std::string>();
                 int stop_idx = entry["stop_idx"].get<int>();
                 auto* train = ds.getTrain(train_id);
-                if (train && train->status == TrainStatus::ACTIVE) {
+                if (train && train->status == TrainStatus::ACTIVE)
                     vec.push_back({train, stop_idx});
-                }
             }
         }
         return idx;
@@ -357,9 +356,8 @@ std::vector<StationQueryItem> TrainQuery::queryByStations(
         auto it = idx.find(sid);
         if (it == idx.end()) continue;
         for (const auto& [train, stop_idx] : it->second) {
-            if (train->status == TrainStatus::ACTIVE) {
+            if (train->status == TrainStatus::ACTIVE)
                 raw.push_back({train, stop_idx, sid});
-            }
         }
     }
 

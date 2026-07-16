@@ -8,9 +8,8 @@
 RailwayServer::RailwayServer() = default;
 
 RailwayServer::~RailwayServer() {
-    if (running_) {
+    if (running_)
         stop();
-    }
 }
 
 void RailwayServer::start(int port) {
@@ -35,9 +34,8 @@ void RailwayServer::start(int port) {
 }
 
 void RailwayServer::stop() {
-    if (!running_) {
+    if (!running_)
         return;
-    }
 
     Logger::instance().info("Shutting down server...");
     app_.stop();  // 通知 httplib 停止 accept 循环
