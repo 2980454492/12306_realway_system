@@ -89,10 +89,6 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
         result.error = "车次号 " + train.id + " 已存在";
         return result;
     }
-    if (!is_new && !existing) {
-        result.error = "列车 " + train.id + " 不存在";
-        return result;
-    }
 
     // 2. 日期校验：新增 ≥ MIN_NEW_TRAIN_DAYS 天，修改 ≥ MAX_ADVANCE_DAYS+1 天
     if (!train.valid_from.empty()) {
@@ -248,6 +244,19 @@ bool TrainManager::adjustSchedule(const std::string& train_id, const std::vector
     train->stops = new_stops;
     addToOccupancy(*train);
     Logger::instance().info("Schedule adjusted: " + train_id);
+    return true;
+}
+
+bool TrainManager::updateTrain(const std::string& train_id, const Train& updated) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto& ds = DataStore::instance();
+    auto* train = const_cast<Train*>(ds.getTrain(train_id));
+    if (!train) return false;
+
+    removeFromOccupancy(*train);
+    *train = updated;
+    addToOccupancy(*train);
+    Logger::instance().info("Train updated: " + train_id);
     return true;
 }
 

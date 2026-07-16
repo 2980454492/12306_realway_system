@@ -117,10 +117,11 @@ ApprovalService::ApproveResult ApprovalService::approve(
         return result;
     }
 
-    // 4. 二次冲突校验
+    // 4. 二次冲突校验 + 执行变更 + 持久化
     try {
         json payload = json::parse(it->payload);
         std::string tid = payload.value("id", "");
+        auto& ds = DataStore::instance();
 
         if (it->type == ApprovalType::CREATE_TRAIN) {
             Train train = payload.get<Train>();
@@ -131,13 +132,42 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 return result;
             }
             TrainManager::instance().addTrain(train);
+            ds.saveTrains();
             result.train_id = tid;
         } else if (it->type == ApprovalType::DELETE_TRAIN) {
             TrainManager::instance().deleteTrain(tid);
+            ds.saveTrains();
             result.train_id = tid;
         } else if (it->type == ApprovalType::ADJUST_SCHEDULE) {
-            auto new_stops = payload["stops"].get<std::vector<Stop>>();
-            TrainManager::instance().adjustSchedule(tid, new_stops);
+            // 从 payload 中读取完整新数据，覆盖列车可变字段
+            auto* train = ds.getTrain(tid);
+            if (!train) {
+                cas_lock_.clear();
+                result.error = "列车 " + tid + " 不存在（可能已被删除）";
+                return result;
+            }
+            Train updated = *train;
+            updated.stops = payload["stops"].get<std::vector<Stop>>();
+            if (payload.contains("segments"))
+                updated.segments = payload["segments"].get<std::vector<RouteSegment>>();
+            if (payload.contains("route_stations"))
+                updated.route_stations = payload["route_stations"].get<std::vector<uint32_t>>();
+            else {
+                updated.route_stations.clear();
+                for (const auto& s : updated.stops)
+                    updated.route_stations.push_back(s.station_id);
+            }
+
+            // 二次冲突校验
+            auto conflicts = TrainManager::instance().detectConflicts(updated);
+            if (!conflicts.empty()) {
+                cas_lock_.clear();
+                result.error = "二次冲突校验失败：与 " + conflicts[0].train_id + " 在区间冲突";
+                return result;
+            }
+
+            TrainManager::instance().updateTrain(tid, updated);
+            ds.saveTrains();
             result.train_id = tid;
         }
 
