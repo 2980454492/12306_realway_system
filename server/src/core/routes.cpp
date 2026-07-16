@@ -805,9 +805,8 @@ void registerRoutes(RailwayServer& server) {
 
             std::string train_id = req.matches[1];
             json body = json::parse(req.body);
-            auto new_stops = body["stops"].get<std::vector<Stop>>();
 
-            // 构建临时列车做校验
+            // 构建临时列车做校验（合并新数据到已有列车）
             auto& ds = DataStore::instance();
             auto* existing = ds.getTrain(train_id);
             if (!existing) {
@@ -820,7 +819,17 @@ void registerRoutes(RailwayServer& server) {
             }
 
             Train temp = *existing;
-            temp.stops = new_stops;
+            temp.stops = body["stops"].get<std::vector<Stop>>();
+            if (body.contains("segments"))
+                temp.segments = body["segments"].get<std::vector<RouteSegment>>();
+            if (body.contains("route_stations"))
+                temp.route_stations = body["route_stations"].get<std::vector<uint32_t>>();
+            else {
+                temp.route_stations.clear();
+                for (const auto& s : temp.stops)
+                    temp.route_stations.push_back(s.station_id);
+            }
+
             auto vr = TrainManager::instance().validate(temp, false);
             if (!vr.valid) {
                 json j;
@@ -843,6 +852,9 @@ void registerRoutes(RailwayServer& server) {
                     cd["train_id"] = c.train_id;
                     cd["station_a"] = c.station_a;
                     cd["station_b"] = c.station_b;
+                    cd["line_id"] = c.line_id;
+                    cd["conflicting_enter"] = c.conflicting_enter;
+                    cd["conflicting_leave"] = c.conflicting_leave;
                     details.push_back(cd);
                 }
                 j["conflicts"] = details;
@@ -851,10 +863,12 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
-            // 提交审批
+            // 提交审批（payload 含完整数据）
             json payload;
             payload["id"] = train_id;
             payload["stops"] = body["stops"];
+            payload["segments"] = body.value("segments", json::array());
+            payload["route_stations"] = body.value("route_stations", json::array());
             std::string aid = ApprovalService::instance().submit(
                 ApprovalType::ADJUST_SCHEDULE, ctx->user_id, payload.dump(), "");
 

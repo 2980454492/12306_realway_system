@@ -89,7 +89,7 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
         return result;
     }
 
-    // 2. 日期校验：新增列车须至少 3 天后生效（O(1) 字符串比较，最轻量）
+    // 2. 日期校验：新增列车须 ≥ 预售期+1 天后生效（预售票已放出，O(1) 字符串比较）
     if (is_new) {
         if (train.valid_from.empty()) {
             result.error = "请选择生效日期";
@@ -100,12 +100,12 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
             return result;
         }
         auto tm = nowTm();
-        tm.tm_mday += 3;
+        tm.tm_mday += MAX_ADVANCE_DAYS + 1;  // 须 ≥15 天
         std::mktime(&tm);
         char buf[11];
         std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
         if (train.valid_from < std::string(buf)) {
-            result.error = "新增列车须至少 3 天后生效";
+            result.error = "生效日期须至少 15 天后";
             return result;
         }
     }

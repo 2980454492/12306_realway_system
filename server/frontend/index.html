@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-store, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<!-- build:20260721-v4 -->
+<!-- build:20260721-v5 -->
 <title>12306 铁路票务系统</title>
 <link rel="stylesheet" href="/style.css?v=20260720a">
 </head>
@@ -263,7 +263,8 @@
         </div>
       </div>
 
-      <!-- ── 选线：始发站 ── -->
+      <!-- ── 选线：始发站（新增模式显示，编辑模式隐藏）── -->
+      <div id="first-station-row">
       <label style="font-size:13px;color:#9090b0;margin-top:16px;display:block">始发站</label>
       <div class="form-row-2">
         <div class="form-group">
@@ -273,6 +274,7 @@
         <div class="form-group">
           <input type="time" id="first-depart-time" onchange="UI.tryShowNeighbors()">
         </div>
+      </div>
       </div>
 
       <!-- ── 已选路径 ── -->
@@ -446,6 +448,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=20260721c"></script>
+<script src="/app.js?v=20260721f"></script>
 </body>
 </html>
