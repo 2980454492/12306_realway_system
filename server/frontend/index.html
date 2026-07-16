@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <!-- build:20260718-v3 -->
 <title>12306 铁路票务系统</title>
-<link rel="stylesheet" href="/style.css?v=26">
+<link rel="stylesheet" href="/style.css?v=20260720a">
 </head>
 <body>
 
@@ -416,6 +416,22 @@
   </div>
 </template>
 
+<!-- ═══ 删除日期弹窗 ═══ -->
+<div id="delete-date-modal" class="overlay" style="display:none">
+  <div class="detail-card" style="width:320px" onclick="event.stopPropagation()">
+    <h3>选择删除日期</h3>
+    <div class="form-group" style="margin-top:12px">
+      <label>删除日期（须 ≥ 14 天后）</label>
+      <input type="date" id="delete-date-input">
+    </div>
+    <div class="form-actions" style="margin-top:12px">
+      <button class="btn btn-primary" onclick="UI.confirmDelete()">确认删除</button>
+      <button class="btn" onclick="UI.cancelDelete()">取消</button>
+    </div>
+    <p id="delete-date-error" class="error-msg"></p>
+  </div>
+</div>
+
 <!-- ═══ 车次详情弹窗 ═══ -->
 <div id="detail-overlay" class="overlay" onclick="UI.closeDetail()">
   <div class="detail-card" onclick="event.stopPropagation()">
@@ -430,6 +446,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=20260720c"></script>
+<script src="/app.js?v=20260720f"></script>
 </body>
 </html>

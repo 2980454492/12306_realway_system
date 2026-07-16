@@ -202,18 +202,6 @@ bool TrainManager::addTrain(const Train& train) {
     return true;
 }
 
-std::string TrainManager::canDelete(const Train& train) const {
-    if (!train.valid_from.empty()) {
-        auto tm = nowTm();
-        tm.tm_mday += 14; std::mktime(&tm);
-        char buf[11]; std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
-        if (train.valid_from < std::string(buf)) {
-            return "只能删除 14 天后的列车（14 天内已放票）";
-        }
-    }
-    return "";
-}
-
 TrainManager::DeleteResult TrainManager::deleteTrain(const std::string& train_id) {
     DeleteResult result;
     std::lock_guard<std::mutex> lock(mutex_);

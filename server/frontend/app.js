@@ -29,6 +29,7 @@ const State = {
   _neighborIndex: {},      // 车站-线路-邻居索引缓存
   _routePath: [],          // 当前正在构建的运行路径 [{station_id, station_name, line_id, line_name, arrival, departure, is_stop, distance_km, max_speed}]
   _pendingNeighbor: null,  // 待确认的邻居选择
+  _pendingDeleteTrain: null,  // 待删除的列车 ID
 };
 
 // ═══════════════════════════════════════════
@@ -1568,7 +1569,7 @@ const UI = {
         var btn = document.createElement('button');
         btn.className = 'btn btn-sm btn-danger';
         btn.textContent = '删除';
-        btn.onclick = function(e) { e.stopPropagation(); UI.deleteTrain(t.id); };
+        btn.onclick = (function(id) { return function(e) { e.stopPropagation(); UI.deleteTrain(id); }; })(t.id);
         card.querySelector('.train-mgmt-actions').appendChild(btn);
       }
       listEl.appendChild(card);
@@ -1698,11 +1699,34 @@ const UI = {
   },
 
   /** 删除列车 */
-  deleteTrain: async function(trainId) {
-    if (!confirm('确定删除列车 ' + trainId + '？')) return;
-    var res = await API.del('/api/admin/trains/' + trainId);
+  /** 删除列车 — 弹出日期选择器，须 ≥ 14 天后 */
+  deleteTrain: function(trainId) {
+    State._pendingDeleteTrain = trainId;
+    var minDate = new Date(); minDate.setDate(minDate.getDate() + 14);
+    var minStr = minDate.toISOString().slice(0,10);
+    var inp = U.$('delete-date-input');
+    inp.setAttribute('min', minStr);
+    inp.value = minStr;
+    U.$('delete-date-error').textContent = '';
+    U.$('delete-date-modal').style.display = 'flex';
+  },
+
+  /** 确认删除（日期下限由 min 属性保证，后端二次校验） */
+  confirmDelete: async function() {
+    var trainId = State._pendingDeleteTrain;
+    var delDate = (U.$('delete-date-input') || {}).value || '';
+    if (!delDate) { U.toast('请选择删除日期', 'error'); return; }
+    U.$('delete-date-modal').style.display = 'none';
+    if (!confirm('确定删除 ' + trainId + '？删除日期: ' + delDate)) return;
+    var res = await API.del('/api/admin/trains/' + trainId + '?date=' + encodeURIComponent(delDate));
     if (res.ok) { U.toast('已提交审批', 'success'); UI.loadTrains(); }
     else U.toast((res.data && res.data.error) || '删除失败', 'error');
+  },
+
+  /** 取消删除 */
+  cancelDelete: function() {
+    U.$('delete-date-modal').style.display = 'none';
+    State._pendingDeleteTrain = null;
   },
 
   // ── 职工端：我的提交 ──

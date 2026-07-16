@@ -60,9 +60,6 @@ public:
     };
     DeleteResult deleteTrain(const std::string& train_id);
 
-    /** 校验列车是否可以删除（14 天外） */
-    std::string canDelete(const Train& train) const;
-
     /** 调整时刻（审批通过后调用），先清理旧占用再写入新占用 */
     bool adjustSchedule(const std::string& train_id, const std::vector<Stop>& new_stops);
 

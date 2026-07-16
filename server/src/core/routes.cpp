@@ -20,7 +20,7 @@
 
 using json = nlohmann::json;  // 局部 using，非全局
 
-/** 停站序列 → JSON 数组 [{station_id, station_name, arrival, departure}] */
+/** 停站序列 → JSON 数组 [{station_id, station_name, line_id, arrival, departure}] */
 inline json stopsToJson(const std::vector<Stop>& stops, DataStore& ds) {
     json arr = json::array();
     for (const auto& stop : stops) {
@@ -28,6 +28,7 @@ inline json stopsToJson(const std::vector<Stop>& stops, DataStore& ds) {
         sd["station_id"] = stop.station_id;
         auto* st = ds.getStation(stop.station_id);
         sd["station_name"] = st ? st->name : "?";
+        sd["line_id"] = stop.line_id;
         sd["arrival"] = stop.arrival;
         sd["departure"] = stop.departure;
         arr.push_back(sd);
@@ -773,15 +774,11 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
-            // 只能删除 14 天后的列车
-            auto delErr = TrainManager::instance().canDelete(*train);
-            if (!delErr.empty()) {
-                json j; j["ok"] = false; j["error"] = delErr;
-                res.set_content(j.dump(), "application/json"); res.status = 400; return;
-            }
+            std::string del_date = req.get_param_value("date");
 
             json payload;
             payload["id"] = train_id;
+            if (!del_date.empty()) payload["delete_date"] = del_date;
             std::string aid = ApprovalService::instance().submit(
                 ApprovalType::DELETE_TRAIN, ctx->user_id, payload.dump(), "");
 
