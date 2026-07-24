@@ -48,6 +48,17 @@ public:
     };
     std::vector<ConflictDetail> detectConflicts(const Train& train) const;
 
+    // ── 提交/审批共用校验 ──
+
+    /** validate + detectConflicts 打包，提交和审批通过时共用。
+     *  返回 valid=true 表示通过；否则 error 含失败原因，conflicts 含冲突详情。 */
+    struct CheckResult {
+        bool valid = false;
+        std::string error;
+        std::vector<ConflictDetail> conflicts;
+    };
+    CheckResult checkTrain(const Train& train, bool is_new) const;
+
     // ── 变更 ──
 
     /** 新增列车（审批通过后调用） */

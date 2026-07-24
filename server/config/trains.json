@@ -776,7 +776,7 @@
         "stop_type_name": "停靠"
       },
       {
-        "arrival": 813,
+        "arrival": 810,
         "departure": -1,
         "line_id": 2,
         "line_name": "呼鄂城际",
@@ -6796,6 +6796,117 @@
     ],
     "type": "REGULAR",
     "valid_from": "2026-07-31",
+    "valid_until": ""
+  },
+  {
+    "id": "G2055",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 50,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 100
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 310,
+        "line_id": 0,
+        "line_name": "",
+        "platform": 0,
+        "station_id": 1,
+        "station_name": "呼和浩特东",
+        "stop_type": 0,
+        "stop_type_name": "始发"
+      },
+      {
+        "arrival": 322,
+        "departure": -1,
+        "line_id": 1,
+        "line_name": "京包高铁",
+        "platform": 0,
+        "station_id": 14,
+        "station_name": "察素齐",
+        "stop_type": 3,
+        "stop_type_name": "终到"
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "2026-07-27",
+    "valid_until": ""
+  },
+  {
+    "id": "G2055",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 50,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 100
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 10,
+        "line_id": 0,
+        "line_name": "",
+        "platform": 0,
+        "station_id": 1,
+        "station_name": "呼和浩特东",
+        "stop_type": 0,
+        "stop_type_name": "始发"
+      },
+      {
+        "arrival": 40,
+        "departure": 40,
+        "line_id": 2,
+        "line_name": "呼鄂城际",
+        "platform": 0,
+        "station_id": 15,
+        "station_name": "托克托东",
+        "stop_type": 2,
+        "stop_type_name": "通过"
+      },
+      {
+        "arrival": 105,
+        "departure": 105,
+        "line_id": 2,
+        "line_name": "呼鄂城际",
+        "platform": 0,
+        "station_id": 11,
+        "station_name": "准格尔",
+        "stop_type": 2,
+        "stop_type_name": "通过"
+      },
+      {
+        "arrival": 135,
+        "departure": 135,
+        "line_id": 2,
+        "line_name": "呼鄂城际",
+        "platform": 0,
+        "station_id": 6,
+        "station_name": "东胜西",
+        "stop_type": 2,
+        "stop_type_name": "通过"
+      },
+      {
+        "arrival": 148,
+        "departure": -1,
+        "line_id": 2,
+        "line_name": "呼鄂城际",
+        "platform": 0,
+        "station_id": 5,
+        "station_name": "鄂尔多斯",
+        "stop_type": 3,
+        "stop_type_name": "终到"
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "2026-07-27",
     "valid_until": ""
   }
 ]

@@ -125,10 +125,12 @@ ApprovalService::ApproveResult ApprovalService::approve(
 
         if (it->type == ApprovalType::CREATE_TRAIN) {
             Train train = payload.get<Train>();
-            auto conflicts = TrainManager::instance().detectConflicts(train);
-            if (!conflicts.empty()) {
+
+            // 二次校验 — 与提交时同一套逻辑
+            auto cr = TrainManager::instance().checkTrain(train, true);
+            if (!cr.valid) {
                 cas_lock_.clear();
-                result.error = "二次冲突校验失败：与 " + conflicts[0].train_id + " 在区间冲突";
+                result.error = cr.error;
                 return result;
             }
             TrainManager::instance().addTrain(train);

@@ -704,37 +704,28 @@ void registerRoutes(RailwayServer& server) {
             json body = json::parse(req.body);
             Train train = body.get<Train>();
 
-            // 校验（ID唯一/存在/日期/停站，均由 validate 根据 is_new 区分）
-            auto vr = TrainManager::instance().validate(train, is_new);
-            if (!vr.valid) {
+            // 校验 + 冲突检测（提交/审批共用 checkTrain）
+            auto cr = TrainManager::instance().checkTrain(train, is_new);
+            if (!cr.valid) {
                 json j;
                 j["ok"] = false;
-                j["error"] = vr.error;
-                res.set_content(j.dump(), "application/json");
-                res.status = 400;
-                return;
-            }
-
-            // 冲突检测
-            auto conflicts = TrainManager::instance().detectConflicts(train);
-            if (!conflicts.empty()) {
-                json j;
-                j["ok"] = false;
-                j["error"] = "运行图冲突：与 " + conflicts[0].train_id + " 在区间重叠";
-                json details = json::array();
-                for (const auto& c : conflicts) {
-                    json cd;
-                    cd["train_id"] = c.train_id;
-                    cd["station_a"] = c.station_a;
-                    cd["station_b"] = c.station_b;
-                    cd["line_id"] = c.line_id;
-                    cd["conflicting_enter"] = c.conflicting_enter;
-                    cd["conflicting_leave"] = c.conflicting_leave;
-                    details.push_back(cd);
+                j["error"] = cr.error;
+                if (!cr.conflicts.empty()) {
+                    json details = json::array();
+                    for (const auto& c : cr.conflicts) {
+                        json cd;
+                        cd["train_id"] = c.train_id;
+                        cd["station_a"] = c.station_a;
+                        cd["station_b"] = c.station_b;
+                        cd["line_id"] = c.line_id;
+                        cd["conflicting_enter"] = c.conflicting_enter;
+                        cd["conflicting_leave"] = c.conflicting_leave;
+                        details.push_back(cd);
+                    }
+                    j["conflicts"] = details;
                 }
-                j["conflicts"] = details;
                 res.set_content(j.dump(), "application/json");
-                res.status = 409;
+                res.status = cr.conflicts.empty() ? 400 : 409;
                 return;
             }
 

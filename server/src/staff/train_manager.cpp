@@ -204,6 +204,24 @@ std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Tr
     return conflicts;
 }
 
+// ── 提交/审批共用校验 ──
+
+TrainManager::CheckResult TrainManager::checkTrain(const Train& train, bool is_new) const {
+    CheckResult result;
+    auto vr = validate(train, is_new);
+    if (!vr.valid) {
+        result.error = vr.error;
+        return result;
+    }
+    result.conflicts = detectConflicts(train);
+    if (!result.conflicts.empty()) {
+        result.error = "运行图冲突：与 " + result.conflicts[0].train_id + " 在区间重叠";
+        return result;
+    }
+    result.valid = true;
+    return result;
+}
+
 // ── 变更操作 ──
 
 bool TrainManager::addTrain(const Train& train) {
