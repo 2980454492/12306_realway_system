@@ -48,9 +48,10 @@
 | 经停站 | 完整停站序列 |
 
 **里程计算规则**：
-- 铁路线不是大圆航线——列车沿轨道依次经过中间站，实际走行里程 = 各相邻经过站间 Haversine 距离逐段累加
-- **经过站 vs 停站**：`route_stations` 包含列车沿线路经过的所有站点（含办客停站和经过不停车的站），票价按经过站序列逐段累加；`stops` 仅包含办客停站（有到发时间），用于查询和购票
-- **直达**：从出发站到到达站之间，该列车经过站序列中每一对相邻站的 Haversine 距离求和
+- 铁路线不是大圆航线——列车沿轨道依次经过中间站，实际走行里程 = 各相邻站间 Haversine 距离逐段累加
+- **stops 全量序列**：`stops` 包含列车沿线路的所有站点（始发+停靠+通过+终到），票价按相邻站逐段累加。`stop_type` 字段区分四种类型（0=始发、1=停靠、2=通过、3=终到）
+- **segments 按需推导**：`buildSegments(train, ds)` 从 stops 实时生成区段数据（含 distance_km、speed_kmh），不再持久化存储
+- **直达**：从出发站到到达站之间，该列车 stops 中每一对相邻站的 Haversine 距离求和
 - **换乘**：第一段列车出发站→中转站的逐段累加 + 第二段列车中转站→到达站的逐段累加
 - **禁止**：用出发站到到达站的直线距离（Haversine(出发,到达)）——这忽略了铁路的实际走向，会严重低估里程
 
@@ -135,7 +136,7 @@
    - ≤ 列车种类的最高时速（如 G 不超过 350 km/h）
    - ≤ 该段线路的限速（`LineNeighbor.max_speed_kmh`）
 5. 重复步骤 2-4，直到职工点击"设为终点站"——最后一站无需离开时间
-6. 最终 `route_stations` 完整包含沿线所有车站（含通过的站），`stops` 仅含办客停站
+6. 最终 `stops` 完整包含沿线所有站点（含通过站），`stop_type` 标记每种类型。segments 由后端 `buildSegments()` 按需推导
 
 **数据存储**：每个 `Stop` 记录 `line_id`（到达该站的线路 ID），供冲突检测和后续追溯使用。
 
@@ -275,7 +276,7 @@
 | 页面 | 对应 API | 可见角色 | 功能说明 |
 |------|----------|:--:|------|
 | **新增列车** | `/api/stations/neighbors` `/api/admin/trains` | Staff | 独立页面，线路感知逐步选线：选种类+车次号+始发站+发车时间→系统展示可选线路及邻居站→职工选线+勾选停靠/通过→自动算速校验→循环至终点站→设席位→提交审批 |
-| **调整时刻** | `PUT /api/admin/trains/{id}/schedule` | Staff | 同新增表单，预填现有数据；提交后走审批流 |
+| **修改列车** | `PUT /api/admin/trains/{id}` | Staff | 同新增表单，预填现有数据（始发站/时刻/路径均可改）；提交后走审批流 |
 | **删除列车** | `DELETE /api/admin/trains/{id}` | Staff | 确认弹窗 → 提交审批 → 审批通过后归档 |
 | **我的提交** | `/api/admin/approvals?submitter_id=X` | Staff | 查看自己提交的全部审批记录，按状态筛选（待审批/已通过/已驳回），展示审批人和审批时间 |
 | **审批中心** | `/api/admin/approvals?status=X&approver_id=X` | Approver | 默认显示待审批列表（全部提交），已通过/已驳回只看自己审批过的记录；通过/驳回按钮，驳回须填写意见 |
@@ -432,17 +433,21 @@ Line
 Train
   id: string               # 车次号（如"G2492"）
   type: TrainType           # REGULAR(图定) / TEMPORARY(临客)
-  stops: vector<Stop>      # 停站序列（有到发时间的站，即在该站办客）
-  route_stations: uint32[] # 经过站序列（含所有停站+经过不停车的站），用于计算实际走行里程和票价
+  stops: vector<Stop>      # 全量站序列（含通过站），始发+停靠+通过+终到，顺序即运行顺序
   status: TrainStatus      # ACTIVE / SUSPENDED / ARCHIVED
   seat_config: SeatConfig  # 各席位座位数
+  valid_from: string       # 有效期起始
+  valid_until: string      # 有效期截止
+  # route_stations 已删除（stops 即有序全量序列）
+  # segments 已删除（buildSegments(train, ds) 按需推导）
 
 Stop
   station_id: uint32_t
   line_id: uint32_t         # 到达该站的线路 ID（冲突检测用，始发站为 0）
-  arrival: TimePoint       # 到站时间(HH:MM)
-  departure: TimePoint     # 发车时间(HH:MM)
-  platform: uint8_t        # 站台号(可选)
+  arrival: int              # 到站时间 HHMM，-1=始发
+  departure: int            # 发车时间 HHMM，-1=终到
+  stop_type: uint8_t        # 0=始发 1=停靠 2=通过 3=终到
+  platform: uint8_t         # 站台号(可选)
 
 SeatConfig
   business_seats: uint16_t
@@ -501,15 +506,9 @@ AuditRecord
   adjacency: map<StationId, map<StationId, Distance>>
 
 区间占用表 IntervalOccupancy
-  # key = (站A, 站B) 即运行区间
-  # value = set<TrainInterval> 按进入时间排序
-  occupancy: map<pair<StationId, StationId>, set<TrainInterval, TimeCompare>>
-
-TrainInterval
-  train_id: string
-  date: Date
-  enter_time: TimePoint      # 进入该区间的时刻
-  leave_time: TimePoint      # 离开该区间的时刻
+  # key = (站A, 站B, 线路ID) 即运行区间（方向敏感+线路隔离）
+  # value = set<{enter_time, leave_time}> 按进入时间排序
+  occupancy: map<string, set<pair<int,int>>>
 
 LineNeighbor                 # 车站在线路上的邻居（新增列车辅助选线）
   line_id: uint32_t
@@ -563,7 +562,7 @@ SeatBitmap
 | POST | `/api/admin/trains` | 新增列车（提交审批） | Staff+ |
 | GET | `/api/admin/trains` | 查看列车列表 | Staff+ |
 | DELETE | `/api/admin/trains/{id}` | 删除列车（提交审批） | Staff+ |
-| PUT | `/api/admin/trains/{id}/schedule` | 调整时刻（提交审批） | Staff+ |
+| PUT | `/api/admin/trains/{id}` | 修改列车（提交审批） | Staff+ |
 | GET | `/api/stations/neighbors` | 车站-线路-邻居索引 | Staff+ |
 | POST | `/api/admin/stations` | 新增站点（提交审批） | Staff+ |
 | POST | `/api/admin/lines` | 新增线路（提交审批） | Staff+ |
@@ -871,4 +870,3 @@ SeatBitmap
 ---
 
 > 📅 创建日期：2026年7月
-> 📎 关联文件：[[2027内蒙古秋招调研]] | [[2027届秋招时间规划与项目推荐]]

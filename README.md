@@ -187,10 +187,10 @@ bash scripts/run.sh
 
 ```
 不是：Haversine(出发站, 到达站)  ← 直线距离，严重低估
-而是：Σ Haversine(站ᵢ, 站ᵢ₊₁)   ← 沿 route_stations 逐段累加
+而是：Σ Haversine(站ᵢ, 站ᵢ₊₁)   ← 沿 stops 逐段累加
 ```
 
-使用 `route_stations`（含经过不停车的站）保证与实际铁路走向一致。
+使用 `stops`（全量序列，含通过站）+ `buildSegments()` 按需推导区段距离。
 
 ### RBAC 权限
 
