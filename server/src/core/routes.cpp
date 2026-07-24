@@ -673,7 +673,7 @@ void registerRoutes(RailwayServer& server) {
                 jt["status"] = static_cast<int>(train.status);
                 jt["stops_count"] = train.stops.size();
                 jt["stops"] = stopsToJson(train.stops, DataStore::instance());
-                jt["segments"] = train.segments;  // 含预计算的 distance_km / speed_kmh
+                jt["segments"] = buildSegments(train, DataStore::instance());
                 arr.push_back(jt);
             }
 
@@ -700,11 +700,6 @@ void registerRoutes(RailwayServer& server) {
 
             json body = json::parse(req.body);
             Train train = body.get<Train>();
-            // 前端未传 route_stations 时，从 stops 自动填充
-            if (train.route_stations.empty()) {
-                for (const auto& s : train.stops)
-                    train.route_stations.push_back(s.station_id);
-            }
 
             // 校验（ID唯一/存在/日期/停站，均由 validate 根据 is_new 区分）
             auto vr = TrainManager::instance().validate(train, is_new);

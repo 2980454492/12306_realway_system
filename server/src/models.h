@@ -196,15 +196,14 @@ struct Train {
     std::string id;               // 车次号（如 G2492 / K7901 / C1003 / L6601）
     TrainType type = TrainType::REGULAR;
     std::vector<Stop> stops;      // 停站序列（仅办客站：始发、停靠、终到，不含通过）
-    std::vector<uint32_t> route_stations;  // 经过站序列（含停站+通过站，用于计算票价里程）
-    std::vector<RouteSegment> segments;    // 运行区段（所有相邻站对的进入/离开时间+线路ID，用于冲突检测）
+    // segments 已删除，全部由 buildSegments(train, ds) 从 stops 按需推导
     TrainStatus status = TrainStatus::ACTIVE;
     SeatConfig seat_config;       // 各席位座位数
     std::string valid_from;       // 有效期起始（临客必填，图定可为空）
     std::string valid_until;      // 有效期截止
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Train,
-    id, type, stops, route_stations, segments, status, seat_config, valid_from, valid_until)
+    id, type, stops, status, seat_config, valid_from, valid_until)
 
 /** 订单 — 旅客购票记录。Phase 5 实现完整业务逻辑 */
 struct Order {
@@ -241,7 +240,6 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(User,
     id, username, password_hash, role, active, failed_attempts, locked_until)
 
 /** 车站的线路邻居 — 该车站在某条线路上相邻的车站。
- *  用于职工新增列车时按线路逐站构建 route_stations。
  *  max_speed_kmh 为该段线路限速，用于时速校验（取线路设计时速）。 */
 struct LineNeighbor {
     uint32_t line_id = 0;
@@ -253,13 +251,6 @@ struct LineNeighbor {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LineNeighbor,
     line_id, line_name, neighbor_station_id, neighbor_name, distance_km, max_speed_kmh)
-
-/** 区间占用记录 — 某列车在某运行区间的时刻占用 */
-struct TrainInterval {
-    std::string train_id;
-    int enter_time = 0;   // 进入区间 HHMM
-    int leave_time = 0;   // 离开区间 HHMM
-};
 
 /** 审批申请 — 职工提交的变更请求 */
 struct ApprovalRequest {

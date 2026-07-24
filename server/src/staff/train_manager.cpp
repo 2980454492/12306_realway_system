@@ -57,7 +57,8 @@ void TrainManager::saveOccupancy() const {
 // ── 占用表操作 ──
 
 void TrainManager::addToOccupancy(const Train& train) {
-    for (const auto& seg : train.segments) {
+    auto segs = buildSegments(train, DataStore::instance());
+    for (const auto& seg : segs) {
         if (seg.enter_time <= 0 || seg.leave_time <= 0 || seg.line_id == 0) continue;
         auto key = occKey(seg.from_station, seg.to_station, seg.line_id);
         occupancy_[key].insert({seg.enter_time, seg.leave_time});
@@ -66,7 +67,8 @@ void TrainManager::addToOccupancy(const Train& train) {
 }
 
 void TrainManager::removeFromOccupancy(const Train& train) {
-    for (const auto& seg : train.segments) {
+    auto segs = buildSegments(train, DataStore::instance());
+    for (const auto& seg : segs) {
         if (seg.enter_time <= 0 || seg.leave_time <= 0 || seg.line_id == 0) continue;
         auto key = occKey(seg.from_station, seg.to_station, seg.line_id);
         auto& set_ref = occupancy_[key];
@@ -165,7 +167,8 @@ std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Tr
     std::vector<ConflictDetail> conflicts;
     std::lock_guard<std::mutex> lock(mutex_);
 
-    for (const auto& seg : train.segments) {
+    auto segs = buildSegments(train, DataStore::instance());
+    for (const auto& seg : segs) {
         int new_enter = seg.enter_time;
         int new_leave = seg.leave_time;
         if (new_enter <= 0 || new_leave <= 0 || seg.line_id == 0) continue;
@@ -259,12 +262,14 @@ TrainManager::UpdateResult TrainManager::updateTrain(const std::string& train_id
         return result;
     }
 
-    // 1. 先移除旧占用（避免自己和自己冲突）
-    auto old_segments = train->segments;
+    // 1. 移除旧占用（避免自己和自己冲突）
+    auto old_stops = train->stops;
     removeFromOccupancy(*train);
 
-    // 2. 用新数据检测与其他列车的冲突
-    for (const auto& seg : updated.segments) {
+    // 2. 临时应用新 stops 检测冲突（stops 是 segments 的唯一数据源）
+    train->stops = updated.stops;
+    auto new_segs = buildSegments(*train, ds);
+    for (const auto& seg : new_segs) {
         int new_enter = seg.enter_time;
         int new_leave = seg.leave_time;
         if (new_enter <= 0 || new_leave <= 0 || seg.line_id == 0) continue;
@@ -274,20 +279,21 @@ TrainManager::UpdateResult TrainManager::updateTrain(const std::string& train_id
         if (it == occupancy_.end()) continue;
 
         for (const auto& [ex_enter, ex_leave] : it->second) {
-            int overlap_start = std::max(new_enter, ex_enter);
-            int overlap_end   = std::min(new_leave, ex_leave);
-            if (overlap_start < overlap_end + SAFETY_MARGIN_MINUTES) {
-                // 回滚：恢复旧占用
-                train->segments = old_segments;
+            if (std::max(new_enter, ex_enter) < std::min(new_leave, ex_leave) + SAFETY_MARGIN_MINUTES) {
+                // 回滚：恢复旧 stops + 旧占用
+                train->stops = old_stops;
                 addToOccupancy(*train);
-                result.error = "运行图冲突：与 " + updated.id + " 在区间重叠";
+                result.error = "运行图冲突：区间重叠";
                 return result;
             }
         }
     }
 
-    // 3. 通过 → 写入新数据 + 加入新占用
-    *train = updated;
+    // 3. 通过 → 覆盖其他字段 + 加入新占用
+    train->type = updated.type;
+    train->seat_config = updated.seat_config;
+    train->valid_from = updated.valid_from;
+    train->valid_until = updated.valid_until;
     addToOccupancy(*train);
     Logger::instance().info("Train updated: " + train_id);
     result.success = true;

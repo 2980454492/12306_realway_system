@@ -148,15 +148,6 @@ ApprovalService::ApproveResult ApprovalService::approve(
             }
             Train updated = *train;
             updated.stops = payload["stops"].get<std::vector<Stop>>();
-            if (payload.contains("segments"))
-                updated.segments = payload["segments"].get<std::vector<RouteSegment>>();
-            if (payload.contains("route_stations"))
-                updated.route_stations = payload["route_stations"].get<std::vector<uint32_t>>();
-            else {
-                updated.route_stations.clear();
-                for (const auto& s : updated.stops)
-                    updated.route_stations.push_back(s.station_id);
-            }
 
             // updateTrain 内部原子执行：移除旧占用 → 冲突检测 → 写入新数据+占用
             auto ur = TrainManager::instance().updateTrain(tid, updated);

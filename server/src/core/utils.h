@@ -155,24 +155,47 @@ inline constexpr int MIN_NEW_TRAIN_DAYS = 3;
 
 // ── 路线计算 ──
 
-/** 计算列车从 from 到 to 的实际走行里程，沿 route_stations 逐段累加 Haversine */
+/** 从 stops 推导 segments（不存于 JSON，每次按需构建） */
+inline std::vector<RouteSegment> buildSegments(const Train& train, const DataStore& ds) {
+    std::vector<RouteSegment> segs;
+    for (size_t i = 0; i + 1 < train.stops.size(); ++i) {
+        RouteSegment seg;
+        seg.from_station = train.stops[i].station_id;
+        seg.to_station   = train.stops[i + 1].station_id;
+        seg.enter_time   = train.stops[i].departure;
+        seg.leave_time   = train.stops[i + 1].arrival;
+        seg.line_id      = train.stops[i + 1].line_id;
+        auto* a = ds.getStation(seg.from_station);
+        auto* b = ds.getStation(seg.to_station);
+        if (a && b) {
+            seg.distance_km = haversineDist(*a, *b);
+            if (seg.enter_time > 0 && seg.leave_time > 0 && seg.distance_km > 0) {
+                int em = (seg.enter_time / 100) * 60 + (seg.enter_time % 100);
+                int lm = (seg.leave_time / 100) * 60 + (seg.leave_time % 100);
+                if (lm > em)
+                    seg.speed_kmh = static_cast<int>(seg.distance_km / ((lm - em) / 60.0));
+            }
+        }
+        segs.push_back(seg);
+    }
+    return segs;
+}
+
+/** 计算列车从 from 到 to 的实际走行里程，沿 stops 逐段累加 Haversine */
 inline double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station,
                                 DataStore& ds) {
     int from_idx = -1, to_idx = -1;
-    std::vector<uint32_t> fallback_ids;
-    const std::vector<uint32_t>* ids = &train.route_stations;
-    if (ids->empty()) {
-        for (const auto& s : train.stops) fallback_ids.push_back(s.station_id);
-        ids = &fallback_ids;
-    }
+    std::vector<uint32_t> ids;
+    for (const auto& s : train.stops)
+        ids.push_back(s.station_id);
 
-    std::tie(from_idx, to_idx) = findIndices(*ids, from_station, to_station);
+    std::tie(from_idx, to_idx) = findIndices(ids, from_station, to_station);
     if (from_idx < 0 || to_idx < 0 || from_idx >= to_idx) return 0.0;
 
     double total = 0.0;
     for (int i = from_idx; i < to_idx; ++i) {
-        auto* sa = ds.getStation((*ids)[i]);
-        auto* sb = ds.getStation((*ids)[i + 1]);
+        auto* sa = ds.getStation(ids[i]);
+        auto* sb = ds.getStation(ids[i + 1]);
         if (sa && sb) total += haversineDist(*sa, *sb);
     }
     return total;

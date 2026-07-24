@@ -1762,35 +1762,16 @@ const UI = {
     if (path.length < 2)
       return U.toast('至少需要始发站和终点站', 'error');
 
-    // stops: 仅办客站（始发+停靠+终到），不含通过
-    // route_stations: 全部站（含通过），按此序列逐段累加里程
-    // segments: 每对相邻站的运行区段（用于冲突检测）
-    var stops = [], routeStations = [], segments = [];
+    // stops: 全部站（含通过），始发+停靠+通过+终到（segments 由后端从 stops 推导）
+    var stops = [];
     for (var i = 0; i < path.length; i++) {
       var s = path[i];
-      routeStations.push(s.station_id);
-      // 通过站：只入 route_stations，不入 stops
-      if (!s.is_stop && i > 0 && i < path.length - 1)
-        continue;
       var isFirst = (i === 0), isLast = (i === path.length - 1);
       stops.push({
         station_id: s.station_id, line_id: s.line_id || 0,
         arrival: isFirst ? -1 : s.arrival,
         departure: isLast ? -1 : s.departure,
         platform: 0
-      });
-    }
-    // 构建区段（每对相邻站，含通过站）
-    for (var i = 0; i + 1 < path.length; i++) {
-      var cur = path[i], next = path[i + 1];
-      segments.push({
-        from_station: cur.station_id,
-        to_station: next.station_id,
-        line_id: next.line_id || 0,
-        enter_time: cur.departure,
-        leave_time: next.arrival,
-        distance_km: next.distance_km || 0,
-        speed_kmh: next.speed_kmh || 0
       });
     }
 
@@ -1807,8 +1788,7 @@ const UI = {
     }
 
     var body = {
-      id: tid, type: trainType, stops: stops,
-      route_stations: routeStations, segments: segments, status: 0,
+      id: tid, type: trainType, stops: stops, status: 0,
       valid_from: validFrom, valid_until: validUntil,
       seat_config: {
         business_seats: parseInt((U.$('sc-business') || {}).value || 0),
