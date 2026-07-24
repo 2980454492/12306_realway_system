@@ -63,8 +63,12 @@ public:
     /** 调整时刻（审批通过后调用），先清理旧占用再写入新占用 */
     bool adjustSchedule(const std::string& train_id, const std::vector<Stop>& new_stops);
 
-    /** 完整更新列车（审批通过后调用），替换 stops/segments/route_stations 并重建占用 */
-    bool updateTrain(const std::string& train_id, const Train& updated);
+    /** 完整更新列车（审批通过后调用），先移除旧占用再检测冲突再写入，原子操作 */
+    struct UpdateResult {
+        bool success = false;
+        std::string error;
+    };
+    UpdateResult updateTrain(const std::string& train_id, const Train& updated);
 
     /** 获取全部列车列表 */
     const std::vector<Train>& getAllTrains() const;

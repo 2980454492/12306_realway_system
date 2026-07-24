@@ -139,7 +139,7 @@ ApprovalService::ApproveResult ApprovalService::approve(
             ds.saveTrains();
             result.train_id = tid;
         } else if (it->type == ApprovalType::ADJUST_SCHEDULE) {
-            // 从 payload 中读取完整新数据，覆盖列车可变字段
+            // 从 payload 中读取完整新数据，合并到当前列车
             auto* train = ds.getTrain(tid);
             if (!train) {
                 cas_lock_.clear();
@@ -158,15 +158,13 @@ ApprovalService::ApproveResult ApprovalService::approve(
                     updated.route_stations.push_back(s.station_id);
             }
 
-            // 二次冲突校验
-            auto conflicts = TrainManager::instance().detectConflicts(updated);
-            if (!conflicts.empty()) {
+            // updateTrain 内部原子执行：移除旧占用 → 冲突检测 → 写入新数据+占用
+            auto ur = TrainManager::instance().updateTrain(tid, updated);
+            if (!ur.success) {
                 cas_lock_.clear();
-                result.error = "二次冲突校验失败：与 " + conflicts[0].train_id + " 在区间冲突";
+                result.error = ur.error;
                 return result;
             }
-
-            TrainManager::instance().updateTrain(tid, updated);
             ds.saveTrains();
             result.train_id = tid;
         }
