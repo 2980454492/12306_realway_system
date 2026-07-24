@@ -135,12 +135,17 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalState, {
  *  line_id 记录到达该站的线路，用于冲突检测（始发站为 0）。 */
 struct Stop {
     uint32_t station_id = 0;
-    uint32_t line_id = 0;   // 到达该站的线路 ID，始发站为 0
-    int arrival = 0;        // 到站时间 HHMM，-1 表示始发站（无到达）
-    int departure = 0;      // 发车时间 HHMM，-1 表示终到站（无出发）
-    uint8_t platform = 0;   // 站台号，0 表示未指定
+    uint32_t line_id = 0;       // 到达该站的线路 ID，始发站为 0
+    int arrival = 0;            // 到站时间 HHMM，-1 表示始发站（无到达）
+    int departure = 0;          // 发车时间 HHMM，-1 表示终到站（无出发）
+    uint8_t platform = 0;       // 站台号，0 表示未指定
+    std::string station_name;   // 站名（持久化冗余，避免前端反查）
+    std::string line_name;      // 线路名（持久化冗余）
+    int stop_type = 0;          // 0=始发 1=停靠 2=通过 3=终到
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Stop, station_id, line_id, arrival, departure, platform)
+// station_name / line_name / stop_type 不在宏中——请求体不含这些字段，
+// 仅在 saveTrains() 写入 JSON 前由 enrich 逻辑补齐，stopsToJson() 输出时查 DataStore
 
 /** 席位配置 — 一列车各席位的座位数量 */
 struct SeatConfig {

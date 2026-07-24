@@ -172,10 +172,42 @@ bool DataStore::saveTrains() const {
     std::lock_guard<std::mutex> lock(mutex_);
     std::string path = config::TRAINS_FILE;
     try {
-        using json = nlohmann::json;
-        json j = trains_;
+        json arr = json::array();
+        for (const auto& train : trains_) {
+            json jt = train;  // NLOHMANN 核心字段（不含 station_name/line_name/stop_type）
+            // enrich stops：补齐前端展示用的冗余字段
+            auto& jstops = jt["stops"];
+            for (size_t i = 0; i < train.stops.size(); ++i) {
+                const auto& s = train.stops[i];
+                // station_name
+                auto* st = getStation(s.station_id);
+                jstops[i]["station_name"] = st ? st->name : "?";
+                // stop_type
+                int stype = s.stop_type;
+                if (stype == 0) {
+                    if (i == 0) stype = 0;
+                    else if (i == train.stops.size() - 1) stype = 3;
+                    else stype = (s.arrival > 0 && s.departure > 0 && s.arrival == s.departure) ? 2 : 1;
+                }
+                jstops[i]["stop_type"] = stype;
+                jstops[i]["stop_type_name"] = (stype == 0 ? "始发" : stype == 1 ? "停靠" : stype == 2 ? "通过" : "终到");
+                // line_name
+                std::string lname;
+                if (s.line_id > 0) {
+                    auto& idx = getStationLineIndex();
+                    for (const auto& [sid, neighbors] : idx) {
+                        for (const auto& nb : neighbors) {
+                            if (nb.line_id == s.line_id) { lname = nb.line_name; break; }
+                        }
+                        if (!lname.empty()) break;
+                    }
+                }
+                jstops[i]["line_name"] = lname;
+            }
+            arr.push_back(jt);
+        }
         std::ofstream out(path);
-        out << j.dump(2);
+        out << arr.dump(2);
         return true;
     } catch (const std::exception& e) {
         Logger::instance().error(std::string("Failed to save trains.json: ") + e.what());

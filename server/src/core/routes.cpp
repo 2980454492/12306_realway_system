@@ -26,11 +26,14 @@ inline json stopsToJson(const std::vector<Stop>& stops, DataStore& ds) {
     for (const auto& stop : stops) {
         json sd;
         sd["station_id"] = stop.station_id;
-        auto* st = ds.getStation(stop.station_id);
-        sd["station_name"] = st ? st->name : "?";
+        sd["station_name"] = stop.station_name.empty()
+            ? (ds.getStation(stop.station_id) ? ds.getStation(stop.station_id)->name : "?")
+            : stop.station_name;
         sd["line_id"] = stop.line_id;
+        sd["line_name"] = stop.line_name;
         sd["arrival"] = stop.arrival;
         sd["departure"] = stop.departure;
+        sd["stop_type"] = stop.stop_type;
         arr.push_back(sd);
     }
     return arr;

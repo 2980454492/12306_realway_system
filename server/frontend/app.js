@@ -2352,7 +2352,6 @@ const UI = {
     if (res.ok) {
       U.toast('审批通过', 'success');
       UI.loadApprovals();
-      UI.loadTrains();
     }
     else U.toast((res.data && res.data.error) || '审批失败', 'error');
   },
