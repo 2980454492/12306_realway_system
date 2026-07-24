@@ -625,7 +625,8 @@ const UI = {
   filterList: function(list) {
     // 1. 车型筛选
     var enabledTypes = {};
-    var typeItems = document.querySelectorAll('.filter-type-item');
+    var scope = document.querySelector('.page.active') || document;
+    var typeItems = scope.querySelectorAll('.filter-type-item');
     for (var t = 0; t < typeItems.length; t++) {
       enabledTypes[typeItems[t].value] = typeItems[t].checked;
     }
@@ -723,9 +724,13 @@ const UI = {
     return list;
   },
 
-  /** 车型"全部"切换：全选/取消全选各类型复选框（购票页和车站查询共用） */
+  /** 车型"全部"切换：全选/取消全选（查票页/车站查询/列车管理共用） */
   toggleAllTypes: function(el) {
-    var items = document.querySelectorAll('.filter-type-item, .station-filter-type-item');
+    // 只操作当前活跃页的复选框，避免跨页干扰
+    var scope = document.querySelector('.page.active');
+    if (!scope)
+      return;
+    var items = scope.querySelectorAll('.filter-type-item, .station-filter-type-item');
     for (var i = 0; i < items.length; i++) {
       items[i].checked = el.checked;
       items[i].disabled = el.checked;
@@ -733,12 +738,15 @@ const UI = {
     UI._refreshAfterFilter();
   },
 
-  /** 单个车型变化时，同步"全部"复选框（购票页和车站查询共用） */
+  /** 单个车型变化时，同步"全部"复选框 */
   onTypeChange: function() {
-    var allEl = document.querySelector('.filter-type-all, .station-filter-type-all');
+    var scope = document.querySelector('.page.active');
+    if (!scope)
+      return;
+    var allEl = scope.querySelector('.filter-type-all, .station-filter-type-all');
     if (!allEl)
       return;
-    var items = document.querySelectorAll('.filter-type-item, .station-filter-type-item');
+    var items = scope.querySelectorAll('.filter-type-item, .station-filter-type-item');
     var allChecked = true;
     for (var i = 0; i < items.length; i++) {
       if (!items[i].checked) {
@@ -752,11 +760,12 @@ const UI = {
 
   /** 根据当前活跃页调用对应的刷新函数 */
   _refreshAfterFilter: function() {
-    if (document.getElementById('page-station').classList.contains('active')) {
+    if (document.getElementById('page-station').classList.contains('active'))
       UI.renderStationResults();
-    } else {
+    else if (document.getElementById('page-trains').classList.contains('active'))
+      UI.renderTrains();
+    else
       UI.applyFilters();
-    }
   },
 
   /** 筛选条件变更时重新渲染当前 tab */
@@ -1833,6 +1842,8 @@ const UI = {
 
   /** 加载列车列表 */
   loadTrains: async function() {
+    // 立即清空旧列表，防止显示上次访问的残留数据
+    U.$('trains-list').innerHTML = '<div class="loading">加载中…</div>';
     var loadingEl = U.$('trains-loading');
     if (loadingEl)
       loadingEl.style.display = 'block';
@@ -1843,7 +1854,16 @@ const UI = {
       return U.toast((res.data && res.data.error) || '加载失败', 'error');
 
     State._allTrains = res.data.data || [];
-    UI.renderTrains();
+    // 清空搜索框和排序（不重置复选框，HTML checked 属性自然生效）
+    var inp = U.$('train-search-input');
+    if (inp) {
+      inp.value = '';
+      inp.setAttribute('list', 'train-search-datalist');
+    }
+    var sortEl = U.$('trains-sort');
+    if (sortEl)
+      sortEl.value = 'train_id';
+    U.$('trains-list').innerHTML = '<div class="loading">点击"查询"查看列车列表</div>';
   },
 
   /** 按状态筛选列车 */
@@ -1858,12 +1878,62 @@ const UI = {
     UI.renderTrains();
   },
 
+  /** 列车搜索 datalist 构建（onfocus/oninput 触发，与 onStationInput 同模式） */
+  onTrainSearchInput: function() {
+    var inp = U.$('train-search-input');
+    if (!inp)
+      return;
+    var trains = State._allTrains || [];
+    U.$('train-search-datalist').innerHTML = trains.map(function(t) {
+      return '<option value="' + U.esc(t.id) + '">';
+    }).join('');
+    inp.setAttribute('list', 'train-search-datalist');
+  },
+
   /** 渲染列车列表 */
   renderTrains: function() {
     var trains = State._allTrains || [];
+
+    // 1. 状态筛选
     var status = State._trainStatusFilter;
     if (status)
       trains = trains.filter(function(t) { return t.status == (status === 'ACTIVE' ? 0 : status === 'SUSPENDED' ? 1 : 2); });
+
+    // 2. 车型筛选（读取当前页的复选框，无复选框时不过滤）
+    var enabledTypes = {};
+    var scope = document.querySelector('.page.active') || document;
+    var typeItems = scope.querySelectorAll('.filter-type-item');
+    if (typeItems.length > 0) {
+      for (var ti = 0; ti < typeItems.length; ti++)
+        enabledTypes[typeItems[ti].value] = typeItems[ti].checked;
+      trains = trains.filter(function(t) {
+        var prefix = (t.id || '')[0].toUpperCase();
+        if ('GDCZTKS'.indexOf(prefix) < 0)
+          prefix = 'OTHER';
+        return enabledTypes[prefix] !== false;
+      });
+    }
+
+    // 3. 车次搜索
+    var searchVal = ((U.$('train-search-input') || {}).value || '').trim().toUpperCase();
+    if (searchVal)
+      trains = trains.filter(function(t) { return (t.id || '').toUpperCase().indexOf(searchVal) >= 0; });
+
+    // 4. 排序
+    var sortBy = (U.$('trains-sort') || {}).value || 'train_id';
+    trains.sort(function(a, b) {
+      if (sortBy === 'departure') {
+        var da = (a.stops && a.stops[0] && a.stops[0].departure > 0) ? a.stops[0].departure : 9999;
+        var db = (b.stops && b.stops[0] && b.stops[0].departure > 0) ? b.stops[0].departure : 9999;
+        return da - db;
+      }
+      return (a.id || '').localeCompare(b.id || '');
+    });
+
+    // 构建车次 datalist
+    var dl = U.$('train-search-datalist');
+    if (dl)
+      dl.innerHTML = trains.map(function(t) { return '<option value="' + U.esc(t.id) + '">'; }).join('');
 
     var tpl = U.$('tpl-train-mgmt-card');
     var listEl = U.$('trains-list');

@@ -335,13 +335,43 @@
 
     <!-- ═══ 列车管理页（职工）═══ -->
     <section id="page-trains" class="page">
-      <h2>列车管理</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <h2 style="margin-bottom:0">列车管理</h2>
+        <button class="btn btn-primary btn-sm" onclick="UI.navTo('add-train')">+ 新增列车</button>
+      </div>
+      <!-- 搜索 + 排序（与车站查询结构相同） -->
+      <div class="search-bar">
+        <input type="text" id="train-search-input" placeholder="车次号" autocomplete="off" oninput="UI.onTrainSearchInput()" onfocus="UI.onTrainSearchInput()">
+        <datalist id="train-search-datalist"></datalist>
+        <select id="trains-sort" onchange="UI.renderTrains()">
+          <option value="train_id">车次排序</option>
+          <option value="departure">发车时间优先</option>
+        </select>
+        <button class="btn btn-primary" onclick="UI.renderTrains()">查询</button>
+      </div>
+      <!-- 筛选栏（class 名与车站查询共用 toggleAllTypes / onTypeChange） -->
+      <div class="filter-panel" id="trains-filter-panel">
+        <div class="filter-row">
+          <div class="filter-group">
+            <span class="filter-label">车型</span>
+            <label class="filter-check"><input type="checkbox" class="filter-type-all" checked onchange="UI.toggleAllTypes(this)"> 全部</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="G" checked onchange="UI.onTypeChange()"> G</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="D" checked onchange="UI.onTypeChange()"> D</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="C" checked onchange="UI.onTypeChange()"> C</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="Z" checked onchange="UI.onTypeChange()"> Z</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="T" checked onchange="UI.onTypeChange()"> T</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="K" checked onchange="UI.onTypeChange()"> K</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="S" checked onchange="UI.onTypeChange()"> S</label>
+            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="OTHER" checked onchange="UI.onTypeChange()"> 其他</label>
+          </div>
+        </div>
+      </div>
+      <!-- 状态筛选 -->
       <div class="filter-bar">
         <button class="btn btn-sm active" onclick="UI.filterTrains('')">全部</button>
         <button class="btn btn-sm" onclick="UI.filterTrains('ACTIVE')">运行中</button>
         <button class="btn btn-sm" onclick="UI.filterTrains('SUSPENDED')">已停运</button>
         <button class="btn btn-sm" onclick="UI.filterTrains('ARCHIVED')">已归档</button>
-        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="UI.navTo('add-train')">+ 新增列车</button>
       </div>
       <div id="trains-loading" class="loading" style="display:none">加载中…</div>
       <div id="trains-list"></div>
@@ -448,6 +478,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=20260721f"></script>
+<script src="/app.js?v=20260724a"></script>
 </body>
 </html>
