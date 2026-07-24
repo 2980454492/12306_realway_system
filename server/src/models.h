@@ -195,7 +195,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RouteSegment,
 struct Train {
     std::string id;               // 车次号（如 G2492 / K7901 / C1003 / L6601）
     TrainType type = TrainType::REGULAR;
-    std::vector<Stop> stops;      // 停站序列（仅办客站：始发、停靠、终到，不含通过）
+    std::vector<Stop> stops;      // 全量站序列（含通过站），始发+停靠+通过+终到，顺序即运行顺序
     // segments 已删除，全部由 buildSegments(train, ds) 从 stops 按需推导
     TrainStatus status = TrainStatus::ACTIVE;
     SeatConfig seat_config;       // 各席位座位数

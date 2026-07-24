@@ -117,7 +117,7 @@ ApprovalService::ApproveResult ApprovalService::approve(
         return result;
     }
 
-    // 4. 二次冲突校验 + 执行变更 + 持久化
+    // 4. 执行变更（CREATE/DELETE 含冲突校验，ADJUST 由 updateTrain 内部原子完成）+ 持久化
     try {
         json payload = json::parse(it->payload);
         std::string tid = payload.value("id", "");

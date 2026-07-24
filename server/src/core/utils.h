@@ -183,7 +183,7 @@ inline std::vector<RouteSegment> buildSegments(const Train& train, const DataSto
 
 /** 计算列车从 from 到 to 的实际走行里程，沿 stops 逐段累加 Haversine */
 inline double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station,
-                                DataStore& ds) {
+                                const DataStore& ds) {
     int from_idx = -1, to_idx = -1;
     std::vector<uint32_t> ids;
     for (const auto& s : train.stops)
