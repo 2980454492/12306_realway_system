@@ -2291,7 +2291,7 @@ const UI = {
   /** 按状态筛选审批 */
   filterApprovals: function(status) {
     State._approvalFilter = status;
-    var labels = {'': '全部', 'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回', 'WITHDRAWN': '已取消'};
+    var labels = {'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回'};
     var btns = document.querySelectorAll('#page-approvals .filter-bar .btn');
     for (var i = 0; i < btns.length; i++) {
       btns[i].classList.toggle('active', btns[i].textContent.trim() === (labels[status] || '待审批'));

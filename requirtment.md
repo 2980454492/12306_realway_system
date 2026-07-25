@@ -159,6 +159,10 @@
 3. 任一冲突 → 返回冲突详情（车次、区间、线路、时间段）
 4. 全部通过 → 写入占用表
 
+**提交即写入**：新增列车在校验+冲突检测通过后，立即以 `PENDING` 状态写入 `trains.json`。审批 payload 只存 `{"id":"G1234"}`，不再冗余存储全量列车数据。审批通过 → 状态改为 ACTIVE + 入占用表；驳回/撤回 → 状态改为 ARCHIVED。
+
+**已归档同名覆盖**：若新增的车次号与已归档（ARCHIVED）列车相同，允许覆盖写入（PENDING），不触发"车次号已存在"错误。与 ACTIVE/PENDING 同名则拒绝。
+
 **与旧设计的区别**：
 
 | 维度 | 旧 | 新 |
@@ -179,70 +183,16 @@
 - 清理该列车在区间占用表中的所有记录
 - 列车状态标记为"已归档"
 
-#### F-2.3 调整时刻
+#### F-2.3 修改列车
 
-**输入**：车次号、新的停站时间序列
+**输入**：车次号、新的停站序列（含通过站）、时刻、席位配置等
 
-**前置校验**：同新增列车的全部校验规则
+**前置校验**：同新增列车的全部校验规则（日期须 ≥15 天）
 
 **操作**：
-- 先清理旧占用 → 执行冲突检测 → 通过后写入新占用
+- 提交审批（ADJUST_SCHEDULE），列车保持 ACTIVE 状态
+- 审批通过后：先清理旧占用 → 冲突检测 → 写入新数据+占用（`updateTrain` 原子操作）
 - 已购票旅客自动通知（记录通知事件，实际发短信/邮件不在本项目范围）
-- 调整后的发车时间若早于已购票旅客预期，标记该订单为"需确认"
-
----
-
-### F-3：铁路网管理
-
-#### F-3.1 新增线路
-
-**输入**：起点站、终点站、线路名称、里程(km)、设计时速、线路类型（高铁/普速/城际）
-
-**校验**：
-- 起点站和终点站不能相同
-- 该线路不能与已有线路完全重复
-- 端点站必须在系统注册站内（若需要新增站点，调用 F-3.2 先建站）
-
-**操作**：
-- 在铁路网图中添加边（双向）
-- 审批流：需管理员审批
-
-#### F-3.2 新增站点
-
-**输入**：站名、所属城市、站类型（高铁站/普速站/枢纽站）、经纬度(可选)
-
-**校验**：
-- 站名在 20 站范围内不重复
-- 站名仅允许中文字符+限定集合（白名单校验）
-
-**操作**：
-- 站点集合中新增
-- 后续可以将其连入铁路网（通过 F-3.1）
-
----
-
-### F-4：铁路网可视化导出
-
-#### F-4.1 导出 Graphviz DOT 格式
-
-**输出**：`railway_net.dot` 文件
-
-**格式要求**：
-- 站点作为节点，标注站名和类型（不同形状：高铁=椭圆/普速=矩形/枢纽=六边形）
-- 线路作为边，标注线路名称和里程
-- 不同线路类型用不同颜色（高铁=红色/普速=蓝色/城际=绿色）
-
-**使用方式**：`dot -Tpng railway_net.dot -o railway_net.png` 生成 PNG 图片
-
-#### F-4.2 导出 HTML 交互版（可选加分项）
-
-**输出**：`railway_net.html` 文件
-
-**功能**：
-- 使用 vis.js 或 ECharts 力导向图
-- 鼠标悬停站点显示详情
-- 点击线路高亮该线路上的所有车次
-- 浏览器直接打开，无需任何依赖
 
 ---
 
@@ -279,17 +229,20 @@
 | **修改列车** | `PUT /api/admin/trains/{id}` | Staff | 同新增表单，预填现有数据（始发站/时刻/路径均可改）；提交后走审批流 |
 | **删除列车** | `DELETE /api/admin/trains/{id}` | Staff | 确认弹窗 → 提交审批 → 审批通过后归档 |
 | **我的提交** | `/api/admin/approvals?submitter_id=X` | Staff | 查看自己提交的全部审批记录，按状态筛选（待审批/已通过/已驳回），展示审批人和审批时间 |
-| **审批中心** | `/api/admin/approvals?status=X&approver_id=X` | Approver | 默认显示待审批列表（全部提交），已通过/已驳回只看自己审批过的记录；通过/驳回按钮，驳回须填写意见 |
-| **线路与站点** | `/api/admin/lines` `/api/admin/stations` | Staff | 列表 + 新增表单（走审批） |
+| **列车管理** | `GET /api/admin/trains` | Staff | 搜索（车次号输入+datalist）、车型筛选（G/D/C/Z/T/K/S/其他 checkbox）、排序（车次/发车时间）、状态筛选（全部/运行中/待审批/已归档）；点击列车卡片查看时刻表；运行中/待审批列车可修改/删除 |
+| **审批中心** | `/api/admin/approvals?status=X&approver_id=X` | Approver | 默认显示待审批列表（全部提交），已通过/已驳回只看自己审批过的记录；通过/驳回按钮，驳回须填写意见；**点击审批卡片可查看列车时刻表详情**（与"我的提交"共用 `showSubmissionDetail`） |
+| **我的提交** | `/api/admin/approvals?submitter_id=X` | Staff | 查看自己提交的全部审批记录，按状态筛选（待审批/已通过/已驳回/已取消），展示审批人和审批时间；点击可查看列车时刻表详情 |
 
 #### F-5.4 管理员端
 
 | 页面 | 对应 API | 功能说明 |
 |------|----------|----------|
-| **用户管理** | `/api/admin/users` | 用户列表，支持创建/修改角色/禁用/删除；新用户创建表单 |
-| **审计日志** | `GET /api/admin/audit` | 表格展示，支持按时间范围/操作人/操作类型/结果筛选；脱敏处理后的数据显示；异常记录高亮 |
-| **系统配置** | `GET/PUT /api/admin/config` | 配置项表单：票价倍率、退票费率等；修改后即时生效 |
-| **路网导出** | `/api/admin/export/network/*` | 下载 DOT 文件按钮 + 在线预览 PNG(可选) |
+| **用户管理** | `/api/admin/users` | 用户列表，创建/修改角色/禁用/删除 |
+| **站点管理** | `/api/admin/stations` | 列表 + 新增表单（走审批） |
+| **线路管理** | `/api/admin/lines` | 列表 + 新增表单（走审批） |
+| **审计日志** | `GET /api/admin/audit` | 按时间/操作人/类型筛选，脱敏展示，异常高亮 |
+| **系统配置** | `GET/PUT /api/admin/config` | 票价倍率、退票费率等，即时生效 |
+| **路网导出** | `/api/admin/export/network/*` | DOT 文件下载 + 在线预览(可选) |
 
 #### F-5.5 路网可视化（可选加分项）
 
@@ -311,6 +264,32 @@
 | 文件组织 | `server/frontend/index.html` + `style.css` + `app.js` 三文件（简单清晰，后续可拆分） |
 
 ---
+
+### F-6：管理员 — 路网管理
+
+> 新增站点/线路属于基础设施变更，由 Admin 统一管理。
+
+#### F-6.1 新增线路
+
+**输入**：起点站、终点站、线路名称、里程(km)、设计时速、线路类型
+
+**校验**：端点站须在系统注册站内；不能与已有线路完全重复
+
+#### F-6.2 新增站点
+
+**输入**：站名、所属城市、站类型、经纬度(可选)
+
+**校验**：站名不重复；仅允许中文字符+限定集合
+
+#### F-6.3 铁路网可视化导出
+
+| 格式 | 说明 |
+|------|------|
+| Graphviz DOT | 站点节点+线路边，不同线路类型不同颜色 |
+| HTML 交互版（可选） | 力导向图，悬停详情+点击高亮
+
+---
+
 ## 三、非功能需求
 
 ### NF-1：权限管控（RBAC）
@@ -324,23 +303,24 @@
 
 铁路职工 (Staff) — 普通员工
   ├── 继承旅客全部权限
-  ├── 新增列车（提交审批）
-  ├── 删除列车
-  ├── 调整时刻（提交审批）
-  └── 新增站点/线路（提交审批）
+  ├── 新增列车（提交审批，校验通过即写入 trains.json PENDING）
+  ├── 修改列车（提交审批，列车保持 ACTIVE）
+  ├── 删除列车（提交审批，≥15 天后）
+  └── 查看列车列表
 
 审批职工 (Approver) — 审核员
   ├── 继承旅客全部权限
-  ├── 查看审批列表
-  ├── 审批通过（二次冲突校验 → 列车加入运行图）
-  └── 审批驳回（须填写意见）
+  ├── 查看审批列表 + 列车详情
+  ├── 审批通过（二次校验 checkTrain → ACTIVE+入占用）
+  └── 审批驳回（PENDING→ARCHIVED，须填写意见）
 
 系统管理员 (Admin)
   ├── 继承职工 + 审批职工全部权限
   ├── 管理用户（创建/禁用/删除）
+  ├── 新增站点/线路（基础设施变更）
   ├── 查看全部审计日志
   ├── 系统配置（票价倍率、退票费率等）
-  └── 否决已有审批结果
+  └── 路网可视化导出
 ```
 
 **技术要求**：
@@ -368,11 +348,11 @@
 
 | 要求 | 实现说明 |
 |------|----------|
-| 审批对象 | 新增列车、删除列车、调整时刻、新增线路、新增站点 |
-| 状态机 | DRAFT → SUBMITTED → APPROVED / REJECTED / EXPIRED |
-| 审批人限制 | 提交人 ≠ 审批人（四眼原则，built-in check） |
-| 🔥 审批时二次冲突校验 | 审批通过前再次执行冲突检测。提交时的快照 vs 当前实际状态，不一致则驳回并显示差异 |
-| 超时处理 | 72小时未审批自动标记 EXPIRED。Timer Wheel 数据结构遍历待审批列表 |
+| 审批对象 | 新增列车、修改列车、删除列车（Staff 提交）；新增线路、新增站点（Admin 提交） |
+| 状态机 | SUBMITTED → APPROVED / REJECTED / WITHDRAWN |
+| 审批人限制 | 提交人 ≠ 审批人（四眼原则） |
+| 🔥 审批时二次校验 | `checkTrain()` 同提交逻辑：ID 唯一 + 停站合法性 + 冲突检测 |
+| 提交即写入 | CREATE_TRAIN 校验通过后立即写 trains.json（PENDING），payload 只存 `{"id":"G1234"}` |
 | 可追溯 | 完整的审批链：谁提交→谁审批→时间→意见→最终状态 |
 
 ### NF-4：数据安全
@@ -434,7 +414,7 @@ Train
   id: string               # 车次号（如"G2492"）
   type: TrainType           # REGULAR(图定) / TEMPORARY(临客)
   stops: vector<Stop>      # 全量站序列（含通过站），始发+停靠+通过+终到，顺序即运行顺序
-  status: TrainStatus      # ACTIVE / SUSPENDED / ARCHIVED
+  status: TrainStatus      # ACTIVE / PENDING / ARCHIVED（提交即写入 PENDING，审批通过→ACTIVE，驳回/撤回→ARCHIVED）
   seat_config: SeatConfig  # 各席位座位数
   valid_from: string       # 有效期起始
   valid_until: string      # 有效期截止
@@ -477,9 +457,8 @@ ApprovalRequest
   type: ApprovalType        # CREATE_TRAIN / ADJUST_SCHEDULE / ADD_LINE / ADD_STATION
   submitter_id: string
   approver_id: string       # 审批人，提交时为空
-  status: ApprovalState     # DRAFT / SUBMITTED / APPROVED / REJECTED / EXPIRED
-  payload: json             # 变更内容
-  snapshot: json            # 提交时的状态快照（用于审批时二次冲突校验）
+  status: ApprovalState     # SUBMITTED / APPROVED / REJECTED / WITHDRAWN
+  payload: json             # 变更内容（CREATE_TRAIN 只存 {"id":"G1234"}，ADJUST_SCHEDULE 存完整 stops）
   submitted_at: TimePoint
   decided_at: TimePoint     # 审批决定时间
   comment: string           # 审批意见(驳回时必填)
@@ -763,12 +742,12 @@ SeatBitmap
 |:---:|------|------|
 | P0 | **区间占用表** + **运行图冲突检测**（逐区间+5分钟裕量） | `IntervalOccupancy` + `detectConflict()` |
 | P0 | 新增列车 → 校验 → 冲突检测 → 提交审批 | `POST /api/admin/trains` |
-| P0 | 删除列车：检查未出发已售车票 | `DELETE /api/admin/trains/{id}` |
-| P0 | 调整时刻：清旧占用 → 冲突检测 → 提交审批 | `PUT /api/admin/trains/{id}/schedule` |
-| P0 | **审批状态机**：DRAFT→SUBMITTED→APPROVED/REJECTED/EXPIRED | `ApprovalRequest` |
-| P0 | **四眼原则** + **CAS 审批锁** + **审批时二次冲突校验** | 提交人≠审批人，一个申请仅一人审批 |
-| P1 | 临客有效期管理 + 72h 超时自动驳回 | Timer Wheel |
-| P1 | 新增站点/线路（走审批） | `POST /api/admin/stations` `/lines` |
+| P0 | 删除列车：提交审批（删除日期 ≥15 天） | `DELETE /api/admin/trains/{id}` |
+| P0 | 调整时刻：清旧占用 → 冲突检测 → 提交审批 | `PUT /api/admin/trains/{id}` |
+| P0 | **审批状态机**：SUBMITTED→APPROVED/REJECTED/WITHDRAWN | `ApprovalRequest` |
+| P0 | **四眼原则** + **CAS 审批锁** + **审批时二次校验（checkTrain）** | `approve()` |
+| P1 | 临客有效期管理 + 72h 超时自动驳回 | ❌ 未实现 |
+| P1 | 新增站点/线路（走审批） | ❌ 未实现 |
 
 **可演示**：职工 A 提交新车次 → 冲突时报详情 → 职工 B 审批通过前职工 C 修改同区间 → B 审批时二次校验发现冲突驳回。
 
@@ -780,9 +759,13 @@ SeatBitmap
 
 | 优先级 | 任务 | 产出 |
 |:---:|------|------|
-| P0 | **列车管理页**：列表 + 新增表单(动态停站增删) + 删除确认 | 对应 `/api/admin/trains` CRUD |
-| P0 | **审批中心**：待审批/已审批列表 + 变更对比(旧→新) + 通过/驳回 | 对应 `/api/admin/approvals` |
-| P1 | **线路站点管理**：列表 + 新增表单 | 对应 `/api/admin/lines` `/stations` |
+| P0 | **列车管理页**：列表 + 搜索（车次号+datalist）+ 车型筛选（G/D/C/Z/T/K/S）+ 排序（车次/发车时间）+ 状态筛选（运行中/待审批/已归档）+ 详情弹窗 | 对应 `/api/admin/trains` |
+| P0 | **新增列车**：线路感知逐步选线 + 时速校验 + 冲突检测 | `page-add-train` |
+| P0 | **修改列车**：预填现有数据 + 始发站/路径/时间全部可改 | `editTrain` + `_populateEditForm` |
+| P0 | **删除列车**：日期选择器（≥15天）+ 确认弹窗 + 提交审批 | `deleteTrain` |
+| P0 | **审批中心**：待审批/已通过/已驳回筛选 + 通过/驳回操作 + 点击卡片查看列车详情 | 对应 `/api/admin/approvals` |
+| P0 | **我的提交**：全状态筛选（待审批/已通过/已驳回/已取消）+ 撤回 + 点击查看详情 | 对应同上 |
+| P1 | **线路站点管理**：列表 + 新增表单 | ❌ 未实现 |
 
 ---
 
@@ -797,6 +780,7 @@ SeatBitmap
 | 优先级 | 任务 | 产出 |
 |:---:|------|------|
 | P0 | 用户管理：CRUD + 角色修改 + 禁用/删除 | `/api/admin/users` |
+| P0 | 新增站点/线路（走审批） | `POST /api/admin/stations` `/lines` |
 | P0 | 系统配置：票价倍率、退票费率 | `GET/PUT /api/admin/config` |
 | P0 | **审计日志**：操作记录 + 链式 SHA256 校验（不可篡改） | `AuditLogger` + `/api/admin/audit` |
 | P0 | **WAL 预写日志**：写操作先 append+fsync → 改内存 | `WalWriter`，`kill -9` 重启不丢数据 |
