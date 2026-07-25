@@ -46,14 +46,14 @@ NLOHMANN_JSON_SERIALIZE_ENUM(TrainType, {
 
 /** 列车状态 */
 enum class TrainStatus : uint8_t {
-    ACTIVE    = 0,  // 运行中
-    SUSPENDED = 1,  // 已停运
-    ARCHIVED  = 2   // 已归档
+    ACTIVE   = 0,  // 运行中
+    PENDING  = 1,  // 待审批（职工已提交，审核员未审批）
+    ARCHIVED = 2   // 已归档（删除/驳回/撤回）
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(TrainStatus, {
-    {TrainStatus::ACTIVE,    "ACTIVE"},
-    {TrainStatus::SUSPENDED, "SUSPENDED"},
-    {TrainStatus::ARCHIVED,  "ARCHIVED"},
+    {TrainStatus::ACTIVE,   "ACTIVE"},
+    {TrainStatus::PENDING,  "PENDING"},
+    {TrainStatus::ARCHIVED, "ARCHIVED"},
 })
 
 /** 席位类型 */

@@ -1872,7 +1872,7 @@ const UI = {
     var btns = document.querySelectorAll('#page-trains .filter-bar .btn');
     for (var i = 0; i < btns.length; i++) {
       var txt = btns[i].textContent.trim();
-      var match = (status === '' ? '全部' : status === 'ACTIVE' ? '运行中' : status === 'SUSPENDED' ? '已停运' : '已归档');
+      var match = (status === '' ? '全部' : status === 'ACTIVE' ? '运行中' : status === 'PENDING' ? '待审批' : '已归档');
       btns[i].classList.toggle('active', txt === match);
     }
     UI.renderTrains();
@@ -1897,7 +1897,7 @@ const UI = {
     // 1. 状态筛选
     var status = State._trainStatusFilter;
     if (status)
-      trains = trains.filter(function(t) { return t.status == (status === 'ACTIVE' ? 0 : status === 'SUSPENDED' ? 1 : 2); });
+      trains = trains.filter(function(t) { return t.status == (status === 'ACTIVE' ? 0 : status === 'PENDING' ? 1 : 2); });
 
     // 2. 车型筛选（读取当前页的复选框，无复选框时不过滤）
     var enabledTypes = {};
@@ -1953,13 +1953,13 @@ const UI = {
       card.querySelector('.train-mgmt-id').textContent = t.id;
       card.querySelector('.train-tag-type').textContent = t.type === 0 ? '图定' : '临客';
       var tagEl = card.querySelector('.train-tag-status');
-      tagEl.textContent = t.status === 0 ? '运行中' : t.status === 1 ? '已停运' : '已归档';
-      tagEl.className = 'tag train-tag-status tag-' + (t.status === 0 ? 'active' : 'archived');
+      tagEl.textContent = t.status === 0 ? '运行中' : t.status === 1 ? '待审批' : '已归档';
+      tagEl.className = 'tag train-tag-status tag-' + (t.status === 0 ? 'active' : t.status === 1 ? 'pending' : 'archived');
       var stops = t.stops || [];
       var origin = stops.length ? (stops[0].station_name || '?') : '?';
       var terminal = stops.length ? (stops[stops.length - 1].station_name || '?') : '?';
       card.querySelector('.train-mgmt-route').textContent = origin + ' → ' + terminal;
-      if (t.status === 0) {
+      if (t.status !== 2) {  // 已归档的不显示编辑/删除
         var editBtn = document.createElement('button');
         editBtn.className = 'btn btn-sm btn-primary';
         editBtn.textContent = '管理';

@@ -255,6 +255,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .train-mgmt-actions { display: flex; gap: 8px; }
 .tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #0f3460; color: #9090b0; }
 .tag-active { background: #005530; color: #00ff88; }
+.tag-pending { background: #553800; color: #ffaa00; }
 .tag-archived { background: #333; color: #666; }
 .form-card { background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
 .form-card h3 { margin-top: 0; color: #53a8ff; }

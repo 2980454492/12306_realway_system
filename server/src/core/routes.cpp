@@ -731,8 +731,22 @@ void registerRoutes(RailwayServer& server) {
 
             // 提交审批
             auto type = is_new ? ApprovalType::CREATE_TRAIN : ApprovalType::ADJUST_SCHEDULE;
+            std::string payload;
+            if (is_new) {
+                // CREATE_TRAIN：立即写入 trains.json（PENDING），审批只存车次号
+                train.status = TrainStatus::PENDING;
+                auto& ds = DataStore::instance();
+                // 已归档同名车次 → 先删除再新增
+                ds.removeTrain(train.id);
+                ds.addTrain(train);
+                ds.saveTrains();
+                payload = json{{"id", train.id}}.dump();
+            } else {
+                // ADJUST_SCHEDULE：payload 存完整 stops（审批时需应用新数据）
+                payload = body.dump();
+            }
             std::string aid = ApprovalService::instance().submit(
-                type, ctx->user_id, body.dump(), "");
+                type, ctx->user_id, payload, "");
 
             json j;
             j["ok"] = true;

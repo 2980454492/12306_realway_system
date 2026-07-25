@@ -85,13 +85,17 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
     ValidationResult result;
     auto& ds = DataStore::instance();
 
-    // 1. 车次号校验：新增须唯一，修改须存在（O(1) map 查）
+    // 1. 车次号校验：新增须唯一
     auto* existing = ds.getTrain(train.id);
-    if (is_new && existing) {
+    if (!is_new && !existing) {
+        result.error = "列车 " + train.id + " 不存在";
+        return result;
+    }
+    if (is_new && existing && existing->status != TrainStatus::ARCHIVED) {
         result.error = "车次号 " + train.id + " 已存在";
         return result;
     }
-
+    
     // 2. 日期校验：新增 ≥ MIN_NEW_TRAIN_DAYS 天，修改 ≥ MAX_ADVANCE_DAYS+1 天
     if (!train.valid_from.empty()) {
         if (!isFuture(train.valid_from, 365)) {

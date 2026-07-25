@@ -84,6 +84,9 @@ public:
     /** 获取全部列车列表 */
     const std::vector<Train>& getAllTrains() const;
 
+    /** 将列车加入区间占用表（审批通过时调用） */
+    void addToOccupancy(const Train& train);
+
 private:
     TrainManager() = default;
 
@@ -92,7 +95,6 @@ private:
 
     // 区间 key = 出发站|到达站|线路ID（方向敏感 + 线路隔离，A→B 与 B→A 不同 key）
     std::string occKey(uint32_t from, uint32_t to, uint32_t line_id) const;
-    void addToOccupancy(const Train& train);
     void removeFromOccupancy(const Train& train);
 
     // ── 数据 ──

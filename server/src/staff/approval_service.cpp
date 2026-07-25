@@ -124,16 +124,29 @@ ApprovalService::ApproveResult ApprovalService::approve(
         auto& ds = DataStore::instance();
 
         if (it->type == ApprovalType::CREATE_TRAIN) {
-            Train train = payload.get<Train>();
+            // 列车已在提交时写入 DataStore（PENDING），审批通过 → 改为 ACTIVE + 入占用
+            auto* train = const_cast<Train*>(ds.getTrain(tid));
+            if (!train) {
+                cas_lock_.clear();
+                result.error = "列车 " + tid + " 不存在（可能已被删除）";
+                return result;
+            }
+            if (train->status != TrainStatus::PENDING) {
+                cas_lock_.clear();
+                result.error = "列车 " + tid + " 状态不是待审批（当前：" + std::to_string(static_cast<int>(train->status)) + "）";
+                return result;
+            }
 
-            // 二次校验 — 与提交时同一套逻辑
-            auto cr = TrainManager::instance().checkTrain(train, true);
+            // 二次校验
+            auto cr = TrainManager::instance().checkTrain(*train, true);
             if (!cr.valid) {
                 cas_lock_.clear();
                 result.error = cr.error;
                 return result;
             }
-            TrainManager::instance().addTrain(train);
+
+            train->status = TrainStatus::ACTIVE;
+            TrainManager::instance().addToOccupancy(*train);
             ds.saveTrains();
             result.train_id = tid;
         } else if (it->type == ApprovalType::DELETE_TRAIN) {
@@ -212,6 +225,16 @@ ApprovalService::RejectResult ApprovalService::reject(
     it->approver_id = approver_id;
     it->comment = comment;
     it->decided_at = nowIso();
+    // CREATE_TRAIN 驳回：将 trains.json 中 PENDING 列车改为 ARCHIVED
+    if (it->type == ApprovalType::CREATE_TRAIN) {
+        json payload = json::parse(it->payload);
+        std::string tid = payload.value("id", "");
+        auto* train = const_cast<Train*>(DataStore::instance().getTrain(tid));
+        if (train && train->status == TrainStatus::PENDING) {
+            train->status = TrainStatus::ARCHIVED;
+            DataStore::instance().saveTrains();
+        }
+    }
     saveApprovals();
     result.success = true;
     Logger::instance().info("Approval rejected: " + approval_id);
@@ -242,6 +265,16 @@ ApprovalService::WithdrawResult ApprovalService::withdraw(
 
     it->status = ApprovalState::WITHDRAWN;
     it->decided_at = nowIso();
+    // CREATE_TRAIN 撤回：将 PENDING 列车改为 ARCHIVED
+    if (it->type == ApprovalType::CREATE_TRAIN) {
+        json payload = json::parse(it->payload);
+        std::string tid = payload.value("id", "");
+        auto* train = const_cast<Train*>(DataStore::instance().getTrain(tid));
+        if (train && train->status == TrainStatus::PENDING) {
+            train->status = TrainStatus::ARCHIVED;
+            DataStore::instance().saveTrains();
+        }
+    }
     saveApprovals();
     result.success = true;
     Logger::instance().info("Approval withdrawn: " + approval_id);
