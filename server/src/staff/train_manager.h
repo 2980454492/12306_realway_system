@@ -96,6 +96,8 @@ private:
     // 区间 key = 出发站|到达站|线路ID（方向敏感 + 线路隔离，A→B 与 B→A 不同 key）
     std::string occKey(uint32_t from, uint32_t to, uint32_t line_id) const;
     void removeFromOccupancy(const Train& train);
+    // 无锁版，内部调用方已持锁
+    void addToOccupancyUnsafe(const Train& train);  
 
     // ── 数据 ──
     std::map<std::string, std::set<std::pair<int, int>>> occupancy_;  // key → set<(enter, leave)>

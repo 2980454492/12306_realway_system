@@ -2272,10 +2272,13 @@ const UI = {
     var title = item.train_id + ' 停站时刻表';
     // 调整时刻/新增线路/新增站点等类型无 stops 数据时，显示基本信息
     if (!item.stops || !item.stops.length) {
-      var p = item.payload || {};
       title = item.train_id + ' — ' + UI.TYPE_LABEL[item.approval_type];
       U.$('detail-train-id').textContent = title;
-      U.$('detail-stops').innerHTML = '<div style="padding:16px;color:#9090b0">暂无停站数据（审批类型：' + UI.TYPE_LABEL[item.approval_type] + '）</div>';
+      var div = document.createElement('div');
+      div.className = 'detail-empty-message';
+      div.textContent = '暂无停站数据（审批类型：' + UI.TYPE_LABEL[item.approval_type] + '）';
+      U.$('detail-stops').innerHTML = '';
+      U.$('detail-stops').appendChild(div);
       U.$('detail-overlay').classList.add('show');
       return;
     }

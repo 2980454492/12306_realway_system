@@ -44,7 +44,7 @@ void TrainManager::loadOccupancy() {
     auto& ds = DataStore::instance();
     for (const auto& train : ds.getAllTrains()) {
         if (train.status != TrainStatus::ACTIVE) continue;
-        addToOccupancy(train);
+        addToOccupancyUnsafe(train);
     }
     Logger::instance().info("Occupancy table rebuilt from " +
         std::to_string(ds.getAllTrains().size()) + " trains");
@@ -57,6 +57,11 @@ void TrainManager::saveOccupancy() const {
 // ── 占用表操作 ──
 
 void TrainManager::addToOccupancy(const Train& train) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    addToOccupancyUnsafe(train);
+}
+
+void TrainManager::addToOccupancyUnsafe(const Train& train) {
     auto segs = buildSegments(train, DataStore::instance());
     for (const auto& seg : segs) {
         if (seg.enter_time <= 0 || seg.leave_time <= 0 || seg.line_id == 0) continue;
@@ -232,7 +237,7 @@ bool TrainManager::addTrain(const Train& train) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto& ds = DataStore::instance();
     ds.addTrain(train);
-    addToOccupancy(train);
+    addToOccupancyUnsafe(train);
     Logger::instance().info("Train added: " + train.id);
     return true;
 }
@@ -269,7 +274,7 @@ bool TrainManager::adjustSchedule(const std::string& train_id, const std::vector
 
     removeFromOccupancy(*train);
     train->stops = new_stops;
-    addToOccupancy(*train);
+    addToOccupancyUnsafe(*train);
     Logger::instance().info("Schedule adjusted: " + train_id);
     return true;
 }
@@ -304,7 +309,7 @@ TrainManager::UpdateResult TrainManager::updateTrain(const std::string& train_id
             if (std::max(new_enter, ex_enter) < std::min(new_leave, ex_leave) + SAFETY_MARGIN_MINUTES) {
                 // 回滚：恢复旧 stops + 旧占用
                 train->stops = old_stops;
-                addToOccupancy(*train);
+                addToOccupancyUnsafe(*train);
                 result.error = "运行图冲突：区间重叠";
                 return result;
             }
@@ -316,7 +321,7 @@ TrainManager::UpdateResult TrainManager::updateTrain(const std::string& train_id
     train->seat_config = updated.seat_config;
     train->valid_from = updated.valid_from;
     train->valid_until = updated.valid_until;
-    addToOccupancy(*train);
+    addToOccupancyUnsafe(*train);
     Logger::instance().info("Train updated: " + train_id);
     result.success = true;
     return result;

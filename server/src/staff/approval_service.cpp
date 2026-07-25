@@ -16,9 +16,6 @@ namespace fs = std::filesystem;
 
 using json = nlohmann::json;
 
-namespace {
-}  // namespace
-
 // ── 单例 ──
 
 ApprovalService& ApprovalService::instance() {
@@ -85,12 +82,16 @@ std::string ApprovalService::submit(ApprovalType type, const std::string& submit
 void ApprovalService::archivePendingTrain(const ApprovalRequest& req) {
     if (req.type != ApprovalType::CREATE_TRAIN)
         return;
-    json payload = json::parse(req.payload);
-    std::string tid = payload.value("id", "");
-    auto* train = const_cast<Train*>(DataStore::instance().getTrain(tid));
-    if (train && train->status == TrainStatus::PENDING) {
-        train->status = TrainStatus::ARCHIVED;
-        DataStore::instance().saveTrains();
+    try {
+        json payload = json::parse(req.payload);
+        std::string tid = payload.value("id", "");
+        auto* train = const_cast<Train*>(DataStore::instance().getTrain(tid));
+        if (train && train->status == TrainStatus::PENDING) {
+            train->status = TrainStatus::ARCHIVED;
+            DataStore::instance().saveTrains();
+        }
+    } catch (const std::exception& e) {
+        Logger::instance().error(std::string("archivePendingTrain failed: ") + e.what());
     }
 }
 
@@ -150,11 +151,11 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 return result;
             }
 
-            // 二次校验
-            auto cr = TrainManager::instance().checkTrain(*train, true);
-            if (!cr.valid) {
+            // 二次校验：仅冲突检测（ID/日期/停站在提交时已校验，此处只防并发冲突）
+            auto conflicts = TrainManager::instance().detectConflicts(*train);
+            if (!conflicts.empty()) {
                 cas_lock_.clear();
-                result.error = cr.error;
+                result.error = "二次冲突校验失败：与 " + conflicts[0].train_id + " 在区间重叠";
                 return result;
             }
 
@@ -252,17 +253,26 @@ ApprovalService::WithdrawResult ApprovalService::withdraw(
     WithdrawResult result;
     std::lock_guard<std::mutex> lock(mutex_);
 
+    // CAS 锁（与 approve/reject 一致，防止并发状态变更）
+    if (cas_lock_.test_and_set()) {
+        result.error = "审批操作进行中，请稍后重试";
+        return result;
+    }
+
     auto it = std::find_if(approvals_.begin(), approvals_.end(),
         [&](const ApprovalRequest& a) { return a.id == approval_id; });
     if (it == approvals_.end()) {
+        cas_lock_.clear();
         result.error = "审批不存在";
         return result;
     }
     if (it->status != ApprovalState::SUBMITTED) {
+        cas_lock_.clear();
         result.error = "只能撤回待审批的申请";
         return result;
     }
     if (it->submitter_id != submitter_id) {
+        cas_lock_.clear();
         result.error = "只能撤回自己的提交";
         return result;
     }
@@ -273,6 +283,8 @@ ApprovalService::WithdrawResult ApprovalService::withdraw(
     saveApprovals();
     result.success = true;
     Logger::instance().info("Approval withdrawn: " + approval_id);
+
+    cas_lock_.clear();
     return result;
 }
 

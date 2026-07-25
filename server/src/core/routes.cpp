@@ -767,6 +767,27 @@ void registerRoutes(RailwayServer& server) {
     });
 
     app.Put(R"(/api/admin/trains/([^/]+))", [handleTrainSubmit](const httplib::Request& req, httplib::Response& res) {
+        // 校验 URL 中的 train ID 与请求体一致，防止修改错列车
+        try {
+            json body = json::parse(req.body);
+            std::string url_id = req.matches[1];
+            std::string body_id = body.value("id", "");
+            if (url_id != body_id) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "URL 与请求体中的车次号不一致";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+        } catch (const std::exception&) {
+            json j;
+            j["ok"] = false;
+            j["error"] = "请求体 JSON 格式错误";
+            res.set_content(j.dump(), "application/json");
+            res.status = 400;
+            return;
+        }
         handleTrainSubmit(req, res, false);
     });
 
@@ -791,14 +812,23 @@ void registerRoutes(RailwayServer& server) {
             std::string del_date = req.get_param_value("date");
 
             // 删除日期须 ≥15 天（14 天内的票已放出）
-            if (!del_date.empty()
-                && !(isFuture(del_date, 365) && !isFuture(del_date, MAX_ADVANCE_DAYS))) {
-                json j;
-                j["ok"] = false;
-                j["error"] = "删除日期须至少 15 天后（第14天已放票）";
-                res.set_content(j.dump(), "application/json");
-                res.status = 400;
-                return;
+            if (!del_date.empty()) {
+                if (!isFuture(del_date, 365)) {
+                    json j;
+                    j["ok"] = false;
+                    j["error"] = "日期不能是过去";
+                    res.set_content(j.dump(), "application/json");
+                    res.status = 400;
+                    return;
+                }
+                if (isFuture(del_date, MAX_ADVANCE_DAYS)) {
+                    json j;
+                    j["ok"] = false;
+                    j["error"] = "删除日期须至少 15 天后（第14天已放票）";
+                    res.set_content(j.dump(), "application/json");
+                    res.status = 400;
+                    return;
+                }
             }
 
             json payload;

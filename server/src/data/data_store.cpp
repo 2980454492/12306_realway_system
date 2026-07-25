@@ -156,6 +156,12 @@ bool DataStore::loadTrains() {
 
 void DataStore::addTrain(const Train& train) {
     std::lock_guard<std::mutex> lock(mutex_);
+    // 已归档同名覆盖：更新已有槽位，不新增（避免 trains_ 中出现重复条目）
+    auto it = train_index_.find(train.id);
+    if (it != train_index_.end()) {
+        trains_[it->second] = train;
+        return;
+    }
     trains_.push_back(train);
     train_index_[train.id] = trains_.size() - 1;
 }

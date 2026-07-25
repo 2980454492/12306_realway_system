@@ -257,6 +257,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .tag-active { background: #005530; color: #00ff88; }
 .tag-pending { background: #553800; color: #ffaa00; }
 .tag-archived { background: #333; color: #666; }
+.detail-empty-message { padding: 16px; color: #9090b0; }
 .form-card { background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
 .form-card h3 { margin-top: 0; color: #53a8ff; }
 .form-group { margin-bottom: 12px; }
