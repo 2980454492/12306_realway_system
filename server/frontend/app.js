@@ -2281,6 +2281,10 @@ const UI = {
       return U.toast((res.data && res.data.error) || '加载失败', 'error');
 
     State._allApprovals = res.data.data || [];
+    // 静默加载列车列表（删除列车审批需要查看 stops，403 时跳过）
+    if (!State._allTrains.length) {
+      try { var tr = await API.get('/api/admin/trains'); if (tr.ok) State._allTrains = tr.data.data || []; } catch (_) {}
+    }
     UI.renderApprovals();
   },
 
@@ -2308,6 +2312,29 @@ const UI = {
     for (var i = 0; i < approvals.length; i++) {
       var a = approvals[i];
       var card = tpl.content.cloneNode(true);
+
+      // 解析 payload，提取列车信息供详情展示（与我的提交共用 showSubmissionDetail）
+      var train = null;
+      try { train = (typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload); } catch (e) {}
+      var key = 'apr_' + i;
+      var tid = train ? train.id : '?';
+      var tstops = train ? (train.stops || []) : [];
+      var tsegs = train ? (train.segments || []) : [];
+      // 删除列车：payload 只有 id，尝试从已缓存的列车列表中查找
+      if (a.type === 4 && !tstops.length && State._allTrains.length) {
+        for (var ti = 0; ti < State._allTrains.length; ti++) {
+          if (State._allTrains[ti].id === tid) {
+            tstops = State._allTrains[ti].stops || [];
+            tsegs = State._allTrains[ti].segments || [];
+            break;
+          }
+        }
+      }
+      State._trainItems[key] = { train_id: tid, stops: tstops, segments: tsegs, approval_type: a.type, payload: train };
+      // 卡片可点击查看详情
+      card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(key);
+      card.querySelector('.approval-card').style.cursor = 'pointer';
+
       card.querySelector('.approval-type').textContent = UI.TYPE_LABEL[a.type] || '未知';
       var stEl = card.querySelector('.approval-status');
       stEl.textContent = UI.STATUS_LABEL[a.status] || '未知';
@@ -2324,8 +2351,8 @@ const UI = {
       if (a.status === 0) {
         actionsEl.innerHTML = '<button class="btn btn-sm btn-primary">通过</button><button class="btn btn-sm btn-danger">驳回</button>';
         var btns = actionsEl.querySelectorAll('button');
-        btns[0].onclick = function() { UI.approveOne(a.id); };
-        btns[1].onclick = function() { UI.rejectOne(a.id); };
+        btns[0].onclick = function(e) { e.stopPropagation(); UI.approveOne(a.id); };
+        btns[1].onclick = function(e) { e.stopPropagation(); UI.rejectOne(a.id); };
       } else {
         actionsEl.style.display = 'none';
       }
