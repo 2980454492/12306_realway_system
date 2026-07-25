@@ -13,7 +13,7 @@
  * ApprovalService 单例 — 管理审批生命周期。
  * 四眼原则：submitter_id != approver_id。
  * CAS 锁：std::atomic_flag 防止多人同时审批同一申请。
- * 二次冲突校验：审批通过前再次执行冲突检测，对比提交快照与当前状态。
+ * 二次冲突校验：审批通过前再次执行 checkTrain()，与提交时走同一校验逻辑。
  */
 class ApprovalService {
 public:
@@ -29,7 +29,7 @@ public:
 
     /** 职工提交审批申请，返回审批 ID */
     std::string submit(ApprovalType type, const std::string& submitter_id,
-                      const std::string& payload, const std::string& snapshot);
+                      const std::string& payload);
 
     // ── 审批 ──
 
@@ -69,6 +69,9 @@ private:
     ApprovalService() = default;
 
     void saveApprovals() const;
+
+    /** 将 CREATE_TRAIN 审批关联的 PENDING 列车归档，reject/withdraw 共用 */
+    void archivePendingTrain(const ApprovalRequest& req);
 
     // ── 数据 ──
     std::vector<ApprovalRequest> approvals_;

@@ -746,7 +746,7 @@ void registerRoutes(RailwayServer& server) {
                 payload = body.dump();
             }
             std::string aid = ApprovalService::instance().submit(
-                type, ctx->user_id, payload, "");
+                type, ctx->user_id, payload);
 
             json j;
             j["ok"] = true;
@@ -805,7 +805,7 @@ void registerRoutes(RailwayServer& server) {
             payload["id"] = train_id;
             if (!del_date.empty()) payload["delete_date"] = del_date;
             std::string aid = ApprovalService::instance().submit(
-                ApprovalType::DELETE_TRAIN, ctx->user_id, payload.dump(), "");
+                ApprovalType::DELETE_TRAIN, ctx->user_id, payload.dump());
 
             json j;
             j["ok"] = true;

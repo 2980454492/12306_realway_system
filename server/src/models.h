@@ -265,11 +265,10 @@ struct ApprovalRequest {
     std::string approver_id;     // 审批人 user_id（审批后填入）
     ApprovalState status = ApprovalState::SUBMITTED;
     std::string payload;         // 变更内容 JSON 字符串
-    std::string snapshot;        // 提交时区间占用快照 JSON（二次校验用）
     std::string submitted_at;    // ISO 8601
     std::string decided_at;      // 审批决定时间
     std::string comment;         // 审批意见
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ApprovalRequest,
-    id, type, submitter_id, approver_id, status, payload, snapshot,
+    id, type, submitter_id, approver_id, status, payload,
     submitted_at, decided_at, comment)

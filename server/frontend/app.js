@@ -1854,6 +1854,10 @@ const UI = {
       return U.toast((res.data && res.data.error) || '加载失败', 'error');
 
     State._allTrains = res.data.data || [];
+    // 构建 id→train 索引，供审批列表 O(1) 查找 stops
+    State._trainMap = {};
+    for (var ti = 0; ti < State._allTrains.length; ti++)
+      State._trainMap[State._allTrains[ti].id] = State._allTrains[ti];
     // 清空搜索框和排序（不重置复选框，HTML checked 属性自然生效）
     var inp = U.$('train-search-input');
     if (inp) {
@@ -2132,9 +2136,8 @@ const UI = {
 
   /** 加载我的提交（STAFF 查看自己提交的审批） */
   loadMySubmissions: async function() {
-    // 先加载列车列表（删除列车需要从中查找 stops 数据）
-    if (!State._allTrains.length)
-      await UI.loadTrains();
+    // 静默加载列车列表（删除列车审批需要查找 stops 数据）
+    await UI._ensureTrainsLoaded();
     var loadingEl = U.$('my-submissions-loading');
     if (loadingEl)
       loadingEl.style.display = 'block';
@@ -2164,6 +2167,41 @@ const UI = {
     UI.loadMySubmissions();
   },
 
+  /** 静默加载列车列表（审批页需要查找 DELETE_TRAIN 的 stops，403 时跳过） */
+  _ensureTrainsLoaded: async function() {
+    if (State._allTrains.length)
+      return;
+    try {
+      var tr = await API.get('/api/admin/trains');
+      if (tr.ok) {
+        State._allTrains = tr.data.data || [];
+        State._trainMap = {};
+        for (var ti = 0; ti < State._allTrains.length; ti++)
+          State._trainMap[State._allTrains[ti].id] = State._allTrains[ti];
+      }
+    } catch (_) {}
+  },
+
+  /** 解析审批 payload，提取列车信息（renderMySubmissions 和 renderApprovals 共用） */
+  _resolveApprovalPayload: function(a, idx) {
+    var key = (idx < 0 ? 'apr_' : 'sub_') + Math.abs(idx);
+    var train = null;
+    try { train = (typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload); } catch (e) {}
+    var tid = train ? train.id : '?';
+    var tstops = train ? (train.stops || []) : [];
+    var tsegs = train ? (train.segments || []) : [];
+    // 删除列车：payload 无 stops，从列车索引查找
+    if (a.type === 4 && !tstops.length) {
+      var cached = State._trainMap && State._trainMap[tid];
+      if (cached) {
+        tstops = cached.stops || [];
+        tsegs = cached.segments || [];
+      }
+    }
+    State._trainItems[key] = { train_id: tid, stops: tstops, segments: tsegs, approval_type: a.type, payload: train };
+    return { key: key, tid: tid, tstops: tstops, tsegs: tsegs, train: train };
+  },
+
   /** 渲染我的提交列表 */
   renderMySubmissions: function() {
     var items = State._mySubmissions || [];
@@ -2178,31 +2216,15 @@ const UI = {
       var a = items[i];
       var card = tpl.content.cloneNode(true);
       // 解析 payload 存起来供详情使用
-      var train = null;
-      try { train = (typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload); } catch (e) {}
-      var key = 'sub_' + i;
-      var tid = train ? train.id : '?';
-      var tstops = train ? (train.stops || []) : [];
-      var tsegs = train ? (train.segments || []) : [];
-      // 删除列车：payload 无 stops，从列车列表查找
-      if (a.type === 4 && !tstops.length && State._allTrains.length) {
-        for (var ti = 0; ti < State._allTrains.length; ti++) {
-          if (State._allTrains[ti].id === tid) {
-            tstops = State._allTrains[ti].stops || [];
-            tsegs = State._allTrains[ti].segments || [];
-            break;
-          }
-        }
-      }
-      State._trainItems[key] = { train_id: tid, stops: tstops, segments: tsegs, approval_type: a.type, payload: train };
+      var info = UI._resolveApprovalPayload(a, i);
       // 卡片可点击查看详情（仅新增/删除列车有时刻表可展示）
-      var hasStops = (a.type === 0 || a.type === 4) || (tstops && tstops.length > 0);
+      var hasStops = (a.type === 0 || a.type === 4) || (info.tstops && info.tstops.length > 0);
       if (hasStops) {
-        card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(key);
+        card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(info.key);
         card.querySelector('.approval-card').style.cursor = 'pointer';
       }
       // 填充数据
-      var trainName = train ? U.esc(train.id || '?') : '?';
+      var trainName = info.train ? U.esc(info.train.id || '?') : '?';
       card.querySelector('.submission-train-id').textContent = trainName;
       card.querySelector('.submission-time').textContent = (a.submitted_at || '');
       card.querySelector('.submission-type-tag').textContent = UI.TYPE_LABEL[a.type] || '未知';
@@ -2281,10 +2303,7 @@ const UI = {
       return U.toast((res.data && res.data.error) || '加载失败', 'error');
 
     State._allApprovals = res.data.data || [];
-    // 静默加载列车列表（删除列车审批需要查看 stops，403 时跳过）
-    if (!State._allTrains.length) {
-      try { var tr = await API.get('/api/admin/trains'); if (tr.ok) State._allTrains = tr.data.data || []; } catch (_) {}
-    }
+    await UI._ensureTrainsLoaded();
     UI.renderApprovals();
   },
 
@@ -2314,25 +2333,9 @@ const UI = {
       var card = tpl.content.cloneNode(true);
 
       // 解析 payload，提取列车信息供详情展示（与我的提交共用 showSubmissionDetail）
-      var train = null;
-      try { train = (typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload); } catch (e) {}
-      var key = 'apr_' + i;
-      var tid = train ? train.id : '?';
-      var tstops = train ? (train.stops || []) : [];
-      var tsegs = train ? (train.segments || []) : [];
-      // 删除列车：payload 只有 id，尝试从已缓存的列车列表中查找
-      if (a.type === 4 && !tstops.length && State._allTrains.length) {
-        for (var ti = 0; ti < State._allTrains.length; ti++) {
-          if (State._allTrains[ti].id === tid) {
-            tstops = State._allTrains[ti].stops || [];
-            tsegs = State._allTrains[ti].segments || [];
-            break;
-          }
-        }
-      }
-      State._trainItems[key] = { train_id: tid, stops: tstops, segments: tsegs, approval_type: a.type, payload: train };
+      var info = UI._resolveApprovalPayload(a, -i - 1);  // 负索引 → 'apr_' 前缀
       // 卡片可点击查看详情
-      card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(key);
+      card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(info.key);
       card.querySelector('.approval-card').style.cursor = 'pointer';
 
       card.querySelector('.approval-type').textContent = UI.TYPE_LABEL[a.type] || '未知';
@@ -2342,10 +2345,7 @@ const UI = {
       // 提交人
       card.querySelector('.approval-meta-submitter').textContent = '提交人: ' + (a.submitter_id || '?') + ' | ' + (a.submitted_at || '');
       // 车次
-      try {
-        var p = (typeof a.payload === 'string') ? JSON.parse(a.payload) : a.payload;
-        card.querySelector('.approval-payload').textContent = '车次: ' + (p.id || '?');
-      } catch (e) { card.querySelector('.approval-payload').style.display = 'none'; }
+      card.querySelector('.approval-payload').textContent = '车次: ' + (info.tid || '?');
       // 审批操作按钮（仅待审批状态）
       var actionsEl = card.querySelector('.approval-actions');
       if (a.status === 0) {
