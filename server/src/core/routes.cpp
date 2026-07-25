@@ -860,6 +860,13 @@ void registerRoutes(RailwayServer& server) {
                 ja["decided_at"] = a.decided_at;
                 ja["comment"] = a.comment;
                 try { ja["payload"] = json::parse(a.payload); } catch (...) { ja["payload"] = json(); }
+                // 为 CREATE_TRAIN / ADJUST_SCHEDULE 补齐 segments（前端展示里程/速度用）
+                if ((a.type == ApprovalType::CREATE_TRAIN || a.type == ApprovalType::ADJUST_SCHEDULE)
+                    && ja["payload"].contains("stops")) {
+                    Train temp;
+                    temp.stops = ja["payload"]["stops"].get<std::vector<Stop>>();
+                    ja["payload"]["segments"] = buildSegments(temp, DataStore::instance());
+                }
                 arr.push_back(ja);
             }
 
