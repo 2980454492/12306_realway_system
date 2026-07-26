@@ -5,6 +5,7 @@
 #include "core/config.h"
 #include "core/utils.h"
 #include "core/logger.h"
+#include "core/wal_writer.h"
 
 #include <nlohmann/json.hpp>
 
@@ -162,10 +163,14 @@ ApprovalService::ApproveResult ApprovalService::approve(
             train->status = TrainStatus::ACTIVE;
             TrainManager::instance().addToOccupancy(*train);
             ds.saveTrains();
+            WalWriter::instance().append("TRAIN_CREATE",
+                json(*train).dump());
             result.train_id = tid;
         } else if (it->type == ApprovalType::DELETE_TRAIN) {
             TrainManager::instance().deleteTrain(tid);
             ds.saveTrains();
+            WalWriter::instance().append("TRAIN_DELETE",
+                json({{"id", tid}}).dump());
             result.train_id = tid;
         } else if (it->type == ApprovalType::ADJUST_SCHEDULE) {
             // 从 payload 中读取完整新数据，合并到当前列车

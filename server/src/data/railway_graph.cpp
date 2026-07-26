@@ -11,6 +11,7 @@
 #include <filesystem>
 
 namespace fs = std::filesystem;
+using json = nlohmann::json;
 
 // ── 持久化 ──
 
@@ -19,7 +20,6 @@ bool RailwayGraph::tryLoadFromFile() {
 
     try {
         std::ifstream in(config::RAILWAY_GRAPH_FILE);
-        using json = nlohmann::json;
         json j;
         in >> j;
 
@@ -40,7 +40,6 @@ bool RailwayGraph::tryLoadFromFile() {
 
 void RailwayGraph::saveToFile() const {
     try {
-        using json = nlohmann::json;
         json j;
         for (const auto& [u, neighbors] : adjacency_) {
             json nj;

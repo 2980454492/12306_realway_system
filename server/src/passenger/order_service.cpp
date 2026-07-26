@@ -5,6 +5,7 @@
 #include "core/config.h"
 #include "core/utils.h"
 #include "core/logger.h"
+#include "core/wal_writer.h"
 
 #include <nlohmann/json.hpp>
 
@@ -16,6 +17,8 @@
 #include <algorithm>
 #include <chrono>
 #include <ctime>
+
+using json = nlohmann::json;
 
 namespace {
 
@@ -57,7 +60,6 @@ bool OrderService::initialize() {
 
     try {
         std::ifstream in(path);
-        using json = nlohmann::json;
         json j;
         in >> j;
         orders_ = j.get<std::vector<Order>>();
@@ -85,7 +87,6 @@ void OrderService::saveOrders() const {
     // 调用方已持有 mutex_
     std::string path = config::ORDERS_FILE;
     try {
-        using json = nlohmann::json;
         json j = orders_;
         std::ofstream out(path);
         out << j.dump(2);
@@ -195,6 +196,7 @@ OrderService::OrderResult OrderService::createOrder(
 
     orders_.push_back(order);
     saveOrders();
+    WalWriter::instance().append("ORDER_CREATE", json(order).dump());
     Logger::instance().info("Order created: " + order.id + " for " + train_id);
 
     result.order = order;
@@ -261,6 +263,8 @@ OrderService::RefundResult OrderService::refundOrder(const std::string& order_id
     // 7. 更新订单状态
     it->status = OrderStatus::REFUNDED;
     saveOrders();
+    WalWriter::instance().append("ORDER_REFUND",
+        json({{"order_id", order_id}, {"refund", refund}}).dump());
     Logger::instance().info("Order refunded: " + order_id
         + " refund=" + std::to_string(refund) + " rate=" + std::to_string(rate * 100) + "%");
 

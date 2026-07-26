@@ -5,8 +5,6 @@
 #include "core/utils.h"
 #include "core/logger.h"
 
-#include <nlohmann/json.hpp>
-
 #include <fstream>
 #include <filesystem>
 #include <algorithm>

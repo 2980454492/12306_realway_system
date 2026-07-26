@@ -3,6 +3,7 @@
 #include "core/config.h"
 #include "core/logger.h"
 #include "core/utils.h"
+#include "core/wal_writer.h"
 
 #include <sodium.h>
 #include <nlohmann/json.hpp>
@@ -94,6 +95,7 @@ std::optional<User> AuthService::createUser(const std::string& username,
     users_.push_back(user);
     rebuildIndexes();
     saveUsers();
+    WalWriter::instance().append("USER_CREATE", json(user).dump());
 
     Logger::instance().info("User created: " + username);
     return user;
@@ -107,6 +109,7 @@ AuthService::UpdateResult AuthService::updateUser(const std::string& target_id,
                                                   std::optional<bool> active,
                                                   const std::string& new_password) {
     UpdateResult result;
+    (void)current_user_id;  // 预留给后续权限校验（如：仅SYS_ADMIN可修改角色）
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto it = id_idx_.find(target_id);
@@ -135,6 +138,7 @@ AuthService::UpdateResult AuthService::updateUser(const std::string& target_id,
         u.password_hash = hashPassword(new_password);
 
     saveUsers();
+    WalWriter::instance().append("USER_UPDATE", json(u).dump());
     result.success = true;
     Logger::instance().info("User updated: " + u.username);
     return result;
@@ -186,6 +190,7 @@ AuthService::DeleteResult AuthService::deleteUser(const std::string& target_id,
     username_idx_.erase(u.username);
 
     saveUsers();
+    WalWriter::instance().append("USER_DELETE", json({{"id", target_id}}).dump());
     result.success = true;
     Logger::instance().info("User deleted: " + u.username);
     return result;

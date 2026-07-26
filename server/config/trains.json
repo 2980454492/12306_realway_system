@@ -369,7 +369,7 @@
       "no_seat": 50,
       "second_seats": 400
     },
-    "status": "ACTIVE",
+    "status": "ARCHIVED",
     "stops": [
       {
         "arrival": -1,
@@ -801,7 +801,7 @@
       "no_seat": 80,
       "second_seats": 300
     },
-    "status": "ACTIVE",
+    "status": "ARCHIVED",
     "stops": [
       {
         "arrival": -1,
@@ -6907,6 +6907,84 @@
     ],
     "type": "REGULAR",
     "valid_from": "2026-07-27",
+    "valid_until": ""
+  },
+  {
+    "id": "G2056",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 50,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 100
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 450,
+        "line_id": 0,
+        "line_name": "",
+        "platform": 0,
+        "station_id": 2,
+        "station_name": "呼和浩特",
+        "stop_type": 0,
+        "stop_type_name": "始发"
+      },
+      {
+        "arrival": 515,
+        "departure": -1,
+        "line_id": 4,
+        "line_name": "集包铁路",
+        "platform": 0,
+        "station_id": 14,
+        "station_name": "察素齐",
+        "stop_type": 3,
+        "stop_type_name": "终到"
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "2026-07-28",
+    "valid_until": ""
+  },
+  {
+    "id": "G2044",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 50,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 100
+    },
+    "status": "ARCHIVED",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 520,
+        "line_id": 0,
+        "line_name": "",
+        "platform": 0,
+        "station_id": 8,
+        "station_name": "乌兰察布",
+        "stop_type": 0,
+        "stop_type_name": "始发"
+      },
+      {
+        "arrival": 535,
+        "departure": -1,
+        "line_id": 7,
+        "line_name": "集呼高铁",
+        "platform": 0,
+        "station_id": 19,
+        "station_name": "卓资东",
+        "stop_type": 3,
+        "stop_type_name": "终到"
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "2026-07-29",
     "valid_until": ""
   }
 ]

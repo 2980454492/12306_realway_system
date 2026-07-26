@@ -15,6 +15,7 @@
 #include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
+using json = nlohmann::json;
 
 namespace {
 
@@ -36,7 +37,6 @@ using StationTrainIndex = std::unordered_map<uint32_t, std::vector<TrainStopEntr
 
 /** 将索引序列化为 JSON 并写入文件。key 用车站 ID（转字符串），value 为 [{train_id, stop_idx}] */
 void saveIndex(const std::string& path, const StationTrainIndex& idx) {
-    using json = nlohmann::json;
     json j;
     for (const auto& [station_id, entries] : idx) {
         json arr = json::array();
@@ -54,7 +54,6 @@ void saveIndex(const std::string& path, const StationTrainIndex& idx) {
  * 文件不存在或损坏时返回 nullopt，调用方回退到全量构建。
  */
 std::optional<StationTrainIndex> loadIndex(const std::string& path, DataStore& ds) {
-    using json = nlohmann::json;
     if (!fs::exists(path)) return std::nullopt;
 
     try {

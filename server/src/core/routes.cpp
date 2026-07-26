@@ -12,6 +12,7 @@
 #include "staff/train_manager.h"
 #include "staff/approval_service.h"
 #include "core/utils.h"
+#include "core/wal_writer.h"
 
 #include <nlohmann/json.hpp>
 
@@ -955,6 +956,7 @@ void registerRoutes(RailwayServer& server) {
                 ds.removeTrain(train.id);
                 ds.addTrain(train);
                 ds.saveTrains();
+                WalWriter::instance().append("TRAIN_CREATE", json(train).dump());
                 payload = json{{"id", train.id}}.dump();
             } else {
                 // ADJUST_SCHEDULE：payload 存完整 stops（审批时需应用新数据）
