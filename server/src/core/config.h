@@ -43,5 +43,7 @@ constexpr const char* ORDERS_FILE              = "data/orders.json";
 constexpr const char* SERVER_LOG_FILE          = "data/server.log";
 /** WAL 预写日志 */
 constexpr const char* WAL_FILE                 = "data/wal.log";
+/** 审计日志（链式 SHA256） */
+constexpr const char* AUDIT_LOG_FILE           = "data/audit.log";
 
 }  // namespace config

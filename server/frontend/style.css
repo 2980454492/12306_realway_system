@@ -276,6 +276,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
 .form-group input, .form-group select, .form-group textarea {
   width: 100%; padding: 8px 12px; background: #0a0a1e; border: 1px solid #0f3460; border-radius: 4px; color: #e0e0e0; font-size: 14px; box-sizing: border-box;
 }
+.input { padding: 6px 10px; background: #0a0a1e; border: 1px solid #0f3460; border-radius: 4px; color: #e0e0e0; font-size: 13px; box-sizing: border-box; }
 .seat-config-row { display: flex; gap: 16px; flex-wrap: wrap; }
 .seat-config-row span { color: #9090b0; font-size: 13px; }
 .form-actions { display: flex; gap: 8px; margin-top: 12px; }

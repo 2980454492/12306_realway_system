@@ -14,6 +14,7 @@
 #include "staff/train_manager.h"
 #include "staff/approval_service.h"
 #include "core/wal_writer.h"
+#include "core/audit_logger.h"
 
 #include <nlohmann/json.hpp>
 
@@ -59,6 +60,9 @@ int main() {
 
     // ── 初始化 WAL 预写日志 ──
     WalWriter::instance().initialize(config::WAL_FILE);
+
+    // ── 初始化审计日志 ──
+    AuditLogger::instance().initialize(config::AUDIT_LOG_FILE);
 
     // ── 初始化认证服务 ──
     // 加载或创建用户数据（首次启动生成种子用户）
@@ -128,7 +132,8 @@ int main() {
     }
 
     // ── 优雅关闭 ──
-    Logger::instance().info("Flushing WAL and saving data...");
+    Logger::instance().info("Shutting down services...");
+    AuditLogger::instance().shutdown();
     WalWriter::instance().shutdown();
     Logger::instance().info("Railway Server exited cleanly");
     return 0;

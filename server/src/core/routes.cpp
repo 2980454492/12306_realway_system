@@ -13,6 +13,7 @@
 #include "staff/approval_service.h"
 #include "core/utils.h"
 #include "core/wal_writer.h"
+#include "core/audit_logger.h"
 
 #include <nlohmann/json.hpp>
 
@@ -135,6 +136,8 @@ void registerRoutes(RailwayServer& server) {
 
             auto user = AuthService::instance().verifyUser(username, password);
             if (!user) {
+                AuditLogger::instance().log("", "", "LOGIN",
+                    "user:" + username, "", "failure");
                 json j;
                 j["ok"] = false;
                 j["error"] = "Invalid credentials or account locked";
@@ -154,6 +157,8 @@ void registerRoutes(RailwayServer& server) {
             }
             std::string token = JwtService::instance().generateToken(
                 user->id, role_str, 1800);
+            AuditLogger::instance().log(user->id, role_str, "LOGIN",
+                "user:" + user->username, "", "success");
 
             json j;
             j["ok"] = true;
@@ -429,6 +434,52 @@ void registerRoutes(RailwayServer& server) {
 
             json j;
             j["ok"] = true;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── GET /api/admin/audit — 审计日志查询（SYS_ADMIN）──
+    app.Get("/api/admin/audit", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::VIEW_AUDIT);
+            if (!ctx) return;
+
+            auto records = AuditLogger::instance().getRecords();
+            // 筛选
+            std::string from = req.get_param_value("from");
+            std::string to = req.get_param_value("to");
+            std::string user = req.get_param_value("user");
+            std::string action = req.get_param_value("action");
+            int limit = 200;
+            try { if (req.has_param("limit")) limit = std::stoi(req.get_param_value("limit")); }
+            catch (...) {}
+
+            json arr = json::array();
+            int count = 0;
+            // 倒序遍历（最新的在前）
+            for (int i = static_cast<int>(records.size()) - 1; i >= 0 && count < limit; --i) {
+                const auto& r = records[i];
+                if (!from.empty() && r.timestamp < from) continue;
+                if (!to.empty() && r.timestamp > to) continue;
+                if (!user.empty() && r.user_id != user && r.user_id.find(user) == std::string::npos) continue;
+                if (!action.empty() && r.action != action) continue;
+
+                json jr = r;
+                arr.push_back(jr);
+                ++count;
+            }
+
+            json j;
+            j["ok"] = true;
+            j["total"] = records.size();
+            j["verified"] = AuditLogger::instance().verifyChain();
+            j["data"] = arr;
             res.set_content(j.dump(), "application/json");
         } catch (const std::exception& e) {
             json j;

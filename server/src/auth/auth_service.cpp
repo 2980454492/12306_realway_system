@@ -4,6 +4,7 @@
 #include "core/logger.h"
 #include "core/utils.h"
 #include "core/wal_writer.h"
+#include "core/audit_logger.h"
 
 #include <sodium.h>
 #include <nlohmann/json.hpp>
@@ -20,6 +21,18 @@ namespace fs = std::filesystem;
 using json = nlohmann::json;
 
 namespace {
+
+// 角色 → 字符串
+std::string roleToString(UserRole r) {
+    switch (r) {
+        case UserRole::PASSENGER:   return "PASSENGER";
+        case UserRole::STAFF:       return "STAFF";
+        case UserRole::APPROVER:    return "APPROVER";
+        case UserRole::INFRA_ADMIN: return "INFRA_ADMIN";
+        case UserRole::SYS_ADMIN:   return "SYS_ADMIN";
+    }
+    return "UNKNOWN";
+}
 
 // 用 argon2id 哈希密码，自动生成独立 salt
 std::string hashPassword(const std::string& password) {
@@ -96,6 +109,8 @@ std::optional<User> AuthService::createUser(const std::string& username,
     rebuildIndexes();
     saveUsers();
     WalWriter::instance().append("USER_CREATE", json(user).dump());
+    AuditLogger::instance().log(user.id, roleToString(user.role), "USER_CREATE",
+        "user:" + username, json({{"role", roleToString(user.role)}}).dump(), "success");
 
     Logger::instance().info("User created: " + username);
     return user;
@@ -139,6 +154,8 @@ AuthService::UpdateResult AuthService::updateUser(const std::string& target_id,
 
     saveUsers();
     WalWriter::instance().append("USER_UPDATE", json(u).dump());
+    AuditLogger::instance().log(current_user_id, "", "USER_UPDATE",
+        "user:" + u.username, json({{"role", roleToString(u.role)}, {"active", u.active}}).dump(), "success");
     result.success = true;
     Logger::instance().info("User updated: " + u.username);
     return result;
@@ -191,6 +208,8 @@ AuthService::DeleteResult AuthService::deleteUser(const std::string& target_id,
 
     saveUsers();
     WalWriter::instance().append("USER_DELETE", json({{"id", target_id}}).dump());
+    AuditLogger::instance().log(current_user_id, "", "USER_DELETE",
+        "user:" + u.username, json({{"target_id", target_id}}).dump(), "success");
     result.success = true;
     Logger::instance().info("User deleted: " + u.username);
     return result;

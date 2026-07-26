@@ -196,7 +196,7 @@ const U = {
         items[i].style.display = isStaff ? '' : 'none';
       else if (page === 'approvals')
         items[i].style.display = isApprover ? '' : 'none';
-      else if (page === 'users')
+      else if (page === 'users' || page === 'audit')
         items[i].style.display = isSysAdmin ? '' : 'none';
       else
         items[i].style.display = (isStaff || isApprover || isSysAdmin || isInfraAdmin) ? '' : 'none';
@@ -300,6 +300,8 @@ const UI = {
       UI.loadApprovals();
     if (name === 'users')
       UI.loadUsers();
+    if (name === 'audit')
+      UI.loadAudit();
   },
 
   /** 返回上一页（购票→查票） */
@@ -315,6 +317,8 @@ const UI = {
     if (name === 'approvals' && !isApprover)
       return;
     if (name === 'users' && !isSysAdmin)
+      return;
+    if (name === 'audit' && !isSysAdmin)
       return;
     if (name === 'order-form' && data)
       State.selectedTrain = data;
@@ -2585,6 +2589,76 @@ const UI = {
 
   showLogin: function() {
     UI.showPage('login');
+  },
+
+  // ── 审计日志（SYS_ADMIN）──
+
+  _auditRecords: [],
+
+  loadAudit: async function() {
+    var loadingEl = U.$('audit-loading');
+    if (loadingEl)
+      loadingEl.style.display = 'block';
+    var res = await API.get('/api/admin/audit?limit=500');
+    if (loadingEl)
+      loadingEl.style.display = 'none';
+    if (!res.ok)
+      return U.toast((res.data && res.data.error) || '加载失败', 'error');
+    UI._auditRecords = res.data.data || [];
+    // 显示链式校验状态
+    var stEl = U.$('audit-chain-status');
+    if (stEl) {
+      stEl.textContent = res.data.verified ? '🔒 链式校验通过' : '⚠️ 链式校验失败！数据可能被篡改';
+      stEl.style.color = res.data.verified ? '#00ff88' : '#ff4444';
+    }
+    UI.renderAudit();
+  },
+
+  renderAudit: function() {
+    var records = UI._auditRecords || [];
+    var userFilter = (U.$('audit-filter-user') ? U.$('audit-filter-user').value.trim() : '').toLowerCase();
+    var actionFilter = U.$('audit-filter-action') ? U.$('audit-filter-action').value : '';
+    var fromFilter = U.$('audit-filter-from') ? U.$('audit-filter-from').value : '';
+    var toFilter = U.$('audit-filter-to') ? U.$('audit-filter-to').value : '';
+
+    var filtered = records.filter(function(r) {
+      if (userFilter && r.user_id.toLowerCase().indexOf(userFilter) < 0) return false;
+      if (actionFilter && r.action !== actionFilter) return false;
+      if (fromFilter && r.timestamp < fromFilter) return false;
+      if (toFilter && r.timestamp > toFilter + 'T23:59:59') return false;
+      return true;
+    });
+
+    var ACTION_LABEL = {LOGIN: '登录', USER_CREATE: '创建用户',
+      USER_UPDATE: '更新用户', USER_DELETE: '删除用户'};
+    var listEl = U.$('audit-list');
+    listEl.innerHTML = '';
+
+    if (!filtered.length) {
+      listEl.innerHTML = '<div class="loading">暂无记录</div>';
+      return;
+    }
+
+    var tbl = document.createElement('table');
+    tbl.className = 'users-table';
+    tbl.innerHTML = '<thead><tr><th>时间</th><th>用户</th><th>操作</th><th>目标</th><th>结果</th></tr></thead>';
+    var tbody = document.createElement('tbody');
+    for (var i = 0; i < filtered.length; i++) {
+      var r = filtered[i];
+      var tr = document.createElement('tr');
+      var resultTag = r.result === 'success'
+        ? '<span class="tag tag-active">成功</span>'
+        : '<span class="tag" style="background:#550000;color:#ff4444">失败</span>';
+      var timeShort = r.timestamp.replace('T', ' ').substring(0, 19);
+      tr.innerHTML = '<td style="font-size:12px;color:#9090b0">' + timeShort + '</td>'
+        + '<td style="font-size:13px">' + U.esc(r.user_id || '—') + '</td>'
+        + '<td>' + (ACTION_LABEL[r.action] || r.action) + '</td>'
+        + '<td style="font-size:13px">' + U.esc(r.target || '—') + '</td>'
+        + '<td>' + resultTag + '</td>';
+      tbody.appendChild(tr);
+    }
+    tbl.appendChild(tbody);
+    listEl.appendChild(tbl);
   },
 
 };

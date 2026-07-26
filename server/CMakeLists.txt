@@ -41,6 +41,7 @@ set(SOURCES
     src/core/server.cpp
     src/core/routes.cpp
     src/core/wal_writer.cpp
+    src/core/audit_logger.cpp
     src/data/data_store.cpp
     src/data/railway_graph.cpp
     src/auth/auth_service.cpp
@@ -61,6 +62,7 @@ set(HEADERS
     src/core/server.h
     src/core/routes.h
     src/core/wal_writer.h
+    src/core/audit_logger.h
     src/data/data_store.h
     src/data/railway_graph.h
     src/auth/auth_service.h

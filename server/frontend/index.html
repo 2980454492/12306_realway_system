@@ -83,6 +83,9 @@
       <a class="sidebar-item staff-only" data-page="users" style="display:none" onclick="UI.navTo('users')">
         <span class="sidebar-icon">👥</span> 用户管理
       </a>
+      <a class="sidebar-item staff-only" data-page="audit" style="display:none" onclick="UI.navTo('audit')">
+        <span class="sidebar-icon">📊</span> 审计日志
+      </a>
 
     </div>
   </aside>
@@ -427,6 +430,27 @@
       <div id="approvals-list"></div>
     </section>
 
+    <!-- ═══ 审计日志页（SYS_ADMIN）═══ -->
+    <section id="page-audit" class="page">
+      <h2>审计日志 <span id="audit-chain-status" style="font-size:13px;margin-left:12px"></span></h2>
+      <div class="filter-bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="audit-filter-user" class="input" placeholder="用户ID" style="width:140px" oninput="UI.renderAudit()">
+        <select id="audit-filter-action" class="input" style="width:130px" onchange="UI.renderAudit()">
+          <option value="">全部操作</option>
+          <option value="LOGIN">登录</option>
+          <option value="USER_CREATE">创建用户</option>
+          <option value="USER_UPDATE">更新用户</option>
+          <option value="USER_DELETE">删除用户</option>
+        </select>
+        <input type="date" id="audit-filter-from" style="width:140px;background:#0a0a1e;border:1px solid #0f3460;color:#e0e0e0;padding:4px 8px;border-radius:4px;font-size:13px" onchange="UI.renderAudit()">
+        <span style="color:#707090">→</span>
+        <input type="date" id="audit-filter-to" style="width:140px;background:#0a0a1e;border:1px solid #0f3460;color:#e0e0e0;padding:4px 8px;border-radius:4px;font-size:13px" onchange="UI.renderAudit()">
+        <button class="btn btn-sm" onclick="UI.loadAudit()">刷新</button>
+      </div>
+      <div id="audit-loading" class="loading" style="display:none">加载中…</div>
+      <div id="audit-list"></div>
+    </section>
+
     <!-- ═══ 用户管理页（SYS_ADMIN）═══ -->
     <section id="page-users" class="page">
       <h2 style="display:flex;align-items:center;justify-content:space-between">
@@ -552,6 +576,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=20260726b"></script>
+<script src="/app.js?v=20260726c"></script>
 </body>
 </html>
