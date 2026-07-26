@@ -99,6 +99,98 @@ std::optional<User> AuthService::createUser(const std::string& username,
     return user;
 }
 
+// ── 用户更新 ──
+
+AuthService::UpdateResult AuthService::updateUser(const std::string& target_id,
+                                                  const std::string& current_user_id,
+                                                  std::optional<UserRole> role,
+                                                  std::optional<bool> active,
+                                                  const std::string& new_password) {
+    UpdateResult result;
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    auto it = id_idx_.find(target_id);
+    if (it == id_idx_.end()) {
+        result.error = "用户不存在";
+        return result;
+    }
+    auto& u = users_[it->second];
+
+    if (role)
+        u.role = *role;
+    if (active) {
+        // 不可禁用最后一个 SYS_ADMIN
+        if (!*active && u.role == UserRole::SYS_ADMIN) {
+            int sys_admin_count = 0;
+            for (const auto& user : users_)
+                if (user.role == UserRole::SYS_ADMIN && user.active) ++sys_admin_count;
+            if (sys_admin_count <= 1) {
+                result.error = "不可禁用最后一个系统管理员";
+                return result;
+            }
+        }
+        u.active = *active;
+    }
+    if (!new_password.empty())
+        u.password_hash = hashPassword(new_password);
+
+    saveUsers();
+    result.success = true;
+    Logger::instance().info("User updated: " + u.username);
+    return result;
+}
+
+// ── 用户删除 ──
+
+AuthService::DeleteResult AuthService::deleteUser(const std::string& target_id,
+                                                  const std::string& current_user_id) {
+    DeleteResult result;
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    auto it = id_idx_.find(target_id);
+    if (it == id_idx_.end()) {
+        result.error = "用户不存在";
+        return result;
+    }
+    auto& u = users_[it->second];
+
+    // 1. 检查是否为最后一个活跃 SYS_ADMIN
+    if (u.role == UserRole::SYS_ADMIN) {
+        int sys_admin_count = 0;
+        for (const auto& user : users_)
+            if (user.role == UserRole::SYS_ADMIN && user.active) ++sys_admin_count;
+        if (sys_admin_count <= 1) {
+            result.error = "不可删除最后一个系统管理员";
+            return result;
+        }
+    }
+
+    // 2. 非 SYS_ADMIN 不可删除自己
+    if (target_id == current_user_id) {
+        auto* self = findUserById(current_user_id);
+        if (!self || self->role != UserRole::SYS_ADMIN) {
+            result.error = "仅系统管理员可删除自己";
+            return result;
+        }
+    }
+
+    // 3. 执行删除（交换到末尾后弹出，保持索引有效）
+    size_t idx = it->second;
+    size_t last = users_.size() - 1;
+    if (idx != last) {
+        std::swap(users_[idx], users_[last]);
+        id_idx_[users_[idx].id] = idx;
+    }
+    users_.pop_back();
+    id_idx_.erase(target_id);
+    username_idx_.erase(u.username);
+
+    saveUsers();
+    result.success = true;
+    Logger::instance().info("User deleted: " + u.username);
+    return result;
+}
+
 // ── 登录验证 ──
 
 std::optional<User> AuthService::verifyUser(const std::string& username,

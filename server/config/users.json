@@ -2,46 +2,73 @@
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "id": "171bdd31-3a5c-4340-80f4-0fb31907b30c",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$infra_salt_will_be_recomputed$infra_salt_will_be_recomputed_infra_salt_will_be_reco",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$NaYpRUBvhfwnKQeVGBL83w$9WsbzEiBRlClK6cNi3NFN4juXjxQBKw9CyNIvPFi2Zw",
     "role": "INFRA_ADMIN",
     "username": "infra_admin"
   },
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "id": "4a9d33f5-c430-48d6-805c-0e267944d848",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$sys_salt_will_be_recomputed$sys_salt_will_be_recomputed_sys_salt_will_be_recomp",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$JXGzpJAzTWTzjOQL/PQaXA$t7BAqRDcFcZoRMNEcLBUu0n4b/Ia5NeeHEmiHh840CI",
     "role": "SYS_ADMIN",
     "username": "sys_admin"
   },
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+    "id": "5fd14a48-67c6-45b1-859c-e476ee5abb8f",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$staff_salt_recomputed$staff_salt_recomputed_staff_salt_recomputed_staff_sa",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$iALyYBxca093koCOt6ZGpw$67pmrg4awkawn/SSGrjZN901u7GKuOc0uUxnb57MpsM",
     "role": "STAFF",
     "username": "staff"
   },
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+    "id": "0d28612b-5145-4309-85cd-e8dfe6687bb8",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$approver_salt_recomp$approver_salt_recomp_approver_salt_recomp_appr",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$7JOBTiYxJBkVCC2vQXBqBQ$8XwDema5TOMqQAcGXyZozTTmSRch0jfkIyUA0a4071c",
     "role": "APPROVER",
     "username": "approver"
   },
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
+    "id": "50af6b22-071d-4e16-85a1-038a9e63beae",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$pass_salt_will_be_recomputed$pass_salt_will_be_recomputed_pass_salt",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$FZsD+zAWN+YUOuBzcRBvQw$6e3SM0tOjhZXc8IevgreDIfnmeOyr8CqrORRj6UunIM",
     "role": "PASSENGER",
     "username": "passenger"
+  },
+  {
+    "active": true,
+    "failed_attempts": 0,
+    "id": "c075b293-425a-4812-8277-a45f07d3d16c",
+    "locked_until": "",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$yGzJKU+1tsNaWxjwkSzmgw$6xz/Ht8q5PL1ELg+Vbf6Eflq5AbaWKco5wRXqoJLQY4",
+    "role": "PASSENGER",
+    "username": "passenger2"
+  },
+  {
+    "active": true,
+    "failed_attempts": 0,
+    "id": "47585a47-5ff1-4aa7-8920-f87ec325ef5f",
+    "locked_until": "",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$gpzesm1dSG9E2w1sbfqbLQ$bfAtvgp4UHI/lpgnEjXGqhIF4n5Xz2sddLzMnklZ+Us",
+    "role": "PASSENGER",
+    "username": "passenger3"
+  },
+  {
+    "active": true,
+    "failed_attempts": 0,
+    "id": "76885d59-d6df-4545-82a6-9dbefce7ec11",
+    "locked_until": "",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$ISXds1KG/CWjSZeFznBCNA$dCR9aiMIy41lno1QuswzPeIEaZX7y9iGWfFmTkclCUk",
+    "role": "PASSENGER",
+    "username": "passenger4"
   }
 ]

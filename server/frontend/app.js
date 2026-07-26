@@ -65,6 +65,43 @@ const Auth = {
     UI.showPage('query');
   },
 
+  async register(e) {
+    e.preventDefault();
+    var nameEl = U.$('register-username'), passEl = U.$('register-password');
+    var errEl = U.$('register-error');
+    if (!nameEl || !passEl)
+      return;
+    var name = nameEl.value.trim(), pass = passEl.value.trim();
+    if (errEl)
+      errEl.textContent = '';
+    if (name.length < 3) {
+      if (errEl)
+        errEl.textContent = '用户名至少3位';
+      return;
+    }
+    if (pass.length < 6) {
+      if (errEl)
+        errEl.textContent = '密码至少6位';
+      return;
+    }
+
+    var res = await API.post('/api/auth/register', { username: name, password: pass });
+    if (!res.ok) {
+      if (errEl)
+        errEl.textContent = (res.data && res.data.error) || '注册失败';
+      return;
+    }
+    State.token = res.data.token;
+    State.user = { id: res.data.user_id, username: res.data.username, role: res.data.role };
+    localStorage.setItem('jwt_token', State.token);
+    localStorage.setItem('jwt_user', JSON.stringify({id: res.data.user_id, username: res.data.username, role: res.data.role}));
+
+    U.showNav();
+    try { await U.loadStations(); } catch (_) {}
+    UI.showPage('query');
+    U.toast('注册成功，欢迎 ' + name, 'success');
+  },
+
   logout() {
     State.token = '';
     State.user = null;
@@ -162,14 +199,14 @@ const U = {
       else if (page === 'users')
         items[i].style.display = isSysAdmin ? '' : 'none';
       else
-        items[i].style.display = (isStaff || isApprover) ? '' : 'none';
+        items[i].style.display = (isStaff || isApprover || isSysAdmin || isInfraAdmin) ? '' : 'none';
     }
     var infraItems = document.querySelectorAll('.infra-only');
     for (var j = 0; j < infraItems.length; j++)
       infraItems[j].style.display = isInfraAdmin ? '' : 'none';
     var divider = document.querySelector('.sidebar-divider');
     if (divider)
-      divider.style.display = (isStaff || isApprover) ? '' : 'none';
+      divider.style.display = (isStaff || isApprover || isSysAdmin || isInfraAdmin) ? '' : 'none';
   },
   hideNav: function() {
     var u = U.$('nav-user'), b = U.$('btn-logout');
@@ -238,10 +275,10 @@ const UI = {
     var page = U.$('page-' + name);
     if (page)
       page.classList.add('active');
-    // 登录页不显示侧边栏
+    // 登录/注册页不显示侧边栏
     var layout = U.$('app-layout');
     if (layout)
-      layout.style.display = (name === 'login') ? 'none' : 'flex';
+      layout.style.display = (name === 'login' || name === 'register') ? 'none' : 'flex';
     // 更新侧边栏高亮
     var items = document.querySelectorAll('.sidebar-item');
     for (var j = 0; j < items.length; j++) {
@@ -261,6 +298,8 @@ const UI = {
       UI.loadMySubmissions();
     if (name === 'approvals')
       UI.loadApprovals();
+    if (name === 'users')
+      UI.loadUsers();
   },
 
   /** 返回上一页（购票→查票） */
@@ -2411,6 +2450,141 @@ const UI = {
       UI.loadApprovals();
     }
     else U.toast((res.data && res.data.error) || '驳回失败', 'error');
+  },
+
+  // ── 用户管理（SYS_ADMIN）──
+
+  _allUsers: [],
+  _editingUserId: null,
+
+  loadUsers: async function() {
+    var loadingEl = U.$('users-loading');
+    if (loadingEl)
+      loadingEl.style.display = 'block';
+    var res = await API.get('/api/admin/users');
+    if (loadingEl)
+      loadingEl.style.display = 'none';
+    if (!res.ok)
+      return U.toast((res.data && res.data.error) || '加载失败', 'error');
+    UI._allUsers = res.data.data || [];
+    UI.renderUsers();
+  },
+
+  renderUsers: function() {
+    var users = UI._allUsers || [];
+    var listEl = U.$('users-list');
+    listEl.innerHTML = '';
+    if (!users.length) {
+      listEl.innerHTML = '<div class="loading">暂无用户</div>';
+      return;
+    }
+    var tbl = document.createElement('table');
+    tbl.className = 'users-table';
+    tbl.innerHTML = '<thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>';
+    var tbody = document.createElement('tbody');
+    var tpl = U.$('tpl-user-row');
+    var currentId = State.user ? State.user.id : '';
+    for (var i = 0; i < users.length; i++) {
+      var u = users[i];
+      var row = tpl.content.cloneNode(true);
+      row.querySelector('.user-username').textContent = u.username;
+      // 角色标签
+      var roleTag = row.querySelector('.user-role-tag');
+      var roleInfo = {PASSENGER: ['旅客', 'tag-passenger'], STAFF: ['职工', 'tag-staff'],
+        APPROVER: ['审核员', 'tag-approver'], INFRA_ADMIN: ['基础设施管理员', 'tag-infra'],
+        SYS_ADMIN: ['系统管理员', 'tag-sys']};
+      var ri = roleInfo[u.role] || [u.role, ''];
+      roleTag.textContent = ri[0];
+      roleTag.className = 'tag user-role-tag ' + ri[1];
+      // 状态标签
+      var stTag = row.querySelector('.user-status-tag');
+      stTag.textContent = u.active ? '正常' : '已禁用';
+      stTag.className = 'tag user-status-tag ' + (u.active ? 'tag-active' : 'tag-archived');
+      // 操作按钮
+      var btns = row.querySelectorAll('button');
+      btns[0].onclick = (function(uid) { return function() { UI.editUserForm(uid); }; })(u.id);
+      btns[1].onclick = (function(uid, uname) { return function() { UI.deleteUser(uid, uname); }; })(u.id, u.username);
+      tbody.appendChild(row);
+    }
+    tbl.appendChild(tbody);
+    listEl.appendChild(tbl);
+  },
+
+  showUserForm: function(user) {
+    UI._editingUserId = user ? user.id : null;
+    U.$('user-form-title').textContent = user ? '编辑用户' : '新建用户';
+    U.$('user-form-username').value = user ? user.username : '';
+    U.$('user-form-username').disabled = !!user;  // 编辑时不可改用户名
+    U.$('user-form-password').value = '';
+    U.$('user-form-password').placeholder = user ? '留空则不修改密码' : '至少6位';
+    U.$('user-form-role').value = user ? user.role : 'PASSENGER';
+    U.$('user-form-error').textContent = '';
+    U.$('user-form-submit-btn').textContent = user ? '保存' : '创建';
+    U.$('user-form-overlay').style.display = 'flex';
+  },
+
+  editUserForm: function(id) {
+    for (var i = 0; i < UI._allUsers.length; i++)
+      if (UI._allUsers[i].id === id) { UI.showUserForm(UI._allUsers[i]); return; }
+  },
+
+  closeUserForm: function() {
+    U.$('user-form-overlay').style.display = 'none';
+    UI._editingUserId = null;
+  },
+
+  submitUserForm: async function() {
+    var username = U.$('user-form-username').value.trim();
+    var password = U.$('user-form-password').value;
+    var role = U.$('user-form-role').value;
+    var errEl = U.$('user-form-error');
+
+    if (!UI._editingUserId && (!username || username.length < 3)) {
+      errEl.textContent = '用户名至少3位';
+      return;
+    }
+    if (!UI._editingUserId && (!password || password.length < 6)) {
+      errEl.textContent = '密码至少6位';
+      return;
+    }
+
+    var res;
+    if (UI._editingUserId) {
+      var body = { role: role };
+      if (password)
+        body.password = password;
+      res = await API.put('/api/admin/users/' + UI._editingUserId, body);
+    } else {
+      res = await API.post('/api/admin/users', { username: username, password: password, role: role });
+    }
+
+    if (res.ok) {
+      U.toast(UI._editingUserId ? '已更新' : '已创建', 'success');
+      UI.closeUserForm();
+      UI.loadUsers();
+    } else {
+      errEl.textContent = (res.data && res.data.error) || '操作失败';
+    }
+  },
+
+  deleteUser: async function(id, username) {
+    if (!confirm('确定删除用户 ' + username + '？此操作不可撤销。'))
+      return;
+    var res = await API.del('/api/admin/users/' + id);
+    if (res.ok) {
+      U.toast('已删除', 'success');
+      UI.loadUsers();
+    } else {
+      U.toast((res.data && res.data.error) || '删除失败', 'error');
+    }
+  },
+
+  showRegister: function() {
+    UI.showPage('register');
+  },
+
+  showLogin: function() {
+    UI.showPage('login');
   },
 
 };

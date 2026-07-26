@@ -172,6 +172,64 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
+    // ── POST /api/auth/register — 旅客自助注册 ──
+    app.Post("/api/auth/register", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            json body = json::parse(req.body);
+            std::string username = body.value("username", "");
+            std::string password = body.value("password", "");
+
+            if (username.empty() || password.empty()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "用户名和密码不能为空";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+            if (username.length() < 3 || password.length() < 6) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "用户名至少3位，密码至少6位";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            auto& auth = AuthService::instance();
+            auto user = auth.createUser(username, password, UserRole::PASSENGER);
+            if (!user) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "用户名已存在";
+                res.set_content(j.dump(), "application/json");
+                res.status = 409;
+                return;
+            }
+
+            // 注册成功自动登录，返回 JWT
+            std::string token = JwtService::instance().generateToken(
+                user->id, "PASSENGER", 1800);
+
+            json j;
+            j["ok"] = true;
+            j["token"] = token;
+            j["token_type"] = "Bearer";
+            j["expires_in"] = 1800;
+            j["user_id"] = user->id;
+            j["username"] = user->username;
+            j["role"] = "PASSENGER";
+            res.set_content(j.dump(), "application/json");
+            res.status = 201;
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = std::string("注册失败: ") + e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
     // ── GET /api/whoami — 验证 JWT + RBAC 中间件（调试验证用）──
     app.Get("/api/whoami", [](const httplib::Request& req, httplib::Response& res) {
         try {
@@ -214,6 +272,162 @@ void registerRoutes(RailwayServer& server) {
             json j;
             j["ok"] = true;
             j["message"] = "Welcome, admin " + ctx->user_id;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── 用户管理（SYS_ADMIN）──
+
+    // GET /api/admin/users — 用户列表（脱敏密码哈希）
+    app.Get("/api/admin/users", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
+            if (!ctx) return;
+
+            json arr = json::array();
+            for (const auto& u : AuthService::instance().getAllUsers()) {
+                json ju = u;
+                ju.erase("password_hash");
+                arr.push_back(ju);
+            }
+            json j;
+            j["ok"] = true;
+            j["data"] = arr;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // POST /api/admin/users — 创建用户（SYS_ADMIN 可建任意角色）
+    app.Post("/api/admin/users", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
+            if (!ctx) return;
+
+            json body = json::parse(req.body);
+            std::string username = body.value("username", "");
+            std::string password = body.value("password", "");
+            std::string role_str = body.value("role", "PASSENGER");
+
+            if (username.empty() || password.empty()) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "用户名和密码不能为空";
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            UserRole role = UserRole::PASSENGER;
+            if (role_str == "STAFF") role = UserRole::STAFF;
+            else if (role_str == "APPROVER") role = UserRole::APPROVER;
+            else if (role_str == "INFRA_ADMIN") role = UserRole::INFRA_ADMIN;
+            else if (role_str == "SYS_ADMIN") role = UserRole::SYS_ADMIN;
+
+            auto user = AuthService::instance().createUser(username, password, role);
+            if (!user) {
+                json j;
+                j["ok"] = false;
+                j["error"] = "用户名已存在";
+                res.set_content(j.dump(), "application/json");
+                res.status = 409;
+                return;
+            }
+
+            json j;
+            j["ok"] = true;
+            json ju = *user;
+            ju.erase("password_hash");
+            j["user"] = ju;
+            res.set_content(j.dump(), "application/json");
+            res.status = 201;
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // PUT /api/admin/users/{id} — 更新用户（角色/状态/密码）
+    app.Put(R"(/api/admin/users/([^/]+))", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
+            if (!ctx) return;
+
+            std::string target_id = req.matches[1];
+            json body = json::parse(req.body);
+
+            std::optional<UserRole> role;
+            if (body.contains("role")) {
+                std::string role_str = body["role"];
+                if (role_str == "PASSENGER") role = UserRole::PASSENGER;
+                else if (role_str == "STAFF") role = UserRole::STAFF;
+                else if (role_str == "APPROVER") role = UserRole::APPROVER;
+                else if (role_str == "INFRA_ADMIN") role = UserRole::INFRA_ADMIN;
+                else if (role_str == "SYS_ADMIN") role = UserRole::SYS_ADMIN;
+            }
+
+            std::optional<bool> active;
+            if (body.contains("active"))
+                active = body["active"].get<bool>();
+
+            std::string new_password = body.value("password", "");
+
+            auto result = AuthService::instance().updateUser(
+                target_id, ctx->user_id, role, active, new_password);
+            if (!result.success) {
+                json j;
+                j["ok"] = false;
+                j["error"] = result.error;
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            json j;
+            j["ok"] = true;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // DELETE /api/admin/users/{id} — 删除用户
+    app.Delete(R"(/api/admin/users/([^/]+))", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
+            if (!ctx) return;
+
+            std::string target_id = req.matches[1];
+            auto result = AuthService::instance().deleteUser(target_id, ctx->user_id);
+            if (!result.success) {
+                json j;
+                j["ok"] = false;
+                j["error"] = result.error;
+                res.set_content(j.dump(), "application/json");
+                res.status = 400;
+                return;
+            }
+
+            json j;
+            j["ok"] = true;
             res.set_content(j.dump(), "application/json");
         } catch (const std::exception& e) {
             json j;
