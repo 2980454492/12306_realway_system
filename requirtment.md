@@ -10,7 +10,7 @@
 
 ### 1.1 背景
 
-模拟中国铁路 12306 票务系统的核心功能。系统分为四大角色——**普通旅客**（查票、购票、退票、查看订单）、**铁路职工**（新增/删除列车、时刻表调整、线路管理）、**审核员**（审批通过/驳回）、**系统管理员**（用户管理、审批决策、系统配置）。系统须满足央企级技术标准：权限管控、合规审计、流程审批、数据安全、系统稳定性、并发控制。
+模拟中国铁路 12306 票务系统的核心功能。系统分为五大角色——**普通旅客**（查票、购票、退票、查看订单）、**铁路职工**（新增/删除列车、时刻表调整）、**审核员**（审批通过/驳回）、**基础设施管理员**（站点/线路管理、路网导出）、**系统管理员**（用户管理、审计日志、系统配置）。每个角色职责单一、互不重叠。
 
 ### 1.2 范围与约束
 
@@ -22,7 +22,7 @@
 | 并发用户 | 模拟 100 并发购票请求 |
 | 数据持久化 | 文件存储（JSON） + WAL 预写日志 |
 | 对外接口 | RESTful HTTP API |
-| 前端 | 纯 HTML/CSS/JS 单页应用（零框架依赖），由 C++ 服务端直接托管静态文件<br>角色化界面：旅客端 / 职工端 / 管理员端，三套界面共享一个后端 |
+| 前端 | 纯 HTML/CSS/JS 单页应用（零框架依赖），由 C++ 服务端直接托管静态文件<br>角色化界面：旅客端 / 职工端 / 管理员端（INFRA_ADMIN / SYS_ADMIN 按角色显示不同管理功能），多套界面共享一个后端 |
 
 ---
 
@@ -235,14 +235,23 @@
 
 #### F-5.4 管理员端
 
+> 管理员分为两个角色：**基础设施管理员（INFRA_ADMIN）**负责站点/线路管理与路网导出，**系统管理员（SYS_ADMIN）**负责用户管理、审计与系统配置。两个角色互不重叠，同一用户可同时拥有两个角色。
+
+##### INFRA_ADMIN — 基础设施管理
+
+| 页面 | 对应 API | 功能说明 |
+|------|----------|----------|
+| **站点管理** | `/api/admin/stations` | 列表 + 新增表单（走审批） |
+| **线路管理** | `/api/admin/lines` | 列表 + 新增表单（走审批） |
+| **路网导出** | `/api/admin/export/network/*` | DOT 文件下载 + 在线预览(可选) |
+
+##### SYS_ADMIN — 系统管理
+
 | 页面 | 对应 API | 功能说明 |
 |------|----------|----------|
 | **用户管理** | `/api/admin/users` | 用户列表，创建/修改角色/禁用/删除 |
-| **站点管理** | `/api/admin/stations` | 列表 + 新增表单（走审批） |
-| **线路管理** | `/api/admin/lines` | 列表 + 新增表单（走审批） |
 | **审计日志** | `GET /api/admin/audit` | 按时间/操作人/类型筛选，脱敏展示，异常高亮 |
 | **系统配置** | `GET/PUT /api/admin/config` | 票价倍率、退票费率等，即时生效 |
-| **路网导出** | `/api/admin/export/network/*` | DOT 文件下载 + 在线预览(可选) |
 
 #### F-5.5 路网可视化（可选加分项）
 
@@ -265,9 +274,9 @@
 
 ---
 
-### F-6：管理员 — 路网管理
+### F-6：基础设施管理员 — 路网管理
 
-> 新增站点/线路属于基础设施变更，由 Admin 统一管理。
+> 新增站点/线路属于基础设施变更，由 INFRA_ADMIN 统一管理。
 
 #### F-6.1 新增线路
 
@@ -314,13 +323,17 @@
   ├── 审批通过（二次校验 checkTrain → ACTIVE+入占用）
   └── 审批驳回（PENDING→ARCHIVED，须填写意见）
 
-系统管理员 (Admin)
-  ├── 继承职工 + 审批职工全部权限
-  ├── 管理用户（创建/禁用/删除）
-  ├── 新增站点/线路（基础设施变更）
-  ├── 查看全部审计日志
-  ├── 系统配置（票价倍率、退票费率等）
+基础设施管理员 (INFRA_ADMIN)
+  ├── 继承旅客全部权限
+  ├── 管理站点（新增/修改/删除，走审批）
+  ├── 管理线路（新增/修改/删除，走审批）
   └── 路网可视化导出
+
+系统管理员 (SYS_ADMIN)
+  ├── 继承旅客全部权限
+  ├── 管理用户（创建/禁用/删除/修改角色）
+  ├── 查看全部审计日志
+  └── 系统配置（票价倍率、退票费率等）
 ```
 
 **技术要求**：
@@ -341,14 +354,14 @@
 | 链式校验(不可篡改) | 每条审计记录 = `SHA256(自己的hash + 上一条的hash)`。任一记录被修改，后续全部校验失败 |
 | 双写策略 | 审计日志同时写本地文件 + 内存环形缓冲(2048条滚动)。磁盘满时降级为仅内存缓冲 |
 | 敏感数据脱敏 | 输出前脱敏层：身份证→`37****199001010011`、手机号→`138****1234` |
-| 查询过滤 | 按时间范围、操作类型、操作人、操作结果过滤。Staff 仅可查自己操作，Admin 可查全部 |
+| 查询过滤 | 按时间范围、操作类型、操作人、操作结果过滤。Staff 仅可查自己操作，SYS_ADMIN 可查全部 |
 | 定期归档 | 每月生成审计报告摘要(MD)，审计日志归档压缩 |
 
 ### NF-3：流程审批
 
 | 要求 | 实现说明 |
 |------|----------|
-| 审批对象 | 新增列车、修改列车、删除列车（Staff 提交）；新增线路、新增站点（Admin 提交） |
+| 审批对象 | 新增列车、修改列车、删除列车（STAFF 提交）；新增线路、新增站点（INFRA_ADMIN 提交） |
 | 状态机 | SUBMITTED → APPROVED / REJECTED / WITHDRAWN |
 | 审批人限制 | 提交人 ≠ 审批人（四眼原则） |
 | 🔥 审批时二次校验 | `checkTrain()` 同提交逻辑：ID 唯一 + 停站合法性 + 冲突检测 |
@@ -543,23 +556,30 @@ SeatBitmap
 | DELETE | `/api/admin/trains/{id}` | 删除列车（提交审批） | Staff+ |
 | PUT | `/api/admin/trains/{id}` | 修改列车（提交审批） | Staff+ |
 | GET | `/api/stations/neighbors` | 车站-线路-邻居索引 | Staff+ |
-| POST | `/api/admin/stations` | 新增站点（提交审批） | Staff+ |
-| POST | `/api/admin/lines` | 新增线路（提交审批） | Staff+ |
-| POST | `/api/admin/approvals/{id}/approve` | 审批通过 | Staff+ (非提交人) |
-| POST | `/api/admin/approvals/{id}/reject` | 审批驳回 | Staff+ (非提交人) |
-| GET | `/api/admin/approvals?status=X&submitter_id=X&approver_id=X` | 查看审批列表（支持按状态/提交人/审批人筛选） | Staff+ / Approver+ |
+| POST | `/api/admin/stations` | 新增站点（提交审批） | INFRA_ADMIN+ |
+| POST | `/api/admin/lines` | 新增线路（提交审批） | INFRA_ADMIN+ |
+| POST | `/api/admin/approvals/{id}/approve` | 审批通过 | APPROVER+ (非提交人) |
+| POST | `/api/admin/approvals/{id}/reject` | 审批驳回 | APPROVER+ (非提交人) |
+| GET | `/api/admin/approvals?status=X&submitter_id=X&approver_id=X` | 查看审批列表（支持按状态/提交人/审批人筛选） | STAFF+ / APPROVER+ |
 
 ### 5.3 管理员接口
 
+#### 基础设施管理（INFRA_ADMIN）
+
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|:---:|
-| POST | `/api/admin/users` | 创建用户 | Admin |
-| PUT | `/api/admin/users/{id}` | 修改用户（角色/状态） | Admin |
-| GET | `/api/admin/audit?from=X&to=Y` | 查询审计日志 | Admin |
-| GET | `/api/admin/config` | 查看系统配置 | Admin |
-| PUT | `/api/admin/config` | 修改系统配置 | Admin |
-| GET | `/api/admin/export/network/dot` | 导出铁路网(DOT) | Admin |
-| GET | `/api/admin/export/network/html` | 导出铁路网(HTML) | Admin |
+| GET | `/api/admin/export/network/dot` | 导出铁路网(DOT) | INFRA_ADMIN+ |
+| GET | `/api/admin/export/network/html` | 导出铁路网(HTML) | INFRA_ADMIN+ |
+
+#### 系统管理（SYS_ADMIN）
+
+| 方法 | 路径 | 说明 | 权限 |
+|------|------|------|:---:|
+| POST | `/api/admin/users` | 创建用户 | SYS_ADMIN+ |
+| PUT | `/api/admin/users/{id}` | 修改用户（角色/状态） | SYS_ADMIN+ |
+| GET | `/api/admin/audit?from=X&to=Y` | 查询审计日志 | SYS_ADMIN+ |
+| GET | `/api/admin/config` | 查看系统配置 | SYS_ADMIN+ |
+| PUT | `/api/admin/config` | 修改系统配置 | SYS_ADMIN+ |
 
 ---
 
@@ -618,12 +638,12 @@ SeatBitmap
 - [x] 职工可删除无未出发已售车票的列车
 - [x] 新增列车须审批通过后方可生效
 - [x] 审批时二次冲突校验正确工作（乐观并发控制）
-- [x] 管理员可新增线路和站点，路网图正确更新
+- [x] INFRA_ADMIN 可新增线路和站点，路网图正确更新
 - [x] 可导出铁路网 DOT 文件和 HTML 文件
 
 ### 7.2 非功能验收
 
-- [x] RBAC 权限：Passenger 无法调用 Staff/Admin 接口
+- [x] RBAC 权限：Passenger 无法调用 STAFF / APPROVER / INFRA_ADMIN / SYS_ADMIN 接口
 - [x] 审计日志：所有敏感操作可追溯，链式校验有效
 - [x] 数据安全：密码 argon2id 哈希、敏感字段 AES 加密
 - [x] 系统稳定性：WAL 崩溃恢复测试通过（kill -9 后重启不丢数据）
@@ -675,14 +695,14 @@ SeatBitmap
 
 **依赖**：第二阶段
 
-**目标**：登录/登出 + JWT + 三角色权限，为后续所有接口提供鉴权
+**目标**：登录/登出 + JWT + 五角色权限，为后续所有接口提供鉴权
 
 | 优先级 | 任务 | 产出 |
 |:---:|------|------|
 | P0 | 用户模型 + argon2id 密码哈希（libsodium） | `User` + `AuthService` |
 | P0 | JWT 生成与校验（RS256） | `/api/auth/login` `/api/auth/refresh` `/api/auth/logout` |
 | P0 | RBAC 权限位图 + 中间件注册到 httplib | `RbacMiddleware`，所有路由入口自动鉴权 |
-| P1 | 预置种子用户（admin / staff / passenger 各一个） | 方便开发测试 |
+| P1 | 预置种子用户（infra_admin / sys_admin / approver / staff / passenger 各一个） | 方便开发测试 |
 | P1 | Token 黑名单 + 账号锁定 | 安全加固 |
 
 ---
@@ -736,7 +756,7 @@ SeatBitmap
 
 **依赖**：第三阶段（RBAC）
 
-**目标**：职工可增删改列车(冲突检测)、线路站点管理、审批(四眼原则+二次校验)
+**目标**：职工可增删改列车(冲突检测)、审批(四眼原则+二次校验)
 
 | 优先级 | 任务 | 产出 |
 |:---:|------|------|
@@ -769,26 +789,26 @@ SeatBitmap
 
 ---
 
-### ═══ 第三轮：平台管理员端（Admin）═══
+### ═══ 第三轮：管理员端（INFRA_ADMIN + SYS_ADMIN）═══
 
-### 第八阶段：管理员后端 — 用户管理 + 审计 + 系统配置 + 数据安全（预计 5 天）
+### 第八阶段：管理员后端 — 基础设施管理 + 系统管理（预计 5 天）
 
 **依赖**：第三阶段
 
-**目标**：管理员可管用户/查审计/调配置；WAL+加密+限流等非功能需求就绪
+**目标**：INFRA_ADMIN 可管站点/线路/路网导出，SYS_ADMIN 可管用户/审计/配置；WAL+加密+限流等非功能需求就绪
 
 | 优先级 | 任务 | 产出 |
 |:---:|------|------|
-| P0 | 用户管理：CRUD + 角色修改 + 禁用/删除 | `/api/admin/users` |
-| P0 | 新增站点/线路（走审批） | `POST /api/admin/stations` `/lines` |
-| P0 | 系统配置：票价倍率、退票费率 | `GET/PUT /api/admin/config` |
-| P0 | **审计日志**：操作记录 + 链式 SHA256 校验（不可篡改） | `AuditLogger` + `/api/admin/audit` |
+| P0 | 用户管理：CRUD + 角色修改 + 禁用/删除 | `/api/admin/users`（SYS_ADMIN） |
+| P0 | 新增站点/线路（走审批） | `POST /api/admin/stations` `/lines`（INFRA_ADMIN） |
+| P0 | 系统配置：票价倍率、退票费率 | `GET/PUT /api/admin/config`（SYS_ADMIN） |
+| P0 | **审计日志**：操作记录 + 链式 SHA256 校验（不可篡改） | `AuditLogger` + `/api/admin/audit`（SYS_ADMIN） |
 | P0 | **WAL 预写日志**：写操作先 append+fsync → 改内存 | `WalWriter`，`kill -9` 重启不丢数据 |
 | P0 | Checkpoint：每 5min 或 WAL≥10MB 快照 | 快照 + WAL 截断 |
 | P0 | 优雅关闭：SIGINT/SIGTERM → 刷 WAL → 退出 | 信号处理 |
 | P1 | AES-256-GCM 加密敏感字段（身份证/手机号） | 数据静态加密 |
 | P1 | Token Bucket 限流：60次查票/min、10次购票/min | 防刷票 |
-| P1 | 路网导出 DOT + HTML 交互版 | `/api/admin/export/network/*` |
+| P1 | 路网导出 DOT + HTML 交互版 | `/api/admin/export/network/*`（INFRA_ADMIN） |
 
 **可演示**：修改审计日志中一条记录 → 链式校验全部失败。`kill -9` 后重启 → 数据完整。
 
@@ -800,10 +820,10 @@ SeatBitmap
 
 | 优先级 | 任务 | 产出 |
 |:---:|------|------|
-| P0 | **用户管理**：用户列表 + 创建/编辑/禁用/删除 | 对应 `/api/admin/users` |
-| P0 | **审计日志**：时间/操作人/类型筛选 + 脱敏展示 + 异常高亮 | 对应 `/api/admin/audit` |
-| P0 | **系统配置**：配置表单 + 即时生效 | 对应 `/api/admin/config` |
-| P1 | **路网可视化**：vis.js 力导向图（嵌入管理员端） | 对应 `/api/admin/export/network/html` |
+| P0 | **用户管理**：用户列表 + 创建/编辑/禁用/删除（SYS_ADMIN） | 对应 `/api/admin/users` |
+| P0 | **审计日志**：时间/操作人/类型筛选 + 脱敏展示 + 异常高亮（SYS_ADMIN） | 对应 `/api/admin/audit` |
+| P0 | **系统配置**：配置表单 + 即时生效（SYS_ADMIN） | 对应 `/api/admin/config` |
+| P1 | **路网可视化**：vis.js 力导向图（INFRA_ADMIN） | 对应 `/api/admin/export/network/html` |
 
 ---
 

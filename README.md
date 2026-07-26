@@ -2,7 +2,7 @@
 
 > C++17 铁路票务系统，模拟 12306 核心功能：查票、购票、退票、列车管理、审批流、RBAC 权限管控。
 
-**20 站点 · 10 线路 · 100 列车 · 4 角色 RBAC · 纯 C++ 后端 + 零依赖前端**
+**20 站点 · 10 线路 · 100 列车 · 5 角色 RBAC · 纯 C++ 后端 + 零依赖前端**
 
 ---
 
@@ -101,7 +101,8 @@ bash scripts/run.sh
 
 | 角色 | 用户名 | 密码 |
 |------|--------|------|
-| 管理员 | `admin` | `admin123` |
+| 系统管理员 | `sys_admin` | `sys123` |
+| 基础设施管理员 | `infra_admin` | `infra123` |
 | 审核员 | `approver` | `approver123` |
 | 铁路职工 | `staff` | `staff123` |
 | 普通旅客 | `passenger` | `pass123` |
@@ -128,16 +129,25 @@ bash scripts/run.sh
 | ⚠️ 冲突检测 | 区间占用表 + 5 分钟安全裕量 |
 | ✅ 审批流 | 四眼原则（Staff 提交 → Approver 审批）+ CAS 锁 + 二次冲突校验 |
 | 📤 我的提交 | Staff 查看自己提交的审批记录（按状态筛选） |
-| 🔐 角色拆分 | Staff（增删改列车）+ Approver（审批），权限互斥 |
+| 🔐 角色拆分 | Staff（增删改列车）+ Approver（审批）互斥；INFRA_ADMIN（站点/线路）+ SYS_ADMIN（用户/审计/配置）各司其职 |
 
 ### 管理员端 ⏳ 待实现（Phase 8-9）
+
+#### INFRA_ADMIN — 基础设施管理
+
+| 功能 | 说明 |
+|------|------|
+| 🚉 站点管理 | 新增/修改/删除站点（走审批） |
+| 🛤️ 线路管理 | 新增/修改/删除线路（走审批） |
+| 🗺️ 路网导出 | DOT 格式 + HTML 交互版 |
+
+#### SYS_ADMIN — 系统管理
 
 | 功能 | 说明 |
 |------|------|
 | 👥 用户管理 | CRUD + 角色/禁用 |
 | 📊 审计日志 | 链式 SHA256 防篡改 |
 | ⚙️ 系统配置 | 票价倍率、退票费率 |
-| 🗺️ 路网导出 | DOT 格式 + HTML 交互版 |
 
 ---
 
@@ -197,7 +207,7 @@ bash scripts/run.sh
 ```
 std::bitset<64> 位图存储权限
 每个 HTTP 请求 → 中间件提取 JWT → 校验权限位 → 放行/拒绝
-四角色：Passenger / Staff / Approver / Admin
+五角色：PASSENGER / STAFF / APPROVER / INFRA_ADMIN / SYS_ADMIN
 ```
 
 ### 路网算法
