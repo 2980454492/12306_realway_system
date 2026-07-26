@@ -2,37 +2,46 @@
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "8fa60ad0-4eca-427b-8924-c6afad03255f",
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$3fSTthXEx79h2wQ2Q3atzA$9f/YGd2M15dpaBRMSLcO7oxNRjeaH1XsJLBcVzagFuo",
-    "role": "ADMIN",
-    "username": "admin"
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$infra_salt_will_be_recomputed$infra_salt_will_be_recomputed_infra_salt_will_be_reco",
+    "role": "INFRA_ADMIN",
+    "username": "infra_admin"
   },
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "c1bb9a54-35c5-4bbe-8129-6a54b0df09f2",
+    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$8expCLscWLNaAX/t9dYxKw$Ukv1Ay8Pl26LtK6se5H4uSv04PF9e88ce7G2Li7naOY",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$sys_salt_will_be_recomputed$sys_salt_will_be_recomputed_sys_salt_will_be_recomp",
+    "role": "SYS_ADMIN",
+    "username": "sys_admin"
+  },
+  {
+    "active": true,
+    "failed_attempts": 0,
+    "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+    "locked_until": "",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$staff_salt_recomputed$staff_salt_recomputed_staff_salt_recomputed_staff_sa",
     "role": "STAFF",
     "username": "staff"
   },
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "b0260fce-22eb-494d-8ef8-fd62bc5b4bef",
+    "id": "d4e5f6a7-b8c9-0123-defa-234567890123",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$/BYLBrWGaLZZZEAOK+XYfQ$3qriTBNjwkuJngZt66X17eYGP1GFWoYxZg5Gjdt3QVI",
-    "role": "PASSENGER",
-    "username": "passenger"
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$approver_salt_recomp$approver_salt_recomp_approver_salt_recomp_appr",
+    "role": "APPROVER",
+    "username": "approver"
   },
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "e0c0ca8f-4693-4334-8fd4-5d44ce715fa1",
+    "id": "e5f6a7b8-c9d0-1234-efab-345678901234",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$n7yoY7LgwJujJ2Rwad9RBA$cO9TmY6flIPUzW+3w5pPWcqHMiTV/c8nlC6rHIa9qdI",
-    "role": "APPROVER",
-    "username": "approver"
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$pass_salt_will_be_recomputed$pass_salt_will_be_recomputed_pass_salt",
+    "role": "PASSENGER",
+    "username": "passenger"
   }
 ]

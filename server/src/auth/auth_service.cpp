@@ -217,12 +217,19 @@ bool AuthService::saveUsers() const {
 void AuthService::createSeedUsers() {
     users_.clear();
 
-    User admin;
-    admin.id = generateUuid();
-    admin.username = "admin";
-    admin.password_hash = hashPassword("admin123");
-    admin.role = UserRole::ADMIN;
-    users_.push_back(admin);
+    User infra_admin;
+    infra_admin.id = generateUuid();
+    infra_admin.username = "infra_admin";
+    infra_admin.password_hash = hashPassword("infra123");
+    infra_admin.role = UserRole::INFRA_ADMIN;
+    users_.push_back(infra_admin);
+
+    User sys_admin;
+    sys_admin.id = generateUuid();
+    sys_admin.username = "sys_admin";
+    sys_admin.password_hash = hashPassword("sys123");
+    sys_admin.role = UserRole::SYS_ADMIN;
+    users_.push_back(sys_admin);
 
     User staff;
     staff.id = generateUuid();
@@ -231,13 +238,6 @@ void AuthService::createSeedUsers() {
     staff.role = UserRole::STAFF;
     users_.push_back(staff);
 
-    User passenger;
-    passenger.id = generateUuid();
-    passenger.username = "passenger";
-    passenger.password_hash = hashPassword("pass123");
-    passenger.role = UserRole::PASSENGER;
-    users_.push_back(passenger);
-
     User approver;
     approver.id = generateUuid();
     approver.username = "approver";
@@ -245,6 +245,13 @@ void AuthService::createSeedUsers() {
     approver.role = UserRole::APPROVER;
     users_.push_back(approver);
 
+    User passenger;
+    passenger.id = generateUuid();
+    passenger.username = "passenger";
+    passenger.password_hash = hashPassword("pass123");
+    passenger.role = UserRole::PASSENGER;
+    users_.push_back(passenger);
+
     rebuildIndexes();
-    Logger::instance().info("Created 4 seed users: admin, staff, approver, passenger");
+    Logger::instance().info("Created 5 seed users: infra_admin, sys_admin, staff, approver, passenger");
 }

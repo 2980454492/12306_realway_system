@@ -1,4 +1,4 @@
-// rbac_middleware.h — RBAC 权限中间件，JWT 校验 + 角色-权限映射
+// rbac_middleware.h — RBAC 权限中间件，JWT 校验 + 五角色权限映射
 #pragma once
 
 #include <string>

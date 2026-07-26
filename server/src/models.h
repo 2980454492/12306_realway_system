@@ -84,18 +84,20 @@ NLOHMANN_JSON_SERIALIZE_ENUM(OrderStatus, {
     {OrderStatus::REFUNDED, "REFUNDED"},
 })
 
-/** 用户角色 — RBAC 四角色 */
+/** 用户角色 — RBAC 五角色 */
 enum class UserRole : uint8_t {
-    PASSENGER = 0,  // 普通旅客
-    STAFF     = 1,  // 铁路职工（增删改列车）
-    ADMIN     = 2,  // 系统管理员
-    APPROVER  = 3   // 审批职工（审核通过/驳回，不可增删改）
+    PASSENGER   = 0,  // 普通旅客
+    STAFF       = 1,  // 铁路职工（增删改列车）
+    INFRA_ADMIN = 2,  // 基础设施管理员（站点/线路/路网导出）
+    SYS_ADMIN   = 3,  // 系统管理员（用户/审计/配置/安全）
+    APPROVER    = 4   // 审批职工（审核通过/驳回，不可增删改）
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(UserRole, {
-    {UserRole::PASSENGER, "PASSENGER"},
-    {UserRole::STAFF,     "STAFF"},
-    {UserRole::ADMIN,     "ADMIN"},
-    {UserRole::APPROVER,  "APPROVER"},
+    {UserRole::PASSENGER,   "PASSENGER"},
+    {UserRole::STAFF,       "STAFF"},
+    {UserRole::INFRA_ADMIN, "INFRA_ADMIN"},
+    {UserRole::SYS_ADMIN,   "SYS_ADMIN"},
+    {UserRole::APPROVER,    "APPROVER"},
 })
 
 /** 审批类型 */

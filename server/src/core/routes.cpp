@@ -145,10 +145,11 @@ void registerRoutes(RailwayServer& server) {
             // 生成 JWT token（30 分钟有效期）
             std::string role_str;
             switch (user->role) {
-                case UserRole::ADMIN:     role_str = "ADMIN"; break;
-                case UserRole::STAFF:     role_str = "STAFF"; break;
-                case UserRole::APPROVER:  role_str = "APPROVER"; break;
-                case UserRole::PASSENGER: role_str = "PASSENGER"; break;
+                case UserRole::SYS_ADMIN:   role_str = "SYS_ADMIN"; break;
+                case UserRole::INFRA_ADMIN: role_str = "INFRA_ADMIN"; break;
+                case UserRole::STAFF:       role_str = "STAFF"; break;
+                case UserRole::APPROVER:    role_str = "APPROVER"; break;
+                case UserRole::PASSENGER:   role_str = "PASSENGER"; break;
             }
             std::string token = JwtService::instance().generateToken(
                 user->id, role_str, 1800);

@@ -20,8 +20,6 @@ void RbacMiddleware::initialize() {
     // ── 铁路职工（普通员工）— 增删改列车，不可审批 ──
     PermissionSet staff = passenger;
     staff.set(static_cast<size_t>(Permission::MANAGE_TRAINS));
-    staff.set(static_cast<size_t>(Permission::MANAGE_STATIONS));
-    staff.set(static_cast<size_t>(Permission::MANAGE_LINES));
     role_permissions_["STAFF"] = staff;
 
     // ── 审批职工 — 审批通过/驳回，不可增删改列车 ──
@@ -29,16 +27,21 @@ void RbacMiddleware::initialize() {
     approver.set(static_cast<size_t>(Permission::APPROVE));
     role_permissions_["APPROVER"] = approver;
 
-    // ── 管理员 — 继承职工 + 审批职工 + 管理权限 ──
-    PermissionSet admin = staff;
-    admin.set(static_cast<size_t>(Permission::APPROVE));
-    admin.set(static_cast<size_t>(Permission::MANAGE_USERS));
-    admin.set(static_cast<size_t>(Permission::VIEW_AUDIT));
-    admin.set(static_cast<size_t>(Permission::SYSTEM_CONFIG));
-    role_permissions_["ADMIN"] = admin;
+    // ── 基础设施管理员 — 站点/线路管理，不管理列车不审批 ──
+    PermissionSet infra_admin = passenger;
+    infra_admin.set(static_cast<size_t>(Permission::MANAGE_STATIONS));
+    infra_admin.set(static_cast<size_t>(Permission::MANAGE_LINES));
+    role_permissions_["INFRA_ADMIN"] = infra_admin;
+
+    // ── 系统管理员 — 用户/审计/配置，不管理列车不审批 ──
+    PermissionSet sys_admin = passenger;
+    sys_admin.set(static_cast<size_t>(Permission::MANAGE_USERS));
+    sys_admin.set(static_cast<size_t>(Permission::VIEW_AUDIT));
+    sys_admin.set(static_cast<size_t>(Permission::SYSTEM_CONFIG));
+    role_permissions_["SYS_ADMIN"] = sys_admin;
 
     initialized_ = true;
-    Logger::instance().info("RBAC middleware initialized: 4 roles, 11 permissions");
+    Logger::instance().info("RBAC middleware initialized: 5 roles, 11 permissions");
 }
 
 std::optional<AuthContext> RbacMiddleware::authenticate(const std::string& auth_header) {

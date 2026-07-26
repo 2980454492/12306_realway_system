@@ -148,16 +148,25 @@ const U = {
       b.style.display = State.user ? '' : 'none';
     // 按角色显示职工菜单
     var role = State.user ? State.user.role : '';
-    var isStaff = (role === 'STAFF' || role === 'ADMIN');       // 列车管理
-    var isApprover = (role === 'APPROVER' || role === 'ADMIN'); // 审批中心
+    var isStaff = (role === 'STAFF');                          // 列车管理
+    var isApprover = (role === 'APPROVER');                    // 审批中心
+    var isSysAdmin = (role === 'SYS_ADMIN');                   // 用户管理/审计/配置
+    var isInfraAdmin = (role === 'INFRA_ADMIN');               // 站点/线路管理
     var items = document.querySelectorAll('.staff-only');
     for (var i = 0; i < items.length; i++) {
       var page = items[i].getAttribute('data-page');
       if (page === 'trains' || page === 'my-submissions')
         items[i].style.display = isStaff ? '' : 'none';
-      else if (page === 'approvals') items[i].style.display = isApprover ? '' : 'none';
-      else items[i].style.display = (isStaff || isApprover) ? '' : 'none';
+      else if (page === 'approvals')
+        items[i].style.display = isApprover ? '' : 'none';
+      else if (page === 'users')
+        items[i].style.display = isSysAdmin ? '' : 'none';
+      else
+        items[i].style.display = (isStaff || isApprover) ? '' : 'none';
     }
+    var infraItems = document.querySelectorAll('.infra-only');
+    for (var j = 0; j < infraItems.length; j++)
+      infraItems[j].style.display = isInfraAdmin ? '' : 'none';
     var divider = document.querySelector('.sidebar-divider');
     if (divider)
       divider.style.display = (isStaff || isApprover) ? '' : 'none';
@@ -259,9 +268,14 @@ const UI = {
 
   navTo: function(name, data) {
     var role = State.user ? State.user.role : '';
-    if ((name === 'trains' || name === 'my-submissions' || name === 'add-train')
-      && role !== 'STAFF' && role !== 'ADMIN') return;
-    if (name === 'approvals' && role !== 'APPROVER' && role !== 'ADMIN')
+    var isStaff = (role === 'STAFF');
+    var isApprover = (role === 'APPROVER');
+    var isSysAdmin = (role === 'SYS_ADMIN');
+    if ((name === 'trains' || name === 'my-submissions' || name === 'add-train') && !isStaff)
+      return;
+    if (name === 'approvals' && !isApprover)
+      return;
+    if (name === 'users' && !isSysAdmin)
       return;
     if (name === 'order-form' && data)
       State.selectedTrain = data;
