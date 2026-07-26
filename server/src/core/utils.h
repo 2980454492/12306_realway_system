@@ -139,6 +139,24 @@ inline double pricePerKm(const std::string& train_id, SeatType seat) {
     return SystemConfig::instance().ratePerKm(train_id, seat);
 }
 
+/** UserRole → 字符串（供审计日志、登录等） */
+inline std::string roleToString(UserRole r) {
+    switch (r) {
+        case UserRole::PASSENGER:   return "PASSENGER";
+        case UserRole::STAFF:       return "STAFF";
+        case UserRole::APPROVER:    return "APPROVER";
+        case UserRole::INFRA_ADMIN: return "INFRA_ADMIN";
+        case UserRole::SYS_ADMIN:   return "SYS_ADMIN";
+    }
+    return "UNKNOWN";
+}
+
+/** 字符串 → UserRole（利用 NLOHMANN 宏注册的反序列化） */
+inline UserRole roleFromString(const std::string& s) {
+    try { return nlohmann::json(s).get<UserRole>(); }
+    catch (...) { return UserRole::PASSENGER; }
+}
+
 /** 每公里费率参考默认值（元）— 已由 SystemConfig 管理，此常量仅作参考 */
 inline constexpr double BASE_RATE_PER_KM = 0.30;
 

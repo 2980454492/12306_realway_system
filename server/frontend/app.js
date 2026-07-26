@@ -2491,7 +2491,6 @@ const UI = {
     tbl.innerHTML = '<thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>';
     var tbody = document.createElement('tbody');
     var tpl = U.$('tpl-user-row');
-    var currentId = State.user ? State.user.id : '';
     for (var i = 0; i < users.length; i++) {
       var u = users[i];
       var row = tpl.content.cloneNode(true);
@@ -2610,19 +2609,15 @@ const UI = {
     UI._cfgRates = c.rates || {};
 
     // 构建费率矩阵表格
-    var prefixes = ['G','D','C','Z','T','K','*'];
-    var seats = ['BUSINESS','FIRST','SECOND','HARD_SLEEPER','HARD_SEAT','NO_SEAT'];
-    var seatLabels = ['商务座','一等座','二等座','硬卧','硬座','无座'];
-    var prefixLabels = {G:'G 高铁',D:'D 动车',C:'C 城际',Z:'Z 直达',T:'T 特快',K:'K 快速','*':'其他'};
+    var pre = UI._ratePrefixes, seats = UI._rateSeats;
     var tbody = U.$('cfg-rate-table').querySelector('tbody');
     tbody.innerHTML = '';
-    for (var pi = 0; pi < prefixes.length; pi++) {
-      var p = prefixes[pi];
+    for (var pi = 0; pi < pre.length; pi++) {
+      var p = pre[pi];
       var row = document.createElement('tr');
-      row.innerHTML = '<td style="font-weight:600;color:#e0e0e0">' + (prefixLabels[p] || p) + '</td>';
+      row.innerHTML = '<td style="font-weight:600;color:#e0e0e0">' + (UI._ratePrefixLabels[p] || p) + '</td>';
       for (var si = 0; si < seats.length; si++) {
         var rate = (UI._cfgRates[p] && UI._cfgRates[p][seats[si]]) || 0;
-        var rateStr = rate > 0 ? rate.toFixed(2) : '—';
         var id = 'cfg-r-' + p + '-' + seats[si];
         row.innerHTML += '<td><input id="' + id + '" type="number" step="0.01" min="0" max="10"'
           + ' value="' + rate + '" style="width:72px;padding:4px;background:#0a0a1e;border:1px solid #0f3460;'
@@ -2634,15 +2629,7 @@ const UI = {
     // 动态生成示例
     var gRate = (UI._cfgRates['G'] && UI._cfgRates['G']['SECOND']) || 0.46;
     var kRate = (UI._cfgRates['K'] && UI._cfgRates['K']['HARD_SEAT']) || 0.06;
-    var exG = (170 * gRate).toFixed(2);
-    var exK = (170 * kRate).toFixed(2);
-    U.$('cfg-example').innerHTML =
-      '例：G2492 呼市→包头 170km 二等座<br>'
-      + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span id="cfg-ex-gr" style="color:#00ff88">' + gRate.toFixed(2) + '</span> × 1'
-      + ' = <span style="color:#e94560">¥' + exG + '</span><br>'
-      + '例：K7901 同程 硬座<br>'
-      + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span style="color:#ffaa00">' + kRate.toFixed(2) + '</span> × 1'
-      + ' = <span style="color:#e94560">¥' + exK + '</span>';
+    UI._renderConfigExample(gRate, kRate);
 
     U.$('cfg-refund-24h').value = c.refund_rate_24h || 0.95;
     U.$('cfg-refund-2-24h').value = c.refund_rate_2_24h || 0.90;
@@ -2651,15 +2638,13 @@ const UI = {
   },
 
   saveConfig: async function() {
-    var prefixes = ['G','D','C','Z','T','K','*'];
-    var seats = ['BUSINESS','FIRST','SECOND','HARD_SLEEPER','HARD_SEAT','NO_SEAT'];
+    var pre = UI._ratePrefixes, seats = UI._rateSeats;
     var rates = {};
-    for (var pi = 0; pi < prefixes.length; pi++) {
-      var p = prefixes[pi];
+    for (var pi = 0; pi < pre.length; pi++) {
+      var p = pre[pi];
       rates[p] = {};
       for (var si = 0; si < seats.length; si++) {
-        var id = 'cfg-r-' + p + '-' + seats[si];
-        var el = document.getElementById(id);
+        var el = document.getElementById('cfg-r-' + p + '-' + seats[si]);
         rates[p][seats[si]] = el ? (parseFloat(el.value) || 0) : 0;
       }
     }
@@ -2673,16 +2658,9 @@ const UI = {
     if (res.ok) {
       U.toast('配置已保存，即时生效', 'success');
       UI._cfgRates = rates;
-      // 更新示例
       var gRate = (rates['G'] && rates['G']['SECOND']) || 0.46;
       var kRate = (rates['K'] && rates['K']['HARD_SEAT']) || 0.06;
-      U.$('cfg-example').innerHTML =
-        '例：G2492 呼市→包头 170km 二等座<br>'
-        + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span style="color:#00ff88">' + gRate.toFixed(2) + '</span> × 1'
-        + ' = <span style="color:#e94560">¥' + (170 * gRate).toFixed(2) + '</span><br>'
-        + '例：K7901 同程 硬座<br>'
-        + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span style="color:#ffaa00">' + kRate.toFixed(2) + '</span> × 1'
-        + ' = <span style="color:#e94560">¥' + (170 * kRate).toFixed(2) + '</span>';
+      UI._renderConfigExample(gRate, kRate);
     } else {
       U.toast((res.data && res.data.error) || '保存失败', 'error');
     }

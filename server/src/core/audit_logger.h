@@ -75,7 +75,8 @@ private:
     ~AuditLogger();
 
     void writerLoop();
-    std::string computeHash(const std::string& data, const std::string& prev_hash);
+    void processRecord(AuditRecord& record);
+    static std::string auditDataStr(const AuditRecord& r);
 
     mutable std::mutex mutex_;
     std::queue<AuditRecord> queue_;
@@ -84,6 +85,7 @@ private:
     std::unique_ptr<std::thread> writer_thread_;
 
     std::string file_path_;
+    std::ofstream file_;     // 持久文件句柄，初始化时打开
     std::string last_hash_;  // 上一条记录的哈希链
     std::vector<AuditRecord> records_;  // 已持久化的记录（供查询）
 };

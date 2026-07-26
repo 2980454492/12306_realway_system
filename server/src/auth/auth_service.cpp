@@ -22,18 +22,6 @@ using json = nlohmann::json;
 
 namespace {
 
-// 角色 → 字符串
-std::string roleToString(UserRole r) {
-    switch (r) {
-        case UserRole::PASSENGER:   return "PASSENGER";
-        case UserRole::STAFF:       return "STAFF";
-        case UserRole::APPROVER:    return "APPROVER";
-        case UserRole::INFRA_ADMIN: return "INFRA_ADMIN";
-        case UserRole::SYS_ADMIN:   return "SYS_ADMIN";
-    }
-    return "UNKNOWN";
-}
-
 // 用 argon2id 哈希密码，自动生成独立 salt
 std::string hashPassword(const std::string& password) {
     char hash[crypto_pwhash_STRBYTES];

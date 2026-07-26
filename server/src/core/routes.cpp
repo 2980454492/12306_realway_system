@@ -337,11 +337,7 @@ void registerRoutes(RailwayServer& server) {
                 return;
             }
 
-            UserRole role = UserRole::PASSENGER;
-            if (role_str == "STAFF") role = UserRole::STAFF;
-            else if (role_str == "APPROVER") role = UserRole::APPROVER;
-            else if (role_str == "INFRA_ADMIN") role = UserRole::INFRA_ADMIN;
-            else if (role_str == "SYS_ADMIN") role = UserRole::SYS_ADMIN;
+            UserRole role = roleFromString(role_str);
 
             auto user = AuthService::instance().createUser(username, password, role);
             if (!user) {
@@ -379,14 +375,8 @@ void registerRoutes(RailwayServer& server) {
             json body = json::parse(req.body);
 
             std::optional<UserRole> role;
-            if (body.contains("role")) {
-                std::string role_str = body["role"];
-                if (role_str == "PASSENGER") role = UserRole::PASSENGER;
-                else if (role_str == "STAFF") role = UserRole::STAFF;
-                else if (role_str == "APPROVER") role = UserRole::APPROVER;
-                else if (role_str == "INFRA_ADMIN") role = UserRole::INFRA_ADMIN;
-                else if (role_str == "SYS_ADMIN") role = UserRole::SYS_ADMIN;
-            }
+            if (body.contains("role"))
+                role = roleFromString(body["role"]);
 
             std::optional<bool> active;
             if (body.contains("active"))
@@ -525,12 +515,7 @@ void registerRoutes(RailwayServer& server) {
                     if (prefix_key.size() != 1) continue;
                     char prefix = prefix_key[0];
                     for (const auto& [seat_key, rate_val] : seat_obj.items()) {
-                        SeatType st = SeatType::SECOND;
-                        if (seat_key == "BUSINESS") st = SeatType::BUSINESS;
-                        else if (seat_key == "FIRST") st = SeatType::FIRST;
-                        else if (seat_key == "HARD_SLEEPER") st = SeatType::HARD_SLEEPER;
-                        else if (seat_key == "HARD_SEAT") st = SeatType::HARD_SEAT;
-                        else if (seat_key == "NO_SEAT") st = SeatType::NO_SEAT;
+                        SeatType st = nlohmann::json(seat_key).get<SeatType>();
                         cfg.setRate(prefix, st, rate_val.get<double>());
                     }
                 }
