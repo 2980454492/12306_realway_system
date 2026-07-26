@@ -10,10 +10,10 @@
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-// 列车类型前缀：G,D,C,Z,T,K,其他(7个)
+/** 列车类型前缀：G,D,C,Z,T,K,其他(7个) */
 static const char PREFIXES[] = {'G','D','C','Z','T','K','*'};
 
-// 席位类型：6 个
+/** 席位类型映射表：枚举值到 JSON 键名 (6个) */
 static const std::pair<SeatType, const char*> SEATS[] = {
     {SeatType::BUSINESS,     "BUSINESS"},
     {SeatType::FIRST,        "FIRST"},

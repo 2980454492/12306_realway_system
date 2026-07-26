@@ -771,7 +771,9 @@ void registerRoutes(RailwayServer& server) {
                 while (std::getline(iss, token, ',')) {
                     try {
                         target_ids.push_back(static_cast<uint32_t>(std::stoul(token)));
-                    } catch (...) { /* 跳过无效 ID */ }
+                    } catch (...) {
+                        // 跳过无效 ID
+                    }
                 }
             }
             if (target_ids.empty()) {

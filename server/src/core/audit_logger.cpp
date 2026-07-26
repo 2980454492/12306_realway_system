@@ -16,6 +16,7 @@ using json = nlohmann::json;
 
 namespace {
 
+/** SHA256 哈希，返回 hex 字符串 */
 std::string sha256Hex(const std::string& input) {
     unsigned char hash[crypto_hash_sha256_BYTES];
     crypto_hash_sha256(hash,

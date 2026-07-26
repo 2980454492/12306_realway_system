@@ -255,7 +255,7 @@ TrainManager::DeleteResult TrainManager::deleteTrain(const std::string& train_id
         return result;
     }
 
-    // TODO: 检查未出发已售车票（需要 OrderService 暴露跨用户查询接口）
+    // 未出发已售车票检查待后续版本实现（需 OrderService 暴露跨用户查询接口）
 
     removeFromOccupancy(*train);
     ds.removeTrain(train_id);
