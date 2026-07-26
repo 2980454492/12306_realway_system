@@ -1,0 +1,6 @@
+{
+  "base_rate_per_km": 0.3,
+  "refund_rate_24h": 0.95,
+  "refund_rate_2_24h": 0.9,
+  "refund_rate_2h": 0.8
+}

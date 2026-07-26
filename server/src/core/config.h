@@ -45,5 +45,7 @@ constexpr const char* SERVER_LOG_FILE          = "data/server.log";
 constexpr const char* WAL_FILE                 = "data/wal.log";
 /** 审计日志（链式 SHA256） */
 constexpr const char* AUDIT_LOG_FILE           = "data/audit.log";
+/** 系统配置（票价倍率、退票费率） */
+constexpr const char* SYSTEM_CONFIG_FILE       = "config/system.json";
 
 }  // namespace config

@@ -86,6 +86,9 @@
       <a class="sidebar-item staff-only" data-page="audit" style="display:none" onclick="UI.navTo('audit')">
         <span class="sidebar-icon">📊</span> 审计日志
       </a>
+      <a class="sidebar-item staff-only" data-page="config" style="display:none" onclick="UI.navTo('config')">
+        <span class="sidebar-icon">⚙️</span> 系统配置
+      </a>
 
     </div>
   </aside>
@@ -430,6 +433,72 @@
       <div id="approvals-list"></div>
     </section>
 
+    <!-- ═══ 系统配置页（SYS_ADMIN）═══ -->
+    <section id="page-config" class="page">
+      <h2>系统配置</h2>
+      <div style="background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:16px;margin-bottom:20px;font-size:13px;color:#a0a0b0;line-height:1.8">
+        <strong style="color:#53a8ff">📐 票价计算公式</strong><br>
+        <span style="font-family:monospace;font-size:14px;color:#e0e0e0">
+          票价 = 里程(km) × <span style="color:#ffaa00">基础费率</span> × <span style="color:#00ff88">列车倍率</span> × <span style="color:#53a8ff">席位倍率</span> × 张数<br>
+        </span>
+        <span id="cfg-example" style="font-family:monospace;color:#707090"></span>
+        <div style="margin-top:8px;font-size:11px;color:#707090">
+          💡 G/D/C 高速列车倍率较高，K/T/Z 普速列车较低；席位倍率以二等座为 1.0 基准
+        </div>
+      </div>
+      <div id="config-loading" class="loading" style="display:none">加载中…</div>
+      <div id="config-form" style="display:none">
+        <div class="form-card">
+          <h3>基础费率</h3>
+          <div class="form-group">
+            <label>每公里基础费率（元/km）</label>
+            <input id="cfg-base-rate" type="number" step="0.01" min="0.01" max="10" class="input">
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>席位倍率</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group"><label>商务座</label><input id="cfg-seat-business" type="number" step="0.1" min="0.1" max="20" class="input"></div>
+            <div class="form-group"><label>一等座</label><input id="cfg-seat-first" type="number" step="0.1" min="0.1" max="20" class="input"></div>
+            <div class="form-group"><label>二等座</label><input id="cfg-seat-second" type="number" step="0.1" min="0.1" max="20" class="input"></div>
+            <div class="form-group"><label>硬卧</label><input id="cfg-seat-hard-sleeper" type="number" step="0.1" min="0.1" max="20" class="input"></div>
+            <div class="form-group"><label>硬座</label><input id="cfg-seat-hard-seat" type="number" step="0.1" min="0.1" max="20" class="input"></div>
+            <div class="form-group"><label>无座</label><input id="cfg-seat-no-seat" type="number" step="0.1" min="0.1" max="20" class="input"></div>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>列车速度等级倍率</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div class="form-group"><label>G 高铁</label><input id="cfg-train-g" type="number" step="0.01" min="0.01" max="10" class="input"></div>
+            <div class="form-group"><label>D 动车</label><input id="cfg-train-d" type="number" step="0.01" min="0.01" max="10" class="input"></div>
+            <div class="form-group"><label>C 城际</label><input id="cfg-train-c" type="number" step="0.01" min="0.01" max="10" class="input"></div>
+            <div class="form-group"><label>Z 直达特快</label><input id="cfg-train-z" type="number" step="0.01" min="0.01" max="10" class="input"></div>
+            <div class="form-group"><label>T 特快</label><input id="cfg-train-t" type="number" step="0.01" min="0.01" max="10" class="input"></div>
+            <div class="form-group"><label>K 快速</label><input id="cfg-train-k" type="number" step="0.01" min="0.01" max="10" class="input"></div>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>退票费率</h3>
+          <div class="form-group">
+            <label>发车前 &gt;24 小时退票费率</label>
+            <input id="cfg-refund-24h" type="number" step="0.01" min="0" max="1" class="input">
+          </div>
+          <div class="form-group">
+            <label>发车前 2-24 小时退票费率</label>
+            <input id="cfg-refund-2-24h" type="number" step="0.01" min="0" max="1" class="input">
+          </div>
+          <div class="form-group">
+            <label>发车前 &lt;2 小时退票费率</label>
+            <input id="cfg-refund-2h" type="number" step="0.01" min="0" max="1" class="input">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn btn-primary" onclick="UI.saveConfig()">保存配置</button>
+          <button class="btn" onclick="UI.loadConfig()">重置</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ═══ 审计日志页（SYS_ADMIN）═══ -->
     <section id="page-audit" class="page">
       <h2>审计日志 <span id="audit-chain-status" style="font-size:13px;margin-left:12px"></span></h2>
@@ -576,6 +645,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=20260726c"></script>
+<script src="/app.js?v=20260726e"></script>
 </body>
 </html>

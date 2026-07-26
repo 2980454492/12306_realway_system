@@ -14,6 +14,7 @@
 #include "core/utils.h"
 #include "core/wal_writer.h"
 #include "core/audit_logger.h"
+#include "core/system_config.h"
 
 #include <nlohmann/json.hpp>
 
@@ -480,6 +481,79 @@ void registerRoutes(RailwayServer& server) {
             j["total"] = records.size();
             j["verified"] = AuditLogger::instance().verifyChain();
             j["data"] = arr;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    // ── GET/PUT /api/admin/config — 系统配置（SYS_ADMIN）──
+    app.Get("/api/admin/config", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::SYSTEM_CONFIG);
+            if (!ctx) return;
+
+            json j;
+            j["ok"] = true;
+            j["data"] = json::parse(SystemConfig::instance().toJson());
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j;
+            j["ok"] = false;
+            j["error"] = e.what();
+            res.set_content(j.dump(), "application/json");
+            res.status = 500;
+        }
+    });
+
+    app.Put("/api/admin/config", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::SYSTEM_CONFIG);
+            if (!ctx) return;
+
+            json body = json::parse(req.body);
+            auto& cfg = SystemConfig::instance();
+
+            if (body.contains("base_rate_per_km"))
+                cfg.setBaseRatePerKm(body["base_rate_per_km"].get<double>());
+            if (body.contains("seat_rate_business") && body.contains("seat_rate_first")
+                && body.contains("seat_rate_second")) {
+                cfg.setSeatRates(
+                    body["seat_rate_business"].get<double>(),
+                    body["seat_rate_first"].get<double>(),
+                    body["seat_rate_second"].get<double>(),
+                    body.value("seat_rate_hard_sleeper", 0.8),
+                    body.value("seat_rate_hard_seat", 0.4),
+                    body.value("seat_rate_no_seat", 0.3));
+            }
+            if (body.contains("train_rate_g") && body.contains("train_rate_d")
+                && body.contains("train_rate_c")) {
+                cfg.setTrainRates(
+                    body["train_rate_g"].get<double>(),
+                    body["train_rate_d"].get<double>(),
+                    body["train_rate_c"].get<double>(),
+                    body.value("train_rate_z", 0.65),
+                    body.value("train_rate_t", 0.50),
+                    body.value("train_rate_k", 0.40));
+            }
+            if (body.contains("refund_rate_24h") && body.contains("refund_rate_2_24h")
+                && body.contains("refund_rate_2h")) {
+                cfg.setRefundRates(
+                    body["refund_rate_24h"].get<double>(),
+                    body["refund_rate_2_24h"].get<double>(),
+                    body["refund_rate_2h"].get<double>());
+            }
+
+            AuditLogger::instance().log(ctx->user_id, ctx->role, "CONFIG_UPDATE",
+                "system", body.dump(), "success");
+
+            json j;
+            j["ok"] = true;
+            j["data"] = json::parse(cfg.toJson());
             res.set_content(j.dump(), "application/json");
         } catch (const std::exception& e) {
             json j;

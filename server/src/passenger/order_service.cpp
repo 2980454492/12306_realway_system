@@ -6,6 +6,7 @@
 #include "core/utils.h"
 #include "core/logger.h"
 #include "core/wal_writer.h"
+#include "core/system_config.h"
 
 #include <nlohmann/json.hpp>
 
@@ -26,15 +27,15 @@ namespace {
 
 // 根据距发车时间计算退票费率：>24h→95%, 2-24h→90%, <2h→80%
 double calcRefund(const std::string& date, int departure_hhmm) {
+    auto& cfg = SystemConfig::instance();
     // 非今天的票（未来），距发车 >24 小时，最高费率
-    if (!isToday(date)) return 0.95;
+    if (!isToday(date)) return cfg.refundRate24h();
 
-    // 今天的票，按时距计算（已发车由 refundOrder 提前拦截）
     int minutes_before = timeDiff(nowHHMM(), departure_hhmm);
 
-    if (minutes_before < 120) return 0.80;        // 2 小时内
-    if (minutes_before < 1440) return 0.90;       // 2-24 小时
-    return 0.95;                                   // 24 小时以上
+    if (minutes_before < 120) return cfg.refundRate2h();
+    if (minutes_before < 1440) return cfg.refundRate2_24h();
+    return cfg.refundRate24h();
 }
 }
 
@@ -188,7 +189,9 @@ OrderService::OrderResult OrderService::createOrder(
     order.to_station = to_station;
     order.seat_type = seat_type;
     order.seat_number = reservation.seat_numbers.empty() ? 0 : reservation.seat_numbers[0];
-    order.price = trip_km * BASE_RATE_PER_KM * seatPriceMultiplier(seat_type) * count;
+    order.price = trip_km * SystemConfig::instance().baseRatePerKm()
+                * trainSpeedMultiplier(train_id)
+                * seatPriceMultiplier(seat_type) * count;
     order.status = OrderStatus::PAID;
     order.created_at = nowIso();
     order.passenger_name = passenger_name;

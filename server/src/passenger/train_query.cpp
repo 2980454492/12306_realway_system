@@ -3,6 +3,7 @@
 #include "data/data_store.h"
 #include "passenger/seat_inventory.h"
 #include "core/config.h"
+#include "core/system_config.h"
 #include "core/utils.h"
 #include "core/logger.h"
 
@@ -82,9 +83,11 @@ std::optional<StationTrainIndex> loadIndex(const std::string& path, DataStore& d
 
 // ── 工具函数 ──
 
-/** 计算票价（元），基准为二等座每公里费率 */
-double calcPrice(double distance_km, SeatType seat_type) {
-    return distance_km * BASE_RATE_PER_KM * seatPriceMultiplier(seat_type);
+/** 计算票价：里程 × 基础费率 × 列车速度费率 × 席位费率 */
+double calcPrice(double distance_km, const std::string& train_id, SeatType seat_type) {
+    return distance_km * SystemConfig::instance().baseRatePerKm()
+          * trainSpeedMultiplier(train_id)
+          * seatPriceMultiplier(seat_type);
 }
 
 /** 查某车次从 from 站到 to 站的可用座位（仅查数量，不锁定） */
@@ -199,7 +202,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
 
             double trip_km = calcRouteDistance(*train, from_station, to_station, ds);
             item.distance_km = trip_km;
-            item.price = calcPrice(trip_km, SeatType::SECOND);
+            item.price = calcPrice(trip_km, train->id, SeatType::SECOND);
 
             item.available_seats = getAvailableSeats(train->id, date);
 
@@ -280,9 +283,9 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                     double km1 = calcRouteDistance(*train1, from_station, transfer_id, ds);
                     double km2 = calcRouteDistance(*train2, transfer_id, to_station, ds);
                     item.distance_km = km1 + km2;
-                    item.price = calcPrice(km1 + km2, SeatType::SECOND);
-                    item.first_leg_price = calcPrice(km1, SeatType::SECOND);
-                    item.second_leg_price = calcPrice(km2, SeatType::SECOND);
+                    item.first_leg_price = calcPrice(km1, train1->id, SeatType::SECOND);
+                    item.second_leg_price = calcPrice(km2, train2->id, SeatType::SECOND);
+                    item.price = item.first_leg_price + item.second_leg_price;
                     item.first_leg_seats = getAvailableSeats(train1->id, date);
                     item.second_leg_seats = getAvailableSeats(train2->id, date);
 

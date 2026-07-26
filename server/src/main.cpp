@@ -15,6 +15,7 @@
 #include "staff/approval_service.h"
 #include "core/wal_writer.h"
 #include "core/audit_logger.h"
+#include "core/system_config.h"
 
 #include <nlohmann/json.hpp>
 
@@ -60,6 +61,9 @@ int main() {
 
     // ── 初始化 WAL 预写日志 ──
     WalWriter::instance().initialize(config::WAL_FILE);
+
+    // ── 初始化系统配置 ──
+    SystemConfig::instance().initialize(config::SYSTEM_CONFIG_FILE);
 
     // ── 初始化审计日志 ──
     AuditLogger::instance().initialize(config::AUDIT_LOG_FILE);
