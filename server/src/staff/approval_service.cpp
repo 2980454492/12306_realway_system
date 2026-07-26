@@ -86,7 +86,7 @@ void ApprovalService::archivePendingTrain(const ApprovalRequest& req) {
     try {
         json payload = json::parse(req.payload);
         std::string tid = payload.value("id", "");
-        auto* train = const_cast<Train*>(DataStore::instance().getTrain(tid));
+        auto* train = DataStore::instance().getTrainMutable(tid);
         if (train && train->status == TrainStatus::PENDING) {
             train->status = TrainStatus::ARCHIVED;
             DataStore::instance().saveTrains();
@@ -140,7 +140,7 @@ ApprovalService::ApproveResult ApprovalService::approve(
 
         if (it->type == ApprovalType::CREATE_TRAIN) {
             // 列车已在提交时写入 DataStore（PENDING），审批通过 → 改为 ACTIVE + 入占用
-            auto* train = const_cast<Train*>(ds.getTrain(tid));
+            auto* train = ds.getTrainMutable(tid);
             if (!train) {
                 cas_lock_.clear();
                 result.error = "列车 " + tid + " 不存在（可能已被删除）";

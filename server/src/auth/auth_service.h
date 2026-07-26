@@ -54,8 +54,11 @@ public:
     /** 按 ID 查找 */
     const User* findUserById(const std::string& id) const;
 
-    /** 所有用户列表 */
-    const std::vector<User>& getAllUsers() const { return users_; }
+    /** 所有用户列表（返回副本，线程安全） */
+    std::vector<User> getAllUsers() const {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return users_;
+    }
 
 private:
     AuthService() = default;

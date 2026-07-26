@@ -63,6 +63,12 @@ const Train* DataStore::getTrain(const std::string& id) const {
     return &trains_[it->second];
 }
 
+Train* DataStore::getTrainMutable(const std::string& id) {
+    auto it = train_index_.find(id);
+    if (it == train_index_.end()) return nullptr;
+    return &trains_[it->second];
+}
+
 std::vector<const Train*> DataStore::getTrainsByStation(uint32_t station_id) const {
     std::vector<const Train*> result;
     for (const auto& train : trains_) {

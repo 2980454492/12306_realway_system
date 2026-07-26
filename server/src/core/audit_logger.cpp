@@ -123,7 +123,10 @@ void AuditLogger::processRecord(AuditRecord& record) {
         file_.flush();
     }
     last_hash_ = record.hash;
-    records_.push_back(record);
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        records_.push_back(record);
+    }
 }
 
 // ── 后台写入线程 ──
@@ -144,13 +147,15 @@ void AuditLogger::writerLoop() {
         processRecord(record);
     }
 
-    // 排空剩余队列
+    // 排空剩余队列（逐条取出后释放锁再处理，避免双锁）
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::mutex> lock(mutex_);
         while (!queue_.empty()) {
             auto record = std::move(queue_.front());
             queue_.pop();
+            lock.unlock();
             processRecord(record);
+            lock.lock();
         }
     }
 }

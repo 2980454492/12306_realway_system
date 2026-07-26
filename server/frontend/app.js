@@ -2252,7 +2252,7 @@ const UI = {
     var tstops = train ? (train.stops || []) : [];
     var tsegs = train ? (train.segments || []) : [];
     // 删除列车：payload 无 stops，从列车索引查找
-    if (a.type === 4 && !tstops.length) {
+    if (a.type === 4 /* DELETE_TRAIN */ && !tstops.length) {
       var cached = State._trainMap && State._trainMap[tid];
       if (cached) {
         tstops = cached.stops || [];
@@ -2279,7 +2279,7 @@ const UI = {
       // 解析 payload 存起来供详情使用
       var info = UI._resolveApprovalPayload(a, i);
       // 卡片可点击查看详情（仅新增/删除列车有时刻表可展示）
-      var hasStops = (a.type === 0 || a.type === 4) || (info.tstops && info.tstops.length > 0);
+      var hasStops = (a.type === 0 /* CREATE_TRAIN */ || a.type === 4 /* DELETE_TRAIN */) || (info.tstops && info.tstops.length > 0);
       if (hasStops) {
         card.querySelector('.approval-card').onclick = (function(k) { return function() { UI.showSubmissionDetail(k); }; })(info.key);
         card.querySelector('.approval-card').style.cursor = 'pointer';
@@ -2596,7 +2596,20 @@ const UI = {
 
   // ── 系统配置（SYS_ADMIN）──
 
-  _cfgRates: {},  // 缓存当前费率矩阵
+  _cfgRates: {},
+  _ratePrefixes: ['G','D','C','Z','T','K','*'],
+  _rateSeats: ['BUSINESS','FIRST','SECOND','HARD_SLEEPER','HARD_SEAT','NO_SEAT'],
+  _ratePrefixLabels: {G:'G 高铁',D:'D 动车',C:'C 城际',Z:'Z 直达',T:'T 特快',K:'K 快速','*':'其他'},
+
+  _renderConfigExample: function(gRate, kRate) {
+    U.$('cfg-example').innerHTML =
+      '例：G2492 呼市→包头 170km 二等座<br>'
+      + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span style="color:#00ff88">' + gRate.toFixed(2) + '</span> × 1'
+      + ' = <span style="color:#e94560">¥' + (170 * gRate).toFixed(2) + '</span><br>'
+      + '例：K7901 同程 硬座<br>'
+      + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span style="color:#ffaa00">' + kRate.toFixed(2) + '</span> × 1'
+      + ' = <span style="color:#e94560">¥' + (170 * kRate).toFixed(2) + '</span>';
+  },
 
   loadConfig: async function() {
     var loadingEl = U.$('config-loading');
@@ -2697,7 +2710,7 @@ const UI = {
     var toFilter = U.$('audit-filter-to') ? U.$('audit-filter-to').value : '';
 
     var filtered = records.filter(function(r) {
-      if (userFilter && r.user_id.toLowerCase().indexOf(userFilter) < 0) return false;
+      if (userFilter && (r.user_id || '').toLowerCase().indexOf(userFilter) < 0) return false;
       if (actionFilter && r.action !== actionFilter) return false;
       if (fromFilter && r.timestamp < fromFilter) return false;
       if (toFilter && r.timestamp > toFilter + 'T23:59:59') return false;
@@ -2724,7 +2737,7 @@ const UI = {
       var resultTag = r.result === 'success'
         ? '<span class="tag tag-active">成功</span>'
         : '<span class="tag" style="background:#550000;color:#ff4444">失败</span>';
-      var timeShort = r.timestamp.replace('T', ' ').substring(0, 19);
+      var timeShort = (r.timestamp || '').replace('T', ' ').substring(0, 19);
       tr.innerHTML = '<td style="font-size:12px;color:#9090b0">' + timeShort + '</td>'
         + '<td style="font-size:13px">' + U.esc(r.user_id || '—') + '</td>'
         + '<td>' + (ACTION_LABEL[r.action] || r.action) + '</td>'

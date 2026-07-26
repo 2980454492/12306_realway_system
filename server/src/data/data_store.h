@@ -36,6 +36,7 @@ public:
 
     const Station* getStation(uint32_t id) const;
     const Train* getTrain(const std::string& id) const;
+    Train* getTrainMutable(const std::string& id);
 
     /** 按站点 ID 查找所有经过的列车（通过检查列车的停站序列） */
     std::vector<const Train*> getTrainsByStation(uint32_t station_id) const;

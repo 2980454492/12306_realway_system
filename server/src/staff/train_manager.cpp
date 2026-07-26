@@ -267,7 +267,7 @@ TrainManager::DeleteResult TrainManager::deleteTrain(const std::string& train_id
 bool TrainManager::adjustSchedule(const std::string& train_id, const std::vector<Stop>& new_stops) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto& ds = DataStore::instance();
-    auto* train = const_cast<Train*>(ds.getTrain(train_id));
+    auto* train = ds.getTrainMutable(train_id);
     if (!train) return false;
 
     removeFromOccupancy(*train);
@@ -281,7 +281,7 @@ TrainManager::UpdateResult TrainManager::updateTrain(const std::string& train_id
     UpdateResult result;
     std::lock_guard<std::mutex> lock(mutex_);
     auto& ds = DataStore::instance();
-    auto* train = const_cast<Train*>(ds.getTrain(train_id));
+    auto* train = ds.getTrainMutable(train_id);
     if (!train) {
         result.error = "列车 " + train_id + " 不存在";
         return result;
