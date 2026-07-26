@@ -189,9 +189,7 @@ OrderService::OrderResult OrderService::createOrder(
     order.to_station = to_station;
     order.seat_type = seat_type;
     order.seat_number = reservation.seat_numbers.empty() ? 0 : reservation.seat_numbers[0];
-    order.price = trip_km * SystemConfig::instance().baseRatePerKm()
-                * trainSpeedMultiplier(train_id)
-                * seatPriceMultiplier(seat_type) * count;
+    order.price = trip_km * pricePerKm(train_id, seat_type) * count;
     order.status = OrderStatus::PAID;
     order.created_at = nowIso();
     order.passenger_name = passenger_name;

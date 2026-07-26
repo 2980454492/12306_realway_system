@@ -10,14 +10,60 @@
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
+// 列车类型前缀：G,D,C,Z,T,K,其他(7个)
+static const char PREFIXES[] = {'G','D','C','Z','T','K','*'};
+
+// 席位类型：6 个
+static const std::pair<SeatType, const char*> SEATS[] = {
+    {SeatType::BUSINESS,     "BUSINESS"},
+    {SeatType::FIRST,        "FIRST"},
+    {SeatType::SECOND,       "SECOND"},
+    {SeatType::HARD_SLEEPER, "HARD_SLEEPER"},
+    {SeatType::HARD_SEAT,    "HARD_SEAT"},
+    {SeatType::NO_SEAT,      "NO_SEAT"},
+};
+
+int SystemConfig::seatIdx(SeatType s) { return static_cast<int>(s); }
+
+int SystemConfig::prefixIdx(char p) {
+    switch (p) {
+        case 'G': return 0; case 'D': return 1; case 'C': return 2;
+        case 'Z': return 3; case 'T': return 4; case 'K': return 5;
+        default:  return 6;
+    }
+}
+
+char SystemConfig::prefixChar(int idx) { return PREFIXES[idx]; }
+
+// ── 单例 ──
+
 SystemConfig& SystemConfig::instance() {
     static SystemConfig cfg;
     return cfg;
 }
 
+// ── 初始化 ──
+
 bool SystemConfig::initialize(const std::string& path) {
     std::lock_guard<std::mutex> lock(mutex_);
     file_path_ = path;
+
+    // 默认费率矩阵（元/km）——直观，无单位倍率
+    //             商务   一等   二等   硬卧   硬座   无座
+    // G 高铁
+    rates_[0][0]=1.20; rates_[0][1]=0.80; rates_[0][2]=0.46; rates_[0][3]=0; rates_[0][4]=0;    rates_[0][5]=0.20;
+    // D 动车
+    rates_[1][0]=0.80; rates_[1][1]=0.50; rates_[1][2]=0.31; rates_[1][3]=0; rates_[1][4]=0;    rates_[1][5]=0.15;
+    // C 城际
+    rates_[2][0]=0.90; rates_[2][1]=0.55; rates_[2][2]=0.35; rates_[2][3]=0; rates_[2][4]=0;    rates_[2][5]=0.15;
+    // Z 直达（普速，无商务/一等/二等）
+    rates_[3][0]=0;    rates_[3][1]=0;    rates_[3][2]=0;    rates_[3][3]=0.30; rates_[3][4]=0.12; rates_[3][5]=0.08;
+    // T 特快（普速，无商务/一等/二等）
+    rates_[4][0]=0;    rates_[4][1]=0;    rates_[4][2]=0;    rates_[4][3]=0.25; rates_[4][4]=0.08; rates_[4][5]=0.06;
+    // K 快速（普速，无商务/一等/二等）
+    rates_[5][0]=0;    rates_[5][1]=0;    rates_[5][2]=0;    rates_[5][3]=0.22; rates_[5][4]=0.06; rates_[5][5]=0.05;
+    // 其他（普速默认）
+    rates_[6][0]=0;    rates_[6][1]=0;    rates_[6][2]=0;    rates_[6][3]=0.25; rates_[6][4]=0.08; rates_[6][5]=0.06;
 
     if (!fs::exists(path)) {
         save();
@@ -29,22 +75,23 @@ bool SystemConfig::initialize(const std::string& path) {
         std::ifstream in(path);
         json j;
         in >> j;
-        base_rate_per_km_   = j.value("base_rate_per_km", 0.30);
-        seat_rate_business_  = j.value("seat_rate_business", 3.0);
-        seat_rate_first_     = j.value("seat_rate_first", 2.0);
-        seat_rate_second_    = j.value("seat_rate_second", 1.0);
-        seat_rate_hard_sleeper_ = j.value("seat_rate_hard_sleeper", 0.8);
-        seat_rate_hard_seat_ = j.value("seat_rate_hard_seat", 0.4);
-        seat_rate_no_seat_   = j.value("seat_rate_no_seat", 0.3);
-        train_rate_g_ = j.value("train_rate_g", 1.50);
-        train_rate_d_ = j.value("train_rate_d", 0.95);
-        train_rate_c_ = j.value("train_rate_c", 1.10);
-        train_rate_z_ = j.value("train_rate_z", 0.65);
-        train_rate_t_ = j.value("train_rate_t", 0.50);
-        train_rate_k_ = j.value("train_rate_k", 0.40);
+
+        if (j.contains("rates")) {
+            for (const auto& [prefix_key, seat_obj] : j["rates"].items()) {
+                if (prefix_key.size() != 1) continue;
+                int pi = prefixIdx(prefix_key[0]);
+                for (int si = 0; si < 6; ++si) {
+                    auto it = seat_obj.find(SEATS[si].second);
+                    if (it != seat_obj.end())
+                        rates_[pi][si] = it->get<double>();
+                }
+            }
+        }
+
         refund_rate_24h_   = j.value("refund_rate_24h", 0.95);
         refund_rate_2_24h_ = j.value("refund_rate_2_24h", 0.90);
         refund_rate_2h_    = j.value("refund_rate_2h", 0.80);
+
         Logger::instance().info("Loaded system config from " + path);
         return true;
     } catch (const std::exception& e) {
@@ -54,72 +101,56 @@ bool SystemConfig::initialize(const std::string& path) {
     }
 }
 
-// ── Getters ──
+// ── 查询 ──
 
-#define GETTER(name, field) \
-    double SystemConfig::name() const { std::lock_guard<std::mutex> l(mutex_); return field; }
+double SystemConfig::ratePerKm(const std::string& train_id, SeatType seat) const {
+    std::lock_guard<std::mutex> l(mutex_);
+    int pi = prefixIdx(train_id.empty() ? '*' : train_id[0]);
+    int si = seatIdx(seat);
+    return rates_[pi][si];
+}
 
-GETTER(baseRatePerKm,    base_rate_per_km_)
-GETTER(seatRateBusiness,  seat_rate_business_)
-GETTER(seatRateFirst,     seat_rate_first_)
-GETTER(seatRateSecond,    seat_rate_second_)
-GETTER(seatRateHardSleeper, seat_rate_hard_sleeper_)
-GETTER(seatRateHardSeat,  seat_rate_hard_seat_)
-GETTER(seatRateNoSeat,    seat_rate_no_seat_)
-GETTER(trainRateG, train_rate_g_)
-GETTER(trainRateD, train_rate_d_)
-GETTER(trainRateC, train_rate_c_)
-GETTER(trainRateZ, train_rate_z_)
-GETTER(trainRateT, train_rate_t_)
-GETTER(trainRateK, train_rate_k_)
-GETTER(refundRate24h,   refund_rate_24h_)
-GETTER(refundRate2_24h, refund_rate_2_24h_)
-GETTER(refundRate2h,    refund_rate_2h_)
+double SystemConfig::refundRate24h() const {
+    std::lock_guard<std::mutex> l(mutex_); return refund_rate_24h_;
+}
+double SystemConfig::refundRate2_24h() const {
+    std::lock_guard<std::mutex> l(mutex_); return refund_rate_2_24h_;
+}
+double SystemConfig::refundRate2h() const {
+    std::lock_guard<std::mutex> l(mutex_); return refund_rate_2h_;
+}
 
-#undef GETTER
+// ── 写入 ──
 
-// ── Setters ──
-
-void SystemConfig::setBaseRatePerKm(double rate) {
-    { std::lock_guard<std::mutex> l(mutex_); base_rate_per_km_ = rate; }
+void SystemConfig::setRate(char prefix, SeatType seat, double rate) {
+    {
+        std::lock_guard<std::mutex> l(mutex_);
+        rates_[prefixIdx(prefix)][seatIdx(seat)] = rate;
+    }
     save();
 }
-void SystemConfig::setSeatRates(double business, double first, double second,
-                                double hard_sleeper, double hard_seat, double no_seat) {
-    { std::lock_guard<std::mutex> l(mutex_);
-      seat_rate_business_ = business; seat_rate_first_ = first;
-      seat_rate_second_ = second; seat_rate_hard_sleeper_ = hard_sleeper;
-      seat_rate_hard_seat_ = hard_seat; seat_rate_no_seat_ = no_seat; }
-    save();
-}
-void SystemConfig::setTrainRates(double g, double d, double c, double z, double t, double k) {
-    { std::lock_guard<std::mutex> l(mutex_);
-      train_rate_g_ = g; train_rate_d_ = d; train_rate_c_ = c;
-      train_rate_z_ = z; train_rate_t_ = t; train_rate_k_ = k; }
-    save();
-}
+
 void SystemConfig::setRefundRates(double r24h, double r2_24h, double r2h) {
-    { std::lock_guard<std::mutex> l(mutex_);
-      refund_rate_24h_ = r24h; refund_rate_2_24h_ = r2_24h; refund_rate_2h_ = r2h; }
+    {
+        std::lock_guard<std::mutex> l(mutex_);
+        refund_rate_24h_ = r24h; refund_rate_2_24h_ = r2_24h; refund_rate_2h_ = r2h;
+    }
     save();
 }
 
 std::string SystemConfig::toJson() const {
     std::lock_guard<std::mutex> l(mutex_);
     json j;
-    j["base_rate_per_km"]   = base_rate_per_km_;
-    j["seat_rate_business"]  = seat_rate_business_;
-    j["seat_rate_first"]     = seat_rate_first_;
-    j["seat_rate_second"]    = seat_rate_second_;
-    j["seat_rate_hard_sleeper"] = seat_rate_hard_sleeper_;
-    j["seat_rate_hard_seat"] = seat_rate_hard_seat_;
-    j["seat_rate_no_seat"]   = seat_rate_no_seat_;
-    j["train_rate_g"] = train_rate_g_;
-    j["train_rate_d"] = train_rate_d_;
-    j["train_rate_c"] = train_rate_c_;
-    j["train_rate_z"] = train_rate_z_;
-    j["train_rate_t"] = train_rate_t_;
-    j["train_rate_k"] = train_rate_k_;
+
+    json rates_obj = json::object();
+    for (int pi = 0; pi < 7; ++pi) {
+        std::string key(1, PREFIXES[pi]);
+        json seat_obj = json::object();
+        for (int si = 0; si < 6; ++si)
+            seat_obj[SEATS[si].second] = rates_[pi][si];
+        rates_obj[key] = seat_obj;
+    }
+    j["rates"] = rates_obj;
     j["refund_rate_24h"]   = refund_rate_24h_;
     j["refund_rate_2_24h"] = refund_rate_2_24h_;
     j["refund_rate_2h"]    = refund_rate_2h_;

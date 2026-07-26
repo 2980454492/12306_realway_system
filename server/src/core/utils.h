@@ -132,38 +132,14 @@ inline double haversineDist(const Station& a, const Station& b) {
     return 2.0 * EARTH_RADIUS_KM * std::atan2(std::sqrt(h), std::sqrt(1.0 - h));
 }
 
-/** 席位票价倍率，从 SystemConfig 读取（运行时可变） */
-inline double seatPriceMultiplier(SeatType type) {
-    auto& cfg = SystemConfig::instance();
-    switch (type) {
-        case SeatType::BUSINESS:     return cfg.seatRateBusiness();
-        case SeatType::FIRST:        return cfg.seatRateFirst();
-        case SeatType::SECOND:       return cfg.seatRateSecond();
-        case SeatType::HARD_SLEEPER: return cfg.seatRateHardSleeper();
-        case SeatType::HARD_SEAT:    return cfg.seatRateHardSeat();
-        case SeatType::NO_SEAT:      return cfg.seatRateNoSeat();
-    }
-    return 1.0;
+/** 票价公式：总票价 = 里程 × 费率(列车类型, 席位) × 张数。
+ *  费率从 SystemConfig 查询，单位：元/km。
+ *  示例：G二等座=0.46元/km，K硬座=0.06元/km */
+inline double pricePerKm(const std::string& train_id, SeatType seat) {
+    return SystemConfig::instance().ratePerKm(train_id, seat);
 }
 
-/** 列车速度等级费率倍率（基于车次号前缀）。
- *  实际定价公式：总票价 = 里程 × 基础费率 × 列车倍率 × 席位倍率 × 张数
- *  G/D/C 高速/城际费率高于 K/T/Z 普速列车 */
-inline double trainSpeedMultiplier(const std::string& train_id) {
-    if (train_id.empty()) return 1.0;
-    auto& cfg = SystemConfig::instance();
-    switch (train_id[0]) {
-        case 'G': return cfg.trainRateG();   // 高铁
-        case 'D': return cfg.trainRateD();   // 动车
-        case 'C': return cfg.trainRateC();   // 城际
-        case 'Z': return cfg.trainRateZ();   // 直达特快
-        case 'T': return cfg.trainRateT();   // 特快
-        case 'K': return cfg.trainRateK();   // 快速
-        default:  return 1.0;                // 普速/临客
-    }
-}
-
-/** 二等座每公里基准费率（元）— 已由 SystemConfig 管理，此常量仅作默认值参考 */
+/** 每公里费率参考默认值（元）— 已由 SystemConfig 管理，此常量仅作参考 */
 inline constexpr double BASE_RATE_PER_KM = 0.30;
 
 /** 购票/查票最大提前天数（12306 为 15 天即 today+14） */

@@ -83,11 +83,9 @@ std::optional<StationTrainIndex> loadIndex(const std::string& path, DataStore& d
 
 // ── 工具函数 ──
 
-/** 计算票价：里程 × 基础费率 × 列车速度费率 × 席位费率 */
+/** 计算票价：里程 × 费率(列车类型, 席位) */
 double calcPrice(double distance_km, const std::string& train_id, SeatType seat_type) {
-    return distance_km * SystemConfig::instance().baseRatePerKm()
-          * trainSpeedMultiplier(train_id)
-          * seatPriceMultiplier(seat_type);
+    return distance_km * pricePerKm(train_id, seat_type);
 }
 
 /** 查某车次从 from 站到 to 站的可用座位（仅查数量，不锁定） */

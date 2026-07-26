@@ -1,5 +1,62 @@
 {
-  "base_rate_per_km": 0.3,
+  "rates": {
+    "*": {
+      "BUSINESS": 0.0,
+      "FIRST": 0.0,
+      "HARD_SEAT": 0.08,
+      "HARD_SLEEPER": 0.25,
+      "NO_SEAT": 0.06,
+      "SECOND": 0.0
+    },
+    "C": {
+      "BUSINESS": 0.9,
+      "FIRST": 0.65,
+      "HARD_SEAT": 0.0,
+      "HARD_SLEEPER": 0.0,
+      "NO_SEAT": 0.35,
+      "SECOND": 0.35
+    },
+    "D": {
+      "BUSINESS": 0.8,
+      "FIRST": 0.6,
+      "HARD_SEAT": 0.0,
+      "HARD_SLEEPER": 0.0,
+      "NO_SEAT": 0.35,
+      "SECOND": 0.35
+    },
+    "G": {
+      "BUSINESS": 1.0,
+      "FIRST": 0.7,
+      "HARD_SEAT": 0.0,
+      "HARD_SLEEPER": 0.0,
+      "NO_SEAT": 0.4,
+      "SECOND": 0.4
+    },
+    "K": {
+      "BUSINESS": 0.0,
+      "FIRST": 0.0,
+      "HARD_SEAT": 0.15,
+      "HARD_SLEEPER": 0.3,
+      "NO_SEAT": 0.15,
+      "SECOND": 0.0
+    },
+    "T": {
+      "BUSINESS": 0.0,
+      "FIRST": 0.0,
+      "HARD_SEAT": 0.15,
+      "HARD_SLEEPER": 0.3,
+      "NO_SEAT": 0.15,
+      "SECOND": 0.0
+    },
+    "Z": {
+      "BUSINESS": 0.0,
+      "FIRST": 0.0,
+      "HARD_SEAT": 0.15,
+      "HARD_SLEEPER": 0.3,
+      "NO_SEAT": 0.15,
+      "SECOND": 0.0
+    }
+  },
   "refund_rate_24h": 0.95,
   "refund_rate_2_24h": 0.9,
   "refund_rate_2h": 0.8

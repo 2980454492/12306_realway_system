@@ -27,8 +27,8 @@
     <h1>12306 铁路票务系统</h1>
     <p class="sub">Railway Ticketing System</p>
     <form id="login-form" onsubmit="Auth.login(event)" autocomplete="off">
-      <input type="text" id="login-username" placeholder="用户名" required autofocus autocomplete="username">
-      <input type="password" id="login-password" placeholder="密码" required autocomplete="current-password">
+      <input type="text" id="login-username" placeholder="用户名" required autofocus autocomplete="off" name="luser">
+      <input type="password" id="login-password" placeholder="密码" required autocomplete="off" name="lpass">
       <button type="submit" class="btn btn-primary btn-block">登 录</button>
       <p id="login-error" class="error-msg"></p>
     </form>
@@ -44,8 +44,8 @@
     <h1>注册账号</h1>
     <p class="sub">注册即获旅客权限</p>
     <form id="register-form" onsubmit="Auth.register(event)" autocomplete="off">
-      <input type="text" id="register-username" placeholder="用户名（至少3位）" required autocomplete="off">
-      <input type="password" id="register-password" placeholder="密码（至少6位）" required autocomplete="new-password">
+      <input type="text" id="register-username" placeholder="用户名（至少3位）" required autocomplete="off" name="ruser">
+      <input type="password" id="register-password" placeholder="密码（至少6位）" required autocomplete="off" name="rpass">
       <button type="submit" class="btn btn-primary btn-block">注 册</button>
       <p id="register-error" class="error-msg"></p>
     </form>
@@ -96,13 +96,20 @@
   <!-- 主内容区 -->
   <main id="main-content">
 
+    <!-- 浏览器自动填充陷阱：防止将登录凭据填入查票输入框 -->
+    <div style="position:absolute;left:-9999px;top:-9999px" aria-hidden="true">
+      <input type="text" name="fakeuser" autocomplete="off">
+      <input type="password" name="fakepass" autocomplete="off">
+    </div>
+
     <!-- ═══ 查票页 ═══ -->
     <section id="page-query" class="page active">
       <h2>列车余票查询</h2>
+      <form autocomplete="off" onsubmit="return false">
       <div class="search-bar">
-        <input type="text" id="query-from" placeholder="出发城市/车站" autocomplete="off">
+        <input type="text" id="query-from" placeholder="出发城市/车站" autocomplete="off" name="qfrom">
         <span class="arrow">→</span>
-        <input type="text" id="query-to" placeholder="到达城市/车站" autocomplete="off">
+        <input type="text" id="query-to" placeholder="到达城市/车站" autocomplete="off" name="qto">
         <datalist id="stations-datalist"></datalist>
         <input type="date" id="query-date">
         <select id="query-sort">
@@ -114,6 +121,7 @@
         </select>
         <button class="btn btn-primary" onclick="UI.queryTrains()">查询</button>
       </div>
+      </form>
       <div id="query-loading" class="loading" style="display:none">查询中…</div>
       <div id="query-error" class="error-msg"></div>
       <!-- 筛选栏 -->
@@ -439,7 +447,7 @@
       <div style="background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:16px;margin-bottom:20px;font-size:13px;color:#a0a0b0;line-height:1.8">
         <strong style="color:#53a8ff">📐 票价计算公式</strong><br>
         <span style="font-family:monospace;font-size:14px;color:#e0e0e0">
-          票价 = 里程(km) × <span style="color:#ffaa00">基础费率</span> × <span style="color:#00ff88">列车倍率</span> × <span style="color:#53a8ff">席位倍率</span> × 张数<br>
+          票价 = 里程(km) × <span style="color:#00ff88">费率(列车,席位)</span> × 张数<br>
         </span>
         <span id="cfg-example" style="font-family:monospace;color:#707090"></span>
         <div style="margin-top:8px;font-size:11px;color:#707090">
@@ -449,32 +457,15 @@
       <div id="config-loading" class="loading" style="display:none">加载中…</div>
       <div id="config-form" style="display:none">
         <div class="form-card">
-          <h3>基础费率</h3>
-          <div class="form-group">
-            <label>每公里基础费率（元/km）</label>
-            <input id="cfg-base-rate" type="number" step="0.01" min="0.01" max="10" class="input">
+          <h3>票价费率矩阵（元/km）<span style="font-weight:normal;font-size:12px;color:#707090;margin-left:8px">票价=里程×费率×张数</span></h3>
+          <div style="overflow-x:auto">
+            <table class="users-table" id="cfg-rate-table">
+              <thead><tr><th>列车/席位</th><th>商务座</th><th>一等座</th><th>二等座</th><th>硬卧</th><th>硬座</th><th>无座</th></tr></thead>
+              <tbody></tbody>
+            </table>
           </div>
-        </div>
-        <div class="form-card">
-          <h3>席位倍率</h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="form-group"><label>商务座</label><input id="cfg-seat-business" type="number" step="0.1" min="0.1" max="20" class="input"></div>
-            <div class="form-group"><label>一等座</label><input id="cfg-seat-first" type="number" step="0.1" min="0.1" max="20" class="input"></div>
-            <div class="form-group"><label>二等座</label><input id="cfg-seat-second" type="number" step="0.1" min="0.1" max="20" class="input"></div>
-            <div class="form-group"><label>硬卧</label><input id="cfg-seat-hard-sleeper" type="number" step="0.1" min="0.1" max="20" class="input"></div>
-            <div class="form-group"><label>硬座</label><input id="cfg-seat-hard-seat" type="number" step="0.1" min="0.1" max="20" class="input"></div>
-            <div class="form-group"><label>无座</label><input id="cfg-seat-no-seat" type="number" step="0.1" min="0.1" max="20" class="input"></div>
-          </div>
-        </div>
-        <div class="form-card">
-          <h3>列车速度等级倍率</h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-            <div class="form-group"><label>G 高铁</label><input id="cfg-train-g" type="number" step="0.01" min="0.01" max="10" class="input"></div>
-            <div class="form-group"><label>D 动车</label><input id="cfg-train-d" type="number" step="0.01" min="0.01" max="10" class="input"></div>
-            <div class="form-group"><label>C 城际</label><input id="cfg-train-c" type="number" step="0.01" min="0.01" max="10" class="input"></div>
-            <div class="form-group"><label>Z 直达特快</label><input id="cfg-train-z" type="number" step="0.01" min="0.01" max="10" class="input"></div>
-            <div class="form-group"><label>T 特快</label><input id="cfg-train-t" type="number" step="0.01" min="0.01" max="10" class="input"></div>
-            <div class="form-group"><label>K 快速</label><input id="cfg-train-k" type="number" step="0.01" min="0.01" max="10" class="input"></div>
+          <div style="font-size:11px;color:#707090;margin-top:6px">
+            💡 费率=0 表示该列车类型不提供此席位（如高铁无硬卧/硬座）
           </div>
         </div>
         <div class="form-card">

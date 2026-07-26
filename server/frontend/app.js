@@ -2597,79 +2597,95 @@ const UI = {
 
   // ── 系统配置（SYS_ADMIN）──
 
+  _cfgRates: {},  // 缓存当前费率矩阵
+
   loadConfig: async function() {
     var loadingEl = U.$('config-loading');
-    if (loadingEl)
-      loadingEl.style.display = 'block';
+    if (loadingEl) loadingEl.style.display = 'block';
     U.$('config-form').style.display = 'none';
     var res = await API.get('/api/admin/config');
-    if (loadingEl)
-      loadingEl.style.display = 'none';
-    if (!res.ok)
-      return U.toast((res.data && res.data.error) || '加载失败', 'error');
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (!res.ok) return U.toast((res.data && res.data.error) || '加载失败', 'error');
     var c = res.data.data || {};
-    U.$('cfg-base-rate').value = c.base_rate_per_km || 0.30;
-    U.$('cfg-seat-business').value = c.seat_rate_business || 3.0;
-    U.$('cfg-seat-first').value = c.seat_rate_first || 2.0;
-    U.$('cfg-seat-second').value = c.seat_rate_second || 1.0;
-    U.$('cfg-seat-hard-sleeper').value = c.seat_rate_hard_sleeper || 0.8;
-    U.$('cfg-seat-hard-seat').value = c.seat_rate_hard_seat || 0.4;
-    U.$('cfg-seat-no-seat').value = c.seat_rate_no_seat || 0.3;
-    U.$('cfg-train-g').value = c.train_rate_g || 1.50;
-    U.$('cfg-train-d').value = c.train_rate_d || 0.95;
-    U.$('cfg-train-c').value = c.train_rate_c || 1.10;
-    U.$('cfg-train-z').value = c.train_rate_z || 0.65;
-    U.$('cfg-train-t').value = c.train_rate_t || 0.50;
-    U.$('cfg-train-k').value = c.train_rate_k || 0.40;
+    UI._cfgRates = c.rates || {};
+
+    // 构建费率矩阵表格
+    var prefixes = ['G','D','C','Z','T','K','*'];
+    var seats = ['BUSINESS','FIRST','SECOND','HARD_SLEEPER','HARD_SEAT','NO_SEAT'];
+    var seatLabels = ['商务座','一等座','二等座','硬卧','硬座','无座'];
+    var prefixLabels = {G:'G 高铁',D:'D 动车',C:'C 城际',Z:'Z 直达',T:'T 特快',K:'K 快速','*':'其他'};
+    var tbody = U.$('cfg-rate-table').querySelector('tbody');
+    tbody.innerHTML = '';
+    for (var pi = 0; pi < prefixes.length; pi++) {
+      var p = prefixes[pi];
+      var row = document.createElement('tr');
+      row.innerHTML = '<td style="font-weight:600;color:#e0e0e0">' + (prefixLabels[p] || p) + '</td>';
+      for (var si = 0; si < seats.length; si++) {
+        var rate = (UI._cfgRates[p] && UI._cfgRates[p][seats[si]]) || 0;
+        var rateStr = rate > 0 ? rate.toFixed(2) : '—';
+        var id = 'cfg-r-' + p + '-' + seats[si];
+        row.innerHTML += '<td><input id="' + id + '" type="number" step="0.01" min="0" max="10"'
+          + ' value="' + rate + '" style="width:72px;padding:4px;background:#0a0a1e;border:1px solid #0f3460;'
+          + 'border-radius:4px;color:' + (rate > 0 ? '#e0e0e0' : '#505050') + ';font-size:12px;text-align:center"></td>';
+      }
+      tbody.appendChild(row);
+    }
+
+    // 动态生成示例
+    var gRate = (UI._cfgRates['G'] && UI._cfgRates['G']['SECOND']) || 0.46;
+    var kRate = (UI._cfgRates['K'] && UI._cfgRates['K']['HARD_SEAT']) || 0.06;
+    var exG = (170 * gRate).toFixed(2);
+    var exK = (170 * kRate).toFixed(2);
+    U.$('cfg-example').innerHTML =
+      '例：G2492 呼市→包头 170km 二等座<br>'
+      + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span id="cfg-ex-gr" style="color:#00ff88">' + gRate.toFixed(2) + '</span> × 1'
+      + ' = <span style="color:#e94560">¥' + exG + '</span><br>'
+      + '例：K7901 同程 硬座<br>'
+      + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span style="color:#ffaa00">' + kRate.toFixed(2) + '</span> × 1'
+      + ' = <span style="color:#e94560">¥' + exK + '</span>';
+
     U.$('cfg-refund-24h').value = c.refund_rate_24h || 0.95;
     U.$('cfg-refund-2-24h').value = c.refund_rate_2_24h || 0.90;
     U.$('cfg-refund-2h').value = c.refund_rate_2h || 0.80;
-    // 动态生成示例
-    var br = parseFloat(U.$('cfg-base-rate').value) || 0.30;
-    var gr = parseFloat(U.$('cfg-train-g').value) || 1.50;
-    var kr = parseFloat(U.$('cfg-train-k').value) || 0.40;
-    var s2 = parseFloat(U.$('cfg-seat-second').value) || 1.0;
-    var hs = parseFloat(U.$('cfg-seat-hard-seat').value) || 0.4;
-    var exG = (170 * br * gr * s2).toFixed(2);
-    var exK = (170 * br * kr * hs).toFixed(2);
-    U.$('cfg-example').innerHTML =
-      '例：G2492 呼市→包头 170km 二等座 1张<br>'
-      + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span id="cfg-ex-br" style="color:#ffaa00">' + br.toFixed(2) + '</span>'
-      + ' × <span id="cfg-ex-gr" style="color:#00ff88">' + gr.toFixed(2) + '</span>'
-      + ' × <span id="cfg-ex-s2" style="color:#53a8ff">' + s2.toFixed(1) + '</span> × 1'
-      + ' = <span style="color:#e94560">¥' + exG + '</span><br>'
-      + '例：K7901 同程 硬座<br>'
-      + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span style="color:#ffaa00">' + br.toFixed(2) + '</span>'
-      + ' × <span style="color:#00ff88">' + kr.toFixed(2) + '</span>'
-      + ' × <span style="color:#53a8ff">' + hs.toFixed(1) + '</span> × 1'
-      + ' = <span style="color:#e94560">¥' + exK + '</span>';
     U.$('config-form').style.display = '';
   },
 
   saveConfig: async function() {
+    var prefixes = ['G','D','C','Z','T','K','*'];
+    var seats = ['BUSINESS','FIRST','SECOND','HARD_SLEEPER','HARD_SEAT','NO_SEAT'];
+    var rates = {};
+    for (var pi = 0; pi < prefixes.length; pi++) {
+      var p = prefixes[pi];
+      rates[p] = {};
+      for (var si = 0; si < seats.length; si++) {
+        var id = 'cfg-r-' + p + '-' + seats[si];
+        var el = document.getElementById(id);
+        rates[p][seats[si]] = el ? (parseFloat(el.value) || 0) : 0;
+      }
+    }
     var body = {
-      base_rate_per_km: parseFloat(U.$('cfg-base-rate').value) || 0.30,
-      seat_rate_business: parseFloat(U.$('cfg-seat-business').value) || 3.0,
-      seat_rate_first: parseFloat(U.$('cfg-seat-first').value) || 2.0,
-      seat_rate_second: parseFloat(U.$('cfg-seat-second').value) || 1.0,
-      seat_rate_hard_sleeper: parseFloat(U.$('cfg-seat-hard-sleeper').value) || 0.8,
-      seat_rate_hard_seat: parseFloat(U.$('cfg-seat-hard-seat').value) || 0.4,
-      seat_rate_no_seat: parseFloat(U.$('cfg-seat-no-seat').value) || 0.3,
-      train_rate_g: parseFloat(U.$('cfg-train-g').value) || 1.50,
-      train_rate_d: parseFloat(U.$('cfg-train-d').value) || 0.95,
-      train_rate_c: parseFloat(U.$('cfg-train-c').value) || 1.10,
-      train_rate_z: parseFloat(U.$('cfg-train-z').value) || 0.65,
-      train_rate_t: parseFloat(U.$('cfg-train-t').value) || 0.50,
-      train_rate_k: parseFloat(U.$('cfg-train-k').value) || 0.40,
+      rates: rates,
       refund_rate_24h: parseFloat(U.$('cfg-refund-24h').value) || 0.95,
       refund_rate_2_24h: parseFloat(U.$('cfg-refund-2-24h').value) || 0.90,
       refund_rate_2h: parseFloat(U.$('cfg-refund-2h').value) || 0.80
     };
     var res = await API.put('/api/admin/config', body);
-    if (res.ok)
+    if (res.ok) {
       U.toast('配置已保存，即时生效', 'success');
-    else
+      UI._cfgRates = rates;
+      // 更新示例
+      var gRate = (rates['G'] && rates['G']['SECOND']) || 0.46;
+      var kRate = (rates['K'] && rates['K']['HARD_SEAT']) || 0.06;
+      U.$('cfg-example').innerHTML =
+        '例：G2492 呼市→包头 170km 二等座<br>'
+        + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span style="color:#00ff88">' + gRate.toFixed(2) + '</span> × 1'
+        + ' = <span style="color:#e94560">¥' + (170 * gRate).toFixed(2) + '</span><br>'
+        + '例：K7901 同程 硬座<br>'
+        + '&nbsp;&nbsp;&nbsp;&nbsp;= 170 × <span style="color:#ffaa00">' + kRate.toFixed(2) + '</span> × 1'
+        + ' = <span style="color:#e94560">¥' + (170 * kRate).toFixed(2) + '</span>';
+    } else {
       U.toast((res.data && res.data.error) || '保存失败', 'error');
+    }
   },
 
   // ── 审计日志（SYS_ADMIN）──

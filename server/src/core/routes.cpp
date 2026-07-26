@@ -19,6 +19,7 @@
 #include <nlohmann/json.hpp>
 
 #include <chrono>
+#include <cmath>
 #include <sstream>
 
 using json = nlohmann::json;  // 局部 using，非全局
@@ -518,27 +519,21 @@ void registerRoutes(RailwayServer& server) {
             json body = json::parse(req.body);
             auto& cfg = SystemConfig::instance();
 
-            if (body.contains("base_rate_per_km"))
-                cfg.setBaseRatePerKm(body["base_rate_per_km"].get<double>());
-            if (body.contains("seat_rate_business") && body.contains("seat_rate_first")
-                && body.contains("seat_rate_second")) {
-                cfg.setSeatRates(
-                    body["seat_rate_business"].get<double>(),
-                    body["seat_rate_first"].get<double>(),
-                    body["seat_rate_second"].get<double>(),
-                    body.value("seat_rate_hard_sleeper", 0.8),
-                    body.value("seat_rate_hard_seat", 0.4),
-                    body.value("seat_rate_no_seat", 0.3));
-            }
-            if (body.contains("train_rate_g") && body.contains("train_rate_d")
-                && body.contains("train_rate_c")) {
-                cfg.setTrainRates(
-                    body["train_rate_g"].get<double>(),
-                    body["train_rate_d"].get<double>(),
-                    body["train_rate_c"].get<double>(),
-                    body.value("train_rate_z", 0.65),
-                    body.value("train_rate_t", 0.50),
-                    body.value("train_rate_k", 0.40));
+            // 费率矩阵：{"G":{"BUSINESS":1.20,...},"D":{...},...}
+            if (body.contains("rates")) {
+                for (const auto& [prefix_key, seat_obj] : body["rates"].items()) {
+                    if (prefix_key.size() != 1) continue;
+                    char prefix = prefix_key[0];
+                    for (const auto& [seat_key, rate_val] : seat_obj.items()) {
+                        SeatType st = SeatType::SECOND;
+                        if (seat_key == "BUSINESS") st = SeatType::BUSINESS;
+                        else if (seat_key == "FIRST") st = SeatType::FIRST;
+                        else if (seat_key == "HARD_SLEEPER") st = SeatType::HARD_SLEEPER;
+                        else if (seat_key == "HARD_SEAT") st = SeatType::HARD_SEAT;
+                        else if (seat_key == "NO_SEAT") st = SeatType::NO_SEAT;
+                        cfg.setRate(prefix, st, rate_val.get<double>());
+                    }
+                }
             }
             if (body.contains("refund_rate_24h") && body.contains("refund_rate_2_24h")
                 && body.contains("refund_rate_2h")) {
@@ -671,15 +666,22 @@ void registerRoutes(RailwayServer& server) {
             j["direct_count"] = qr.direct.size();
             j["transfer_count"] = qr.transfers.size();
 
-            // 席位价格换算（二等座价格为基准，各席位按倍率换算）
-            auto addSeatPrices = [](json& target, const std::string& key, double base_price) {
+            // 席位价格（从费率矩阵按元/km计算，费率为0的席位不输出）
+            auto addSeatPrices = [](json& target, const std::string& key,
+                                     const std::string& train_id, double distance_km) {
                 json sp;
-                sp["BUSINESS"]     = base_price * seatPriceMultiplier(SeatType::BUSINESS);
-                sp["FIRST"]        = base_price * seatPriceMultiplier(SeatType::FIRST);
-                sp["SECOND"]       = base_price;
-                sp["HARD_SLEEPER"] = base_price * seatPriceMultiplier(SeatType::HARD_SLEEPER);
-                sp["HARD_SEAT"]    = base_price * seatPriceMultiplier(SeatType::HARD_SEAT);
-                sp["NO_SEAT"]      = base_price * seatPriceMultiplier(SeatType::NO_SEAT);
+                auto& cfg = SystemConfig::instance();
+                auto add = [&](const char* name, SeatType st) {
+                    double rate = cfg.ratePerKm(train_id, st);
+                    if (rate > 0)
+                        sp[name] = std::round(distance_km * rate * 100) / 100;
+                };
+                add("BUSINESS",     SeatType::BUSINESS);
+                add("FIRST",        SeatType::FIRST);
+                add("SECOND",       SeatType::SECOND);
+                add("HARD_SLEEPER", SeatType::HARD_SLEEPER);
+                add("HARD_SEAT",    SeatType::HARD_SEAT);
+                add("NO_SEAT",      SeatType::NO_SEAT);
                 target[key] = sp;
             };
 
@@ -702,7 +704,7 @@ void registerRoutes(RailwayServer& server) {
                     d["origin_station"] = orig ? orig->name : "?";
                     d["terminal_station"] = term ? term->name : "?";
                 }
-                addSeatPrices(d, "seat_prices", item.price);
+                addSeatPrices(d, "seat_prices", item.train_id, item.distance_km);
                 // 停站详情（含站名和时间，前端展示用）
                 d["stops"] = stopsToJson(item.stops, ds);
                 direct_arr.push_back(d);
@@ -737,10 +739,10 @@ void registerRoutes(RailwayServer& server) {
                 j["second_leg_seats"] = item.second_leg_seats;
                 j["first_leg_price"] = item.first_leg_price;
                 j["second_leg_price"] = item.second_leg_price;
-                addSeatPrices(j, "seat_prices", item.price);
+                addSeatPrices(j, "seat_prices", item.train_id, item.distance_km);
                 // 每程独立票价
-                addSeatPrices(j, "first_leg_seat_prices", item.first_leg_price);
-                addSeatPrices(j, "second_leg_seat_prices", item.second_leg_price);
+                addSeatPrices(j, "first_leg_seat_prices", item.train_id, item.distance_km);
+                addSeatPrices(j, "second_leg_seat_prices", item.second_train_id, item.distance_km);
                 // 停站详情（第一段 + 第二段）
                 
                 j["stops"] = stopsToJson(item.stops, ds);
