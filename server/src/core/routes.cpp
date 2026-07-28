@@ -770,14 +770,19 @@ void registerRoutes(RailwayServer& server) {
 <style>
 body{background:#0a0a1e;color:#e0e0e0;font-family:sans-serif;margin:0;padding:20px}
 h1{text-align:center;color:#53a8ff}
-svg{display:block;margin:0 auto}
+html,body{height:100%;margin:0;padding:0}
+body{display:flex;flex-direction:column}
+h1{padding:12px 0 0;margin:0}
+.legend{padding:8px 0;margin:0}
+#map-wrap{flex:1;overflow:hidden;position:relative}
+svg{display:block;width:100%;height:100%}
 .node{stroke:#0f3460;stroke-width:2;cursor:pointer}
 .node:hover{stroke:#e94560;stroke-width:3}
 .node-text{fill:#e0e0e0;font-size:11px;text-anchor:middle;pointer-events:none}
 .edge-line{fill:none;stroke-width:2;opacity:0.7}
 .edge-label{font-size:9px;text-anchor:middle}
-.info-panel{position:fixed;top:16px;right:16px;background:#16213e;border:1px solid #0f3460;
-  border-radius:8px;padding:16px;min-width:180px;display:none;font-size:13px}
+.info-panel{position:fixed;top:60px;right:16px;background:#16213e;border:1px solid #0f3460;
+  border-radius:8px;padding:16px;min-width:180px;display:none;font-size:13px;z-index:10}
 .info-panel h3{margin:0 0 8px;color:#53a8ff}
 .info-panel p{margin:4px 0;color:#9090b0}
 .legend{display:flex;gap:16px;justify-content:center;margin:16px 0;font-size:12px}
@@ -785,6 +790,7 @@ svg{display:block;margin:0 auto}
 </style></head>
 <body>
 <h1>12306 铁路网拓扑图</h1>
+<div class="info-panel" id="info"></div>
 <div class="legend">
 <span style="background:#e94560">高铁站 ⬭</span>
 <span style="background:#53a8ff">普速站 ⬜</span>
@@ -793,8 +799,7 @@ svg{display:block;margin:0 auto}
 <span style="color:#55aaff">━ 普速线路</span>
 <span style="color:#55ff55">━ 城际线路</span>
 </div>
-<svg id="map" width="1000" height="700"></svg>
-<div class="info-panel" id="info"></div>
+<div id="map-wrap"><svg id="map"></svg></div>
 <script>
 var NODES=)";
             html += nodes.dump() + ";\nvar EDGES=" + edges.dump() + ";\n";
@@ -803,6 +808,15 @@ var svg=document.getElementById('map'), info=document.getElementById('info');
 var typeColors=['#e94560','#53a8ff','#00ff88'];
 var edgeColors=['#ff4444','#55aaff','#55ff55'];
 var typePriority=[0,1,2];
+
+// 计算坐标范围
+var minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+NODES.forEach(function(n){minX=Math.min(minX,n.x);maxX=Math.max(maxX,n.x);minY=Math.min(minY,n.y);maxY=Math.max(maxY,n.y);});
+var pad=40;
+var vbW=maxX-minX+2*pad, vbH=maxY-minY+2*pad;
+var vbX=minX-pad, vbY=minY-pad;
+svg.setAttribute('viewBox',vbX+' '+vbY+' '+vbW+' '+vbH);
+svg.setAttribute('preserveAspectRatio','xMidYMid meet');
 
 var zoomG=document.createElementNS('http://www.w3.org/2000/svg','g');
 var edgesG=document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -821,6 +835,9 @@ svg.addEventListener('wheel',function(e){
   e.preventDefault();
   var rect=svg.getBoundingClientRect();
   var mx=e.clientX-rect.left, my=e.clientY-rect.top;
+  // 屏幕坐标 → SVG viewBox 坐标
+  mx=vbX+mx*vbW/rect.width;
+  my=vbY+my*vbH/rect.height;
   var oldScale=scale;
   var ds=e.deltaY<0?1.15:0.87;
   scale=Math.max(0.3,Math.min(5,scale*ds));
