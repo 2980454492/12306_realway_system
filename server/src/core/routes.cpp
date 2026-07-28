@@ -716,20 +716,38 @@ void registerRoutes(RailwayServer& server) {
             auto lines = ds.getAllLines();
             int n = static_cast<int>(stations.size());
 
-            // 生成节点和边 JSON（供 HTML 内 JS 绘制）
+            // 根据经纬度计算相对位置（等距矩形投影）
+            double min_lat = 90, max_lat = -90, min_lng = 180, max_lng = -180;
+            for (const auto& s : stations) {
+                if (s.latitude < min_lat) min_lat = s.latitude;
+                if (s.latitude > max_lat) max_lat = s.latitude;
+                if (s.longitude < min_lng) min_lng = s.longitude;
+                if (s.longitude > max_lng) max_lng = s.longitude;
+            }
+            double pad = 60;  // 边距
+            double svg_w = 1000, svg_h = 700;
+            double lng_range = max_lng - min_lng;
+            double lat_range = max_lat - min_lat;
+            if (lng_range < 0.5) lng_range = 0.5;  // 防止除零
+            if (lat_range < 0.3) lat_range = 0.3;
+            double scale_x = (svg_w - 2 * pad) / lng_range;
+            double scale_y = (svg_h - 2 * pad) / lat_range;
+            double scale = std::min(scale_x, scale_y);
+            double offset_x = (svg_w - lng_range * scale) / 2;
+            double offset_y = (svg_h - lat_range * scale) / 2;
+
+            auto toX = [&](double lng) { return offset_x + (lng - min_lng) * scale; };
+            auto toY = [&](double lat) { return offset_y + (max_lat - lat) * scale; };  // 纬度反转（上北下南）
+
             json nodes = json::array();
             for (int i = 0; i < n; ++i) {
-                // 圆形布局：按索引均匀分布
-                double angle = 2.0 * M_PI * i / n;
-                double cx = 400 + 280 * std::cos(angle);
-                double cy = 300 + 280 * std::sin(angle);
                 nodes.push_back({
                     {"id", stations[i].id},
                     {"name", stations[i].name},
                     {"city", stations[i].city},
                     {"type", static_cast<int>(stations[i].type)},
-                    {"x", static_cast<int>(cx)},
-                    {"y", static_cast<int>(cy)}
+                    {"x", static_cast<int>(toX(stations[i].longitude))},
+                    {"y", static_cast<int>(toY(stations[i].latitude))}
                 });
             }
 
@@ -775,7 +793,7 @@ svg{display:block;margin:0 auto}
 <span style="color:#55aaff">━ 普速线路</span>
 <span style="color:#55ff55">━ 城际线路</span>
 </div>
-<svg id="map" width="800" height="600"></svg>
+<svg id="map" width="1000" height="700"></svg>
 <div class="info-panel" id="info"></div>
 <script>
 var NODES=)";
