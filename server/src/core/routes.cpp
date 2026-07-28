@@ -807,7 +807,7 @@ var NODES=)";
 var svg=document.getElementById('map'), info=document.getElementById('info');
 var typeColors=['#ff4444','#44ff44','#44aaff'];
 var edgeColors=['#ff6666','#66ff66','#66bbff'];
-var typePriority=[0,1,2];
+var typePriority=[1,2,0];  // 枢纽>高铁>普速（越小越优先显示）
 
 // 计算坐标范围
 var minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
