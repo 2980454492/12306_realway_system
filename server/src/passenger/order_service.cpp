@@ -7,6 +7,7 @@
 #include "core/logger.h"
 #include "core/wal_writer.h"
 #include "core/system_config.h"
+#include "core/crypto.h"
 
 #include <nlohmann/json.hpp>
 
@@ -193,7 +194,7 @@ OrderService::OrderResult OrderService::createOrder(
     order.status = OrderStatus::PAID;
     order.created_at = nowIso();
     order.passenger_name = passenger_name;
-    order.passenger_id = passenger_id;
+    order.passenger_id = crypto::encrypt(passenger_id);  // AES-256-GCM 加密存盘
 
     orders_.push_back(order);
     saveOrders();

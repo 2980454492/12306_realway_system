@@ -44,6 +44,7 @@ set(SOURCES
     src/core/audit_logger.cpp
     src/core/system_config.cpp
     src/core/rate_limiter.cpp
+    src/core/crypto.cpp
     src/data/data_store.cpp
     src/data/railway_graph.cpp
     src/auth/auth_service.cpp
@@ -67,6 +68,7 @@ set(HEADERS
     src/core/audit_logger.h
     src/core/system_config.h
     src/core/rate_limiter.h
+    src/core/crypto.h
     src/data/data_store.h
     src/data/railway_graph.h
     src/auth/auth_service.h

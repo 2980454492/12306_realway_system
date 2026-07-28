@@ -47,5 +47,7 @@ constexpr const char* WAL_FILE                 = "data/wal.log";
 constexpr const char* AUDIT_LOG_FILE           = "data/audit.log";
 /** 系统配置（票价倍率、退票费率） */
 constexpr const char* SYSTEM_CONFIG_FILE       = "config/system.json";
+/** AES-256-GCM 加密密钥 */
+constexpr const char* CRYPTO_KEY_FILE          = "config/key.bin";
 
 }  // namespace config

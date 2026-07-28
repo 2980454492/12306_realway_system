@@ -16,6 +16,7 @@
 #include "core/audit_logger.h"
 #include "core/system_config.h"
 #include "core/rate_limiter.h"
+#include "core/crypto.h"
 
 #include <nlohmann/json.hpp>
 
@@ -1086,6 +1087,12 @@ void registerRoutes(RailwayServer& server) {
             json arr = json::array();
             for (const auto& order : orders) {
                 json o = order;  // NLOHMANN_DEFINE_TYPE 自动序列化
+                // 解密并脱敏身份证号（如 37****199001010011）
+                std::string raw_id = crypto::decrypt(order.passenger_id).value_or(order.passenger_id);
+                if (raw_id.length() >= 4)
+                    o["passenger_id"] = raw_id.substr(0, 2) + std::string(raw_id.length() - 4, '*') + raw_id.substr(raw_id.length() - 2);
+                else
+                    o["passenger_id"] = raw_id;
                 auto* train = ds.getTrain(order.train_id);
                 if (train) {
                     int dep = 0, arr = 0, dur = 0;

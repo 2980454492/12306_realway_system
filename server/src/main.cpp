@@ -16,6 +16,7 @@
 #include "core/wal_writer.h"
 #include "core/audit_logger.h"
 #include "core/system_config.h"
+#include "core/crypto.h"
 
 #include <nlohmann/json.hpp>
 
@@ -61,6 +62,9 @@ int main() {
 
     // ── 初始化 WAL 预写日志 ──
     WalWriter::instance().initialize(config::WAL_FILE);
+
+    // ── 初始化加密密钥 ──
+    crypto::initKey(config::CRYPTO_KEY_FILE);
 
     // ── 初始化系统配置 ──
     SystemConfig::instance().initialize(config::SYSTEM_CONFIG_FILE);
