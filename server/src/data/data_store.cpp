@@ -227,6 +227,114 @@ bool DataStore::saveTrains() const {
     }
 }
 
+// ── 站点管理 ──
+
+Station DataStore::addStation(const Station& station) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    Station s = station;
+    if (s.id == 0) {
+        uint32_t max_id = 0;
+        for (const auto& st : stations_)
+            if (st.id > max_id) max_id = st.id;
+        s.id = max_id + 1;
+    }
+    stations_.push_back(s);
+    station_index_[s.id] = stations_.size() - 1;
+    saveStations();
+    return s;
+}
+
+bool DataStore::updateStation(uint32_t id, const Station& updated) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = station_index_.find(id);
+    if (it == station_index_.end()) return false;
+    stations_[it->second] = updated;
+    stations_[it->second].id = id;  // 保持 ID 不变
+    saveStations();
+    return true;
+}
+
+bool DataStore::removeStation(uint32_t id) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = station_index_.find(id);
+    if (it == station_index_.end()) return false;
+    size_t idx = it->second;
+    size_t last = stations_.size() - 1;
+    if (idx != last) {
+        std::swap(stations_[idx], stations_[last]);
+        station_index_[stations_[idx].id] = idx;
+    }
+    stations_.pop_back();
+    station_index_.erase(id);
+    saveStations();
+    return true;
+}
+
+bool DataStore::saveStations() const {
+    std::string path = config::STATIONS_FILE;
+    try {
+        json j = stations_;
+        std::ofstream out(path);
+        out << j.dump(2);
+        return true;
+    } catch (const std::exception& e) {
+        Logger::instance().error(std::string("Failed to save stations: ") + e.what());
+        return false;
+    }
+}
+
+// ── 线路管理 ──
+
+Line DataStore::addLine(const Line& line) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    Line l = line;
+    if (l.id == 0) {
+        uint32_t max_id = 0;
+        for (const auto& ln : lines_)
+            if (ln.id > max_id) max_id = ln.id;
+        l.id = max_id + 1;
+    }
+    lines_.push_back(l);
+    saveLines();
+    return l;
+}
+
+bool DataStore::updateLine(uint32_t id, const Line& updated) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (auto& ln : lines_) {
+        if (ln.id == id) {
+            ln = updated;
+            ln.id = id;
+            saveLines();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool DataStore::removeLine(uint32_t id) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = std::find_if(lines_.begin(), lines_.end(),
+        [id](const Line& l) { return l.id == id; });
+    if (it == lines_.end()) return false;
+    lines_.erase(it);
+    saveLines();
+    return true;
+}
+
+bool DataStore::saveLines() const {
+    std::string path = config::LINES_FILE;
+    try {
+        json j = lines_;
+        std::ofstream out(path);
+        out << j.dump(2);
+        return true;
+    } catch (const std::exception& e) {
+        Logger::instance().error(std::string("Failed to save lines: ") + e.what());
+        return false;
+    }
+}
+
 // ── 车站-线路-邻居索引 ──
 
 // 从 data/station_line_index.json 加载索引缓存，失败返回 false

@@ -89,6 +89,13 @@
       <a class="sidebar-item staff-only" data-page="config" style="display:none" onclick="UI.navTo('config')">
         <span class="sidebar-icon">⚙️</span> 系统配置
       </a>
+      <div class="sidebar-divider staff-only" data-page="infra-divider" style="display:none"></div>
+      <a class="sidebar-item staff-only" data-page="stations" style="display:none" onclick="UI.navTo('stations')">
+        <span class="sidebar-icon">🚉</span> 站点管理
+      </a>
+      <a class="sidebar-item staff-only" data-page="lines" style="display:none" onclick="UI.navTo('lines')">
+        <span class="sidebar-icon">🛤️</span> 线路管理
+      </a>
 
     </div>
   </aside>
@@ -441,6 +448,26 @@
       <div id="approvals-list"></div>
     </section>
 
+    <!-- ═══ 站点管理页（INFRA_ADMIN）═══ -->
+    <section id="page-stations" class="page">
+      <h2 style="display:flex;align-items:center;justify-content:space-between">
+        站点管理
+        <button class="btn btn-sm btn-primary" onclick="UI.showStationForm()">+ 新增站点</button>
+      </h2>
+      <div id="stations-loading" class="loading" style="display:none">加载中…</div>
+      <div id="stations-list"></div>
+    </section>
+
+    <!-- ═══ 线路管理页（INFRA_ADMIN）═══ -->
+    <section id="page-lines" class="page">
+      <h2 style="display:flex;align-items:center;justify-content:space-between">
+        线路管理
+        <button class="btn btn-sm btn-primary" onclick="UI.showLineForm()">+ 新增线路</button>
+      </h2>
+      <div id="lines-loading" class="loading" style="display:none">加载中…</div>
+      <div id="lines-list"></div>
+    </section>
+
     <!-- ═══ 系统配置页（SYS_ADMIN）═══ -->
     <section id="page-config" class="page">
       <h2>系统配置</h2>
@@ -636,6 +663,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=20260726e"></script>
+<script src="/app.js?v=20260728a"></script>
 </body>
 </html>

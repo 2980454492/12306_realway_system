@@ -198,6 +198,8 @@ const U = {
         items[i].style.display = isApprover ? '' : 'none';
       else if (page === 'users' || page === 'audit' || page === 'config')
         items[i].style.display = isSysAdmin ? '' : 'none';
+      else if (page === 'stations' || page === 'lines' || page === 'infra-divider')
+        items[i].style.display = isInfraAdmin ? '' : 'none';
       else
         items[i].style.display = (isStaff || isApprover || isSysAdmin || isInfraAdmin) ? '' : 'none';
     }
@@ -304,6 +306,10 @@ const UI = {
       UI.loadAudit();
     if (name === 'config')
       UI.loadConfig();
+    if (name === 'stations')
+      UI.loadStations();
+    if (name === 'lines')
+      UI.loadLines();
   },
 
   /** 返回上一页（购票→查票） */
@@ -314,6 +320,7 @@ const UI = {
     var isStaff = (role === 'STAFF');
     var isApprover = (role === 'APPROVER');
     var isSysAdmin = (role === 'SYS_ADMIN');
+    var isInfraAdmin = (role === 'INFRA_ADMIN');
     if ((name === 'trains' || name === 'my-submissions' || name === 'add-train') && !isStaff)
       return;
     if (name === 'approvals' && !isApprover)
@@ -323,6 +330,8 @@ const UI = {
     if (name === 'audit' && !isSysAdmin)
       return;
     if (name === 'config' && !isSysAdmin)
+      return;
+    if ((name === 'stations' || name === 'lines') && !isInfraAdmin)
       return;
     if (name === 'order-form' && data)
       State.selectedTrain = data;
@@ -2592,6 +2601,179 @@ const UI = {
 
   showLogin: function() {
     UI.showPage('login');
+  },
+
+  // ── 站点管理（INFRA_ADMIN）──
+
+  _allStations: [],
+
+  loadStations: async function() {
+    var res = await API.get('/api/admin/stations');
+    if (!res.ok) return U.toast('加载失败', 'error');
+    UI._allStations = res.data.data || [];
+    UI.renderStations();
+  },
+
+  renderStations: function() {
+    var listEl = U.$('stations-list');
+    listEl.innerHTML = '';
+    var stations = UI._allStations;
+    if (!stations.length) { listEl.innerHTML = '<div class="loading">暂无站点</div>'; return; }
+    var tbl = document.createElement('table');
+    tbl.className = 'users-table';
+    tbl.innerHTML = '<thead><tr><th>ID</th><th>站名</th><th>城市</th><th>类型</th><th>操作</th></tr></thead>';
+    var tbody = document.createElement('tbody');
+    var typeLabels = {HIGH_SPEED:'高铁站',NORMAL:'普速站',HUB:'枢纽站'};
+    for (var i = 0; i < stations.length; i++) {
+      var s = stations[i];
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + s.id + '</td>'
+        + '<td style="font-weight:600;color:#e0e0e0">' + U.esc(s.name) + '</td>'
+        + '<td>' + U.esc(s.city) + '</td>'
+        + '<td>' + (typeLabels[s.type] || s.type) + '</td>'
+        + '<td class="user-actions"><button class="btn btn-sm btn-primary">编辑</button>'
+        + '<button class="btn btn-sm btn-danger">删除</button></td>';
+      var btns = tr.querySelectorAll('button');
+      btns[0].onclick = (function(id){return function(){UI.editStation(id);};})(s.id);
+      btns[1].onclick = (function(id,name){return function(){UI.deleteStation(id,name);};})(s.id, s.name);
+      tbody.appendChild(tr);
+    }
+    tbl.appendChild(tbody);
+    listEl.appendChild(tbl);
+  },
+
+  showStationForm: function(station) {
+    var h = '<h3>' + (station ? '编辑站点' : '新增站点') + '</h3>'
+      + '<div class="form-group"><label>站名</label><input id="sf-name" class="input" value="' + (station ? U.esc(station.name) : '') + '"></div>'
+      + '<div class="form-group"><label>城市</label><input id="sf-city" class="input" value="' + (station ? U.esc(station.city) : '') + '"></div>'
+      + '<div class="form-group"><label>类型</label><select id="sf-type" class="input">'
+      + '<option value="HIGH_SPEED"' + (station && station.type==='HIGH_SPEED'?' selected':'') + '>高铁站</option>'
+      + '<option value="NORMAL"' + (station && station.type==='NORMAL'?' selected':'') + '>普速站</option>'
+      + '<option value="HUB"' + (station && station.type==='HUB'?' selected':'') + '>枢纽站</option></select></div>'
+      + '<div class="form-group"><label>纬度</label><input id="sf-lat" class="input" type="number" step="0.0001" value="' + (station ? station.latitude : '') + '"></div>'
+      + '<div class="form-group"><label>经度</label><input id="sf-lng" class="input" type="number" step="0.0001" value="' + (station ? station.longitude : '') + '"></div>'
+      + '<div style="display:flex;gap:8px;margin-top:16px"><button class="btn btn-primary" onclick="UI.saveStation(' + (station ? station.id : 0) + ')">保存</button>'
+      + '<button class="btn" onclick="UI.closeModal()">取消</button></div>';
+    UI._showModal(h);
+  },
+
+  saveStation: async function(id) {
+    var body = {
+      name: U.$('sf-name').value.trim(),
+      city: U.$('sf-city').value.trim(),
+      type: U.$('sf-type').value,
+      latitude: parseFloat(U.$('sf-lat').value) || 0,
+      longitude: parseFloat(U.$('sf-lng').value) || 0
+    };
+    if (!body.name) return U.toast('站名不能为空', 'error');
+    var res = id ? await API.put('/api/admin/stations/' + id, body) : await API.post('/api/admin/stations', body);
+    if (res.ok) { U.toast(id ? '已更新' : '已创建', 'success'); UI.closeModal(); UI.loadStations(); }
+    else U.toast((res.data && res.data.error) || '操作失败', 'error');
+  },
+
+  editStation: function(id) {
+    for (var i = 0; i < UI._allStations.length; i++)
+      if (UI._allStations[i].id === id) { UI.showStationForm(UI._allStations[i]); return; }
+  },
+
+  deleteStation: async function(id, name) {
+    if (!confirm('确定删除站点 ' + name + '？')) return;
+    var res = await API.del('/api/admin/stations/' + id);
+    if (res.ok) { U.toast('已删除', 'success'); UI.loadStations(); }
+    else U.toast((res.data && res.data.error) || '删除失败', 'error');
+  },
+
+  // ── 线路管理（INFRA_ADMIN）──
+
+  _allLines: [],
+
+  loadLines: async function() {
+    var res = await API.get('/api/admin/lines');
+    if (!res.ok) return U.toast('加载失败', 'error');
+    UI._allLines = res.data.data || [];
+    UI.renderLines();
+  },
+
+  renderLines: function() {
+    var listEl = U.$('lines-list');
+    listEl.innerHTML = '';
+    var lines = UI._allLines;
+    if (!lines.length) { listEl.innerHTML = '<div class="loading">暂无线路</div>'; return; }
+    var tbl = document.createElement('table');
+    tbl.className = 'users-table';
+    tbl.innerHTML = '<thead><tr><th>ID</th><th>名称</th><th>类型</th><th>里程(km)</th><th>时速</th><th>操作</th></tr></thead>';
+    var tbody = document.createElement('tbody');
+    var typeLabels = {HIGH_SPEED:'高铁',NORMAL:'普速',INTERCITY:'城际'};
+    for (var i = 0; i < lines.length; i++) {
+      var l = lines[i];
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + l.id + '</td>'
+        + '<td style="font-weight:600;color:#e0e0e0">' + U.esc(l.name) + '</td>'
+        + '<td>' + (typeLabels[l.type] || l.type) + '</td>'
+        + '<td>' + (l.distance_km || 0).toFixed(1) + '</td>'
+        + '<td>' + (l.max_speed_kmh || 0) + '</td>'
+        + '<td class="user-actions"><button class="btn btn-sm btn-primary">编辑</button>'
+        + '<button class="btn btn-sm btn-danger">删除</button></td>';
+      var btns = tr.querySelectorAll('button');
+      btns[0].onclick = (function(id){return function(){UI.editLine(id);};})(l.id);
+      btns[1].onclick = (function(id,name){return function(){UI.deleteLine(id,name);};})(l.id, l.name);
+      tbody.appendChild(tr);
+    }
+    tbl.appendChild(tbody);
+    listEl.appendChild(tbl);
+  },
+
+  showLineForm: function(line) {
+    var h = '<h3>' + (line ? '编辑线路' : '新增线路') + '</h3>'
+      + '<div class="form-group"><label>线路名称</label><input id="lf-name" class="input" value="' + (line ? U.esc(line.name) : '') + '"></div>'
+      + '<div class="form-group"><label>类型</label><select id="lf-type" class="input">'
+      + '<option value="HIGH_SPEED"' + (line && line.type==='HIGH_SPEED'?' selected':'') + '>高铁</option>'
+      + '<option value="NORMAL"' + (line && line.type==='NORMAL'?' selected':'') + '>普速</option>'
+      + '<option value="INTERCITY"' + (line && line.type==='INTERCITY'?' selected':'') + '>城际</option></select></div>'
+      + '<div class="form-group"><label>站点序列（ID逗号分隔）</label><input id="lf-stations" class="input" value="' + (line ? (line.stations||[]).join(',') : '') + '"></div>'
+      + '<div class="form-group"><label>里程（km）</label><input id="lf-distance" class="input" type="number" step="0.1" value="' + (line ? line.distance_km : '') + '"></div>'
+      + '<div class="form-group"><label>设计时速（km/h）</label><input id="lf-speed" class="input" type="number" value="' + (line ? line.max_speed_kmh : '') + '"></div>'
+      + '<div style="display:flex;gap:8px;margin-top:16px"><button class="btn btn-primary" onclick="UI.saveLine(' + (line ? line.id : 0) + ')">保存</button>'
+      + '<button class="btn" onclick="UI.closeModal()">取消</button></div>';
+    UI._showModal(h);
+  },
+
+  saveLine: async function(id) {
+    var stationIds = U.$('lf-stations').value.split(',').map(function(s){return parseInt(s.trim())||0;}).filter(function(n){return n>0;});
+    var body = {
+      name: U.$('lf-name').value.trim(),
+      type: U.$('lf-type').value,
+      stations: stationIds,
+      distance_km: parseFloat(U.$('lf-distance').value) || 0,
+      max_speed_kmh: parseInt(U.$('lf-speed').value) || 0
+    };
+    if (!body.name) return U.toast('名称不能为空', 'error');
+    var res = id ? await API.put('/api/admin/lines/' + id, body) : await API.post('/api/admin/lines', body);
+    if (res.ok) { U.toast(id ? '已更新' : '已创建', 'success'); UI.closeModal(); UI.loadLines(); }
+    else U.toast((res.data && res.data.error) || '操作失败', 'error');
+  },
+
+  editLine: function(id) {
+    for (var i = 0; i < UI._allLines.length; i++)
+      if (UI._allLines[i].id === id) { UI.showLineForm(UI._allLines[i]); return; }
+  },
+
+  deleteLine: async function(id, name) {
+    if (!confirm('确定删除线路 ' + name + '？')) return;
+    var res = await API.del('/api/admin/lines/' + id);
+    if (res.ok) { U.toast('已删除', 'success'); UI.loadLines(); }
+    else U.toast((res.data && res.data.error) || '删除失败', 'error');
+  },
+
+  _showModal: function(html) {
+    var overlay = U.$('detail-overlay');
+    var card = overlay.querySelector('.detail-card');
+    card.innerHTML = html;
+    overlay.classList.add('show');
+  },
+
+  closeModal: function() {
+    U.$('detail-overlay').classList.remove('show');
   },
 
   // ── 系统配置（SYS_ADMIN）──

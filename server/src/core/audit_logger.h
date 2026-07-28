@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <fstream>
 #include <thread>
 #include <atomic>
 #include <queue>

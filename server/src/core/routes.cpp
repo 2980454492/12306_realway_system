@@ -482,6 +482,150 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
+    // ── 站点管理（INFRA_ADMIN）──
+
+    app.Get("/api/admin/stations", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_STATIONS);
+            if (!ctx) return;
+            json j;
+            j["ok"] = true;
+            j["data"] = DataStore::instance().getAllStations();
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
+    app.Post("/api/admin/stations", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_STATIONS);
+            if (!ctx) return;
+            json body = json::parse(req.body);
+            Station station = body.get<Station>();
+            auto s = DataStore::instance().addStation(station);
+            json j;
+            j["ok"] = true;
+            j["data"] = s;
+            res.set_content(j.dump(), "application/json");
+            res.status = 201;
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
+    app.Put(R"(/api/admin/stations/(\d+))", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_STATIONS);
+            if (!ctx) return;
+            uint32_t id = std::stoul(req.matches[1]);
+            json body = json::parse(req.body);
+            Station station = body.get<Station>();
+            if (!DataStore::instance().updateStation(id, station)) {
+                json j; j["ok"] = false; j["error"] = "站点不存在";
+                res.set_content(j.dump(), "application/json"); res.status = 404;
+                return;
+            }
+            json j; j["ok"] = true;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
+    app.Delete(R"(/api/admin/stations/(\d+))", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_STATIONS);
+            if (!ctx) return;
+            uint32_t id = std::stoul(req.matches[1]);
+            if (!DataStore::instance().removeStation(id)) {
+                json j; j["ok"] = false; j["error"] = "站点不存在";
+                res.set_content(j.dump(), "application/json"); res.status = 404;
+                return;
+            }
+            json j; j["ok"] = true;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
+    // ── 线路管理（INFRA_ADMIN）──
+
+    app.Get("/api/admin/lines", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_LINES);
+            if (!ctx) return;
+            json j;
+            j["ok"] = true;
+            j["data"] = DataStore::instance().getAllLines();
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
+    app.Post("/api/admin/lines", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_LINES);
+            if (!ctx) return;
+            json body = json::parse(req.body);
+            Line line = body.get<Line>();
+            auto l = DataStore::instance().addLine(line);
+            json j;
+            j["ok"] = true;
+            j["data"] = l;
+            res.set_content(j.dump(), "application/json");
+            res.status = 201;
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
+    app.Put(R"(/api/admin/lines/(\d+))", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_LINES);
+            if (!ctx) return;
+            uint32_t id = std::stoul(req.matches[1]);
+            json body = json::parse(req.body);
+            Line line = body.get<Line>();
+            if (!DataStore::instance().updateLine(id, line)) {
+                json j; j["ok"] = false; j["error"] = "线路不存在";
+                res.set_content(j.dump(), "application/json"); res.status = 404;
+                return;
+            }
+            json j; j["ok"] = true;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
+    app.Delete(R"(/api/admin/lines/(\d+))", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_LINES);
+            if (!ctx) return;
+            uint32_t id = std::stoul(req.matches[1]);
+            if (!DataStore::instance().removeLine(id)) {
+                json j; j["ok"] = false; j["error"] = "线路不存在";
+                res.set_content(j.dump(), "application/json"); res.status = 404;
+                return;
+            }
+            json j; j["ok"] = true;
+            res.set_content(j.dump(), "application/json");
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
     // ── GET/PUT /api/admin/config — 系统配置（SYS_ADMIN）──
     app.Get("/api/admin/config", [](const httplib::Request& req, httplib::Response& res) {
         try {

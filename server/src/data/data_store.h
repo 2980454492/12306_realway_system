@@ -57,6 +57,34 @@ public:
     /** 回写 trains 到 config/trains.json */
     bool saveTrains() const;
 
+    // ── 站点管理（INFRA_ADMIN）──
+
+    /** 添加站点（自动递增 ID） */
+    Station addStation(const Station& station);
+
+    /** 更新站点 */
+    bool updateStation(uint32_t id, const Station& updated);
+
+    /** 删除站点 */
+    bool removeStation(uint32_t id);
+
+    /** 回写站点到 config/stations.json */
+    bool saveStations() const;
+
+    // ── 线路管理（INFRA_ADMIN）──
+
+    /** 添加线路（自动递增 ID） */
+    Line addLine(const Line& line);
+
+    /** 更新线路 */
+    bool updateLine(uint32_t id, const Line& updated);
+
+    /** 删除线路 */
+    bool removeLine(uint32_t id);
+
+    /** 回写线路到 config/lines.json */
+    bool saveLines() const;
+
 private:
     DataStore() = default;
 
