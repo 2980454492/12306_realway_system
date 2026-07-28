@@ -15,6 +15,7 @@
 #include "core/wal_writer.h"
 #include "core/audit_logger.h"
 #include "core/system_config.h"
+#include "core/rate_limiter.h"
 
 #include <nlohmann/json.hpp>
 
@@ -23,6 +24,27 @@
 #include <sstream>
 
 using json = nlohmann::json;  // 局部 using，非全局
+
+/** 从请求中提取客户端 IP */
+inline std::string clientIP(const httplib::Request& req) {
+    if (req.has_header("X-Forwarded-For"))
+        return req.get_header_value("X-Forwarded-For");
+    return req.remote_addr;
+}
+
+/** Token Bucket 限流检查。超限时写入 429 响应并返回 false */
+inline bool checkRateLimit(const std::string& key, int max, double rate,
+                           httplib::Response& res) {
+    if (!RateLimiter::instance().allow(key, max, rate)) {
+        json j;
+        j["ok"] = false;
+        j["error"] = "请求过于频繁，请稍后再试";
+        res.set_content(j.dump(), "application/json");
+        res.status = 429;
+        return false;
+    }
+    return true;
+}
 
 /** 停站序列 → JSON 数组 [{station_id, station_name, line_id, arrival, departure}] */
 inline json stopsToJson(const std::vector<Stop>& stops, DataStore& ds) {
@@ -122,6 +144,7 @@ void registerRoutes(RailwayServer& server) {
 
     // ── POST /api/auth/login — 登录 ──
     app.Post("/api/auth/login", [](const httplib::Request& req, httplib::Response& res) {
+        if (!checkRateLimit("login:" + clientIP(req), 10, 10.0/60, res)) return;
         try {
             json body = json::parse(req.body);
             std::string username = body.value("username", "");
@@ -182,6 +205,7 @@ void registerRoutes(RailwayServer& server) {
 
     // ── POST /api/auth/register — 旅客自助注册 ──
     app.Post("/api/auth/register", [](const httplib::Request& req, httplib::Response& res) {
+        if (!checkRateLimit("register:" + clientIP(req), 5, 5.0/3600, res)) return;
         try {
             json body = json::parse(req.body);
             std::string username = body.value("username", "");
@@ -719,6 +743,7 @@ void registerRoutes(RailwayServer& server) {
 
     // ── GET /api/trains/query — 查票（直达+换乘）──
     app.Get("/api/trains/query", [](const httplib::Request& req, httplib::Response& res) {
+        if (!checkRateLimit("query:" + clientIP(req), 120, 120.0/60, res)) return;
         try {
             // JWT 鉴权
             auto ctx = checkAuth(req, res, Permission::QUERY_TRAINS);
@@ -997,6 +1022,7 @@ void registerRoutes(RailwayServer& server) {
 
     // ── POST /api/orders — 购票 ──
     app.Post("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
+        if (!checkRateLimit("buy:" + clientIP(req), 10, 10.0/60, res)) return;
         try {
             auto ctx = checkAuth(req, res, Permission::BUY_TICKETS);
             if (!ctx) return;
