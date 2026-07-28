@@ -2820,11 +2820,12 @@ const UI = {
     var zG=document.createElementNS('http://www.w3.org/2000/svg','g');
     var eG=document.createElementNS('http://www.w3.org/2000/svg','g');
     var nG=document.createElementNS('http://www.w3.org/2000/svg','g');
-    zG.appendChild(eG);zG.appendChild(nG);svg.appendChild(zG);
+    var tG=document.createElementNS('http://www.w3.org/2000/svg','g');  // 文字层不缩放
+    zG.appendChild(eG);zG.appendChild(nG);svg.appendChild(zG);svg.appendChild(tG);
     container.appendChild(svg);
     var scl=1,tx=0,ty=0;
 
-    function update(){zG.setAttribute('transform','translate('+tx+','+ty+') scale('+scl+')');renderN()}
+    function update(){zG.setAttribute('transform','translate('+tx+','+ty+') scale('+scl+')');renderN();renderT()}
 
     var drag=false,dx=0,dy=0;
     svg.addEventListener('mousedown',function(e){drag=true;dx=e.clientX-tx;dy=e.clientY-ty;svg.style.cursor='grabbing'});
@@ -2835,10 +2836,11 @@ const UI = {
 
     function isClose(a,b,th){var dx=(a.x-b.x)*scl,dy=(a.y-b.y)*scl;return Math.sqrt(dx*dx+dy*dy)<th}
 
-    EDGES.forEach(function(e){var a=NODES.find(function(n){return n.id===e.from}),b=NODES.find(function(n){return n.id===e.to});if(!a||!b)return;var l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);l.setAttribute('stroke',ec[e.type]||'#66ff66');l.setAttribute('stroke-width','1.5');l.setAttribute('opacity','0.6');eG.appendChild(l);var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',(a.x+b.x)/2);t.setAttribute('y',(a.y+b.y)/2-6);t.setAttribute('fill','#707090');t.setAttribute('font-size','9');t.setAttribute('text-anchor','middle');t.textContent=e.line_name+' '+e.distance_km+'km';eG.appendChild(t)});
+    EDGES.forEach(function(e){var a=NODES.find(function(n){return n.id===e.from}),b=NODES.find(function(n){return n.id===e.to});if(!a||!b)return;var l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);l.setAttribute('stroke',ec[e.type]||'#66ff66');l.setAttribute('stroke-width','1.5');l.setAttribute('opacity','0.6');eG.appendChild(l)});
 
-    function renderN(){nG.innerHTML='';var th=30/scl,hidden=new Set();for(var i=0;i<NODES.length;i++){if(hidden.has(i))continue;for(var j=i+1;j<NODES.length;j++){if(hidden.has(j))continue;if(isClose(NODES[i],NODES[j],th))tp[NODES[i].type]<=tp[NODES[j].type]?hidden.add(j):hidden.add(i)}}for(var i=0;i<NODES.length;i++){if(hidden.has(i))continue;var n=NODES[i],g=document.createElementNS('http://www.w3.org/2000/svg','g'),c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r','5');c.setAttribute('fill',tc[n.type]);c.setAttribute('stroke',tc[n.type]);c.style.cursor='pointer';c.onmouseenter=function(){info.innerHTML='<h3 style="margin:0 0 8px;color:#53a8ff">'+n.name+'</h3><p style="margin:4px 0;color:#9090b0;font-size:12px">城市: '+n.city+'</p>';info.style.display='block'};c.onmouseleave=function(){info.style.display='none'};g.appendChild(c);var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',n.x);t.setAttribute('y',n.y+14);t.setAttribute('fill','#e0e0e0');t.setAttribute('font-size','11');t.setAttribute('text-anchor','middle');t.textContent=n.name;g.appendChild(t);nG.appendChild(g)}}
-    renderN();
+    function renderN(){nG.innerHTML='';var th=30/scl,hidden=new Set();for(var i=0;i<NODES.length;i++){if(hidden.has(i))continue;for(var j=i+1;j<NODES.length;j++){if(hidden.has(j))continue;if(isClose(NODES[i],NODES[j],th))tp[NODES[i].type]<=tp[NODES[j].type]?hidden.add(j):hidden.add(i)}}for(var i=0;i<NODES.length;i++){if(hidden.has(i))continue;var n=NODES[i],c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r','5');c.setAttribute('fill',tc[n.type]);c.setAttribute('stroke',tc[n.type]);c.style.cursor='pointer';c.onmouseenter=function(){info.innerHTML='<h3 style="margin:0 0 8px;color:#53a8ff">'+n.name+'</h3><p style="margin:4px 0;color:#9090b0;font-size:12px">城市: '+n.city+'</p>';info.style.display='block'};c.onmouseleave=function(){info.style.display='none'};nG.appendChild(c)}}
+    function renderT(){tG.innerHTML='';for(var i=0;i<NODES.length;i++){var n=NODES[i];var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',n.x*scl+tx);t.setAttribute('y',n.y*scl+ty+14);t.setAttribute('fill','#e0e0e0');t.setAttribute('font-size','11');t.setAttribute('text-anchor','middle');t.textContent=n.name;tG.appendChild(t)}EDGES.forEach(function(e){var a=NODES.find(function(n){return n.id===e.from}),b=NODES.find(function(n){return n.id===e.to});if(!a||!b)return;var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',((a.x+b.x)/2)*scl+tx);t.setAttribute('y',((a.y+b.y)/2)*scl+ty-6);t.setAttribute('fill','#707090');t.setAttribute('font-size','9');t.setAttribute('text-anchor','middle');t.textContent=e.line_name+' '+e.distance_km+'km';tG.appendChild(t)})}
+    renderN();renderT();
   },
 
   closeModal: function() {
