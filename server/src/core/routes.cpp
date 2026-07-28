@@ -802,61 +802,106 @@ var NODES=)";
 var svg=document.getElementById('map'), info=document.getElementById('info');
 var typeColors=['#e94560','#53a8ff','#00ff88'];
 var edgeColors=['#ff4444','#55aaff','#55ff55'];
+var typePriority=[0,1,2];
 
-// 画边
+var zoomG=document.createElementNS('http://www.w3.org/2000/svg','g');
+var edgesG=document.createElementNS('http://www.w3.org/2000/svg','g');
+var nodesG=document.createElementNS('http://www.w3.org/2000/svg','g');
+zoomG.appendChild(edgesG);
+zoomG.appendChild(nodesG);
+svg.appendChild(zoomG);
+var scale=1, tx=0, ty=0;
+
+function updateTransform(){
+  zoomG.setAttribute('transform','translate('+tx+','+ty+') scale('+scale+')');
+  renderNodes();
+}
+
+svg.addEventListener('wheel',function(e){
+  e.preventDefault();
+  var rect=svg.getBoundingClientRect();
+  var mx=e.clientX-rect.left, my=e.clientY-rect.top;
+  var oldScale=scale;
+  var ds=e.deltaY<0?1.15:0.87;
+  scale=Math.max(0.3,Math.min(5,scale*ds));
+  var ratio=scale/oldScale;
+  tx=mx-ratio*(mx-tx);
+  ty=my-ratio*(my-ty);
+  updateTransform();
+});
+
+function isClose(n1,n2,threshold){
+  var dx=(n1.x-n2.x)*scale, dy=(n1.y-n2.y)*scale;
+  return Math.sqrt(dx*dx+dy*dy)<threshold;
+}
+
 EDGES.forEach(function(e){
   var fn=NODES.find(function(n){return n.id===e.from});
   var tn=NODES.find(function(n){return n.id===e.to});
   if(!fn||!tn)return;
-  var g=document.createElementNS('http://www.w3.org/2000/svg','g');
   var l=document.createElementNS('http://www.w3.org/2000/svg','line');
   l.setAttribute('x1',fn.x);l.setAttribute('y1',fn.y);
   l.setAttribute('x2',tn.x);l.setAttribute('y2',tn.y);
   l.setAttribute('class','edge-line');
   l.setAttribute('stroke',edgeColors[e.type]||'#55aaff');
-  g.appendChild(l);
+  edgesG.appendChild(l);
   var t=document.createElementNS('http://www.w3.org/2000/svg','text');
-  t.setAttribute('x',(fn.x+tn.x)/2);t.setAttribute('y',(fn.y+tn.y)/2);
+  t.setAttribute('x',(fn.x+tn.x)/2);t.setAttribute('y',(fn.y+tn.y)/2-6);
   t.setAttribute('class','edge-label');t.setAttribute('fill','#9090b0');
   t.textContent=e.line_name+' '+e.distance_km+'km';
-  g.appendChild(t);
-  svg.appendChild(g);
+  edgesG.appendChild(t);
 });
 
-// 画节点
-NODES.forEach(function(n){
-  var g=document.createElementNS('http://www.w3.org/2000/svg','g');
-  var shape=n.type===0?'ellipse':n.type===2?'polygon':'rect';
-  var el;
-  if(shape==='ellipse'){
-    el=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-    el.setAttribute('cx',n.x);el.setAttribute('cy',n.y);
-    el.setAttribute('rx',32);el.setAttribute('ry',20);
-  }else if(shape==='polygon'){
-    el=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-    var pts=''; for(var i=0;i<6;i++){var a=Math.PI/3*i,r=24;pts+=(n.x+r*Math.cos(a))+','+(n.y+r*Math.sin(a))+' ';}
-    el.setAttribute('points',pts);
-  }else{
-    el=document.createElementNS('http://www.w3.org/2000/svg','rect');
-    el.setAttribute('x',n.x-30);el.setAttribute('y',n.y-18);
-    el.setAttribute('width',60);el.setAttribute('height',36);el.setAttribute('rx',4);
+function renderNodes(){
+  nodesG.innerHTML='';
+  var threshold=60/scale;
+  var hidden=new Set();
+  for(var i=0;i<NODES.length;i++){
+    if(hidden.has(i))continue;
+    for(var j=i+1;j<NODES.length;j++){
+      if(hidden.has(j))continue;
+      if(isClose(NODES[i],NODES[j],threshold)){
+        if(typePriority[NODES[i].type]<=typePriority[NODES[j].type])
+          hidden.add(j);
+        else
+          hidden.add(i);
+      }
+    }
   }
-  el.setAttribute('class','node');
-  el.setAttribute('fill',typeColors[n.type]||'#53a8ff');
-  el.onmouseenter=function(){
-    info.innerHTML='<h3>'+n.name+'</h3><p>城市: '+n.city+'</p>';
-    info.style.display='block';
-  };
-  el.onmouseleave=function(){info.style.display='none';};
-  g.appendChild(el);
-  var txt=document.createElementNS('http://www.w3.org/2000/svg','text');
-  txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+4);
-  txt.setAttribute('class','node-text');txt.textContent=n.name;
-  g.appendChild(txt);
-  svg.appendChild(g);
-});
-</script></body></html>)";
-            res.set_content(html, "text/html; charset=utf-8");
+  for(var i=0;i<NODES.length;i++){
+    if(hidden.has(i))continue;
+    var n=NODES[i];
+    var g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    var el;
+    if(n.type===0){
+      el=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+      el.setAttribute('cx',n.x);el.setAttribute('cy',n.y);
+      el.setAttribute('rx',32);el.setAttribute('ry',20);
+    }else if(n.type===2){
+      el=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      var pts='';for(var k=0;k<6;k++){var a=Math.PI/3*k,r=24;pts+=(n.x+r*Math.cos(a))+','+(n.y+r*Math.sin(a))+' ';}
+      el.setAttribute('points',pts);
+    }else{
+      el=document.createElementNS('http://www.w3.org/2000/svg','rect');
+      el.setAttribute('x',n.x-30);el.setAttribute('y',n.y-18);
+      el.setAttribute('width',60);el.setAttribute('height',36);el.setAttribute('rx',4);
+    }
+    el.setAttribute('class','node');
+    el.setAttribute('fill',typeColors[n.type]||'#53a8ff');
+    (function(node){el.onmouseenter=function(){
+      info.innerHTML='<h3>'+node.name+'</h3><p>城市: '+node.city+'</p>';
+      info.style.display='block';
+    };el.onmouseleave=function(){info.style.display='none';};})(n);
+    g.appendChild(el);
+    var txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+40);
+    txt.setAttribute('class','node-text');txt.textContent=n.name;
+    g.appendChild(txt);
+    nodesG.appendChild(g);
+  }
+}
+renderNodes();
+</script></body></html>)";            res.set_content(html, "text/html; charset=utf-8");
         } catch (const std::exception& e) {
             json j; j["ok"] = false; j["error"] = e.what();
             res.set_content(j.dump(), "application/json"); res.status = 500;
