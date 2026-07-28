@@ -776,8 +776,8 @@ h1{padding:12px 0 0;margin:0}
 .legend{padding:8px 0;margin:0}
 #map-wrap{flex:1;overflow:hidden;position:relative}
 svg{display:block;width:100%;height:100%}
-.node{stroke:#0f3460;stroke-width:2;cursor:pointer}
-.node:hover{stroke:#e94560;stroke-width:3}
+.node{cursor:pointer}
+.node:hover{stroke:#fff;stroke-width:2}
 .node-text{fill:#e0e0e0;font-size:11px;text-anchor:middle;pointer-events:none}
 .edge-line{fill:none;stroke-width:2;opacity:0.7}
 .edge-label{font-size:9px;text-anchor:middle}
@@ -792,12 +792,12 @@ svg{display:block;width:100%;height:100%}
 <h1>12306 铁路网拓扑图</h1>
 <div class="info-panel" id="info"></div>
 <div class="legend">
-<span style="background:#e94560">高铁站 ⬭</span>
-<span style="background:#53a8ff">普速站 ⬜</span>
-<span style="background:#00ff88">枢纽站 ⬢</span>
-<span style="color:#ff4444">━ 高铁线路</span>
-<span style="color:#55aaff">━ 普速线路</span>
-<span style="color:#55ff55">━ 城际线路</span>
+<span style="color:#44aaff">⬤ 枢纽站</span>
+<span style="color:#ff4444">⬤ 高铁站</span>
+<span style="color:#44ff44">⬤ 普速站</span>
+<span style="color:#ff6666">━ 高铁线路</span>
+<span style="color:#66ff66">━ 普速线路</span>
+<span style="color:#66bbff">━ 城际线路</span>
 </div>
 <div id="map-wrap"><svg id="map"></svg></div>
 <script>
@@ -805,8 +805,8 @@ var NODES=)";
             html += nodes.dump() + ";\nvar EDGES=" + edges.dump() + ";\n";
             html += R"(
 var svg=document.getElementById('map'), info=document.getElementById('info');
-var typeColors=['#e94560','#53a8ff','#00ff88'];
-var edgeColors=['#ff4444','#55aaff','#55ff55'];
+var typeColors=['#ff4444','#44ff44','#44aaff'];
+var edgeColors=['#ff6666','#66ff66','#66bbff'];
 var typePriority=[0,1,2];
 
 // 计算坐标范围
@@ -887,7 +887,7 @@ EDGES.forEach(function(e){
 
 function renderNodes(){
   nodesG.innerHTML='';
-  var threshold=60/scale;
+  var threshold=30/scale;
   var hidden=new Set();
   for(var i=0;i<NODES.length;i++){
     if(hidden.has(i))continue;
@@ -905,29 +905,18 @@ function renderNodes(){
     if(hidden.has(i))continue;
     var n=NODES[i];
     var g=document.createElementNS('http://www.w3.org/2000/svg','g');
-    var el;
-    if(n.type===0){
-      el=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-      el.setAttribute('cx',n.x);el.setAttribute('cy',n.y);
-      el.setAttribute('rx',32);el.setAttribute('ry',20);
-    }else if(n.type===2){
-      el=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-      var pts='';for(var k=0;k<6;k++){var a=Math.PI/3*k,r=24;pts+=(n.x+r*Math.cos(a))+','+(n.y+r*Math.sin(a))+' ';}
-      el.setAttribute('points',pts);
-    }else{
-      el=document.createElementNS('http://www.w3.org/2000/svg','rect');
-      el.setAttribute('x',n.x-30);el.setAttribute('y',n.y-18);
-      el.setAttribute('width',60);el.setAttribute('height',36);el.setAttribute('rx',4);
-    }
-    el.setAttribute('class','node');
+    var el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    el.setAttribute('cx',n.x);el.setAttribute('cy',n.y);
+    el.setAttribute('r',5);
     el.setAttribute('fill',typeColors[n.type]||'#53a8ff');
+    el.setAttribute('stroke',typeColors[n.type]);
     (function(node){el.onmouseenter=function(){
       info.innerHTML='<h3>'+node.name+'</h3><p>城市: '+node.city+'</p>';
       info.style.display='block';
     };el.onmouseleave=function(){info.style.display='none';};})(n);
     g.appendChild(el);
     var txt=document.createElementNS('http://www.w3.org/2000/svg','text');
-    txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+40);
+    txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+14);
     txt.setAttribute('class','node-text');txt.textContent=n.name;
     g.appendChild(txt);
     nodesG.appendChild(g);
