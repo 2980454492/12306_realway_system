@@ -652,19 +652,6 @@ void registerRoutes(RailwayServer& server) {
     });
 
     // ── 查看路网（INFRA_ADMIN）──
-    // HTML 交互版路网由 frontend/network.html 静态文件提供服务
-    app.Get("/api/admin/export/network/html", [](const httplib::Request& /*req*/, httplib::Response& res) {
-        std::ifstream f(std::string(config::FRONTEND_DIR) + "/network.html");
-        if (f) {
-            std::stringstream buf;
-            buf << f.rdbuf();
-            res.set_content(buf.str(), "text/html; charset=utf-8");
-        } else {
-            json j; j["ok"] = false; j["error"] = "network.html not found";
-            res.set_content(j.dump(), "application/json"); res.status = 404;
-        }
-    });
-
 
     // ── GET/PUT /api/admin/config — 系统配置（SYS_ADMIN）──
     app.Get("/api/admin/config", [](const httplib::Request& req, httplib::Response& res) {

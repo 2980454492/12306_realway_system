@@ -310,8 +310,11 @@ const UI = {
       UI.loadStations();
     if (name === 'lines')
       UI.loadLines();
-    if (name === 'network')
+    if (name === 'network') {
+      var c = U.$('network-container');
+      if (c) { c.innerHTML = ''; c._loaded = false; }
       UI.loadNetwork();
+    }
   },
 
   /** 返回上一页（购票→查票） */
@@ -2774,10 +2777,69 @@ const UI = {
     overlay.classList.add('show');
   },
 
-  loadNetwork: function() {
-    var frame = U.$('network-frame');
-    if (frame)
-      frame.src = '/api/admin/export/network/html';
+  loadNetwork: async function() {
+    var container = U.$('network-container');
+    if (!container || container._loaded) return;
+    container._loaded = true;
+
+    try {
+      var sr = await API.get('/api/admin/stations');
+      var lr = await API.get('/api/admin/lines');
+      if (!sr.ok || !lr.ok) { container.innerHTML='<div class="loading">加载失败</div>'; return; }
+      var stations = sr.data.data || [];
+      var lines = lr.data.data || [];
+    } catch(e) { container.innerHTML='<div class="loading">加载失败</div>'; return; }
+
+    // 经纬度投影
+    var minLat=90,maxLat=-90,minLng=180,maxLng=-180;
+    stations.forEach(function(s){minLat=Math.min(minLat,s.latitude);maxLat=Math.max(maxLat,s.latitude);minLng=Math.min(minLng,s.longitude);maxLng=Math.max(maxLng,s.longitude)});
+    var pad=40, lngR=maxLng-minLng||0.5, latR=maxLat-minLat||0.3;
+    var W=container.clientWidth, H=container.clientHeight;
+    var sc=Math.min((W-2*pad)/lngR,(H-2*pad)/latR)||1;
+    var ox=(W-lngR*sc)/2, oy=(H-latR*sc)/2;
+    function toX(lng){return ox+(lng-minLng)*sc}
+    function toY(lat){return oy+(maxLat-lat)*sc}
+
+    var NODES=stations.map(function(s){return{id:s.id,name:s.name,city:s.city,type:s.type==='HIGH_SPEED'?0:s.type==='HUB'?2:1,x:toX(s.longitude),y:toY(s.latitude),lng:s.longitude,lat:s.latitude}});
+    var EDGES=[]; lines.forEach(function(l){for(var i=0;i+1<l.stations.length;i++)EDGES.push({from:l.stations[i],to:l.stations[i+1],line_name:l.name,distance_km:l.distance_km,type:l.type==='HIGH_SPEED'?0:l.type==='INTERCITY'?2:1})});
+
+    var tc=['#ff4444','#44ff44','#44aaff'], ec=['#ff6666','#66ff66','#66bbff'], tp=[1,2,0];
+
+    var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 '+W+' '+H);
+    svg.style.cssText='display:block;width:100%;height:100%;pointer-events:auto';
+
+    var info=document.createElement('div');
+    info.style.cssText='position:absolute;top:8px;right:8px;background:rgba(22,33,62,0.95);border:1px solid #0f3460;border-radius:8px;padding:12px 16px;display:none;font-size:13px;z-index:10;pointer-events:none';
+    container.appendChild(info);
+
+    var legend=document.createElement('div');
+    legend.style.cssText='position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:16px;font-size:12px;background:rgba(26,26,46,0.9);padding:6px 16px;border-radius:8px;border:1px solid #0f3460;z-index:10';
+    legend.innerHTML='<span style="color:#ff4444">⬤ 高铁站</span><span style="color:#ff6666">━ 高铁</span><span style="color:#44ff44">⬤ 普速站</span><span style="color:#66ff66">━ 普速</span><span style="color:#44aaff">⬤ 枢纽站</span><span style="color:#66bbff">━ 城际</span>';
+    container.appendChild(legend);
+
+    var zG=document.createElementNS('http://www.w3.org/2000/svg','g');
+    var eG=document.createElementNS('http://www.w3.org/2000/svg','g');
+    var nG=document.createElementNS('http://www.w3.org/2000/svg','g');
+    zG.appendChild(eG);zG.appendChild(nG);svg.appendChild(zG);
+    container.appendChild(svg);
+    var scl=1,tx=0,ty=0;
+
+    function update(){zG.setAttribute('transform','translate('+tx+','+ty+') scale('+scl+')');renderN()}
+
+    var drag=false,dx=0,dy=0;
+    svg.addEventListener('mousedown',function(e){drag=true;dx=e.clientX-tx;dy=e.clientY-ty;svg.style.cursor='grabbing'});
+    window.addEventListener('mousemove',function(e){if(!drag)return;tx=e.clientX-dx;ty=e.clientY-dy;update()});
+    window.addEventListener('mouseup',function(){drag=false;svg.style.cursor=''});
+
+    svg.addEventListener('wheel',function(e){e.preventDefault();var mx=e.clientX-svg.getBoundingClientRect().left,my=e.clientY-svg.getBoundingClientRect().top;var os=scl;scl=Math.max(0.3,Math.min(5,scl*(e.deltaY<0?1.15:0.87)));var r=scl/os;tx=mx-r*(mx-tx);ty=my-r*(my-ty);update()});
+
+    function isClose(a,b,th){var dx=(a.x-b.x)*scl,dy=(a.y-b.y)*scl;return Math.sqrt(dx*dx+dy*dy)<th}
+
+    EDGES.forEach(function(e){var a=NODES.find(function(n){return n.id===e.from}),b=NODES.find(function(n){return n.id===e.to});if(!a||!b)return;var l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);l.setAttribute('stroke',ec[e.type]||'#66ff66');l.setAttribute('stroke-width','1.5');l.setAttribute('opacity','0.6');eG.appendChild(l);var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',(a.x+b.x)/2);t.setAttribute('y',(a.y+b.y)/2-6);t.setAttribute('fill','#707090');t.setAttribute('font-size','9');t.setAttribute('text-anchor','middle');t.textContent=e.line_name+' '+e.distance_km+'km';eG.appendChild(t)});
+
+    function renderN(){nG.innerHTML='';var th=30/scl,hidden=new Set();for(var i=0;i<NODES.length;i++){if(hidden.has(i))continue;for(var j=i+1;j<NODES.length;j++){if(hidden.has(j))continue;if(isClose(NODES[i],NODES[j],th))tp[NODES[i].type]<=tp[NODES[j].type]?hidden.add(j):hidden.add(i)}}for(var i=0;i<NODES.length;i++){if(hidden.has(i))continue;var n=NODES[i],g=document.createElementNS('http://www.w3.org/2000/svg','g'),c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r','5');c.setAttribute('fill',tc[n.type]);c.setAttribute('stroke',tc[n.type]);c.style.cursor='pointer';c.onmouseenter=function(){info.innerHTML='<h3 style="margin:0 0 8px;color:#53a8ff">'+n.name+'</h3><p style="margin:4px 0;color:#9090b0;font-size:12px">城市: '+n.city+'</p>';info.style.display='block'};c.onmouseleave=function(){info.style.display='none'};g.appendChild(c);var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',n.x);t.setAttribute('y',n.y+14);t.setAttribute('fill','#e0e0e0');t.setAttribute('font-size','11');t.setAttribute('text-anchor','middle');t.textContent=n.name;g.appendChild(t);nG.appendChild(g)}}
+    renderN();
   },
 
   closeModal: function() {
