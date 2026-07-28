@@ -651,6 +651,200 @@ void registerRoutes(RailwayServer& server) {
         }
     });
 
+    // ── 路网导出（INFRA_ADMIN）──
+
+    app.Get("/api/admin/export/network/dot", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto ctx = checkAuth(req, res, Permission::MANAGE_STATIONS);
+            if (!ctx) return;
+
+            auto& ds = DataStore::instance();
+            auto stations = ds.getAllStations();
+            auto lines = ds.getAllLines();
+
+            // 站名 → 转义 DOT 标识符
+            auto dotId = [](const std::string& name) {
+                return "\"" + name + "\"";
+            };
+
+            std::ostringstream dot;
+            dot << "graph RailwayNet {\n";
+            dot << "  rankdir=LR;\n";
+            dot << "  node [fontname=\"sans-serif\", fontsize=11];\n";
+            dot << "  edge [fontname=\"sans-serif\", fontsize=9];\n\n";
+
+            // 站点节点
+            for (const auto& s : stations) {
+                std::string shape = s.type == StationType::HIGH_SPEED ? "ellipse"
+                    : s.type == StationType::HUB ? "hexagon" : "box";
+                std::string color = s.type == StationType::HIGH_SPEED ? "#e94560"
+                    : s.type == StationType::HUB ? "#00ff88" : "#53a8ff";
+                dot << "  " << dotId(s.name) << " [shape=" << shape
+                    << ", style=filled, fillcolor=\"" << color << "\", fontcolor=white];\n";
+            }
+
+            // 线路边
+            for (const auto& l : lines) {
+                if (l.stations.size() < 2) continue;
+                std::string color = l.type == LineType::HIGH_SPEED ? "red"
+                    : l.type == LineType::INTERCITY ? "green" : "blue";
+                for (size_t i = 0; i < l.stations.size() - 1; ++i) {
+                    auto* a = ds.getStation(l.stations[i]);
+                    auto* b = ds.getStation(l.stations[i + 1]);
+                    if (!a || !b) continue;
+                    dot << "  " << dotId(a->name) << " -- " << dotId(b->name)
+                        << " [label=\"" << l.name << " " << l.distance_km << "km\""
+                        << ", color=" << color << "];\n";
+                }
+            }
+
+            dot << "}\n";
+
+            res.set_content(dot.str(), "text/plain; charset=utf-8");
+            res.set_header("Content-Disposition", "attachment; filename=railway_net.dot");
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
+    app.Get("/api/admin/export/network/html", [](const httplib::Request& /*req*/, httplib::Response& res) {
+        try {
+
+            auto& ds = DataStore::instance();
+            auto stations = ds.getAllStations();
+            auto lines = ds.getAllLines();
+            int n = static_cast<int>(stations.size());
+
+            // 生成节点和边 JSON（供 HTML 内 JS 绘制）
+            json nodes = json::array();
+            for (int i = 0; i < n; ++i) {
+                // 圆形布局：按索引均匀分布
+                double angle = 2.0 * M_PI * i / n;
+                double cx = 400 + 280 * std::cos(angle);
+                double cy = 300 + 280 * std::sin(angle);
+                nodes.push_back({
+                    {"id", stations[i].id},
+                    {"name", stations[i].name},
+                    {"city", stations[i].city},
+                    {"type", static_cast<int>(stations[i].type)},
+                    {"x", static_cast<int>(cx)},
+                    {"y", static_cast<int>(cy)}
+                });
+            }
+
+            json edges = json::array();
+            for (const auto& l : lines) {
+                for (size_t i = 0; i + 1 < l.stations.size(); ++i) {
+                    edges.push_back({
+                        {"from", l.stations[i]},
+                        {"to", l.stations[i + 1]},
+                        {"line_name", l.name},
+                        {"distance_km", l.distance_km},
+                        {"type", static_cast<int>(l.type)}
+                    });
+                }
+            }
+
+            std::string html = R"(<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><title>12306 铁路网</title>
+<style>
+body{background:#0a0a1e;color:#e0e0e0;font-family:sans-serif;margin:0;padding:20px}
+h1{text-align:center;color:#53a8ff}
+svg{display:block;margin:0 auto}
+.node{stroke:#0f3460;stroke-width:2;cursor:pointer}
+.node:hover{stroke:#e94560;stroke-width:3}
+.node-text{fill:#e0e0e0;font-size:11px;text-anchor:middle;pointer-events:none}
+.edge-line{fill:none;stroke-width:2;opacity:0.7}
+.edge-label{font-size:9px;text-anchor:middle}
+.info-panel{position:fixed;top:16px;right:16px;background:#16213e;border:1px solid #0f3460;
+  border-radius:8px;padding:16px;min-width:180px;display:none;font-size:13px}
+.info-panel h3{margin:0 0 8px;color:#53a8ff}
+.info-panel p{margin:4px 0;color:#9090b0}
+.legend{display:flex;gap:16px;justify-content:center;margin:16px 0;font-size:12px}
+.legend span{padding:2px 8px;border-radius:4px}
+</style></head>
+<body>
+<h1>12306 铁路网拓扑图</h1>
+<div class="legend">
+<span style="background:#e94560">高铁站 ⬭</span>
+<span style="background:#53a8ff">普速站 ⬜</span>
+<span style="background:#00ff88">枢纽站 ⬢</span>
+<span style="color:#ff4444">━ 高铁线路</span>
+<span style="color:#55aaff">━ 普速线路</span>
+<span style="color:#55ff55">━ 城际线路</span>
+</div>
+<svg id="map" width="800" height="600"></svg>
+<div class="info-panel" id="info"></div>
+<script>
+var NODES=)";
+            html += nodes.dump() + ";\nvar EDGES=" + edges.dump() + ";\n";
+            html += R"(
+var svg=document.getElementById('map'), info=document.getElementById('info');
+var typeColors=['#e94560','#53a8ff','#00ff88'];
+var edgeColors=['#ff4444','#55aaff','#55ff55'];
+
+// 画边
+EDGES.forEach(function(e){
+  var fn=NODES.find(function(n){return n.id===e.from});
+  var tn=NODES.find(function(n){return n.id===e.to});
+  if(!fn||!tn)return;
+  var g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  var l=document.createElementNS('http://www.w3.org/2000/svg','line');
+  l.setAttribute('x1',fn.x);l.setAttribute('y1',fn.y);
+  l.setAttribute('x2',tn.x);l.setAttribute('y2',tn.y);
+  l.setAttribute('class','edge-line');
+  l.setAttribute('stroke',edgeColors[e.type]||'#55aaff');
+  g.appendChild(l);
+  var t=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x',(fn.x+tn.x)/2);t.setAttribute('y',(fn.y+tn.y)/2);
+  t.setAttribute('class','edge-label');t.setAttribute('fill','#9090b0');
+  t.textContent=e.line_name+' '+e.distance_km+'km';
+  g.appendChild(t);
+  svg.appendChild(g);
+});
+
+// 画节点
+NODES.forEach(function(n){
+  var g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  var shape=n.type===0?'ellipse':n.type===2?'polygon':'rect';
+  var el;
+  if(shape==='ellipse'){
+    el=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+    el.setAttribute('cx',n.x);el.setAttribute('cy',n.y);
+    el.setAttribute('rx',32);el.setAttribute('ry',20);
+  }else if(shape==='polygon'){
+    el=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    var pts=''; for(var i=0;i<6;i++){var a=Math.PI/3*i,r=24;pts+=(n.x+r*Math.cos(a))+','+(n.y+r*Math.sin(a))+' ';}
+    el.setAttribute('points',pts);
+  }else{
+    el=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    el.setAttribute('x',n.x-30);el.setAttribute('y',n.y-18);
+    el.setAttribute('width',60);el.setAttribute('height',36);el.setAttribute('rx',4);
+  }
+  el.setAttribute('class','node');
+  el.setAttribute('fill',typeColors[n.type]||'#53a8ff');
+  el.onmouseenter=function(){
+    info.innerHTML='<h3>'+n.name+'</h3><p>城市: '+n.city+'</p>';
+    info.style.display='block';
+  };
+  el.onmouseleave=function(){info.style.display='none';};
+  g.appendChild(el);
+  var txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+4);
+  txt.setAttribute('class','node-text');txt.textContent=n.name;
+  g.appendChild(txt);
+  svg.appendChild(g);
+});
+</script></body></html>)";
+            res.set_content(html, "text/html; charset=utf-8");
+        } catch (const std::exception& e) {
+            json j; j["ok"] = false; j["error"] = e.what();
+            res.set_content(j.dump(), "application/json"); res.status = 500;
+        }
+    });
+
     // ── GET/PUT /api/admin/config — 系统配置（SYS_ADMIN）──
     app.Get("/api/admin/config", [](const httplib::Request& req, httplib::Response& res) {
         try {

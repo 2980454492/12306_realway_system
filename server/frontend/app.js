@@ -198,7 +198,7 @@ const U = {
         items[i].style.display = isApprover ? '' : 'none';
       else if (page === 'users' || page === 'audit' || page === 'config')
         items[i].style.display = isSysAdmin ? '' : 'none';
-      else if (page === 'stations' || page === 'lines' || page === 'infra-divider')
+      else if (page === 'stations' || page === 'lines' || page === 'network' || page === 'infra-divider')
         items[i].style.display = isInfraAdmin ? '' : 'none';
       else
         items[i].style.display = (isStaff || isApprover || isSysAdmin || isInfraAdmin) ? '' : 'none';
@@ -331,7 +331,7 @@ const UI = {
       return;
     if (name === 'config' && !isSysAdmin)
       return;
-    if ((name === 'stations' || name === 'lines') && !isInfraAdmin)
+    if ((name === 'stations' || name === 'lines' || name === 'network') && !isInfraAdmin)
       return;
     if (name === 'order-form' && data)
       State.selectedTrain = data;
@@ -2770,6 +2770,27 @@ const UI = {
     var card = overlay.querySelector('.detail-card');
     card.innerHTML = html;
     overlay.classList.add('show');
+  },
+
+  /** DOT 文件下载：通过 fetch + Blob 携带 JWT 认证信息 */
+  downloadExport: function(e, el) {
+    e.preventDefault();
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', el.href);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + State.token);
+    xhr.responseType = 'blob';
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        var url = URL.createObjectURL(xhr.response);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'railway_net.dot';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    };
+    xhr.send();
+    return false;
   },
 
   closeModal: function() {

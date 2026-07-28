@@ -6,7 +6,8 @@
 
 #include <fstream>
 #include <filesystem>
-#include <stdexcept>
+#include <vector>
+#include <cstring>
 
 namespace fs = std::filesystem;
 

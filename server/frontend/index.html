@@ -96,6 +96,9 @@
       <a class="sidebar-item staff-only" data-page="lines" style="display:none" onclick="UI.navTo('lines')">
         <span class="sidebar-icon">🛤️</span> 线路管理
       </a>
+      <a class="sidebar-item staff-only" data-page="network" style="display:none" onclick="UI.navTo('network')">
+        <span class="sidebar-icon">🗺️</span> 路网导出
+      </a>
 
     </div>
   </aside>
@@ -468,6 +471,27 @@
       <div id="lines-list"></div>
     </section>
 
+    <!-- ═══ 路网导出页（INFRA_ADMIN）═══ -->
+    <section id="page-network" class="page">
+      <h2>路网导出</h2>
+      <div style="display:flex;gap:16px;margin-top:24px">
+        <div class="form-card" style="flex:1;text-align:center">
+          <h3>📐 Graphviz DOT</h3>
+          <p style="color:#9090b0;font-size:13px;margin-bottom:16px">
+            下载 DOT 文件，使用 <code style="color:#53a8ff">dot -Tpng railway_net.dot -o railway_net.png</code> 生成 PNG
+          </p>
+          <a href="/api/admin/export/network/dot" class="btn btn-primary" onclick="return UI.downloadExport(event, this)">下载 DOT 文件</a>
+        </div>
+        <div class="form-card" style="flex:1;text-align:center">
+          <h3>🌐 HTML 交互版</h3>
+          <p style="color:#9090b0;font-size:13px;margin-bottom:16px">
+            浏览器直接打开，支持鼠标悬停查看站点详情
+          </p>
+          <a href="/api/admin/export/network/html" target="_blank" class="btn btn-primary">在新标签页打开</a>
+        </div>
+      </div>
+    </section>
+
     <!-- ═══ 系统配置页（SYS_ADMIN）═══ -->
     <section id="page-config" class="page">
       <h2>系统配置</h2>
@@ -663,6 +687,6 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=20260728a"></script>
+<script src="/app.js?v=20260728b"></script>
 </body>
 </html>
