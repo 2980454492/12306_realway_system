@@ -310,6 +310,8 @@ const UI = {
       UI.loadStations();
     if (name === 'lines')
       UI.loadLines();
+    if (name === 'network')
+      UI.loadNetwork();
   },
 
   /** 返回上一页（购票→查票） */
@@ -2772,25 +2774,10 @@ const UI = {
     overlay.classList.add('show');
   },
 
-  /** DOT 文件下载：通过 fetch + Blob 携带 JWT 认证信息 */
-  downloadExport: function(e, el) {
-    e.preventDefault();
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', el.href);
-    xhr.setRequestHeader('Authorization', 'Bearer ' + State.token);
-    xhr.responseType = 'blob';
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        var url = URL.createObjectURL(xhr.response);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'railway_net.dot';
-        a.click();
-        URL.revokeObjectURL(url);
-      }
-    };
-    xhr.send();
-    return false;
+  loadNetwork: function() {
+    var frame = U.$('network-frame');
+    if (frame)
+      frame.src = '/api/admin/export/network/html';
   },
 
   closeModal: function() {

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>12306 铁路网</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100vw;height:100vh;overflow:hidden;background:#0a0a1e;color:#e0e0e0;font-family:sans-serif}
+svg{display:block;width:100%;height:100%}
+.node{cursor:pointer}
+.node:hover{stroke:#fff;stroke-width:2}
+.node-text{fill:#e0e0e0;font-size:11px;text-anchor:middle;pointer-events:none}
+.edge-line{fill:none;stroke-width:1.5;opacity:0.6}
+.edge-label{font-size:9px;text-anchor:middle}
+.info-panel{position:fixed;top:16px;right:16px;background:rgba(22,33,62,0.95);border:1px solid #0f3460;
+  border-radius:8px;padding:16px;min-width:180px;display:none;font-size:13px;z-index:10;pointer-events:none}
+.info-panel h3{margin:0 0 8px;color:#53a8ff}
+.info-panel p{margin:4px 0;color:#9090b0;font-size:12px}
+.legend{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10;
+  display:flex;gap:16px;font-size:12px;background:rgba(10,10,30,0.85);padding:6px 16px;border-radius:8px;border:1px solid #0f3460}
+</style>
+</head>
+<body>
+<div class="info-panel" id="info"></div>
+<div class="legend" id="legend"></div>
+<svg id="map"></svg>
+<script>
+var stations, lines;
+var svg=document.getElementById('map'), info=document.getElementById('info');
+
+fetch('/api/admin/stations', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwt_token') || '') } })
+  .then(function(r){ return r.json(); })
+  .then(function(j){ if(!j.ok) throw new Error(j.error); stations=j.data; return fetch('/api/admin/lines', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwt_token') || '') } }); })
+  .then(function(r){ return r.json(); })
+  .then(function(j){ if(!j.ok) throw new Error(j.error); lines=j.data; initMap(); })
+  .catch(function(e){ document.body.innerHTML='<div style="text-align:center;padding:40px;color:#ff4444">加载失败: '+e.message+'</div>'; });
+
+function initMap() {
+  // 经纬度 → 画布坐标
+  var minLat=90,maxLat=-90,minLng=180,maxLng=-180;
+  stations.forEach(function(s){
+    if(s.latitude<minLat)minLat=s.latitude; if(s.latitude>maxLat)maxLat=s.latitude;
+    if(s.longitude<minLng)minLng=s.longitude; if(s.longitude>maxLng)maxLng=s.longitude;
+  });
+  var pad=40;
+  var lngR=maxLng-minLng||0.5, latR=maxLat-minLat||0.3;
+  var scale=Math.min((svg.clientWidth-2*pad)/lngR, (svg.clientHeight-2*pad)/latR)||1;
+  var ox=(svg.clientWidth-lngR*scale)/2, oy=(svg.clientHeight-latR*scale)/2;
+  function toX(lng){ return ox+(lng-minLng)*scale; }
+  function toY(lat){ return oy+(maxLat-lat)*scale; }
+
+  // 节点数据
+  var NODES=stations.map(function(s,i){
+    return {id:s.id, name:s.name, city:s.city, type:s.type==='HIGH_SPEED'?0:s.type==='HUB'?2:1,
+      x:toX(s.longitude), y:toY(s.latitude), lng:s.longitude, lat:s.latitude};
+  });
+
+  var EDGES=[];
+  lines.forEach(function(l){
+    for(var i=0;i+1<l.stations.length;i++)
+      EDGES.push({from:l.stations[i], to:l.stations[i+1], line_name:l.name, distance_km:l.distance_km,
+        type:l.type==='HIGH_SPEED'?0:l.type==='INTERCITY'?2:1});
+  });
+
+  var typeColors=['#ff4444','#44ff44','#44aaff'];
+  var edgeColors=['#ff6666','#66ff66','#66bbff'];
+  var typePriority=[1,2,0];  // HUB>HIGH_SPEED>NORMAL
+
+  var zoomG=document.createElementNS('http://www.w3.org/2000/svg','g');
+  var edgesG=document.createElementNS('http://www.w3.org/2000/svg','g');
+  var nodesG=document.createElementNS('http://www.w3.org/2000/svg','g');
+  zoomG.appendChild(edgesG);
+  zoomG.appendChild(nodesG);
+  svg.appendChild(zoomG);
+  var sc=1, tx=0, ty=0;
+
+  function updateTransform(){
+    zoomG.setAttribute('transform','translate('+tx+','+ty+') scale('+sc+')');
+    renderNodes();
+  }
+
+  // 拖动
+  var dragging=false, dragX=0, dragY=0;
+  svg.addEventListener('mousedown',function(e){ dragging=true; dragX=e.clientX-tx; dragY=e.clientY-ty; svg.style.cursor='grabbing'; });
+  window.addEventListener('mousemove',function(e){ if(!dragging)return; tx=e.clientX-dragX; ty=e.clientY-dragY; updateTransform(); });
+  window.addEventListener('mouseup',function(){ dragging=false; svg.style.cursor=''; });
+
+  // 滚轮缩放
+  svg.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var rect=svg.getBoundingClientRect();
+    var mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    var oldSc=sc;
+    sc=Math.max(0.3,Math.min(5,sc*(e.deltaY<0?1.15:0.87)));
+    var ratio=sc/oldSc;
+    tx=mx-ratio*(mx-tx);
+    ty=my-ratio*(my-ty);
+    updateTransform();
+  });
+
+  function isClose(n1,n2,th){ var dx=(n1.x-n2.x)*sc, dy=(n1.y-n2.y)*sc; return Math.sqrt(dx*dx+dy*dy)<th; }
+
+  // 边
+  EDGES.forEach(function(e){
+    var fn=NODES.find(function(n){return n.id===e.from}), tn=NODES.find(function(n){return n.id===e.to});
+    if(!fn||!tn)return;
+    var l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',fn.x);l.setAttribute('y1',fn.y);
+    l.setAttribute('x2',tn.x);l.setAttribute('y2',tn.y);
+    l.setAttribute('class','edge-line');
+    l.setAttribute('stroke',edgeColors[e.type]||'#66ff66');
+    edgesG.appendChild(l);
+    var t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',(fn.x+tn.x)/2);t.setAttribute('y',(fn.y+tn.y)/2-6);
+    t.setAttribute('class','edge-label');t.setAttribute('fill','#707090');
+    t.textContent=e.line_name+' '+e.distance_km+'km';
+    edgesG.appendChild(t);
+  });
+
+  function renderNodes(){
+    nodesG.innerHTML='';
+    var th=30/sc, hidden=new Set();
+    for(var i=0;i<NODES.length;i++){
+      if(hidden.has(i))continue;
+      for(var j=i+1;j<NODES.length;j++){
+        if(hidden.has(j))continue;
+        if(isClose(NODES[i],NODES[j],th)){
+          if(typePriority[NODES[i].type]<=typePriority[NODES[j].type]) hidden.add(j);
+          else hidden.add(i);
+        }
+      }
+    }
+    for(var i=0;i<NODES.length;i++){
+      if(hidden.has(i))continue;
+      var n=NODES[i];
+      var g=document.createElementNS('http://www.w3.org/2000/svg','g');
+      var el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      el.setAttribute('cx',n.x);el.setAttribute('cy',n.y);
+      el.setAttribute('r',5);
+      el.setAttribute('fill',typeColors[n.type]);
+      el.setAttribute('stroke',typeColors[n.type]);
+      el.setAttribute('class','node');
+      (function(node){el.onmouseenter=function(){
+        info.innerHTML='<h3>'+node.name+'</h3><p>城市: '+node.city+'</p><p>'+node.lng.toFixed(2)+'°E '+node.lat.toFixed(2)+'°N</p>';
+        info.style.display='block';
+      };el.onmouseleave=function(){info.style.display='none';};})(n);
+      g.appendChild(el);
+      var txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+14);
+      txt.setAttribute('class','node-text');txt.textContent=n.name;
+      g.appendChild(txt);
+      nodesG.appendChild(g);
+    }
+  }
+  renderNodes();
+
+  // 图例
+  document.getElementById('legend').innerHTML='<span style="color:#ff4444">⬤ 高铁站</span><span style="color:#ff6666">━ 高铁</span>'
+    +'<span style="color:#44ff44">⬤ 普速站</span><span style="color:#66ff66">━ 普速</span>'
+    +'<span style="color:#44aaff">⬤ 枢纽站</span><span style="color:#66bbff">━ 城际</span>';
+}
+</script>
+</body>
+</html>
