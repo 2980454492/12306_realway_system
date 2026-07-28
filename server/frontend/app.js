@@ -2782,13 +2782,17 @@ const UI = {
     if (!container || container._loaded) return;
     container._loaded = true;
 
+    // 图例
+    var legEl = U.$('network-legend');
+    if (legEl) legEl.innerHTML = '<div style="display:flex;gap:16px"><span style="color:#44aaff">⬤ 枢纽站</span><span style="color:#ff4444">⬤ 高铁站</span><span style="color:#44ff44">⬤ 普速站</span></div><div style="display:flex;gap:16px"><span style="color:#ff6666">━ 高铁线路</span><span style="color:#66ff66">━ 普速线路</span><span style="color:#66bbff">━ 城际线路</span></div>';
+
     try {
       var sr = await API.get('/api/admin/stations');
       var lr = await API.get('/api/admin/lines');
-      if (!sr.ok || !lr.ok) { container.innerHTML='<div class="loading">加载失败</div>'; return; }
+      if (!sr.ok || !lr.ok) { container.innerHTML = '<div class="loading">加载失败</div>'; return; }
       var stations = sr.data.data || [];
       var lines = lr.data.data || [];
-    } catch(e) { container.innerHTML='<div class="loading">加载失败</div>'; return; }
+    } catch(e) { container.innerHTML = '<div class="loading">加载失败</div>'; return; }
 
     // 经纬度投影
     var minLat=90,maxLat=-90,minLng=180,maxLng=-180;
@@ -2812,11 +2816,6 @@ const UI = {
     var info=document.createElement('div');
     info.style.cssText='position:absolute;top:8px;right:8px;background:rgba(22,33,62,0.95);border:1px solid #0f3460;border-radius:8px;padding:12px 16px;display:none;font-size:13px;z-index:10;pointer-events:none';
     container.appendChild(info);
-
-    var legend=document.createElement('div');
-    legend.style.cssText='position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:16px;font-size:12px;background:rgba(26,26,46,0.9);padding:6px 16px;border-radius:8px;border:1px solid #0f3460;z-index:10';
-    legend.innerHTML='<span style="color:#ff4444">⬤ 高铁站</span><span style="color:#ff6666">━ 高铁</span><span style="color:#44ff44">⬤ 普速站</span><span style="color:#66ff66">━ 普速</span><span style="color:#44aaff">⬤ 枢纽站</span><span style="color:#66bbff">━ 城际</span>';
-    container.appendChild(legend);
 
     var zG=document.createElementNS('http://www.w3.org/2000/svg','g');
     var eG=document.createElementNS('http://www.w3.org/2000/svg','g');
