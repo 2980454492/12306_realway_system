@@ -831,6 +831,22 @@ function updateTransform(){
   renderNodes();
 }
 
+// 鼠标拖动平移
+var dragging=false, dragX=0, dragY=0;
+svg.addEventListener('mousedown',function(e){
+  dragging=true;
+  dragX=e.clientX-tx;
+  dragY=e.clientY-ty;
+  svg.style.cursor='grabbing';
+});
+window.addEventListener('mousemove',function(e){
+  if(!dragging)return;
+  tx=e.clientX-dragX;
+  ty=e.clientY-dragY;
+  updateTransform();
+});
+window.addEventListener('mouseup',function(){dragging=false;svg.style.cursor='';});
+
 svg.addEventListener('wheel',function(e){
   e.preventDefault();
   var rect=svg.getBoundingClientRect();
