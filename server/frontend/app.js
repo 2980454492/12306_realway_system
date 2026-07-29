@@ -2811,7 +2811,7 @@ const UI = {
 
     var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
     svg.setAttribute('viewBox','0 0 '+W+' '+H);
-    svg.style.cssText='display:block;width:100%;height:100%;pointer-events:auto';
+    svg.style.cssText='display:block;width:100%;height:100%;pointer-events:auto;user-select:none;-webkit-user-select:none';
 
     var info=document.createElement('div');
     info.style.cssText='position:absolute;top:8px;right:8px;background:rgba(22,33,62,0.95);border:1px solid #0f3460;border-radius:8px;padding:12px 16px;display:none;font-size:13px;z-index:10;pointer-events:none';
