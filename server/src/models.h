@@ -176,8 +176,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Station, id, name, city, type, latitude, long
 /** 线路 — 铁路网中的边，含沿途所有站点序列（含端点和中间站） */
 struct Line {
     uint32_t id = 0;
-    std::string name;                   // 线路名（如"京包高铁"）
-    std::vector<uint32_t> stations;     // 沿途站点 ID 序列（按地理方向，首个=起点，末个=终点）
+    std::string name;                      // 线路名（如"京包高铁"）
+    std::vector<std::string> stations;     // 沿途城市名序列（首个=起点，末个=终点）
     double distance_km = 0.0;           // 里程（公里）
     uint32_t max_speed_kmh = 0;         // 设计时速
     LineType type = LineType::NORMAL;

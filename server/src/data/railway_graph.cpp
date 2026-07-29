@@ -65,17 +65,25 @@ void RailwayGraph::build(const std::vector<Line>& lines) {
 
     auto& ds = DataStore::instance();
 
+    // 城市名 → 站点 ID 辅助函数
+    auto stationId = [&](const std::string& city) -> uint32_t {
+        for (const auto& st : ds.getAllStations())
+            if (st.city == city) return st.id;
+        return 0;
+    };
+
     for (const auto& line : lines) {
         if (line.stations.size() < 2) continue;
 
         for (size_t i = 0; i + 1 < line.stations.size(); ++i) {
-            auto* sa = ds.getStation(line.stations[i]);
-            auto* sb = ds.getStation(line.stations[i + 1]);
+            uint32_t u = stationId(line.stations[i]);
+            uint32_t v = stationId(line.stations[i + 1]);
+            if (!u || !v) continue;
+            auto* sa = ds.getStation(u);
+            auto* sb = ds.getStation(v);
             if (!sa || !sb) continue;
 
             double dist = haversineDist(*sa, *sb);
-            uint32_t u = line.stations[i];
-            uint32_t v = line.stations[i + 1];
 
             auto& mu = adjacency_[u];
             auto it_u = mu.find(v);

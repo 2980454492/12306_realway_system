@@ -2735,7 +2735,7 @@ const UI = {
       + '<option value="HIGH_SPEED"' + (line && line.type==='HIGH_SPEED'?' selected':'') + '>高铁</option>'
       + '<option value="NORMAL"' + (line && line.type==='NORMAL'?' selected':'') + '>普速</option>'
       + '<option value="INTERCITY"' + (line && line.type==='INTERCITY'?' selected':'') + '>城际</option></select></div>'
-      + '<div class="form-group"><label>站点序列（ID逗号分隔）</label><input id="lf-stations" class="input" value="' + (line ? (line.stations||[]).join(',') : '') + '"></div>'
+      + '<div class="form-group"><label>站点城市名（逗号分隔）</label><input id="lf-stations" class="input" value="' + (line ? (line.stations||[]).join(',') : '') + '"></div>'
       + '<div class="form-group"><label>里程（km）</label><input id="lf-distance" class="input" type="number" step="0.1" value="' + (line ? line.distance_km : '') + '"></div>'
       + '<div class="form-group"><label>设计时速（km/h）</label><input id="lf-speed" class="input" type="number" value="' + (line ? line.max_speed_kmh : '') + '"></div>'
       + '<div style="display:flex;gap:8px;margin-top:16px"><button class="btn btn-primary" onclick="UI.saveLine(' + (line ? line.id : 0) + ')">保存</button>'
@@ -2744,11 +2744,11 @@ const UI = {
   },
 
   saveLine: async function(id) {
-    var stationIds = U.$('lf-stations').value.split(',').map(function(s){return parseInt(s.trim())||0;}).filter(function(n){return n>0;});
+    var cityNames = U.$('lf-stations').value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
     var body = {
       name: U.$('lf-name').value.trim(),
       type: U.$('lf-type').value,
-      stations: stationIds,
+      stations: cityNames,
       distance_km: parseFloat(U.$('lf-distance').value) || 0,
       max_speed_kmh: parseInt(U.$('lf-speed').value) || 0
     };
@@ -2806,6 +2806,7 @@ const UI = {
 
     var NODES=stations.map(function(s){return{id:s.id,name:s.name,city:s.city,type:s.type==='HIGH_SPEED'?0:s.type==='HUB'?2:1,x:toX(s.longitude),y:toY(s.latitude),lng:s.longitude,lat:s.latitude}});
     var EDGES=[]; lines.forEach(function(l){for(var i=0;i+1<l.stations.length;i++)EDGES.push({from:l.stations[i],to:l.stations[i+1],line_name:l.name,distance_km:l.distance_km,type:l.type==='HIGH_SPEED'?0:l.type==='INTERCITY'?2:1})});
+    var nodeById={}; NODES.forEach(function(n){nodeById[n.id]=n;nodeById[n.city]=n});  // 同时索引 id + city
 
     var tc=['#ff4444','#44ff44','#44aaff'], ec=['#ff6666','#66ff66','#66bbff'], tp=[1,2,0];
 
@@ -2839,7 +2840,6 @@ const UI = {
 
     function ek(e){return e.from<e.to?e.from+'-'+e.to:e.to+'-'+e.from}
     var edgeCount={}; EDGES.forEach(function(e){var k=ek(e);edgeCount[k]=(edgeCount[k]||0)+1});
-    var nodeById={}; NODES.forEach(function(n){nodeById[n.id]=n});
     function isClose(a,b,th){var dx=(a.x-b.x)*scl,dy=(a.y-b.y)*scl;return Math.sqrt(dx*dx+dy*dy)<th}
 
     function renderN(){

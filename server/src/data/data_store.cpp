@@ -129,7 +129,18 @@ bool DataStore::loadLines() {
     try {
         json j;
         file >> j;
-        lines_ = j.get<std::vector<Line>>();
+        lines_.clear();
+        for (auto& jl : j) {
+            Line line;
+            line.id = jl.value("id", 0U);
+            line.name = jl.value("name", "");
+            line.distance_km = jl.value("distance_km", 0.0);
+            line.max_speed_kmh = jl.value("max_speed_kmh", 0U);
+            line.type = jl.value("type", LineType::NORMAL);
+            for (const auto& s : jl["stations"])
+                line.stations.push_back(s.get<std::string>());
+            lines_.push_back(std::move(line));
+        }
         Logger::instance().info("Loaded " + std::to_string(lines_.size()) + " lines");
         return true;
     } catch (const std::exception& e) {
@@ -383,14 +394,17 @@ void DataStore::buildStationLineIndex() {
     station_line_index_.clear();
 
     for (const auto& line : lines_) {
-        const auto& ids = line.stations;
+        // 城市名 → 站点 ID
+        std::vector<uint32_t> ids;
+        for (const auto& city : line.stations)
+            for (const auto& st : stations_)
+                if (st.city == city) { ids.push_back(st.id); break; }
         if (ids.size() < 2) continue;
 
         for (size_t i = 0; i < ids.size(); ++i) {
             uint32_t cur = ids[i];
             std::vector<LineNeighbor> neighbors;
 
-            // 前一站（若存在）
             if (i > 0) {
                 auto* prev_st = getStation(ids[i - 1]);
                 auto* cur_st = getStation(cur);
