@@ -1,22 +1,2554 @@
 [
-  {"id": 1,  "name": "呼和浩特东", "city": "呼和浩特",   "type": "HUB",        "latitude": 40.88,  "longitude": 111.76},
-  {"id": 2,  "name": "呼和浩特",   "city": "呼和浩特",   "type": "NORMAL",     "latitude": 40.82,  "longitude": 111.66},
-  {"id": 3,  "name": "包头",       "city": "包头",       "type": "HUB",        "latitude": 40.66,  "longitude": 109.84},
-  {"id": 4,  "name": "包头东",     "city": "包头",       "type": "NORMAL",     "latitude": 40.58,  "longitude": 110.03},
-  {"id": 5,  "name": "鄂尔多斯",   "city": "鄂尔多斯",   "type": "HUB",        "latitude": 39.61,  "longitude": 109.78},
-  {"id": 6,  "name": "东胜西",     "city": "鄂尔多斯",   "type": "NORMAL",     "latitude": 39.81,  "longitude": 109.99},
-  {"id": 7,  "name": "集宁南",     "city": "乌兰察布",   "type": "NORMAL",     "latitude": 40.99,  "longitude": 113.11},
-  {"id": 8,  "name": "乌兰察布",   "city": "乌兰察布",   "type": "HIGH_SPEED", "latitude": 40.99,  "longitude": 113.15},
-  {"id": 9,  "name": "临河",       "city": "巴彦淖尔",   "type": "NORMAL",     "latitude": 40.75,  "longitude": 107.39},
-  {"id": 10, "name": "乌海",       "city": "乌海",       "type": "NORMAL",     "latitude": 39.66,  "longitude": 106.82},
-  {"id": 11, "name": "准格尔",     "city": "准格尔旗",   "type": "NORMAL",     "latitude": 39.68,  "longitude": 110.87},
-  {"id": 12, "name": "达拉特西",   "city": "达拉特旗",   "type": "NORMAL",     "latitude": 40.21,  "longitude": 110.00},
-  {"id": 13, "name": "萨拉齐",     "city": "土默特右旗", "type": "NORMAL",     "latitude": 40.55,  "longitude": 110.51},
-  {"id": 14, "name": "察素齐",     "city": "土默特左旗", "type": "NORMAL",     "latitude": 40.68,  "longitude": 111.23},
-  {"id": 15, "name": "托克托东",   "city": "托克托县",   "type": "HIGH_SPEED", "latitude": 40.28,  "longitude": 111.18},
-  {"id": 16, "name": "土默特右旗", "city": "土默特右旗", "type": "NORMAL",     "latitude": 40.57,  "longitude": 110.52},
-  {"id": 17, "name": "白云鄂博",   "city": "白云鄂博",   "type": "NORMAL",     "latitude": 41.77,  "longitude": 109.97},
-  {"id": 18, "name": "乌审旗",     "city": "乌审旗",     "type": "NORMAL",     "latitude": 38.62,  "longitude": 108.83},
-  {"id": 19, "name": "卓资东",     "city": "卓资县",     "type": "HIGH_SPEED", "latitude": 40.90,  "longitude": 112.56},
-  {"id": 20, "name": "旗下营南",   "city": "卓资县",     "type": "HIGH_SPEED", "latitude": 40.85,  "longitude": 112.20}
+  {
+    "id": 1,
+    "name": "北京",
+    "city": "北京",
+    "type": "HUB",
+    "latitude": 39.899,
+    "longitude": 116.401
+  },
+  {
+    "id": 2,
+    "name": "上海",
+    "city": "上海",
+    "type": "HUB",
+    "latitude": 31.229,
+    "longitude": 121.471
+  },
+  {
+    "id": 3,
+    "name": "天津",
+    "city": "天津",
+    "type": "HUB",
+    "latitude": 39.129,
+    "longitude": 117.201
+  },
+  {
+    "id": 4,
+    "name": "重庆",
+    "city": "重庆",
+    "type": "HUB",
+    "latitude": 29.559,
+    "longitude": 106.55
+  },
+  {
+    "id": 5,
+    "name": "石家庄",
+    "city": "石家庄",
+    "type": "HUB",
+    "latitude": 38.041,
+    "longitude": 114.511
+  },
+  {
+    "id": 6,
+    "name": "唐山",
+    "city": "唐山",
+    "type": "NORMAL",
+    "latitude": 39.63,
+    "longitude": 118.18
+  },
+  {
+    "id": 7,
+    "name": "秦皇岛",
+    "city": "秦皇岛",
+    "type": "NORMAL",
+    "latitude": 39.93,
+    "longitude": 119.6
+  },
+  {
+    "id": 8,
+    "name": "邯郸",
+    "city": "邯郸",
+    "type": "NORMAL",
+    "latitude": 36.611,
+    "longitude": 114.529
+  },
+  {
+    "id": 9,
+    "name": "邢台",
+    "city": "邢台",
+    "type": "NORMAL",
+    "latitude": 37.071,
+    "longitude": 114.499
+  },
+  {
+    "id": 10,
+    "name": "保定",
+    "city": "保定",
+    "type": "NORMAL",
+    "latitude": 38.869,
+    "longitude": 115.5
+  },
+  {
+    "id": 11,
+    "name": "张家口",
+    "city": "张家口",
+    "type": "NORMAL",
+    "latitude": 40.769,
+    "longitude": 114.88
+  },
+  {
+    "id": 12,
+    "name": "承德",
+    "city": "承德",
+    "type": "NORMAL",
+    "latitude": 40.949,
+    "longitude": 117.961
+  },
+  {
+    "id": 13,
+    "name": "沧州",
+    "city": "沧州",
+    "type": "NORMAL",
+    "latitude": 38.3,
+    "longitude": 116.839
+  },
+  {
+    "id": 14,
+    "name": "廊坊",
+    "city": "廊坊",
+    "type": "NORMAL",
+    "latitude": 39.521,
+    "longitude": 116.68
+  },
+  {
+    "id": 15,
+    "name": "衡水",
+    "city": "衡水",
+    "type": "NORMAL",
+    "latitude": 37.741,
+    "longitude": 115.671
+  },
+  {
+    "id": 16,
+    "name": "太原",
+    "city": "太原",
+    "type": "HUB",
+    "latitude": 37.871,
+    "longitude": 112.549
+  },
+  {
+    "id": 17,
+    "name": "大同",
+    "city": "大同",
+    "type": "NORMAL",
+    "latitude": 40.079,
+    "longitude": 113.301
+  },
+  {
+    "id": 18,
+    "name": "阳泉",
+    "city": "阳泉",
+    "type": "NORMAL",
+    "latitude": 37.859,
+    "longitude": 113.581
+  },
+  {
+    "id": 19,
+    "name": "长治",
+    "city": "长治",
+    "type": "NORMAL",
+    "latitude": 36.199,
+    "longitude": 113.119
+  },
+  {
+    "id": 20,
+    "name": "晋城",
+    "city": "晋城",
+    "type": "NORMAL",
+    "latitude": 35.499,
+    "longitude": 112.851
+  },
+  {
+    "id": 21,
+    "name": "朔州",
+    "city": "朔州",
+    "type": "NORMAL",
+    "latitude": 39.319,
+    "longitude": 112.43
+  },
+  {
+    "id": 22,
+    "name": "忻州",
+    "city": "忻州",
+    "type": "NORMAL",
+    "latitude": 38.419,
+    "longitude": 112.731
+  },
+  {
+    "id": 23,
+    "name": "吕梁",
+    "city": "吕梁",
+    "type": "NORMAL",
+    "latitude": 37.521,
+    "longitude": 111.139
+  },
+  {
+    "id": 24,
+    "name": "晋中",
+    "city": "晋中",
+    "type": "NORMAL",
+    "latitude": 37.69,
+    "longitude": 112.75
+  },
+  {
+    "id": 25,
+    "name": "临汾",
+    "city": "临汾",
+    "type": "NORMAL",
+    "latitude": 36.089,
+    "longitude": 111.519
+  },
+  {
+    "id": 26,
+    "name": "运城",
+    "city": "运城",
+    "type": "NORMAL",
+    "latitude": 35.03,
+    "longitude": 111.0
+  },
+  {
+    "id": 27,
+    "name": "呼和浩特",
+    "city": "呼和浩特",
+    "type": "HUB",
+    "latitude": 40.82,
+    "longitude": 111.751
+  },
+  {
+    "id": 28,
+    "name": "包头",
+    "city": "包头",
+    "type": "HUB",
+    "latitude": 40.659,
+    "longitude": 109.84
+  },
+  {
+    "id": 29,
+    "name": "乌海",
+    "city": "乌海",
+    "type": "NORMAL",
+    "latitude": 39.661,
+    "longitude": 106.801
+  },
+  {
+    "id": 30,
+    "name": "赤峰",
+    "city": "赤峰",
+    "type": "NORMAL",
+    "latitude": 42.26,
+    "longitude": 118.891
+  },
+  {
+    "id": 31,
+    "name": "通辽",
+    "city": "通辽",
+    "type": "NORMAL",
+    "latitude": 43.621,
+    "longitude": 122.27
+  },
+  {
+    "id": 32,
+    "name": "鄂尔多斯",
+    "city": "鄂尔多斯",
+    "type": "NORMAL",
+    "latitude": 39.611,
+    "longitude": 109.779
+  },
+  {
+    "id": 33,
+    "name": "海拉尔",
+    "city": "呼伦贝尔",
+    "type": "NORMAL",
+    "latitude": 49.213,
+    "longitude": 119.761
+  },
+  {
+    "id": 34,
+    "name": "巴彦淖尔",
+    "city": "巴彦淖尔",
+    "type": "NORMAL",
+    "latitude": 40.75,
+    "longitude": 107.42
+  },
+  {
+    "id": 35,
+    "name": "乌兰察布",
+    "city": "乌兰察布",
+    "type": "NORMAL",
+    "latitude": 40.989,
+    "longitude": 113.151
+  },
+  {
+    "id": 36,
+    "name": "乌兰浩特",
+    "city": "兴安",
+    "type": "NORMAL",
+    "latitude": 46.083,
+    "longitude": 122.031
+  },
+  {
+    "id": 37,
+    "name": "锡林浩特",
+    "city": "锡林郭勒",
+    "type": "NORMAL",
+    "latitude": 43.93,
+    "longitude": 116.084
+  },
+  {
+    "id": 38,
+    "name": "沈阳",
+    "city": "沈阳",
+    "type": "HUB",
+    "latitude": 41.801,
+    "longitude": 123.431
+  },
+  {
+    "id": 39,
+    "name": "大连",
+    "city": "大连",
+    "type": "HUB",
+    "latitude": 38.911,
+    "longitude": 121.61
+  },
+  {
+    "id": 40,
+    "name": "鞍山",
+    "city": "鞍山",
+    "type": "NORMAL",
+    "latitude": 41.11,
+    "longitude": 122.991
+  },
+  {
+    "id": 41,
+    "name": "抚顺",
+    "city": "抚顺",
+    "type": "NORMAL",
+    "latitude": 41.879,
+    "longitude": 123.96
+  },
+  {
+    "id": 42,
+    "name": "本溪",
+    "city": "本溪",
+    "type": "NORMAL",
+    "latitude": 41.291,
+    "longitude": 123.77
+  },
+  {
+    "id": 43,
+    "name": "丹东",
+    "city": "丹东",
+    "type": "HIGH_SPEED",
+    "latitude": 40.13,
+    "longitude": 124.38
+  },
+  {
+    "id": 44,
+    "name": "锦州",
+    "city": "锦州",
+    "type": "NORMAL",
+    "latitude": 41.1,
+    "longitude": 121.13
+  },
+  {
+    "id": 45,
+    "name": "营口",
+    "city": "营口",
+    "type": "NORMAL",
+    "latitude": 40.671,
+    "longitude": 122.23
+  },
+  {
+    "id": 46,
+    "name": "阜新",
+    "city": "阜新",
+    "type": "NORMAL",
+    "latitude": 42.019,
+    "longitude": 121.67
+  },
+  {
+    "id": 47,
+    "name": "辽阳",
+    "city": "辽阳",
+    "type": "NORMAL",
+    "latitude": 41.269,
+    "longitude": 123.18
+  },
+  {
+    "id": 48,
+    "name": "盘锦",
+    "city": "盘锦",
+    "type": "NORMAL",
+    "latitude": 41.119,
+    "longitude": 122.071
+  },
+  {
+    "id": 49,
+    "name": "铁岭",
+    "city": "铁岭",
+    "type": "NORMAL",
+    "latitude": 42.289,
+    "longitude": 123.84
+  },
+  {
+    "id": 50,
+    "name": "朝阳南",
+    "city": "朝阳",
+    "type": "HIGH_SPEED",
+    "latitude": 41.551,
+    "longitude": 120.453
+  },
+  {
+    "id": 51,
+    "name": "葫芦岛",
+    "city": "葫芦岛",
+    "type": "NORMAL",
+    "latitude": 40.751,
+    "longitude": 120.829
+  },
+  {
+    "id": 52,
+    "name": "长春",
+    "city": "长春",
+    "type": "HUB",
+    "latitude": 43.879,
+    "longitude": 125.319
+  },
+  {
+    "id": 53,
+    "name": "吉林",
+    "city": "吉林",
+    "type": "NORMAL",
+    "latitude": 43.839,
+    "longitude": 126.549
+  },
+  {
+    "id": 54,
+    "name": "四平",
+    "city": "四平",
+    "type": "NORMAL",
+    "latitude": 43.171,
+    "longitude": 124.369
+  },
+  {
+    "id": 55,
+    "name": "辽源",
+    "city": "辽源",
+    "type": "NORMAL",
+    "latitude": 42.889,
+    "longitude": 125.14
+  },
+  {
+    "id": 56,
+    "name": "通化",
+    "city": "通化",
+    "type": "NORMAL",
+    "latitude": 41.729,
+    "longitude": 125.929
+  },
+  {
+    "id": 57,
+    "name": "白山市",
+    "city": "白山",
+    "type": "NORMAL",
+    "latitude": 41.937,
+    "longitude": 126.429
+  },
+  {
+    "id": 58,
+    "name": "松原",
+    "city": "松原",
+    "type": "NORMAL",
+    "latitude": 45.139,
+    "longitude": 124.821
+  },
+  {
+    "id": 59,
+    "name": "白城",
+    "city": "白城",
+    "type": "NORMAL",
+    "latitude": 45.62,
+    "longitude": 122.841
+  },
+  {
+    "id": 60,
+    "name": "延吉",
+    "city": "延边",
+    "type": "NORMAL",
+    "latitude": 42.904,
+    "longitude": 129.513
+  },
+  {
+    "id": 61,
+    "name": "哈尔滨",
+    "city": "哈尔滨",
+    "type": "HUB",
+    "latitude": 45.759,
+    "longitude": 126.64
+  },
+  {
+    "id": 62,
+    "name": "齐齐哈尔",
+    "city": "齐齐哈尔",
+    "type": "NORMAL",
+    "latitude": 47.34,
+    "longitude": 123.959
+  },
+  {
+    "id": 63,
+    "name": "牡丹江",
+    "city": "牡丹江",
+    "type": "NORMAL",
+    "latitude": 44.581,
+    "longitude": 129.61
+  },
+  {
+    "id": 64,
+    "name": "佳木斯",
+    "city": "佳木斯",
+    "type": "NORMAL",
+    "latitude": 46.799,
+    "longitude": 130.321
+  },
+  {
+    "id": 65,
+    "name": "大庆",
+    "city": "大庆",
+    "type": "NORMAL",
+    "latitude": 46.59,
+    "longitude": 125.03
+  },
+  {
+    "id": 66,
+    "name": "鸡西",
+    "city": "鸡西",
+    "type": "HIGH_SPEED",
+    "latitude": 45.301,
+    "longitude": 130.97
+  },
+  {
+    "id": 67,
+    "name": "鹤岗",
+    "city": "鹤岗",
+    "type": "NORMAL",
+    "latitude": 47.329,
+    "longitude": 130.299
+  },
+  {
+    "id": 68,
+    "name": "双鸭山",
+    "city": "双鸭山",
+    "type": "NORMAL",
+    "latitude": 46.639,
+    "longitude": 131.161
+  },
+  {
+    "id": 69,
+    "name": "伊春",
+    "city": "伊春",
+    "type": "NORMAL",
+    "latitude": 47.729,
+    "longitude": 128.899
+  },
+  {
+    "id": 70,
+    "name": "七台河",
+    "city": "七台河",
+    "type": "NORMAL",
+    "latitude": 45.771,
+    "longitude": 131.001
+  },
+  {
+    "id": 71,
+    "name": "黑河",
+    "city": "黑河",
+    "type": "NORMAL",
+    "latitude": 50.251,
+    "longitude": 127.491
+  },
+  {
+    "id": 72,
+    "name": "绥化",
+    "city": "绥化",
+    "type": "NORMAL",
+    "latitude": 46.639,
+    "longitude": 126.971
+  },
+  {
+    "id": 73,
+    "name": "加格达奇",
+    "city": "大兴安岭",
+    "type": "NORMAL",
+    "latitude": 50.419,
+    "longitude": 124.12
+  },
+  {
+    "id": 74,
+    "name": "南京",
+    "city": "南京",
+    "type": "HUB",
+    "latitude": 32.06,
+    "longitude": 118.799
+  },
+  {
+    "id": 75,
+    "name": "苏州",
+    "city": "苏州",
+    "type": "HUB",
+    "latitude": 31.299,
+    "longitude": 120.629
+  },
+  {
+    "id": 76,
+    "name": "无锡",
+    "city": "无锡",
+    "type": "NORMAL",
+    "latitude": 31.571,
+    "longitude": 120.299
+  },
+  {
+    "id": 77,
+    "name": "常州",
+    "city": "常州",
+    "type": "NORMAL",
+    "latitude": 31.81,
+    "longitude": 119.969
+  },
+  {
+    "id": 78,
+    "name": "徐州",
+    "city": "徐州",
+    "type": "HUB",
+    "latitude": 34.259,
+    "longitude": 117.191
+  },
+  {
+    "id": 79,
+    "name": "南通",
+    "city": "南通",
+    "type": "NORMAL",
+    "latitude": 32.001,
+    "longitude": 120.861
+  },
+  {
+    "id": 80,
+    "name": "扬州",
+    "city": "扬州",
+    "type": "NORMAL",
+    "latitude": 32.39,
+    "longitude": 119.409
+  },
+  {
+    "id": 81,
+    "name": "镇江",
+    "city": "镇江",
+    "type": "NORMAL",
+    "latitude": 32.191,
+    "longitude": 119.43
+  },
+  {
+    "id": 82,
+    "name": "泰州",
+    "city": "泰州",
+    "type": "NORMAL",
+    "latitude": 32.46,
+    "longitude": 119.92
+  },
+  {
+    "id": 83,
+    "name": "盐城",
+    "city": "盐城",
+    "type": "NORMAL",
+    "latitude": 33.349,
+    "longitude": 120.161
+  },
+  {
+    "id": 84,
+    "name": "淮安",
+    "city": "淮安",
+    "type": "NORMAL",
+    "latitude": 33.611,
+    "longitude": 119.019
+  },
+  {
+    "id": 85,
+    "name": "连云港",
+    "city": "连云港",
+    "type": "NORMAL",
+    "latitude": 34.599,
+    "longitude": 119.221
+  },
+  {
+    "id": 86,
+    "name": "宿迁",
+    "city": "宿迁",
+    "type": "NORMAL",
+    "latitude": 33.959,
+    "longitude": 118.28
+  },
+  {
+    "id": 87,
+    "name": "杭州",
+    "city": "杭州",
+    "type": "HUB",
+    "latitude": 30.251,
+    "longitude": 120.17
+  },
+  {
+    "id": 88,
+    "name": "宁波",
+    "city": "宁波",
+    "type": "HUB",
+    "latitude": 29.871,
+    "longitude": 121.549
+  },
+  {
+    "id": 89,
+    "name": "温州",
+    "city": "温州",
+    "type": "NORMAL",
+    "latitude": 28.0,
+    "longitude": 120.701
+  },
+  {
+    "id": 90,
+    "name": "嘉兴",
+    "city": "嘉兴",
+    "type": "NORMAL",
+    "latitude": 30.759,
+    "longitude": 120.751
+  },
+  {
+    "id": 91,
+    "name": "湖州",
+    "city": "湖州",
+    "type": "NORMAL",
+    "latitude": 30.861,
+    "longitude": 120.089
+  },
+  {
+    "id": 92,
+    "name": "绍兴",
+    "city": "绍兴",
+    "type": "NORMAL",
+    "latitude": 30.0,
+    "longitude": 120.58
+  },
+  {
+    "id": 93,
+    "name": "金华",
+    "city": "金华",
+    "type": "NORMAL",
+    "latitude": 29.079,
+    "longitude": 119.651
+  },
+  {
+    "id": 94,
+    "name": "衢州",
+    "city": "衢州",
+    "type": "NORMAL",
+    "latitude": 28.939,
+    "longitude": 118.869
+  },
+  {
+    "id": 95,
+    "name": "台州",
+    "city": "台州",
+    "type": "NORMAL",
+    "latitude": 28.659,
+    "longitude": 121.421
+  },
+  {
+    "id": 96,
+    "name": "丽水",
+    "city": "丽水",
+    "type": "NORMAL",
+    "latitude": 28.449,
+    "longitude": 119.921
+  },
+  {
+    "id": 97,
+    "name": "合肥",
+    "city": "合肥",
+    "type": "HUB",
+    "latitude": 31.859,
+    "longitude": 117.28
+  },
+  {
+    "id": 98,
+    "name": "芜湖",
+    "city": "芜湖",
+    "type": "NORMAL",
+    "latitude": 31.349,
+    "longitude": 118.391
+  },
+  {
+    "id": 99,
+    "name": "蚌埠",
+    "city": "蚌埠",
+    "type": "NORMAL",
+    "latitude": 32.921,
+    "longitude": 117.391
+  },
+  {
+    "id": 100,
+    "name": "马鞍山",
+    "city": "马鞍山",
+    "type": "NORMAL",
+    "latitude": 31.67,
+    "longitude": 118.509
+  },
+  {
+    "id": 101,
+    "name": "淮南",
+    "city": "淮南",
+    "type": "HIGH_SPEED",
+    "latitude": 32.63,
+    "longitude": 116.979
+  },
+  {
+    "id": 102,
+    "name": "淮北",
+    "city": "淮北",
+    "type": "HIGH_SPEED",
+    "latitude": 33.959,
+    "longitude": 116.789
+  },
+  {
+    "id": 103,
+    "name": "铜陵",
+    "city": "铜陵",
+    "type": "NORMAL",
+    "latitude": 30.931,
+    "longitude": 117.811
+  },
+  {
+    "id": 104,
+    "name": "安庆",
+    "city": "安庆",
+    "type": "NORMAL",
+    "latitude": 30.529,
+    "longitude": 117.059
+  },
+  {
+    "id": 105,
+    "name": "黄山",
+    "city": "黄山",
+    "type": "NORMAL",
+    "latitude": 29.721,
+    "longitude": 118.339
+  },
+  {
+    "id": 106,
+    "name": "滁州",
+    "city": "滁州",
+    "type": "NORMAL",
+    "latitude": 32.3,
+    "longitude": 118.32
+  },
+  {
+    "id": 107,
+    "name": "宿州",
+    "city": "宿州",
+    "type": "NORMAL",
+    "latitude": 33.651,
+    "longitude": 116.98
+  },
+  {
+    "id": 108,
+    "name": "六安",
+    "city": "六安",
+    "type": "NORMAL",
+    "latitude": 31.74,
+    "longitude": 116.511
+  },
+  {
+    "id": 109,
+    "name": "宣城",
+    "city": "宣城",
+    "type": "NORMAL",
+    "latitude": 30.939,
+    "longitude": 118.759
+  },
+  {
+    "id": 110,
+    "name": "池州",
+    "city": "池州",
+    "type": "NORMAL",
+    "latitude": 30.66,
+    "longitude": 117.49
+  },
+  {
+    "id": 111,
+    "name": "亳州",
+    "city": "亳州",
+    "type": "NORMAL",
+    "latitude": 33.88,
+    "longitude": 115.78
+  },
+  {
+    "id": 112,
+    "name": "福州",
+    "city": "福州",
+    "type": "HUB",
+    "latitude": 26.071,
+    "longitude": 119.301
+  },
+  {
+    "id": 113,
+    "name": "厦门",
+    "city": "厦门",
+    "type": "HUB",
+    "latitude": 24.48,
+    "longitude": 118.091
+  },
+  {
+    "id": 114,
+    "name": "莆田",
+    "city": "莆田",
+    "type": "NORMAL",
+    "latitude": 25.431,
+    "longitude": 119.009
+  },
+  {
+    "id": 115,
+    "name": "三明",
+    "city": "三明",
+    "type": "NORMAL",
+    "latitude": 26.259,
+    "longitude": 117.64
+  },
+  {
+    "id": 116,
+    "name": "泉州",
+    "city": "泉州",
+    "type": "NORMAL",
+    "latitude": 24.869,
+    "longitude": 118.669
+  },
+  {
+    "id": 117,
+    "name": "漳州",
+    "city": "漳州",
+    "type": "NORMAL",
+    "latitude": 24.509,
+    "longitude": 117.65
+  },
+  {
+    "id": 118,
+    "name": "南平市",
+    "city": "南平",
+    "type": "NORMAL",
+    "latitude": 26.64,
+    "longitude": 118.186
+  },
+  {
+    "id": 119,
+    "name": "龙岩",
+    "city": "龙岩",
+    "type": "NORMAL",
+    "latitude": 25.101,
+    "longitude": 117.019
+  },
+  {
+    "id": 120,
+    "name": "宁德",
+    "city": "宁德",
+    "type": "NORMAL",
+    "latitude": 26.661,
+    "longitude": 119.551
+  },
+  {
+    "id": 121,
+    "name": "南昌",
+    "city": "南昌",
+    "type": "HUB",
+    "latitude": 28.679,
+    "longitude": 115.891
+  },
+  {
+    "id": 122,
+    "name": "九江",
+    "city": "九江",
+    "type": "NORMAL",
+    "latitude": 29.701,
+    "longitude": 115.99
+  },
+  {
+    "id": 123,
+    "name": "景德镇",
+    "city": "景德镇",
+    "type": "NORMAL",
+    "latitude": 29.27,
+    "longitude": 117.181
+  },
+  {
+    "id": 124,
+    "name": "赣州",
+    "city": "赣州",
+    "type": "NORMAL",
+    "latitude": 25.85,
+    "longitude": 114.93
+  },
+  {
+    "id": 125,
+    "name": "上饶",
+    "city": "上饶",
+    "type": "NORMAL",
+    "latitude": 28.451,
+    "longitude": 117.969
+  },
+  {
+    "id": 126,
+    "name": "宜春",
+    "city": "宜春",
+    "type": "NORMAL",
+    "latitude": 27.82,
+    "longitude": 114.42
+  },
+  {
+    "id": 127,
+    "name": "吉安",
+    "city": "吉安",
+    "type": "NORMAL",
+    "latitude": 27.111,
+    "longitude": 114.991
+  },
+  {
+    "id": 128,
+    "name": "抚州",
+    "city": "抚州",
+    "type": "NORMAL",
+    "latitude": 27.949,
+    "longitude": 116.359
+  },
+  {
+    "id": 129,
+    "name": "萍乡",
+    "city": "萍乡",
+    "type": "NORMAL",
+    "latitude": 27.621,
+    "longitude": 113.85
+  },
+  {
+    "id": 130,
+    "name": "新余",
+    "city": "新余",
+    "type": "NORMAL",
+    "latitude": 27.799,
+    "longitude": 114.92
+  },
+  {
+    "id": 131,
+    "name": "鹰潭",
+    "city": "鹰潭",
+    "type": "NORMAL",
+    "latitude": 28.259,
+    "longitude": 117.07
+  },
+  {
+    "id": 132,
+    "name": "济南",
+    "city": "济南",
+    "type": "HUB",
+    "latitude": 36.669,
+    "longitude": 116.981
+  },
+  {
+    "id": 133,
+    "name": "青岛",
+    "city": "青岛",
+    "type": "HUB",
+    "latitude": 36.071,
+    "longitude": 120.38
+  },
+  {
+    "id": 134,
+    "name": "淄博",
+    "city": "淄博",
+    "type": "NORMAL",
+    "latitude": 36.811,
+    "longitude": 118.061
+  },
+  {
+    "id": 135,
+    "name": "烟台",
+    "city": "烟台",
+    "type": "NORMAL",
+    "latitude": 37.539,
+    "longitude": 121.389
+  },
+  {
+    "id": 136,
+    "name": "潍坊",
+    "city": "潍坊",
+    "type": "NORMAL",
+    "latitude": 36.71,
+    "longitude": 119.159
+  },
+  {
+    "id": 137,
+    "name": "济宁",
+    "city": "济宁",
+    "type": "NORMAL",
+    "latitude": 35.409,
+    "longitude": 116.591
+  },
+  {
+    "id": 138,
+    "name": "泰安",
+    "city": "泰安",
+    "type": "NORMAL",
+    "latitude": 36.2,
+    "longitude": 117.081
+  },
+  {
+    "id": 139,
+    "name": "威海",
+    "city": "威海",
+    "type": "NORMAL",
+    "latitude": 37.509,
+    "longitude": 122.12
+  },
+  {
+    "id": 140,
+    "name": "日照",
+    "city": "日照",
+    "type": "NORMAL",
+    "latitude": 35.421,
+    "longitude": 119.531
+  },
+  {
+    "id": 141,
+    "name": "临沂",
+    "city": "临沂",
+    "type": "NORMAL",
+    "latitude": 35.099,
+    "longitude": 118.351
+  },
+  {
+    "id": 142,
+    "name": "德州",
+    "city": "德州",
+    "type": "NORMAL",
+    "latitude": 37.45,
+    "longitude": 116.3
+  },
+  {
+    "id": 143,
+    "name": "聊城",
+    "city": "聊城",
+    "type": "NORMAL",
+    "latitude": 36.459,
+    "longitude": 115.991
+  },
+  {
+    "id": 144,
+    "name": "滨州",
+    "city": "滨州",
+    "type": "NORMAL",
+    "latitude": 37.379,
+    "longitude": 118.021
+  },
+  {
+    "id": 145,
+    "name": "菏泽",
+    "city": "菏泽",
+    "type": "NORMAL",
+    "latitude": 35.231,
+    "longitude": 115.45
+  },
+  {
+    "id": 146,
+    "name": "东营",
+    "city": "东营",
+    "type": "NORMAL",
+    "latitude": 37.431,
+    "longitude": 118.67
+  },
+  {
+    "id": 147,
+    "name": "枣庄",
+    "city": "枣庄",
+    "type": "NORMAL",
+    "latitude": 34.86,
+    "longitude": 117.551
+  },
+  {
+    "id": 148,
+    "name": "郑州",
+    "city": "郑州",
+    "type": "HUB",
+    "latitude": 34.751,
+    "longitude": 113.66
+  },
+  {
+    "id": 149,
+    "name": "洛阳",
+    "city": "洛阳",
+    "type": "HUB",
+    "latitude": 34.621,
+    "longitude": 112.449
+  },
+  {
+    "id": 150,
+    "name": "开封",
+    "city": "开封",
+    "type": "NORMAL",
+    "latitude": 34.789,
+    "longitude": 114.31
+  },
+  {
+    "id": 151,
+    "name": "平顶山",
+    "city": "平顶山",
+    "type": "NORMAL",
+    "latitude": 33.739,
+    "longitude": 113.3
+  },
+  {
+    "id": 152,
+    "name": "新乡",
+    "city": "新乡",
+    "type": "NORMAL",
+    "latitude": 35.3,
+    "longitude": 113.871
+  },
+  {
+    "id": 153,
+    "name": "焦作",
+    "city": "焦作",
+    "type": "NORMAL",
+    "latitude": 35.239,
+    "longitude": 113.239
+  },
+  {
+    "id": 154,
+    "name": "许昌",
+    "city": "许昌",
+    "type": "NORMAL",
+    "latitude": 34.039,
+    "longitude": 113.849
+  },
+  {
+    "id": 155,
+    "name": "漯河",
+    "city": "漯河",
+    "type": "NORMAL",
+    "latitude": 33.579,
+    "longitude": 114.021
+  },
+  {
+    "id": 156,
+    "name": "南阳",
+    "city": "南阳",
+    "type": "NORMAL",
+    "latitude": 33.001,
+    "longitude": 112.531
+  },
+  {
+    "id": 157,
+    "name": "信阳",
+    "city": "信阳",
+    "type": "NORMAL",
+    "latitude": 32.131,
+    "longitude": 114.07
+  },
+  {
+    "id": 158,
+    "name": "周口",
+    "city": "周口",
+    "type": "NORMAL",
+    "latitude": 33.631,
+    "longitude": 114.929
+  },
+  {
+    "id": 159,
+    "name": "驻马店",
+    "city": "驻马店",
+    "type": "NORMAL",
+    "latitude": 33.01,
+    "longitude": 114.02
+  },
+  {
+    "id": 160,
+    "name": "三门峡",
+    "city": "三门峡",
+    "type": "NORMAL",
+    "latitude": 34.771,
+    "longitude": 111.2
+  },
+  {
+    "id": 161,
+    "name": "鹤壁",
+    "city": "鹤壁",
+    "type": "NORMAL",
+    "latitude": 35.899,
+    "longitude": 114.17
+  },
+  {
+    "id": 162,
+    "name": "濮阳",
+    "city": "濮阳",
+    "type": "NORMAL",
+    "latitude": 35.759,
+    "longitude": 115.029
+  },
+  {
+    "id": 163,
+    "name": "商丘",
+    "city": "商丘",
+    "type": "NORMAL",
+    "latitude": 34.411,
+    "longitude": 115.659
+  },
+  {
+    "id": 164,
+    "name": "安阳",
+    "city": "安阳",
+    "type": "NORMAL",
+    "latitude": 36.099,
+    "longitude": 114.389
+  },
+  {
+    "id": 165,
+    "name": "武汉",
+    "city": "武汉",
+    "type": "HUB",
+    "latitude": 30.59,
+    "longitude": 114.309
+  },
+  {
+    "id": 166,
+    "name": "黄石",
+    "city": "黄石",
+    "type": "NORMAL",
+    "latitude": 30.199,
+    "longitude": 115.079
+  },
+  {
+    "id": 167,
+    "name": "十堰",
+    "city": "十堰",
+    "type": "NORMAL",
+    "latitude": 32.63,
+    "longitude": 110.8
+  },
+  {
+    "id": 168,
+    "name": "宜昌",
+    "city": "宜昌",
+    "type": "NORMAL",
+    "latitude": 30.701,
+    "longitude": 111.291
+  },
+  {
+    "id": 169,
+    "name": "襄阳",
+    "city": "襄阳",
+    "type": "NORMAL",
+    "latitude": 32.039,
+    "longitude": 112.129
+  },
+  {
+    "id": 170,
+    "name": "鄂州",
+    "city": "鄂州",
+    "type": "NORMAL",
+    "latitude": 30.401,
+    "longitude": 114.889
+  },
+  {
+    "id": 171,
+    "name": "荆门",
+    "city": "荆门",
+    "type": "NORMAL",
+    "latitude": 31.04,
+    "longitude": 112.2
+  },
+  {
+    "id": 172,
+    "name": "孝感",
+    "city": "孝感",
+    "type": "NORMAL",
+    "latitude": 30.929,
+    "longitude": 113.919
+  },
+  {
+    "id": 173,
+    "name": "荆州",
+    "city": "荆州",
+    "type": "NORMAL",
+    "latitude": 30.331,
+    "longitude": 112.239
+  },
+  {
+    "id": 174,
+    "name": "黄冈",
+    "city": "黄冈",
+    "type": "NORMAL",
+    "latitude": 30.449,
+    "longitude": 114.881
+  },
+  {
+    "id": 175,
+    "name": "咸宁",
+    "city": "咸宁",
+    "type": "NORMAL",
+    "latitude": 29.829,
+    "longitude": 114.33
+  },
+  {
+    "id": 176,
+    "name": "随州",
+    "city": "随州",
+    "type": "NORMAL",
+    "latitude": 31.69,
+    "longitude": 113.381
+  },
+  {
+    "id": 177,
+    "name": "恩施",
+    "city": "恩施",
+    "type": "NORMAL",
+    "latitude": 30.281,
+    "longitude": 109.49
+  },
+  {
+    "id": 178,
+    "name": "长沙",
+    "city": "长沙",
+    "type": "HUB",
+    "latitude": 28.229,
+    "longitude": 112.941
+  },
+  {
+    "id": 179,
+    "name": "株洲",
+    "city": "株洲",
+    "type": "NORMAL",
+    "latitude": 27.829,
+    "longitude": 113.129
+  },
+  {
+    "id": 180,
+    "name": "湘潭",
+    "city": "湘潭",
+    "type": "NORMAL",
+    "latitude": 27.84,
+    "longitude": 112.94
+  },
+  {
+    "id": 181,
+    "name": "衡阳",
+    "city": "衡阳",
+    "type": "NORMAL",
+    "latitude": 26.889,
+    "longitude": 112.57
+  },
+  {
+    "id": 182,
+    "name": "岳阳",
+    "city": "岳阳",
+    "type": "NORMAL",
+    "latitude": 29.369,
+    "longitude": 113.09
+  },
+  {
+    "id": 183,
+    "name": "常德",
+    "city": "常德",
+    "type": "NORMAL",
+    "latitude": 29.031,
+    "longitude": 111.701
+  },
+  {
+    "id": 184,
+    "name": "郴州",
+    "city": "郴州",
+    "type": "NORMAL",
+    "latitude": 25.779,
+    "longitude": 113.031
+  },
+  {
+    "id": 185,
+    "name": "怀化",
+    "city": "怀化",
+    "type": "NORMAL",
+    "latitude": 27.55,
+    "longitude": 109.971
+  },
+  {
+    "id": 186,
+    "name": "娄底",
+    "city": "娄底",
+    "type": "NORMAL",
+    "latitude": 27.73,
+    "longitude": 111.999
+  },
+  {
+    "id": 187,
+    "name": "邵阳",
+    "city": "邵阳",
+    "type": "NORMAL",
+    "latitude": 27.239,
+    "longitude": 111.471
+  },
+  {
+    "id": 188,
+    "name": "益阳",
+    "city": "益阳",
+    "type": "NORMAL",
+    "latitude": 28.579,
+    "longitude": 112.36
+  },
+  {
+    "id": 189,
+    "name": "永州",
+    "city": "永州",
+    "type": "NORMAL",
+    "latitude": 26.43,
+    "longitude": 111.609
+  },
+  {
+    "id": 190,
+    "name": "张家界",
+    "city": "张家界",
+    "type": "NORMAL",
+    "latitude": 29.119,
+    "longitude": 110.479
+  },
+  {
+    "id": 191,
+    "name": "吉首",
+    "city": "湘西",
+    "type": "NORMAL",
+    "latitude": 28.32,
+    "longitude": 109.74
+  },
+  {
+    "id": 192,
+    "name": "广州",
+    "city": "广州",
+    "type": "HUB",
+    "latitude": 23.13,
+    "longitude": 113.26
+  },
+  {
+    "id": 193,
+    "name": "深圳",
+    "city": "深圳",
+    "type": "HUB",
+    "latitude": 22.541,
+    "longitude": 114.059
+  },
+  {
+    "id": 194,
+    "name": "珠海",
+    "city": "珠海",
+    "type": "NORMAL",
+    "latitude": 22.27,
+    "longitude": 113.571
+  },
+  {
+    "id": 195,
+    "name": "佛山",
+    "city": "佛山",
+    "type": "NORMAL",
+    "latitude": 23.021,
+    "longitude": 113.119
+  },
+  {
+    "id": 196,
+    "name": "东莞",
+    "city": "东莞",
+    "type": "NORMAL",
+    "latitude": 23.05,
+    "longitude": 113.749
+  },
+  {
+    "id": 197,
+    "name": "中山",
+    "city": "中山",
+    "type": "NORMAL",
+    "latitude": 22.519,
+    "longitude": 113.381
+  },
+  {
+    "id": 198,
+    "name": "惠州",
+    "city": "惠州",
+    "type": "NORMAL",
+    "latitude": 23.111,
+    "longitude": 114.419
+  },
+  {
+    "id": 199,
+    "name": "汕头",
+    "city": "汕头",
+    "type": "NORMAL",
+    "latitude": 23.369,
+    "longitude": 116.679
+  },
+  {
+    "id": 200,
+    "name": "韶关",
+    "city": "韶关",
+    "type": "NORMAL",
+    "latitude": 24.801,
+    "longitude": 113.599
+  },
+  {
+    "id": 201,
+    "name": "湛江",
+    "city": "湛江",
+    "type": "NORMAL",
+    "latitude": 21.271,
+    "longitude": 110.36
+  },
+  {
+    "id": 202,
+    "name": "茂名",
+    "city": "茂名",
+    "type": "NORMAL",
+    "latitude": 21.66,
+    "longitude": 110.921
+  },
+  {
+    "id": 203,
+    "name": "肇庆",
+    "city": "肇庆",
+    "type": "NORMAL",
+    "latitude": 23.049,
+    "longitude": 112.461
+  },
+  {
+    "id": 204,
+    "name": "江门",
+    "city": "江门",
+    "type": "NORMAL",
+    "latitude": 22.579,
+    "longitude": 113.081
+  },
+  {
+    "id": 205,
+    "name": "梅州",
+    "city": "梅州",
+    "type": "NORMAL",
+    "latitude": 24.299,
+    "longitude": 116.121
+  },
+  {
+    "id": 206,
+    "name": "河源",
+    "city": "河源",
+    "type": "NORMAL",
+    "latitude": 23.741,
+    "longitude": 114.701
+  },
+  {
+    "id": 207,
+    "name": "阳江",
+    "city": "阳江",
+    "type": "NORMAL",
+    "latitude": 21.85,
+    "longitude": 111.981
+  },
+  {
+    "id": 208,
+    "name": "清远",
+    "city": "清远",
+    "type": "NORMAL",
+    "latitude": 23.681,
+    "longitude": 113.06
+  },
+  {
+    "id": 209,
+    "name": "潮州",
+    "city": "潮州",
+    "type": "NORMAL",
+    "latitude": 23.661,
+    "longitude": 116.629
+  },
+  {
+    "id": 210,
+    "name": "揭阳",
+    "city": "揭阳",
+    "type": "NORMAL",
+    "latitude": 23.551,
+    "longitude": 116.37
+  },
+  {
+    "id": 211,
+    "name": "云浮东",
+    "city": "云浮",
+    "type": "HIGH_SPEED",
+    "latitude": 22.92,
+    "longitude": 112.051
+  },
+  {
+    "id": 212,
+    "name": "汕尾",
+    "city": "汕尾",
+    "type": "NORMAL",
+    "latitude": 22.791,
+    "longitude": 115.37
+  },
+  {
+    "id": 213,
+    "name": "南宁",
+    "city": "南宁",
+    "type": "HUB",
+    "latitude": 22.819,
+    "longitude": 108.369
+  },
+  {
+    "id": 214,
+    "name": "柳州",
+    "city": "柳州",
+    "type": "NORMAL",
+    "latitude": 24.31,
+    "longitude": 109.409
+  },
+  {
+    "id": 215,
+    "name": "桂林",
+    "city": "桂林",
+    "type": "NORMAL",
+    "latitude": 25.27,
+    "longitude": 110.291
+  },
+  {
+    "id": 216,
+    "name": "梧州",
+    "city": "梧州",
+    "type": "NORMAL",
+    "latitude": 23.48,
+    "longitude": 111.28
+  },
+  {
+    "id": 217,
+    "name": "北海",
+    "city": "北海",
+    "type": "NORMAL",
+    "latitude": 21.469,
+    "longitude": 109.121
+  },
+  {
+    "id": 218,
+    "name": "钦州",
+    "city": "钦州",
+    "type": "NORMAL",
+    "latitude": 21.98,
+    "longitude": 108.649
+  },
+  {
+    "id": 219,
+    "name": "贵港",
+    "city": "贵港",
+    "type": "NORMAL",
+    "latitude": 23.109,
+    "longitude": 109.6
+  },
+  {
+    "id": 220,
+    "name": "玉林",
+    "city": "玉林",
+    "type": "NORMAL",
+    "latitude": 22.63,
+    "longitude": 110.18
+  },
+  {
+    "id": 221,
+    "name": "百色",
+    "city": "百色",
+    "type": "NORMAL",
+    "latitude": 23.899,
+    "longitude": 106.62
+  },
+  {
+    "id": 222,
+    "name": "贺州",
+    "city": "贺州",
+    "type": "NORMAL",
+    "latitude": 24.411,
+    "longitude": 111.571
+  },
+  {
+    "id": 223,
+    "name": "河池西",
+    "city": "河池",
+    "type": "HIGH_SPEED",
+    "latitude": 24.681,
+    "longitude": 108.031
+  },
+  {
+    "id": 224,
+    "name": "来宾",
+    "city": "来宾",
+    "type": "NORMAL",
+    "latitude": 23.751,
+    "longitude": 109.22
+  },
+  {
+    "id": 225,
+    "name": "崇左",
+    "city": "崇左",
+    "type": "NORMAL",
+    "latitude": 22.401,
+    "longitude": 107.369
+  },
+  {
+    "id": 226,
+    "name": "防城港北",
+    "city": "防城港",
+    "type": "HIGH_SPEED",
+    "latitude": 21.707,
+    "longitude": 108.341
+  },
+  {
+    "id": 227,
+    "name": "海口",
+    "city": "海口",
+    "type": "HUB",
+    "latitude": 20.021,
+    "longitude": 110.349
+  },
+  {
+    "id": 228,
+    "name": "三亚",
+    "city": "三亚",
+    "type": "NORMAL",
+    "latitude": 18.25,
+    "longitude": 109.5
+  },
+  {
+    "id": 229,
+    "name": "成都",
+    "city": "成都",
+    "type": "HUB",
+    "latitude": 30.569,
+    "longitude": 104.071
+  },
+  {
+    "id": 230,
+    "name": "绵阳",
+    "city": "绵阳",
+    "type": "NORMAL",
+    "latitude": 31.469,
+    "longitude": 104.681
+  },
+  {
+    "id": 231,
+    "name": "德阳",
+    "city": "德阳",
+    "type": "NORMAL",
+    "latitude": 31.13,
+    "longitude": 104.401
+  },
+  {
+    "id": 232,
+    "name": "广元",
+    "city": "广元",
+    "type": "NORMAL",
+    "latitude": 32.44,
+    "longitude": 105.821
+  },
+  {
+    "id": 233,
+    "name": "遂宁",
+    "city": "遂宁",
+    "type": "NORMAL",
+    "latitude": 30.529,
+    "longitude": 105.589
+  },
+  {
+    "id": 234,
+    "name": "内江",
+    "city": "内江",
+    "type": "NORMAL",
+    "latitude": 29.581,
+    "longitude": 105.06
+  },
+  {
+    "id": 235,
+    "name": "乐山",
+    "city": "乐山",
+    "type": "NORMAL",
+    "latitude": 29.57,
+    "longitude": 103.77
+  },
+  {
+    "id": 236,
+    "name": "南充",
+    "city": "南充",
+    "type": "NORMAL",
+    "latitude": 30.78,
+    "longitude": 106.081
+  },
+  {
+    "id": 237,
+    "name": "眉山",
+    "city": "眉山",
+    "type": "NORMAL",
+    "latitude": 30.081,
+    "longitude": 103.851
+  },
+  {
+    "id": 238,
+    "name": "宜宾",
+    "city": "宜宾",
+    "type": "NORMAL",
+    "latitude": 28.77,
+    "longitude": 104.619
+  },
+  {
+    "id": 239,
+    "name": "广安",
+    "city": "广安",
+    "type": "NORMAL",
+    "latitude": 30.46,
+    "longitude": 106.63
+  },
+  {
+    "id": 240,
+    "name": "达州",
+    "city": "达州",
+    "type": "NORMAL",
+    "latitude": 31.22,
+    "longitude": 107.5
+  },
+  {
+    "id": 241,
+    "name": "雅安",
+    "city": "雅安",
+    "type": "NORMAL",
+    "latitude": 29.98,
+    "longitude": 102.999
+  },
+  {
+    "id": 242,
+    "name": "巴中",
+    "city": "巴中",
+    "type": "NORMAL",
+    "latitude": 31.86,
+    "longitude": 106.76
+  },
+  {
+    "id": 243,
+    "name": "资阳北",
+    "city": "资阳",
+    "type": "HIGH_SPEED",
+    "latitude": 30.141,
+    "longitude": 104.624
+  },
+  {
+    "id": 244,
+    "name": "攀枝花",
+    "city": "攀枝花",
+    "type": "NORMAL",
+    "latitude": 26.581,
+    "longitude": 101.721
+  },
+  {
+    "id": 245,
+    "name": "泸州",
+    "city": "泸州",
+    "type": "NORMAL",
+    "latitude": 28.871,
+    "longitude": 105.441
+  },
+  {
+    "id": 246,
+    "name": "自贡",
+    "city": "自贡",
+    "type": "NORMAL",
+    "latitude": 29.351,
+    "longitude": 104.779
+  },
+  {
+    "id": 247,
+    "name": "西昌",
+    "city": "凉山",
+    "type": "NORMAL",
+    "latitude": 27.89,
+    "longitude": 102.26
+  },
+  {
+    "id": 248,
+    "name": "贵阳",
+    "city": "贵阳",
+    "type": "HUB",
+    "latitude": 26.65,
+    "longitude": 106.631
+  },
+  {
+    "id": 249,
+    "name": "遵义",
+    "city": "遵义",
+    "type": "NORMAL",
+    "latitude": 27.721,
+    "longitude": 106.931
+  },
+  {
+    "id": 250,
+    "name": "安顺",
+    "city": "安顺",
+    "type": "NORMAL",
+    "latitude": 26.25,
+    "longitude": 105.93
+  },
+  {
+    "id": 251,
+    "name": "毕节",
+    "city": "毕节",
+    "type": "NORMAL",
+    "latitude": 27.299,
+    "longitude": 105.289
+  },
+  {
+    "id": 252,
+    "name": "铜仁",
+    "city": "铜仁",
+    "type": "NORMAL",
+    "latitude": 27.689,
+    "longitude": 109.191
+  },
+  {
+    "id": 253,
+    "name": "六盘水",
+    "city": "六盘水",
+    "type": "NORMAL",
+    "latitude": 26.59,
+    "longitude": 104.829
+  },
+  {
+    "id": 254,
+    "name": "凯里",
+    "city": "黔东南",
+    "type": "NORMAL",
+    "latitude": 26.581,
+    "longitude": 107.981
+  },
+  {
+    "id": 255,
+    "name": "都匀",
+    "city": "黔南",
+    "type": "NORMAL",
+    "latitude": 26.26,
+    "longitude": 107.521
+  },
+  {
+    "id": 256,
+    "name": "兴义",
+    "city": "黔西南",
+    "type": "NORMAL",
+    "latitude": 25.09,
+    "longitude": 104.899
+  },
+  {
+    "id": 257,
+    "name": "昆明",
+    "city": "昆明",
+    "type": "HUB",
+    "latitude": 25.039,
+    "longitude": 102.711
+  },
+  {
+    "id": 258,
+    "name": "曲靖",
+    "city": "曲靖",
+    "type": "NORMAL",
+    "latitude": 25.5,
+    "longitude": 103.799
+  },
+  {
+    "id": 259,
+    "name": "玉溪",
+    "city": "玉溪",
+    "type": "NORMAL",
+    "latitude": 24.35,
+    "longitude": 102.549
+  },
+  {
+    "id": 260,
+    "name": "大理",
+    "city": "大理",
+    "type": "NORMAL",
+    "latitude": 25.59,
+    "longitude": 100.231
+  },
+  {
+    "id": 261,
+    "name": "丽江",
+    "city": "丽江",
+    "type": "NORMAL",
+    "latitude": 26.881,
+    "longitude": 100.23
+  },
+  {
+    "id": 262,
+    "name": "保山",
+    "city": "保山",
+    "type": "NORMAL",
+    "latitude": 25.121,
+    "longitude": 99.17
+  },
+  {
+    "id": 263,
+    "name": "昭通",
+    "city": "昭通",
+    "type": "NORMAL",
+    "latitude": 27.341,
+    "longitude": 103.719
+  },
+  {
+    "id": 264,
+    "name": "普洱",
+    "city": "普洱",
+    "type": "NORMAL",
+    "latitude": 22.781,
+    "longitude": 100.97
+  },
+  {
+    "id": 265,
+    "name": "临沧",
+    "city": "临沧",
+    "type": "NORMAL",
+    "latitude": 23.88,
+    "longitude": 100.081
+  },
+  {
+    "id": 266,
+    "name": "楚雄",
+    "city": "楚雄",
+    "type": "NORMAL",
+    "latitude": 25.051,
+    "longitude": 101.551
+  },
+  {
+    "id": 267,
+    "name": "蒙自",
+    "city": "红河",
+    "type": "NORMAL",
+    "latitude": 23.369,
+    "longitude": 103.379
+  },
+  {
+    "id": 268,
+    "name": "普者黑",
+    "city": "文山",
+    "type": "NORMAL",
+    "latitude": 23.406,
+    "longitude": 104.223
+  },
+  {
+    "id": 269,
+    "name": "西双版纳",
+    "city": "西双版纳",
+    "type": "NORMAL",
+    "latitude": 21.994,
+    "longitude": 100.794
+  },
+  {
+    "id": 270,
+    "name": "香格里拉",
+    "city": "迪庆",
+    "type": "NORMAL",
+    "latitude": 27.829,
+    "longitude": 99.699
+  },
+  {
+    "id": 271,
+    "name": "拉萨",
+    "city": "拉萨",
+    "type": "HUB",
+    "latitude": 29.649,
+    "longitude": 91.13
+  },
+  {
+    "id": 272,
+    "name": "日喀则",
+    "city": "日喀则",
+    "type": "NORMAL",
+    "latitude": 29.269,
+    "longitude": 88.881
+  },
+  {
+    "id": 273,
+    "name": "林芝",
+    "city": "林芝",
+    "type": "NORMAL",
+    "latitude": 29.65,
+    "longitude": 94.36
+  },
+  {
+    "id": 274,
+    "name": "山南",
+    "city": "山南",
+    "type": "HIGH_SPEED",
+    "latitude": 29.241,
+    "longitude": 91.769
+  },
+  {
+    "id": 275,
+    "name": "那曲",
+    "city": "那曲",
+    "type": "NORMAL",
+    "latitude": 31.481,
+    "longitude": 92.05
+  },
+  {
+    "id": 276,
+    "name": "西安",
+    "city": "西安",
+    "type": "HUB",
+    "latitude": 34.26,
+    "longitude": 108.941
+  },
+  {
+    "id": 277,
+    "name": "咸阳",
+    "city": "咸阳",
+    "type": "NORMAL",
+    "latitude": 34.33,
+    "longitude": 108.709
+  },
+  {
+    "id": 278,
+    "name": "宝鸡",
+    "city": "宝鸡",
+    "type": "NORMAL",
+    "latitude": 34.36,
+    "longitude": 107.239
+  },
+  {
+    "id": 279,
+    "name": "渭南",
+    "city": "渭南",
+    "type": "HIGH_SPEED",
+    "latitude": 34.499,
+    "longitude": 109.511
+  },
+  {
+    "id": 280,
+    "name": "延安",
+    "city": "延安",
+    "type": "NORMAL",
+    "latitude": 36.589,
+    "longitude": 109.489
+  },
+  {
+    "id": 281,
+    "name": "汉中",
+    "city": "汉中",
+    "type": "NORMAL",
+    "latitude": 33.069,
+    "longitude": 107.019
+  },
+  {
+    "id": 282,
+    "name": "榆林",
+    "city": "榆林",
+    "type": "NORMAL",
+    "latitude": 38.29,
+    "longitude": 109.741
+  },
+  {
+    "id": 283,
+    "name": "安康",
+    "city": "安康",
+    "type": "NORMAL",
+    "latitude": 32.691,
+    "longitude": 109.03
+  },
+  {
+    "id": 284,
+    "name": "商洛",
+    "city": "商洛",
+    "type": "NORMAL",
+    "latitude": 33.87,
+    "longitude": 109.929
+  },
+  {
+    "id": 285,
+    "name": "铜川",
+    "city": "铜川",
+    "type": "NORMAL",
+    "latitude": 34.899,
+    "longitude": 108.951
+  },
+  {
+    "id": 286,
+    "name": "兰州",
+    "city": "兰州",
+    "type": "HUB",
+    "latitude": 36.061,
+    "longitude": 103.791
+  },
+  {
+    "id": 287,
+    "name": "天水",
+    "city": "天水",
+    "type": "NORMAL",
+    "latitude": 34.579,
+    "longitude": 105.719
+  },
+  {
+    "id": 288,
+    "name": "酒泉",
+    "city": "酒泉",
+    "type": "NORMAL",
+    "latitude": 39.741,
+    "longitude": 98.519
+  },
+  {
+    "id": 289,
+    "name": "嘉峪关",
+    "city": "嘉峪关",
+    "type": "NORMAL",
+    "latitude": 39.77,
+    "longitude": 98.289
+  },
+  {
+    "id": 290,
+    "name": "张掖",
+    "city": "张掖",
+    "type": "NORMAL",
+    "latitude": 38.931,
+    "longitude": 100.45
+  },
+  {
+    "id": 291,
+    "name": "金昌",
+    "city": "金昌",
+    "type": "NORMAL",
+    "latitude": 38.499,
+    "longitude": 102.18
+  },
+  {
+    "id": 292,
+    "name": "武威",
+    "city": "武威",
+    "type": "NORMAL",
+    "latitude": 37.93,
+    "longitude": 102.639
+  },
+  {
+    "id": 293,
+    "name": "白银西",
+    "city": "白银",
+    "type": "HIGH_SPEED",
+    "latitude": 36.553,
+    "longitude": 104.159
+  },
+  {
+    "id": 294,
+    "name": "平凉",
+    "city": "平凉",
+    "type": "NORMAL",
+    "latitude": 35.54,
+    "longitude": 106.679
+  },
+  {
+    "id": 295,
+    "name": "庆阳",
+    "city": "庆阳",
+    "type": "NORMAL",
+    "latitude": 35.711,
+    "longitude": 107.64
+  },
+  {
+    "id": 296,
+    "name": "定西",
+    "city": "定西",
+    "type": "HIGH_SPEED",
+    "latitude": 35.579,
+    "longitude": 104.63
+  },
+  {
+    "id": 297,
+    "name": "陇南",
+    "city": "陇南",
+    "type": "HIGH_SPEED",
+    "latitude": 33.401,
+    "longitude": 104.929
+  },
+  {
+    "id": 298,
+    "name": "西宁",
+    "city": "西宁",
+    "type": "HUB",
+    "latitude": 36.621,
+    "longitude": 101.78
+  },
+  {
+    "id": 299,
+    "name": "海东",
+    "city": "海东",
+    "type": "HIGH_SPEED",
+    "latitude": 36.48,
+    "longitude": 102.1
+  },
+  {
+    "id": 300,
+    "name": "海晏",
+    "city": "海北",
+    "type": "NORMAL",
+    "latitude": 36.909,
+    "longitude": 100.999
+  },
+  {
+    "id": 301,
+    "name": "德令哈",
+    "city": "海西",
+    "type": "NORMAL",
+    "latitude": 38.471,
+    "longitude": 106.271
+  },
+  {
+    "id": 302,
+    "name": "银川",
+    "city": "银川",
+    "type": "HUB",
+    "latitude": 38.47,
+    "longitude": 106.271
+  },
+  {
+    "id": 303,
+    "name": "石嘴山",
+    "city": "石嘴山",
+    "type": "NORMAL",
+    "latitude": 39.021,
+    "longitude": 106.381
+  },
+  {
+    "id": 304,
+    "name": "吴忠",
+    "city": "吴忠",
+    "type": "NORMAL",
+    "latitude": 37.99,
+    "longitude": 106.2
+  },
+  {
+    "id": 305,
+    "name": "固原",
+    "city": "固原",
+    "type": "NORMAL",
+    "latitude": 36.019,
+    "longitude": 106.279
+  },
+  {
+    "id": 306,
+    "name": "中卫",
+    "city": "中卫",
+    "type": "NORMAL",
+    "latitude": 37.519,
+    "longitude": 105.179
+  },
+  {
+    "id": 307,
+    "name": "乌鲁木齐",
+    "city": "乌鲁木齐",
+    "type": "HUB",
+    "latitude": 43.789,
+    "longitude": 87.619
+  },
+  {
+    "id": 308,
+    "name": "克拉玛依",
+    "city": "克拉玛依",
+    "type": "NORMAL",
+    "latitude": 45.579,
+    "longitude": 84.869
+  },
+  {
+    "id": 309,
+    "name": "吐鲁番",
+    "city": "吐鲁番",
+    "type": "NORMAL",
+    "latitude": 42.95,
+    "longitude": 89.19
+  },
+  {
+    "id": 310,
+    "name": "哈密",
+    "city": "哈密",
+    "type": "NORMAL",
+    "latitude": 42.829,
+    "longitude": 93.509
+  },
+  {
+    "id": 311,
+    "name": "博乐",
+    "city": "博尔塔拉",
+    "type": "NORMAL",
+    "latitude": 44.849,
+    "longitude": 82.071
+  },
+  {
+    "id": 312,
+    "name": "库尔勒",
+    "city": "巴音郭楞",
+    "type": "NORMAL",
+    "latitude": 41.73,
+    "longitude": 86.151
+  },
+  {
+    "id": 313,
+    "name": "阿克苏",
+    "city": "阿克苏",
+    "type": "NORMAL",
+    "latitude": 41.171,
+    "longitude": 80.261
+  },
+  {
+    "id": 314,
+    "name": "阿图什",
+    "city": "克孜勒苏",
+    "type": "NORMAL",
+    "latitude": 40.819,
+    "longitude": 111.751
+  },
+  {
+    "id": 315,
+    "name": "喀什",
+    "city": "喀什",
+    "type": "NORMAL",
+    "latitude": 39.469,
+    "longitude": 75.99
+  },
+  {
+    "id": 316,
+    "name": "和田",
+    "city": "和田",
+    "type": "NORMAL",
+    "latitude": 37.109,
+    "longitude": 79.911
+  },
+  {
+    "id": 317,
+    "name": "伊宁",
+    "city": "伊犁",
+    "type": "NORMAL",
+    "latitude": 43.919,
+    "longitude": 81.321
+  },
+  {
+    "id": 318,
+    "name": "塔城",
+    "city": "塔城",
+    "type": "NORMAL",
+    "latitude": 46.749,
+    "longitude": 82.979
+  },
+  {
+    "id": 319,
+    "name": "阿勒泰",
+    "city": "阿勒泰",
+    "type": "NORMAL",
+    "latitude": 40.821,
+    "longitude": 111.751
+  }
 ]
