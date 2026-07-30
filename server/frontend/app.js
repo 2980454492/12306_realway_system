@@ -3126,11 +3126,13 @@ const UI = {
         var off = (idx - (t2 + 1) / 2) * 18;
         var mx = (a.x + b.x) / 2;
         var my = (a.y + b.y) / 2;
-        var dx = b.x - a.x;
-        var dy = b.y - a.y;
-        var len = Math.sqrt(dx * dx + dy * dy) || 1;
-        var nx = -dy / len;
-        var ny = dx / len;
+        // 用规范化方向计算法向量，确保同站对间的平行线向不同侧偏移
+        var canonical = k.split('-');
+        var ddx = nodeById[canonical[1]].x - nodeById[canonical[0]].x;
+        var ddy = nodeById[canonical[1]].y - nodeById[canonical[0]].y;
+        var len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+        var nx = -ddy / len;
+        var ny = ddx / len;
         var cx = mx + nx * off;
         var cy = my + ny * off;
         var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -3225,11 +3227,13 @@ const UI = {
           return;
         var mx = (a.x + b.x) / 2;
         var my = (a.y + b.y) / 2;
-        var dx = b.x - a.x;
-        var dy = b.y - a.y;
-        var len = Math.sqrt(dx * dx + dy * dy) || 1;
-        var nx = -dy / len;
-        var ny = dx / len;
+        // 用规范化方向计算法向量
+        var canonical = k.split('-');
+        var ddx = nodeById[canonical[1]].x - nodeById[canonical[0]].x;
+        var ddy = nodeById[canonical[1]].y - nodeById[canonical[0]].y;
+        var len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+        var nx = -ddy / len;
+        var ny = ddx / len;
         var off2 = (idx - (t2 + 1) / 2) * 18;
         var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         t.setAttribute('x', (mx + nx * off2) * scl + tx);
