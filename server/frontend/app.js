@@ -3037,7 +3037,19 @@ const UI = {
     container.appendChild(svg);
     var scl=1,tx=0,ty=0;
 
-    function update(){zG.setAttribute('transform','translate('+tx+','+ty+') scale('+scl+')');renderN()}
+    function getFilteredEdges() {
+      var checks = document.querySelectorAll('.net-filter-line');
+      var mask = {};
+      for (var ci = 0; ci < checks.length; ci++)
+        mask[parseInt(checks[ci].value)] = checks[ci].checked;
+      return EDGES.filter(function(e) { return mask[e.type]; });
+    }
+
+    function update(){
+      zG.setAttribute('transform','translate('+tx+','+ty+') scale('+scl+')');
+      renderN();
+    }
+
     var rafId=null;
     function scheduleUpdate() {
       if (!rafId)
@@ -3079,12 +3091,14 @@ const UI = {
     });
 
     function ek(e){return e.from<e.to?e.from+'-'+e.to:e.to+'-'+e.from}
-    var edgeCount={}; EDGES.forEach(function(e){var k=ek(e);edgeCount[k]=(edgeCount[k]||0)+1});
     function isClose(a,b,th){var dx=(a.x-b.x)*scl,dy=(a.y-b.y)*scl;return Math.sqrt(dx*dx+dy*dy)<th}
 
     function renderN() {
       nG.innerHTML = '';
       eG.innerHTML = '';
+      var fEdges = getFilteredEdges();
+      var edgeCount = {};
+      fEdges.forEach(function(e) { var k = ek(e); edgeCount[k] = (edgeCount[k] || 0) + 1; });
       var th = 30 / scl;
       var hidden = new Set();
       var r = 5 / scl;
@@ -3132,7 +3146,7 @@ const UI = {
 
       // 边
       var eOff = {};
-      EDGES.forEach(function(e, i) {
+      fEdges.forEach(function(e, i) {
         var k = ek(e);
         var t2 = edgeCount[k] || 1;
         var idx = eOff[k] = (eOff[k] || 0) + 1;
@@ -3182,10 +3196,10 @@ const UI = {
         })(NODES[i]);
       }
 
-      renderT(hidden);
+      renderT(hidden, fEdges, edgeCount);
     }
 
-    function renderT(hidden) {
+    function renderT(hidden, fEdges, edgeCount) {
       tG.innerHTML = '';
       // 站名
       for (var i = 0; i < NODES.length; i++) {
@@ -3204,20 +3218,20 @@ const UI = {
 
       // 线路标签重叠检测
       var eh = new Set();
-      for (var i = 0; i < EDGES.length; i++) {
+      for (var i = 0; i < fEdges.length; i++) {
         if (eh.has(i))
           continue;
-        for (var j = i + 1; j < EDGES.length; j++) {
+        for (var j = i + 1; j < fEdges.length; j++) {
           if (eh.has(j))
             continue;
-          var a = nodeById[EDGES[i].from];
-          var b = nodeById[EDGES[i].to];
-          var c2 = nodeById[EDGES[j].from];
-          var d = nodeById[EDGES[j].to];
+          var a = nodeById[fEdges[i].from];
+          var b = nodeById[fEdges[i].to];
+          var c2 = nodeById[fEdges[j].from];
+          var d = nodeById[fEdges[j].to];
           if (!a || !b || !c2 || !d)
             continue;
-          var k1 = ek(EDGES[i]);
-          var k2 = ek(EDGES[j]);
+          var k1 = ek(fEdges[i]);
+          var k2 = ek(fEdges[j]);
           if (k1 === k2)
             continue;
           var mx1 = (a.x + b.x) / 2 * scl + tx;
@@ -3232,7 +3246,7 @@ const UI = {
 
       // 线路标签
       var elOff = {};
-      EDGES.forEach(function(e, i) {
+      fEdges.forEach(function(e, i) {
         if (eh.has(i))
           return;
         var k = ek(e);
@@ -3262,6 +3276,7 @@ const UI = {
         tG.appendChild(t);
       });
     }
+    UI._renderNetworkMap = renderN;
     renderN();
 
   },

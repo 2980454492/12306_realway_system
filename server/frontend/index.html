@@ -492,7 +492,12 @@
     <!-- ═══ 查看路网（INFRA_ADMIN）═══ -->
     <section id="page-network" class="page" style="padding:0;max-width:none">
       <h2 style="padding:12px 24px 0;margin:0">铁路网拓扑图</h2>
-      <div id="network-legend" style="display:flex;flex-direction:column;gap:2px;font-size:12px;padding:6px 24px 8px"></div>
+      <div id="network-legend" style="display:flex;flex-direction:column;gap:2px;font-size:12px;padding:6px 24px 0"></div>
+      <div style="display:flex;gap:16px;font-size:12px;padding:4px 24px 8px">
+        <label style="cursor:pointer;color:#e0e0e0"><input type="checkbox" class="net-filter-line" value="0" checked onchange="UI._renderNetworkMap()"> 高铁线路</label>
+        <label style="cursor:pointer;color:#e0e0e0"><input type="checkbox" class="net-filter-line" value="1" checked onchange="UI._renderNetworkMap()"> 普速线路</label>
+        <label style="cursor:pointer;color:#e0e0e0"><input type="checkbox" class="net-filter-line" value="2" checked onchange="UI._renderNetworkMap()"> 城际线路</label>
+      </div>
       <div id="network-container" style="width:100%;height:calc(100vh - 90px);position:relative;background:#1a1a2e;user-select:none;-webkit-user-select:none"></div>
     </section>
 
