@@ -1,56 +1,60 @@
 [
   {
+    "distance_km": 320.0,
     "id": 1,
+    "max_speed_kmh": 300,
     "name": "京包高铁",
     "stations": [
       "乌兰察布",
       "呼和浩特",
       "包头"
     ],
-    "distance_km": 320,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 210.0,
     "id": 2,
+    "max_speed_kmh": 200,
     "name": "呼鄂城际",
     "stations": [
       "呼和浩特",
       "鄂尔多斯"
     ],
-    "distance_km": 210,
-    "max_speed_kmh": 200,
     "type": "INTERCITY"
   },
   {
+    "distance_km": 405.0,
     "id": 3,
+    "max_speed_kmh": 120,
     "name": "包兰铁路",
     "stations": [
       "包头",
       "巴彦淖尔",
       "乌海"
     ],
-    "distance_km": 405,
-    "max_speed_kmh": 120,
     "type": "NORMAL"
   },
   {
+    "distance_km": 0.0,
     "id": 4,
+    "max_speed_kmh": 350,
     "name": "京沪高铁",
     "stations": [
       "北京",
+      "廊坊",
       "天津",
+      "沧州",
       "济南",
       "徐州",
       "南京",
       "上海"
     ],
-    "distance_km": 1318,
-    "max_speed_kmh": 350,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 2298.0,
     "id": 5,
+    "max_speed_kmh": 350,
     "name": "京广高铁",
     "stations": [
       "北京",
@@ -63,12 +67,12 @@
       "长沙",
       "广州"
     ],
-    "distance_km": 2298,
-    "max_speed_kmh": 350,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 1260.0,
     "id": 6,
+    "max_speed_kmh": 350,
     "name": "京哈高铁",
     "stations": [
       "北京",
@@ -76,12 +80,12 @@
       "长春",
       "哈尔滨"
     ],
-    "distance_km": 1260,
-    "max_speed_kmh": 350,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 920.0,
     "id": 7,
+    "max_speed_kmh": 300,
     "name": "哈大高铁",
     "stations": [
       "哈尔滨",
@@ -89,58 +93,58 @@
       "沈阳",
       "大连"
     ],
-    "distance_km": 920,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 350.0,
     "id": 8,
+    "max_speed_kmh": 350,
     "name": "京张高铁",
     "stations": [
       "北京",
       "张家口",
       "乌兰察布"
     ],
-    "distance_km": 350,
-    "max_speed_kmh": 350,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 510.0,
     "id": 9,
+    "max_speed_kmh": 300,
     "name": "郑西高铁",
     "stations": [
       "郑州",
       "洛阳",
       "西安"
     ],
-    "distance_km": 510,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 658.0,
     "id": 10,
+    "max_speed_kmh": 250,
     "name": "西成高铁",
     "stations": [
       "西安",
       "成都"
     ],
-    "distance_km": 658,
-    "max_speed_kmh": 250,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 169.0,
     "id": 11,
+    "max_speed_kmh": 350,
     "name": "沪杭高铁",
     "stations": [
       "上海",
       "杭州"
     ],
-    "distance_km": 169,
-    "max_speed_kmh": 350,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 2266.0,
     "id": 12,
+    "max_speed_kmh": 300,
     "name": "沪昆高铁",
     "stations": [
       "上海",
@@ -150,111 +154,111 @@
       "贵阳",
       "昆明"
     ],
-    "distance_km": 2266,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 102.0,
     "id": 13,
+    "max_speed_kmh": 350,
     "name": "广深港高铁",
     "stations": [
       "广州",
       "深圳"
     ],
-    "distance_km": 102,
-    "max_speed_kmh": 350,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 308.0,
     "id": 14,
+    "max_speed_kmh": 300,
     "name": "成渝高铁",
     "stations": [
       "成都",
       "重庆"
     ],
-    "distance_km": 308,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 618.0,
     "id": 15,
+    "max_speed_kmh": 250,
     "name": "银西高铁",
     "stations": [
       "银川",
       "西安"
     ],
-    "distance_km": 618,
-    "max_speed_kmh": 250,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 200.0,
     "id": 16,
+    "max_speed_kmh": 250,
     "name": "兰新高铁",
     "stations": [
       "兰州",
       "西宁"
     ],
-    "distance_km": 200,
-    "max_speed_kmh": 250,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 290.0,
     "id": 17,
+    "max_speed_kmh": 300,
     "name": "大西高铁",
     "stations": [
       "大同",
       "太原"
     ],
-    "distance_km": 290,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 320.0,
     "id": 18,
+    "max_speed_kmh": 300,
     "name": "济青高铁",
     "stations": [
       "济南",
       "青岛"
     ],
-    "distance_km": 320,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 156.0,
     "id": 19,
+    "max_speed_kmh": 300,
     "name": "合宁高铁",
     "stations": [
       "合肥",
       "南京"
     ],
-    "distance_km": 156,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 280.0,
     "id": 20,
+    "max_speed_kmh": 350,
     "name": "福厦高铁",
     "stations": [
       "福州",
       "厦门"
     ],
-    "distance_km": 280,
-    "max_speed_kmh": 350,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 150.0,
     "id": 21,
+    "max_speed_kmh": 350,
     "name": "杭甬高铁",
     "stations": [
       "杭州",
       "宁波"
     ],
-    "distance_km": 150,
-    "max_speed_kmh": 350,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 2320.0,
     "id": 22,
+    "max_speed_kmh": 160,
     "name": "京广铁路",
     "stations": [
       "北京",
@@ -266,12 +270,12 @@
       "长沙",
       "广州"
     ],
-    "distance_km": 2320,
-    "max_speed_kmh": 160,
     "type": "NORMAL"
   },
   {
+    "distance_km": 1759.0,
     "id": 23,
+    "max_speed_kmh": 160,
     "name": "陇海铁路",
     "stations": [
       "徐州",
@@ -282,34 +286,34 @@
       "宝鸡",
       "兰州"
     ],
-    "distance_km": 1759,
-    "max_speed_kmh": 160,
     "type": "NORMAL"
   },
   {
+    "distance_km": 510.0,
     "id": 24,
+    "max_speed_kmh": 160,
     "name": "呼太铁路",
     "stations": [
       "呼和浩特",
       "太原"
     ],
-    "distance_km": 510,
-    "max_speed_kmh": 160,
     "type": "NORMAL"
   },
   {
+    "distance_km": 828.0,
     "id": 25,
+    "max_speed_kmh": 120,
     "name": "南昆铁路",
     "stations": [
       "南宁",
       "昆明"
     ],
-    "distance_km": 828,
-    "max_speed_kmh": 120,
     "type": "NORMAL"
   },
   {
+    "distance_km": 1013.0,
     "id": 26,
+    "max_speed_kmh": 120,
     "name": "湘桂铁路",
     "stations": [
       "长沙",
@@ -317,12 +321,12 @@
       "柳州",
       "南宁"
     ],
-    "distance_km": 1013,
-    "max_speed_kmh": 120,
     "type": "NORMAL"
   },
   {
+    "distance_km": 2078.0,
     "id": 27,
+    "max_speed_kmh": 300,
     "name": "沪蓉高铁",
     "stations": [
       "上海",
@@ -332,12 +336,12 @@
       "重庆",
       "成都"
     ],
-    "distance_km": 2078,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 1400.0,
     "id": 28,
+    "max_speed_kmh": 300,
     "name": "徐兰高铁",
     "stations": [
       "徐州",
@@ -345,24 +349,24 @@
       "西安",
       "兰州"
     ],
-    "distance_km": 1400,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 1280.0,
     "id": 29,
+    "max_speed_kmh": 300,
     "name": "广昆高铁",
     "stations": [
       "广州",
       "南宁",
       "昆明"
     ],
-    "distance_km": 1280,
-    "max_speed_kmh": 300,
     "type": "HIGH_SPEED"
   },
   {
+    "distance_km": 1500.0,
     "id": 30,
+    "max_speed_kmh": 120,
     "name": "南疆铁路",
     "stations": [
       "乌鲁木齐",
@@ -370,8 +374,6 @@
       "阿克苏",
       "喀什"
     ],
-    "distance_km": 1500,
-    "max_speed_kmh": 120,
     "type": "NORMAL"
   }
 ]

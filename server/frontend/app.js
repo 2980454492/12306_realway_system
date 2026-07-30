@@ -2791,16 +2791,13 @@ const UI = {
     U.$('lf-city-list').parentNode.insertBefore(dl, U.$('lf-city-list'));
 
     // 初始化已有车站
-    var list = U.$('lf-city-list');
     for (var i = 0; i < cities.length; i++) {
       var row = UI._lfAddRow(i);
-      var inp = row.querySelector('input');
-      inp.value = cities[i];
+      row.querySelector('input').value = cities[i];
       if (cities[i])
-        UI._lfCheckCity(inp);
-      if (i === cities.length - 1)
-        row.querySelector('.lf-role').textContent = i === 0 ? '始发站' : '终点站';
+        UI._lfCheckCity(row.querySelector('input'));
     }
+    UI._lfUpdateRoles();
   },
 
   _lfAddRow: function(idx) {
@@ -2810,7 +2807,7 @@ const UI = {
     var role = document.createElement('span');
     role.className = 'lf-role';
     role.style.cssText = 'font-size:11px;color:#707090;min-width:40px';
-    role.textContent = idx === 0 ? '始发站' : '途经站';
+    role.textContent = idx === 0 ? '起点' : '途经';
     var inp = document.createElement('input');
     inp.className = 'input';
     inp.placeholder = '城市名';
@@ -2818,15 +2815,31 @@ const UI = {
     inp.setAttribute('list', 'city-suggest-list');
     inp.style.cssText = 'flex:1';
     inp.oninput = function() { UI._lfCheckCity(inp); };
+    var addBtn = document.createElement('button');
+    addBtn.className = 'btn btn-sm';
+    addBtn.style.cssText = 'background:#005530;color:#00ff88;border-color:#00ff88';
+    addBtn.textContent = '+';
+    addBtn.title = '在下方插入一站';
+    addBtn.onclick = function() {
+      var next = div.nextSibling;
+      var newRow = UI._lfAddRow(-1);
+      if (next)
+        list.insertBefore(newRow, next);
+      else
+        list.appendChild(newRow);
+      UI._lfUpdateRoles();
+    };
     var delBtn = document.createElement('button');
     delBtn.className = 'btn btn-sm btn-danger';
     delBtn.textContent = '✕';
+    delBtn.title = '删除此站';
     delBtn.onclick = function() {
       div.remove();
       UI._lfUpdateRoles();
     };
     div.appendChild(role);
     div.appendChild(inp);
+    div.appendChild(addBtn);
     div.appendChild(delBtn);
     list.appendChild(div);
     return div;
@@ -2854,20 +2867,13 @@ const UI = {
     UI._lfUpdateRoles();
   },
 
-  _lfSetEnd: function() {
-    UI._lfUpdateRoles();
-    var rows = U.$('lf-city-list').querySelectorAll('div');
-    if (rows.length > 0)
-      rows[rows.length - 1].querySelector('.lf-role').textContent = '终点站';
-  },
-
   _lfUpdateRoles: function() {
     var rows = U.$('lf-city-list').querySelectorAll('div');
     if (rows.length === 0)
       return;
-    rows[0].querySelector('.lf-role').textContent = '起点站';
+    rows[0].querySelector('.lf-role').textContent = '起点';
     for (var i = 1; i < rows.length; i++)
-      rows[i].querySelector('.lf-role').textContent = i === rows.length - 1 ? '终点站' : '途经站';
+      rows[i].querySelector('.lf-role').textContent = i === rows.length - 1 ? '终点' : '途经';
   },
 
   _lfSave: async function(id) {
@@ -2885,7 +2891,7 @@ const UI = {
       cities.push(city);
     }
     if (cities.length < 2)
-      return U.toast('至少需要2个站点（始发站+终点站）', 'error');
+      return U.toast('至少需要起点和终点两个站点', 'error');
 
     var body = {
       id: 0,
