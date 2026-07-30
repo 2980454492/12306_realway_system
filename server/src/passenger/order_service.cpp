@@ -160,7 +160,10 @@ OrderService::OrderResult OrderService::createOrder(
         int ext_dep = 0, ext_arr = 0;
         for (const auto& s : ext->stops) {
             if (s.station_id == existing.from_station) ext_dep = s.departure;
-            if (s.station_id == existing.to_station) { ext_arr = s.arrival; break; }
+            if (s.station_id == existing.to_station) {
+                ext_arr = s.arrival;
+                break;
+            }
         }
         // 时间窗口重叠判定：新购票的发车 < 已有票的到达 且 新购票的到达 > 已有票的发车
         if (departure_hhmm < ext_arr && new_arrival > ext_dep) {

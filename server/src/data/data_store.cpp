@@ -220,7 +220,10 @@ bool DataStore::saveTrains() const {
                     auto& idx = getStationLineIndex();
                     for (const auto& [sid, neighbors] : idx) {
                         for (const auto& nb : neighbors) {
-                            if (nb.line_id == s.line_id) { lname = nb.line_name; break; }
+                            if (nb.line_id == s.line_id) {
+                                lname = nb.line_name;
+                                break;
+                            }
                         }
                         if (!lname.empty()) break;
                     }
@@ -396,10 +399,19 @@ void DataStore::buildStationLineIndex() {
     for (const auto& line : lines_) {
         // 城市名 → 站点 ID
         std::vector<uint32_t> ids;
-        for (const auto& city : line.stations)
+        for (const auto& city : line.stations) {
+            bool found = false;
             for (const auto& st : stations_)
-                if (st.city == city) { ids.push_back(st.id); break; }
-        if (ids.size() < 2) continue;
+                if (st.city == city) {
+                    ids.push_back(st.id);
+                    found = true;
+                    break;
+                }
+            if (!found)
+                Logger::instance().warn("Line '" + line.name
+                    + "': city '" + city + "' not found in stations");
+        }
+        if (ids.size() != line.stations.size() || ids.size() < 2) continue;
 
         for (size_t i = 0; i < ids.size(); ++i) {
             uint32_t cur = ids[i];

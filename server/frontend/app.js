@@ -312,7 +312,10 @@ const UI = {
       UI.loadLines();
     if (name === 'network') {
       var c = U.$('network-container');
-      if (c) { c.innerHTML = ''; c._loaded = false; }
+      if (c) {
+        c.innerHTML = '';
+        c._loaded = false;
+      }
       UI.loadNetwork();
     }
   },
@@ -2546,7 +2549,10 @@ const UI = {
 
   editUserForm: function(id) {
     for (var i = 0; i < UI._allUsers.length; i++)
-      if (UI._allUsers[i].id === id) { UI.showUserForm(UI._allUsers[i]); return; }
+      if (UI._allUsers[i].id === id) {
+        UI.showUserForm(UI._allUsers[i]);
+        return;
+      }
   },
 
   closeUserForm: function() {
@@ -2623,7 +2629,10 @@ const UI = {
     var listEl = U.$('stations-list');
     listEl.innerHTML = '';
     var stations = UI._allStations;
-    if (!stations.length) { listEl.innerHTML = '<div class="loading">暂无站点</div>'; return; }
+    if (!stations.length) {
+      listEl.innerHTML = '<div class="loading">暂无站点</div>';
+      return;
+    }
     var tbl = document.createElement('table');
     tbl.className = 'users-table';
     tbl.innerHTML = '<thead><tr><th>ID</th><th>站名</th><th>城市</th><th>类型</th><th>操作</th></tr></thead>';
@@ -2672,20 +2681,32 @@ const UI = {
     };
     if (!body.name) return U.toast('站名不能为空', 'error');
     var res = id ? await API.put('/api/admin/stations/' + id, body) : await API.post('/api/admin/stations', body);
-    if (res.ok) { U.toast(id ? '已更新' : '已创建', 'success'); UI.closeModal(); UI.loadStations(); }
-    else U.toast((res.data && res.data.error) || '操作失败', 'error');
+    if (res.ok) {
+      U.toast(id ? '已更新' : '已创建', 'success');
+      UI.closeModal();
+      UI.loadStations();
+    } else {
+      U.toast((res.data && res.data.error) || '操作失败', 'error');
+    }
   },
 
   editStation: function(id) {
     for (var i = 0; i < UI._allStations.length; i++)
-      if (UI._allStations[i].id === id) { UI.showStationForm(UI._allStations[i]); return; }
+      if (UI._allStations[i].id === id) {
+        UI.showStationForm(UI._allStations[i]);
+        return;
+      }
   },
 
   deleteStation: async function(id, name) {
     if (!confirm('确定删除站点 ' + name + '？')) return;
     var res = await API.del('/api/admin/stations/' + id);
-    if (res.ok) { U.toast('已删除', 'success'); UI.loadStations(); }
-    else U.toast((res.data && res.data.error) || '删除失败', 'error');
+    if (res.ok) {
+      U.toast('已删除', 'success');
+      UI.loadStations();
+    } else {
+      U.toast((res.data && res.data.error) || '删除失败', 'error');
+    }
   },
 
   // ── 线路管理（INFRA_ADMIN）──
@@ -2703,7 +2724,10 @@ const UI = {
     var listEl = U.$('lines-list');
     listEl.innerHTML = '';
     var lines = UI._allLines;
-    if (!lines.length) { listEl.innerHTML = '<div class="loading">暂无线路</div>'; return; }
+    if (!lines.length) {
+      listEl.innerHTML = '<div class="loading">暂无线路</div>';
+      return;
+    }
     var tbl = document.createElement('table');
     tbl.className = 'users-table';
     tbl.innerHTML = '<thead><tr><th>ID</th><th>名称</th><th>类型</th><th>里程(km)</th><th>时速</th><th>操作</th></tr></thead>';
@@ -2754,20 +2778,32 @@ const UI = {
     };
     if (!body.name) return U.toast('名称不能为空', 'error');
     var res = id ? await API.put('/api/admin/lines/' + id, body) : await API.post('/api/admin/lines', body);
-    if (res.ok) { U.toast(id ? '已更新' : '已创建', 'success'); UI.closeModal(); UI.loadLines(); }
-    else U.toast((res.data && res.data.error) || '操作失败', 'error');
+    if (res.ok) {
+      U.toast(id ? '已更新' : '已创建', 'success');
+      UI.closeModal();
+      UI.loadLines();
+    } else {
+      U.toast((res.data && res.data.error) || '操作失败', 'error');
+    }
   },
 
   editLine: function(id) {
     for (var i = 0; i < UI._allLines.length; i++)
-      if (UI._allLines[i].id === id) { UI.showLineForm(UI._allLines[i]); return; }
+      if (UI._allLines[i].id === id) {
+        UI.showLineForm(UI._allLines[i]);
+        return;
+      }
   },
 
   deleteLine: async function(id, name) {
     if (!confirm('确定删除线路 ' + name + '？')) return;
     var res = await API.del('/api/admin/lines/' + id);
-    if (res.ok) { U.toast('已删除', 'success'); UI.loadLines(); }
-    else U.toast((res.data && res.data.error) || '删除失败', 'error');
+    if (res.ok) {
+      U.toast('已删除', 'success');
+      UI.loadLines();
+    } else {
+      U.toast((res.data && res.data.error) || '删除失败', 'error');
+    }
   },
 
   _showModal: function(html) {
@@ -2789,10 +2825,16 @@ const UI = {
     try {
       var sr = await API.get('/api/admin/stations');
       var lr = await API.get('/api/admin/lines');
-      if (!sr.ok || !lr.ok) { container.innerHTML = '<div class="loading">加载失败</div>'; return; }
+      if (!sr.ok || !lr.ok) {
+        container.innerHTML = '<div class="loading">加载失败</div>';
+        return;
+      }
       var stations = sr.data.data || [];
       var lines = lr.data.data || [];
-    } catch(e) { container.innerHTML = '<div class="loading">加载失败</div>'; return; }
+    } catch(e) {
+      container.innerHTML = '<div class="loading">加载失败</div>';
+      return;
+    }
 
     // 经纬度投影
     var minLat=90,maxLat=-90,minLng=180,maxLng=-180;
@@ -2806,9 +2848,11 @@ const UI = {
 
     var NODES=stations.map(function(s){return{id:s.id,name:s.name,city:s.city,type:s.type==='HIGH_SPEED'?0:s.type==='HUB'?2:1,x:toX(s.longitude),y:toY(s.latitude),lng:s.longitude,lat:s.latitude}});
     var EDGES=[]; lines.forEach(function(l){for(var i=0;i+1<l.stations.length;i++)EDGES.push({from:l.stations[i],to:l.stations[i+1],line_name:l.name,distance_km:l.distance_km,type:l.type==='HIGH_SPEED'?0:l.type==='INTERCITY'?2:1})});
-    var nodeById={}; NODES.forEach(function(n){nodeById[n.id]=n;nodeById[n.city]=n});  // 同时索引 id + city
+    var nodeById={}; NODES.forEach(function(n){nodeById[n.id]=n;if(n.city)nodeById[n.city]=n});  // 同时索引 id + city
 
-    var tc=['#ff4444','#44ff44','#44aaff'], ec=['#ff6666','#66ff66','#66bbff'], tp=[1,2,0];
+    var tc = ['#ff4444', '#44ff44', '#44aaff'];
+    var ec = ['#ff6666', '#66ff66', '#66bbff'];
+    var tp = [1, 2, 0];
 
     var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
     svg.setAttribute('viewBox','0 0 '+W+' '+H);
@@ -2823,49 +2867,236 @@ const UI = {
     var eG=document.createElementNS('http://www.w3.org/2000/svg','g');
     var nG=document.createElementNS('http://www.w3.org/2000/svg','g');
     var tG=document.createElementNS('http://www.w3.org/2000/svg','g');
-    zG.appendChild(eG);zG.appendChild(nG);svg.appendChild(zG);svg.appendChild(tG);
+    zG.appendChild(eG);
+    zG.appendChild(nG);
+    svg.appendChild(zG);
+    svg.appendChild(tG);
     container.appendChild(svg);
     var scl=1,tx=0,ty=0;
 
     function update(){zG.setAttribute('transform','translate('+tx+','+ty+') scale('+scl+')');renderN()}
     var rafId=null;
-    function scheduleUpdate(){if(!rafId)rafId=requestAnimationFrame(function(){rafId=null;update()})}
+    function scheduleUpdate() {
+      if (!rafId)
+        rafId = requestAnimationFrame(function() {
+          rafId = null;
+          update();
+        });
+    }
 
     var drag=false,dx=0,dy=0;
-    svg.addEventListener('mousedown',function(e){drag=true;dx=e.clientX-tx;dy=e.clientY-ty;svg.style.cursor='grabbing'});
-    window.addEventListener('mousemove',function(e){if(!drag)return;tx=e.clientX-dx;ty=e.clientY-dy;update()});
-    window.addEventListener('mouseup',function(){drag=false;svg.style.cursor=''});
+    svg.addEventListener('mousedown', function(e) {
+      drag = true;
+      dx = e.clientX - tx;
+      dy = e.clientY - ty;
+      svg.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', function(e) {
+      if (!drag)
+        return;
+      tx = e.clientX - dx;
+      ty = e.clientY - dy;
+      scheduleUpdate();
+    });
+    window.addEventListener('mouseup', function() {
+      drag = false;
+      svg.style.cursor = '';
+    });
 
-    svg.addEventListener('wheel',function(e){e.preventDefault();var mx=e.clientX-svg.getBoundingClientRect().left,my=e.clientY-svg.getBoundingClientRect().top;var os=scl;scl=Math.max(0.3,Math.min(5,scl*(e.deltaY<0?1.15:0.87)));var r=scl/os;tx=mx-r*(mx-tx);ty=my-r*(my-ty);scheduleUpdate()});
+    svg.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var mx = e.clientX - svg.getBoundingClientRect().left;
+      var my = e.clientY - svg.getBoundingClientRect().top;
+      var os = scl;
+      scl = Math.max(0.1, Math.min(30, scl * (e.deltaY < 0 ? 1.15 : 0.87)));
+      var r = scl / os;
+      tx = mx - r * (mx - tx);
+      ty = my - r * (my - ty);
+      scheduleUpdate();
+    });
 
     function ek(e){return e.from<e.to?e.from+'-'+e.to:e.to+'-'+e.from}
     var edgeCount={}; EDGES.forEach(function(e){var k=ek(e);edgeCount[k]=(edgeCount[k]||0)+1});
     function isClose(a,b,th){var dx=(a.x-b.x)*scl,dy=(a.y-b.y)*scl;return Math.sqrt(dx*dx+dy*dy)<th}
 
-    function renderN(){
-      nG.innerHTML='';eG.innerHTML='';var th=30/scl,hidden=new Set();
-      var r=5/scl,sw=1.5/scl;  // 缓存反比例缩放值
-      // 网格索引加速聚类：仅检查相邻网格单元
-      var cell={},cSize=Math.max(th,10);
-      for(var i=0;i<NODES.length;i++){var cx=Math.floor(NODES[i].x/cSize),cy=Math.floor(NODES[i].y/cSize),ck=cx+','+cy;if(!cell[ck])cell[ck]=[];cell[ck].push(i)}
-      for(var ck in cell){var parts=ck.split(','),cx=+parts[0],cy=+parts[1];
-        for(var dx=-1;dx<=1;dx++){for(var dy=-1;dy<=1;dy++){var nk=(cx+dx)+','+(cy+dy);if(!cell[nk])continue;
-          for(var ai=0;ai<cell[ck].length;ai++){var i=cell[ck][ai];if(hidden.has(i))continue;
-            for(var bi=0;bi<cell[nk].length;bi++){var j=cell[nk][bi];if(j<=i||hidden.has(j))continue;
-              if(isClose(NODES[i],NODES[j],th))tp[NODES[i].type]<=tp[NODES[j].type]?hidden.add(j):hidden.add(i)}}}}}
-      var eOff={};
-      EDGES.forEach(function(e,i){var k=ek(e),t2=edgeCount[k]||1,idx=eOff[k]=(eOff[k]||0)+1;var a=nodeById[e.from],b=nodeById[e.to];if(!a||!b)return;var off=(idx-(t2+1)/2)*18,mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,len=Math.sqrt(dx*dx+dy*dy)||1,nx=-dy/len,ny=dx/len,cx=mx+nx*off,cy=my+ny*off;var p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d','M'+a.x+','+a.y+' Q'+cx+','+cy+' '+b.x+','+b.y);p.setAttribute('fill','none');p.setAttribute('stroke',ec[e.type]||'#66ff66');p.setAttribute('stroke-width',sw.toFixed(2));p.setAttribute('opacity','0.6');eG.appendChild(p)});
-      for(var i=0;i<NODES.length;i++){if(hidden.has(i))continue;var n=NODES[i],c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r',r.toFixed(2));c.setAttribute('fill',tc[n.type]);c.setAttribute('stroke',tc[n.type]);c.style.cursor='pointer';c.onmouseenter=function(){info.innerHTML='<h3 style="margin:0 0 8px;color:#53a8ff">'+n.name+'</h3><p style="margin:4px 0;color:#9090b0;font-size:12px">城市: '+n.city+'</p>';info.style.display='block'};c.onmouseleave=function(){info.style.display='none'};nG.appendChild(c)}
+    function renderN() {
+      nG.innerHTML = '';
+      eG.innerHTML = '';
+      var th = 30 / scl;
+      var hidden = new Set();
+      var r = 5 / scl;
+      var sw = 1.5 / scl;
+
+      // 网格索引加速聚类
+      var cell = {};
+      var cSize = Math.max(th, 10);
+      for (var i = 0; i < NODES.length; i++) {
+        var cx = Math.floor(NODES[i].x / cSize);
+        var cy = Math.floor(NODES[i].y / cSize);
+        var ck = cx + ',' + cy;
+        if (!cell[ck])
+          cell[ck] = [];
+        cell[ck].push(i);
+      }
+      for (var ck in cell) {
+        var parts = ck.split(',');
+        var cx = +parts[0];
+        var cy = +parts[1];
+        for (var dx = -1; dx <= 1; dx++) {
+          for (var dy = -1; dy <= 1; dy++) {
+            var nk = (cx + dx) + ',' + (cy + dy);
+            if (!cell[nk])
+              continue;
+            for (var ai = 0; ai < cell[ck].length; ai++) {
+              var i = cell[ck][ai];
+              if (hidden.has(i))
+                continue;
+              for (var bi = 0; bi < cell[nk].length; bi++) {
+                var j = cell[nk][bi];
+                if (j <= i || hidden.has(j))
+                  continue;
+                if (isClose(NODES[i], NODES[j], th)) {
+                  if (tp[NODES[i].type] <= tp[NODES[j].type])
+                    hidden.add(j);
+                  else
+                    hidden.add(i);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // 边
+      var eOff = {};
+      EDGES.forEach(function(e, i) {
+        var k = ek(e);
+        var t2 = edgeCount[k] || 1;
+        var idx = eOff[k] = (eOff[k] || 0) + 1;
+        var a = nodeById[e.from];
+        var b = nodeById[e.to];
+        if (!a || !b)
+          return;
+        var off = (idx - (t2 + 1) / 2) * 18;
+        var mx = (a.x + b.x) / 2;
+        var my = (a.y + b.y) / 2;
+        var dx = b.x - a.x;
+        var dy = b.y - a.y;
+        var len = Math.sqrt(dx * dx + dy * dy) || 1;
+        var nx = -dy / len;
+        var ny = dx / len;
+        var cx = mx + nx * off;
+        var cy = my + ny * off;
+        var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', 'M' + a.x + ',' + a.y + ' Q' + cx + ',' + cy + ' ' + b.x + ',' + b.y);
+        p.setAttribute('fill', 'none');
+        p.setAttribute('stroke', ec[e.type] || '#66ff66');
+        p.setAttribute('stroke-width', sw.toFixed(2));
+        p.setAttribute('opacity', '0.6');
+        eG.appendChild(p);
+      });
+
+      // 站点圆点
+      for (var i = 0; i < NODES.length; i++) {
+        if (hidden.has(i))
+          continue;
+        (function(n) {
+          var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          c.setAttribute('cx', n.x);
+          c.setAttribute('cy', n.y);
+          c.setAttribute('r', r.toFixed(2));
+          c.setAttribute('fill', tc[n.type]);
+          c.setAttribute('stroke', tc[n.type]);
+          c.style.cursor = 'pointer';
+          c.onmouseenter = function() {
+            info.innerHTML = '<h3 style="margin:0 0 8px;color:#53a8ff">' + n.name + '</h3><p style="margin:4px 0;color:#9090b0;font-size:12px">城市: ' + n.city + '</p>';
+            info.style.display = 'block';
+          };
+          c.onmouseleave = function() { info.style.display = 'none'; };
+          nG.appendChild(c);
+        })(NODES[i]);
+      }
+
       renderT(hidden);
     }
 
-    function renderT(hidden){
-      tG.innerHTML='';
-      for(var i=0;i<NODES.length;i++){if(hidden.has(i))continue;var n=NODES[i];var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',n.x*scl+tx);t.setAttribute('y',n.y*scl+ty+14);t.setAttribute('fill','#e0e0e0');t.setAttribute('font-size','11');t.setAttribute('text-anchor','middle');t.textContent=n.name;tG.appendChild(t)}
-      var eh=new Set();
-      for(var i=0;i<EDGES.length;i++){if(eh.has(i))continue;for(var j=i+1;j<EDGES.length;j++){if(eh.has(j))continue;var a=nodeById[EDGES[i].from],b=nodeById[EDGES[i].to],c2=nodeById[EDGES[j].from],d=nodeById[EDGES[j].to];if(!a||!b||!c2||!d)continue;var k1=ek(EDGES[i]),k2=ek(EDGES[j]);if(k1===k2)continue;var mx1=(a.x+b.x)/2*scl+tx,my1=(a.y+b.y)/2*scl+ty,mx2=(c2.x+d.x)/2*scl+tx,my2=(c2.y+d.y)/2*scl+ty;if(Math.sqrt((mx1-mx2)*(mx1-mx2)+(my1-my2)*(my1-my2))<80)EDGES[i].distance_km>=EDGES[j].distance_km?eh.add(j):eh.add(i)}}
-      var elOff={};
-      EDGES.forEach(function(e,i){if(eh.has(i))return;var k=ek(e),t2=edgeCount[k]||1,idx=elOff[k]=(elOff[k]||0)+1;var a=nodeById[e.from],b=nodeById[e.to];if(!a||!b)return;var mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,len=Math.sqrt(dx*dx+dy*dy)||1,nx=-dy/len,ny=dx/len,off2=(idx-(t2+1)/2)*18;var t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',(mx+nx*off2)*scl+tx);t.setAttribute('y',(my+ny*off2)*scl+ty-6);t.setAttribute('fill','#9090b0');t.setAttribute('font-size','12');t.setAttribute('text-anchor','middle');t.textContent=e.line_name+' '+e.distance_km+'km';tG.appendChild(t)})
+    function renderT(hidden) {
+      tG.innerHTML = '';
+      // 站名
+      for (var i = 0; i < NODES.length; i++) {
+        if (hidden.has(i))
+          continue;
+        var n = NODES[i];
+        var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', n.x * scl + tx);
+        t.setAttribute('y', n.y * scl + ty + 14);
+        t.setAttribute('fill', '#e0e0e0');
+        t.setAttribute('font-size', '11');
+        t.setAttribute('text-anchor', 'middle');
+        t.textContent = n.name;
+        tG.appendChild(t);
+      }
+
+      // 线路标签重叠检测
+      var eh = new Set();
+      for (var i = 0; i < EDGES.length; i++) {
+        if (eh.has(i))
+          continue;
+        for (var j = i + 1; j < EDGES.length; j++) {
+          if (eh.has(j))
+            continue;
+          var a = nodeById[EDGES[i].from];
+          var b = nodeById[EDGES[i].to];
+          var c2 = nodeById[EDGES[j].from];
+          var d = nodeById[EDGES[j].to];
+          if (!a || !b || !c2 || !d)
+            continue;
+          var k1 = ek(EDGES[i]);
+          var k2 = ek(EDGES[j]);
+          if (k1 === k2)
+            continue;
+          var mx1 = (a.x + b.x) / 2 * scl + tx;
+          var my1 = (a.y + b.y) / 2 * scl + ty;
+          var mx2 = (c2.x + d.x) / 2 * scl + tx;
+          var my2 = (c2.y + d.y) / 2 * scl + ty;
+          if (Math.sqrt((mx1 - mx2) * (mx1 - mx2) + (my1 - my2) * (my1 - my2)) < 80) {
+            if (EDGES[i].distance_km >= EDGES[j].distance_km)
+              eh.add(j);
+            else
+              eh.add(i);
+          }
+        }
+      }
+
+      // 线路标签
+      var elOff = {};
+      EDGES.forEach(function(e, i) {
+        if (eh.has(i))
+          return;
+        var k = ek(e);
+        var t2 = edgeCount[k] || 1;
+        var idx = elOff[k] = (elOff[k] || 0) + 1;
+        var a = nodeById[e.from];
+        var b = nodeById[e.to];
+        if (!a || !b)
+          return;
+        var mx = (a.x + b.x) / 2;
+        var my = (a.y + b.y) / 2;
+        var dx = b.x - a.x;
+        var dy = b.y - a.y;
+        var len = Math.sqrt(dx * dx + dy * dy) || 1;
+        var nx = -dy / len;
+        var ny = dx / len;
+        var off2 = (idx - (t2 + 1) / 2) * 18;
+        var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', (mx + nx * off2) * scl + tx);
+        t.setAttribute('y', (my + ny * off2) * scl + ty - 6);
+        t.setAttribute('fill', '#9090b0');
+        t.setAttribute('font-size', '12');
+        t.setAttribute('text-anchor', 'middle');
+        t.textContent = e.line_name + ' ' + e.distance_km + 'km';
+        tG.appendChild(t);
+      });
     }
     renderN();
 
