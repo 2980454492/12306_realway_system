@@ -2772,9 +2772,7 @@ const UI = {
       + '<div class="form-group"><label>设计时速（km/h）</label><input id="lf-speed" class="input" type="number" value="' + (line ? line.max_speed_kmh : '') + '"></div>'
       + '<div class="form-group"><label>途经城市</label>'
       + '<div id="lf-city-list" style="display:flex;flex-direction:column;gap:6px"></div>'
-      + '<div style="margin-top:8px">'
-      + '<button class="btn btn-sm btn-primary" onclick="UI._lfAddNext(' + editingId + ')">+ 添加站点</button>'
-      + '</div></div>'
+      + '</div>'
       + '<div id="lf-error" class="error-msg"></div>'
       + '<div style="display:flex;gap:8px;margin-top:16px">'
       + '<button class="btn btn-primary" onclick="UI._lfSave(' + editingId + ')">保存</button>'
@@ -2860,11 +2858,6 @@ const UI = {
       }
     }
     inp.style.borderColor = found ? '#00ff88' : '#ff4444';
-  },
-
-  _lfAddNext: function() {
-    UI._lfAddRow(-1);
-    UI._lfUpdateRoles();
   },
 
   _lfUpdateRoles: function() {
