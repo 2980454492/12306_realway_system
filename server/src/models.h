@@ -178,12 +178,11 @@ struct Line {
     uint32_t id = 0;
     std::string name;                      // 线路名（如"京包高铁"）
     std::vector<std::string> stations;     // 沿途城市名序列（首个=起点，末个=终点）
-    double distance_km = 0.0;           // 里程（公里）
     uint32_t max_speed_kmh = 0;         // 设计时速
     LineType type = LineType::NORMAL;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Line,
-    id, name, stations, distance_km, max_speed_kmh, type)
+    id, name, stations, max_speed_kmh, type)
 
 /** 运行区段 — 列车在相邻两站之间的走行信息，用于冲突检测和前端展示 */
 struct RouteSegment {

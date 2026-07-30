@@ -134,7 +134,6 @@ bool DataStore::loadLines() {
             Line line;
             line.id = jl.value("id", 0U);
             line.name = jl.value("name", "");
-            line.distance_km = jl.value("distance_km", 0.0);
             line.max_speed_kmh = jl.value("max_speed_kmh", 0U);
             line.type = jl.value("type", LineType::NORMAL);
             for (const auto& s : jl["stations"])

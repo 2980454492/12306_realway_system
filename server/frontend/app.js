@@ -2898,8 +2898,7 @@ const UI = {
       name: name,
       type: type,
       stations: cities,
-      max_speed_kmh: speed,
-      distance_km: 0
+      max_speed_kmh: speed
     };
     var res = id
       ? await API.put('/api/admin/lines/' + id, body)
@@ -2972,9 +2971,30 @@ const UI = {
     function toX(lng){return ox+(lng-minLng)*sc}
     function toY(lat){return oy+(maxLat-lat)*sc}
 
-    var NODES=stations.map(function(s){return{id:s.id,name:s.name,city:s.city,type:s.type==='HIGH_SPEED'?0:s.type==='HUB'?2:1,x:toX(s.longitude),y:toY(s.latitude),lng:s.longitude,lat:s.latitude}});
-    var EDGES=[]; lines.forEach(function(l){for(var i=0;i+1<l.stations.length;i++)EDGES.push({from:l.stations[i],to:l.stations[i+1],line_name:l.name,distance_km:l.distance_km,type:l.type==='HIGH_SPEED'?0:l.type==='INTERCITY'?2:1})});
-    var nodeById={}; NODES.forEach(function(n){nodeById[n.id]=n;if(n.city)nodeById[n.city]=n});  // 同时索引 id + city
+    var NODES = stations.map(function(s) {
+      return {
+        id: s.id, name: s.name, city: s.city,
+        type: s.type === 'HIGH_SPEED' ? 0 : s.type === 'HUB' ? 2 : 1,
+        x: toX(s.longitude), y: toY(s.latitude),
+        lng: s.longitude, lat: s.latitude
+      };
+    });
+    var EDGES = [];
+    lines.forEach(function(l) {
+      for (var i = 0; i + 1 < l.stations.length; i++)
+        EDGES.push({
+          from: l.stations[i],
+          to: l.stations[i + 1],
+          line_name: l.name,
+          type: l.type === 'HIGH_SPEED' ? 0 : l.type === 'INTERCITY' ? 2 : 1
+        });
+    });
+    var nodeById = {};
+    NODES.forEach(function(n) {
+      nodeById[n.id] = n;
+      if (n.city)
+        nodeById[n.city] = n;
+    });
 
     var tc = ['#ff4444', '#44ff44', '#44aaff'];
     var ec = ['#ff6666', '#66ff66', '#66bbff'];
@@ -3186,10 +3206,7 @@ const UI = {
           var mx2 = (c2.x + d.x) / 2 * scl + tx;
           var my2 = (c2.y + d.y) / 2 * scl + ty;
           if (Math.sqrt((mx1 - mx2) * (mx1 - mx2) + (my1 - my2) * (my1 - my2)) < 80) {
-            if (EDGES[i].distance_km >= EDGES[j].distance_km)
-              eh.add(j);
-            else
-              eh.add(i);
+            eh.add(j);
           }
         }
       }
@@ -3220,7 +3237,7 @@ const UI = {
         t.setAttribute('fill', '#9090b0');
         t.setAttribute('font-size', '12');
         t.setAttribute('text-anchor', 'middle');
-        t.textContent = e.line_name + ' ' + e.distance_km + 'km';
+        t.textContent = e.line_name;
         tG.appendChild(t);
       });
     }
