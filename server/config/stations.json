@@ -2550,5 +2550,13 @@
     "type": "NORMAL",
     "latitude": 40.821,
     "longitude": 111.751
+  },
+  {
+    "id": 320,
+    "name": "阜阳",
+    "city": "阜阳",
+    "type": "NORMAL",
+    "latitude": 32.89,
+    "longitude": 115.81
   }
 ]
