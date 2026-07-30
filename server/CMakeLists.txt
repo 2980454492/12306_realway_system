@@ -40,6 +40,11 @@ set(SOURCES
     src/core/logger.cpp
     src/core/server.cpp
     src/core/routes.cpp
+    src/core/routes_auth.cpp
+    src/core/routes_passenger.cpp
+    src/core/routes_staff.cpp
+    src/core/routes_approval.cpp
+    src/core/routes_admin.cpp
     src/core/wal_writer.cpp
     src/core/audit_logger.cpp
     src/core/system_config.cpp
@@ -64,6 +69,7 @@ set(HEADERS
     src/core/logger.h
     src/core/server.h
     src/core/routes.h
+    src/core/routes_helpers.h
     src/core/wal_writer.h
     src/core/audit_logger.h
     src/core/system_config.h
