@@ -1,6 +1,6 @@
 // wal_writer.cpp — WAL 预写日志实现
-#include "core/wal_writer.h"
-#include "core/logger.h"
+#include "wal.h"
+#include "logger.h"
 
 #include <nlohmann/json.hpp>
 

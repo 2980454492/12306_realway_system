@@ -1,6 +1,6 @@
 // crypto.cpp — AES-256-GCM 加解密实现
-#include "core/crypto.h"
-#include "core/logger.h"
+#include "crypto.h"
+#include "system/logger.h"
 
 #include <sodium.h>
 

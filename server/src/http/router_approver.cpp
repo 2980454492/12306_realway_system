@@ -1,5 +1,5 @@
 // Auto-split from routes.cpp
-#include "core/routes_helpers.h"
+#include "router_helpers.h"
 
 void registerApprovalRoutes(RailwayServer& server) {
     auto& app = server.getApp();

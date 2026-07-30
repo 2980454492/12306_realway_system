@@ -37,19 +37,23 @@ find_library(SODIUM_LIB sodium REQUIRED)
 # ── 可执行目标 ──
 set(SOURCES
     src/main.cpp
-    src/core/logger.cpp
-    src/core/server.cpp
-    src/core/routes.cpp
-    src/core/routes_auth.cpp
-    src/core/routes_passenger.cpp
-    src/core/routes_staff.cpp
-    src/core/routes_approval.cpp
-    src/core/routes_admin.cpp
-    src/core/wal_writer.cpp
-    src/core/audit_logger.cpp
-    src/core/system_config.cpp
-    src/core/rate_limiter.cpp
-    src/core/crypto.cpp
+    src/system/logger.cpp
+    src/http/server.cpp
+    src/http/router.cpp
+    src/http/router_auth.cpp
+    src/http/router_passenger.cpp
+    src/http/router_staff.cpp
+    src/http/router_approver.cpp
+    src/http/router_sys_admin.cpp
+    src/http/router_infra_admin.cpp
+    src/system/wal.cpp
+    src/sys_admin/audit_service.cpp
+    src/sys_admin/system_config.cpp
+    src/sys_admin/user_service.cpp
+    src/infra_admin/station_service.cpp
+    src/infra_admin/line_service.cpp
+    src/security/rate_limiter.cpp
+    src/security/crypto.cpp
     src/data/data_store.cpp
     src/data/railway_graph.cpp
     src/auth/auth_service.cpp
@@ -59,22 +63,25 @@ set(SOURCES
     src/passenger/seat_inventory.cpp
     src/passenger/order_service.cpp
     src/staff/train_manager.cpp
-    src/staff/approval_service.cpp
+    src/approver/approval_service.cpp
 )
 
 set(HEADERS
     src/models.h
-    src/core/config.h
-    src/core/utils.h
-    src/core/logger.h
-    src/core/server.h
-    src/core/routes.h
-    src/core/routes_helpers.h
-    src/core/wal_writer.h
-    src/core/audit_logger.h
-    src/core/system_config.h
-    src/core/rate_limiter.h
-    src/core/crypto.h
+    src/config.h
+    src/utils.h
+    src/system/logger.h
+    src/http/server.h
+    src/http/router.h
+    src/http/router_helpers.h
+    src/system/wal.h
+    src/sys_admin/audit_service.h
+    src/sys_admin/system_config.h
+    src/sys_admin/user_service.h
+    src/infra_admin/station_service.h
+    src/infra_admin/line_service.h
+    src/security/rate_limiter.h
+    src/security/crypto.h
     src/data/data_store.h
     src/data/railway_graph.h
     src/auth/auth_service.h
@@ -84,7 +91,7 @@ set(HEADERS
     src/passenger/seat_inventory.h
     src/passenger/order_service.h
     src/staff/train_manager.h
-    src/staff/approval_service.h
+    src/approver/approval_service.h
     vendor/httplib.h
 )
 

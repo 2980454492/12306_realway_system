@@ -1,9 +1,9 @@
 // main.cpp — 12306 铁路票务系统入口
 // 负责数据初始化、信号处理、服务启动、优雅关闭
-#include "core/config.h"
-#include "core/server.h"
-#include "core/routes.h"
-#include "core/logger.h"
+#include "config.h"
+#include "http/server.h"
+#include "http/router.h"
+#include "system/logger.h"
 #include "data/data_store.h"
 #include "data/railway_graph.h"
 #include "auth/auth_service.h"
@@ -12,11 +12,11 @@
 #include "passenger/order_service.h"
 #include "passenger/train_query.h"
 #include "staff/train_manager.h"
-#include "staff/approval_service.h"
-#include "core/wal_writer.h"
-#include "core/audit_logger.h"
-#include "core/system_config.h"
-#include "core/crypto.h"
+#include "approver/approval_service.h"
+#include "system/wal.h"
+#include "sys_admin/audit_service.h"
+#include "sys_admin/system_config.h"
+#include "security/crypto.h"
 
 #include <nlohmann/json.hpp>
 

@@ -1,10 +1,10 @@
 // auth_service.cpp — AuthService 实现
 #include "auth/auth_service.h"
-#include "core/config.h"
-#include "core/logger.h"
-#include "core/utils.h"
-#include "core/wal_writer.h"
-#include "core/audit_logger.h"
+#include "config.h"
+#include "system/logger.h"
+#include "utils.h"
+#include "system/wal.h"
+#include "sys_admin/audit_service.h"
 
 #include <sodium.h>
 #include <nlohmann/json.hpp>

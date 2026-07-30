@@ -1,7 +1,7 @@
 // audit_logger.cpp — 审计日志实现
-#include "core/audit_logger.h"
-#include "core/logger.h"
-#include "core/utils.h"
+#include "audit_service.h"
+#include "system/logger.h"
+#include "utils.h"
 
 #include <nlohmann/json.hpp>
 #include <sodium.h>

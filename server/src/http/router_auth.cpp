@@ -1,5 +1,5 @@
 // This file is part of routes.cpp — auto-split by module
-#include "core/routes_helpers.h"
+#include "router_helpers.h"
 
 void registerAuthRoutes(RailwayServer& server) {
     auto& app = server.getApp();

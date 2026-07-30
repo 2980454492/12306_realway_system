@@ -2,12 +2,12 @@
 #include "passenger/order_service.h"
 #include "passenger/seat_inventory.h"
 #include "data/data_store.h"
-#include "core/config.h"
-#include "core/utils.h"
-#include "core/logger.h"
-#include "core/wal_writer.h"
-#include "core/system_config.h"
-#include "core/crypto.h"
+#include "config.h"
+#include "utils.h"
+#include "system/logger.h"
+#include "system/wal.h"
+#include "sys_admin/system_config.h"
+#include "security/crypto.h"
 
 #include <nlohmann/json.hpp>
 

@@ -1,15 +1,15 @@
 // routes_helpers.h — 路由共享工具（认证、限流、JSON转换）
 #pragma once
 
-#include "core/config.h"
-#include "core/logger.h"
-#include "core/server.h"
-#include "core/utils.h"
-#include "core/wal_writer.h"
-#include "core/audit_logger.h"
-#include "core/system_config.h"
-#include "core/rate_limiter.h"
-#include "core/crypto.h"
+#include "config.h"
+#include "system/logger.h"
+#include "server.h"
+#include "utils.h"
+#include "system/wal.h"
+#include "sys_admin/audit_service.h"
+#include "sys_admin/system_config.h"
+#include "security/rate_limiter.h"
+#include "security/crypto.h"
 #include "data/data_store.h"
 #include "auth/auth_service.h"
 #include "auth/jwt_service.h"
@@ -17,7 +17,7 @@
 #include "passenger/train_query.h"
 #include "passenger/order_service.h"
 #include "staff/train_manager.h"
-#include "staff/approval_service.h"
+#include "approver/approval_service.h"
 
 #include <nlohmann/json.hpp>
 

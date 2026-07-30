@@ -1,13 +1,14 @@
 // routes.cpp — 路由注册入口，按模块分发到 routes_*.cpp
-#include "core/routes.h"
-#include "core/routes_helpers.h"
+#include "router.h"
+#include "router_helpers.h"
 
 // 各模块路由注册函数
 void registerAuthRoutes(RailwayServer& server);
 void registerPassengerRoutes(RailwayServer& server);
 void registerStaffRoutes(RailwayServer& server);
 void registerApprovalRoutes(RailwayServer& server);
-void registerAdminRoutes(RailwayServer& server);
+void registerSysAdminRoutes(RailwayServer& server);
+void registerInfraAdminRoutes(RailwayServer& server);
 
 void registerRoutes(RailwayServer& server) {
     auto& app = server.getApp();
@@ -46,5 +47,6 @@ void registerRoutes(RailwayServer& server) {
     registerPassengerRoutes(server);
     registerStaffRoutes(server);
     registerApprovalRoutes(server);
-    registerAdminRoutes(server);
+    registerSysAdminRoutes(server);
+    registerInfraAdminRoutes(server);
 }

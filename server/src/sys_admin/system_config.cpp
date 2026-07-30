@@ -1,6 +1,6 @@
 // system_config.cpp — 系统配置实现
-#include "core/system_config.h"
-#include "core/logger.h"
+#include "system_config.h"
+#include "system/logger.h"
 
 #include <nlohmann/json.hpp>
 

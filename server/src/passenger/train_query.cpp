@@ -2,10 +2,10 @@
 #include "passenger/train_query.h"
 #include "data/data_store.h"
 #include "passenger/seat_inventory.h"
-#include "core/config.h"
-#include "core/system_config.h"
-#include "core/utils.h"
-#include "core/logger.h"
+#include "config.h"
+#include "sys_admin/system_config.h"
+#include "utils.h"
+#include "system/logger.h"
 
 #include <set>
 #include <tuple>
