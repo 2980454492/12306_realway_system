@@ -2730,7 +2730,7 @@ const UI = {
     }
     var tbl = document.createElement('table');
     tbl.className = 'users-table';
-    tbl.innerHTML = '<thead><tr><th>ID</th><th>名称</th><th>类型</th><th>里程(km)</th><th>时速</th><th>操作</th></tr></thead>';
+    tbl.innerHTML = '<thead><tr><th>ID</th><th>名称</th><th>类型</th><th>时速(km/h)</th><th>车站数</th><th>操作</th></tr></thead>';
     var tbody = document.createElement('tbody');
     var typeLabels = {HIGH_SPEED:'高铁',NORMAL:'普速',INTERCITY:'城际'};
     for (var i = 0; i < lines.length; i++) {
@@ -2739,8 +2739,8 @@ const UI = {
       tr.innerHTML = '<td>' + l.id + '</td>'
         + '<td style="font-weight:600;color:#e0e0e0">' + U.esc(l.name) + '</td>'
         + '<td>' + (typeLabels[l.type] || l.type) + '</td>'
-        + '<td>' + (l.distance_km || 0).toFixed(1) + '</td>'
         + '<td>' + (l.max_speed_kmh || 0) + '</td>'
+        + '<td>' + (l.stations ? l.stations.length : 0) + '</td>'
         + '<td class="user-actions"><button class="btn btn-sm btn-primary">编辑</button>'
         + '<button class="btn btn-sm btn-danger">删除</button></td>';
       var btns = tr.querySelectorAll('button');
@@ -2752,32 +2752,152 @@ const UI = {
     listEl.appendChild(tbl);
   },
 
-  showLineForm: function(line) {
-    var h = '<h3>' + (line ? '编辑线路' : '新增线路') + '</h3>'
+  showLineForm: async function(line) {
+    // 确保站点列表已加载（用于城市名校验）
+    if (!UI._allStations || !UI._allStations.length) {
+      var sr = await API.get('/api/admin/stations');
+      if (sr.ok)
+        UI._allStations = sr.data.data || [];
+    }
+    var cities = line ? (line.stations || []).slice() : [''];
+    var title = line ? '编辑线路' : '新增线路';
+    var editingId = line ? line.id : 0;
+
+    var h = '<h3>' + title + '</h3>'
       + '<div class="form-group"><label>线路名称</label><input id="lf-name" class="input" value="' + (line ? U.esc(line.name) : '') + '"></div>'
       + '<div class="form-group"><label>类型</label><select id="lf-type" class="input">'
-      + '<option value="HIGH_SPEED"' + (line && line.type==='HIGH_SPEED'?' selected':'') + '>高铁</option>'
-      + '<option value="NORMAL"' + (line && line.type==='NORMAL'?' selected':'') + '>普速</option>'
-      + '<option value="INTERCITY"' + (line && line.type==='INTERCITY'?' selected':'') + '>城际</option></select></div>'
-      + '<div class="form-group"><label>站点城市名（逗号分隔）</label><input id="lf-stations" class="input" value="' + (line ? (line.stations||[]).join(',') : '') + '"></div>'
-      + '<div class="form-group"><label>里程（km）</label><input id="lf-distance" class="input" type="number" step="0.1" value="' + (line ? line.distance_km : '') + '"></div>'
+      + '<option value="HIGH_SPEED"' + (line && line.type === 'HIGH_SPEED' ? ' selected' : '') + '>高铁</option>'
+      + '<option value="NORMAL"' + (line && line.type === 'NORMAL' ? ' selected' : '') + '>普速</option>'
+      + '<option value="INTERCITY"' + (line && line.type === 'INTERCITY' ? ' selected' : '') + '>城际</option></select></div>'
       + '<div class="form-group"><label>设计时速（km/h）</label><input id="lf-speed" class="input" type="number" value="' + (line ? line.max_speed_kmh : '') + '"></div>'
-      + '<div style="display:flex;gap:8px;margin-top:16px"><button class="btn btn-primary" onclick="UI.saveLine(' + (line ? line.id : 0) + ')">保存</button>'
+      + '<div class="form-group"><label>途经城市</label>'
+      + '<div id="lf-city-list" style="display:flex;flex-direction:column;gap:6px"></div>'
+      + '<div style="margin-top:8px">'
+      + '<button class="btn btn-sm btn-primary" onclick="UI._lfAddNext(' + editingId + ')">+ 添加站点</button>'
+      + '</div></div>'
+      + '<div id="lf-error" class="error-msg"></div>'
+      + '<div style="display:flex;gap:8px;margin-top:16px">'
+      + '<button class="btn btn-primary" onclick="UI._lfSave(' + editingId + ')">保存</button>'
       + '<button class="btn" onclick="UI.closeModal()">取消</button></div>';
+    // 建立城市名 datalist
+    var dl = document.createElement('datalist');
+    dl.id = 'city-suggest-list';
+    var citiesSet = {};
+    for (var ci = 0; ci < (UI._allStations || []).length; ci++)
+      citiesSet[UI._allStations[ci].city] = true;
+    for (var cn in citiesSet)
+      dl.innerHTML += '<option value="' + U.esc(cn) + '">';
     UI._showModal(h);
+    U.$('lf-city-list').parentNode.insertBefore(dl, U.$('lf-city-list'));
+
+    // 初始化已有车站
+    var list = U.$('lf-city-list');
+    for (var i = 0; i < cities.length; i++) {
+      var row = UI._lfAddRow(i);
+      var inp = row.querySelector('input');
+      inp.value = cities[i];
+      if (cities[i])
+        UI._lfCheckCity(inp);
+      if (i === cities.length - 1)
+        row.querySelector('.lf-role').textContent = i === 0 ? '始发站' : '终点站';
+    }
   },
 
-  saveLine: async function(id) {
-    var cityNames = U.$('lf-stations').value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
-    var body = {
-      name: U.$('lf-name').value.trim(),
-      type: U.$('lf-type').value,
-      stations: cityNames,
-      distance_km: parseFloat(U.$('lf-distance').value) || 0,
-      max_speed_kmh: parseInt(U.$('lf-speed').value) || 0
+  _lfAddRow: function(idx) {
+    var list = U.$('lf-city-list');
+    var div = document.createElement('div');
+    div.style.cssText = 'display:flex;gap:6px;align-items:center';
+    var role = document.createElement('span');
+    role.className = 'lf-role';
+    role.style.cssText = 'font-size:11px;color:#707090;min-width:40px';
+    role.textContent = idx === 0 ? '始发站' : '途经站';
+    var inp = document.createElement('input');
+    inp.className = 'input';
+    inp.placeholder = '城市名';
+    inp.setAttribute('autocomplete', 'off');
+    inp.setAttribute('list', 'city-suggest-list');
+    inp.style.cssText = 'flex:1';
+    inp.oninput = function() { UI._lfCheckCity(inp); };
+    var delBtn = document.createElement('button');
+    delBtn.className = 'btn btn-sm btn-danger';
+    delBtn.textContent = '✕';
+    delBtn.onclick = function() {
+      div.remove();
+      UI._lfUpdateRoles();
     };
-    if (!body.name) return U.toast('名称不能为空', 'error');
-    var res = id ? await API.put('/api/admin/lines/' + id, body) : await API.post('/api/admin/lines', body);
+    div.appendChild(role);
+    div.appendChild(inp);
+    div.appendChild(delBtn);
+    list.appendChild(div);
+    return div;
+  },
+
+  _lfCheckCity: function(inp) {
+    var city = inp.value.trim();
+    if (!city) {
+      inp.style.borderColor = '#0f3460';
+      return;
+    }
+    var found = false;
+    var stations = UI._allStations || [];
+    for (var i = 0; i < stations.length; i++) {
+      if (stations[i].city === city) {
+        found = true;
+        break;
+      }
+    }
+    inp.style.borderColor = found ? '#00ff88' : '#ff4444';
+  },
+
+  _lfAddNext: function() {
+    UI._lfAddRow(-1);
+    UI._lfUpdateRoles();
+  },
+
+  _lfSetEnd: function() {
+    UI._lfUpdateRoles();
+    var rows = U.$('lf-city-list').querySelectorAll('div');
+    if (rows.length > 0)
+      rows[rows.length - 1].querySelector('.lf-role').textContent = '终点站';
+  },
+
+  _lfUpdateRoles: function() {
+    var rows = U.$('lf-city-list').querySelectorAll('div');
+    if (rows.length === 0)
+      return;
+    rows[0].querySelector('.lf-role').textContent = '起点站';
+    for (var i = 1; i < rows.length; i++)
+      rows[i].querySelector('.lf-role').textContent = i === rows.length - 1 ? '终点站' : '途经站';
+  },
+
+  _lfSave: async function(id) {
+    var name = (U.$('lf-name').value || '').trim();
+    if (!name)
+      return U.toast('线路名称不能为空', 'error');
+    var type = U.$('lf-type').value;
+    var speed = parseInt(U.$('lf-speed').value) || 0;
+    var rows = U.$('lf-city-list').querySelectorAll('div');
+    var cities = [];
+    for (var i = 0; i < rows.length; i++) {
+      var city = (rows[i].querySelector('input').value || '').trim();
+      if (!city)
+        return U.toast('站点城市名不能为空', 'error');
+      cities.push(city);
+    }
+    if (cities.length < 2)
+      return U.toast('至少需要2个站点（始发站+终点站）', 'error');
+
+    var body = {
+      id: 0,
+      name: name,
+      type: type,
+      stations: cities,
+      max_speed_kmh: speed,
+      distance_km: 0
+    };
+    var res = id
+      ? await API.put('/api/admin/lines/' + id, body)
+      : await API.post('/api/admin/lines', body);
     if (res.ok) {
       U.toast(id ? '已更新' : '已创建', 'success');
       UI.closeModal();
