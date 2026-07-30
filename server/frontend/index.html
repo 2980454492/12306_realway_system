@@ -457,6 +457,15 @@
         站点管理
         <button class="btn btn-sm btn-primary" onclick="UI.showStationForm()">+ 新增站点</button>
       </h2>
+      <div class="filter-bar">
+        <input id="station-search" class="input" placeholder="搜索站名/城市" style="width:180px" oninput="UI.renderStations()">
+        <select id="station-type-filter" class="input" style="width:120px" onchange="UI.renderStations()">
+          <option value="">全部类型</option>
+          <option value="HUB">枢纽站</option>
+          <option value="HIGH_SPEED">高铁站</option>
+          <option value="NORMAL">普速站</option>
+        </select>
+      </div>
       <div id="stations-loading" class="loading" style="display:none">加载中…</div>
       <div id="stations-list"></div>
     </section>
@@ -467,6 +476,15 @@
         线路管理
         <button class="btn btn-sm btn-primary" onclick="UI.showLineForm()">+ 新增线路</button>
       </h2>
+      <div class="filter-bar">
+        <input id="line-search" class="input" placeholder="搜索线路名" style="width:180px" oninput="UI.renderLines()">
+        <select id="line-type-filter" class="input" style="width:120px" onchange="UI.renderLines()">
+          <option value="">全部类型</option>
+          <option value="HIGH_SPEED">高铁</option>
+          <option value="NORMAL">普速</option>
+          <option value="INTERCITY">城际</option>
+        </select>
+      </div>
       <div id="lines-loading" class="loading" style="display:none">加载中…</div>
       <div id="lines-list"></div>
     </section>

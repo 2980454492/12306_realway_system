@@ -2629,6 +2629,18 @@ const UI = {
     var listEl = U.$('stations-list');
     listEl.innerHTML = '';
     var stations = UI._allStations;
+    // 筛选
+    var search = (U.$('station-search') ? U.$('station-search').value : '').trim().toLowerCase();
+    var typeFilter = U.$('station-type-filter') ? U.$('station-type-filter').value : '';
+    if (search || typeFilter) {
+      stations = stations.filter(function(s) {
+        if (search && s.name.toLowerCase().indexOf(search) < 0 && s.city.toLowerCase().indexOf(search) < 0)
+          return false;
+        if (typeFilter && s.type !== typeFilter)
+          return false;
+        return true;
+      });
+    }
     if (!stations.length) {
       listEl.innerHTML = '<div class="loading">暂无站点</div>';
       return;
@@ -2724,6 +2736,18 @@ const UI = {
     var listEl = U.$('lines-list');
     listEl.innerHTML = '';
     var lines = UI._allLines;
+    // 筛选
+    var search = (U.$('line-search') ? U.$('line-search').value : '').trim().toLowerCase();
+    var typeFilter = U.$('line-type-filter') ? U.$('line-type-filter').value : '';
+    if (search || typeFilter) {
+      lines = lines.filter(function(l) {
+        if (search && l.name.toLowerCase().indexOf(search) < 0)
+          return false;
+        if (typeFilter && l.type !== typeFilter)
+          return false;
+        return true;
+      });
+    }
     if (!lines.length) {
       listEl.innerHTML = '<div class="loading">暂无线路</div>';
       return;
