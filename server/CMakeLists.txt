@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# ── 测试 ──
+enable_testing()
+
 # ── 编译选项 ──
 # 面试展示用 Debug 模式，确保 sanitizer 可用
 if(CMAKE_BUILD_TYPE STREQUAL "")
@@ -111,3 +114,6 @@ target_link_libraries(railway_server PRIVATE nlohmann_json::nlohmann_json ${SODI
 if(UNIX)
     target_link_libraries(railway_server PRIVATE pthread)
 endif()
+
+# ── 测试 ──
+add_subdirectory(tests)
