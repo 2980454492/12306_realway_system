@@ -164,7 +164,16 @@
       if (sr.ok)
         UI._allStations = sr.data.data || [];
     }
+    // 城市名 → 站名（取每个城市第一个站）
+    var cityToName = {};
+    for (var si = 0; si < (UI._allStations || []).length; si++) {
+      var st = UI._allStations[si];
+      if (!cityToName[st.city])
+        cityToName[st.city] = st.name;
+    }
     var cities = line ? (line.stations || []).slice() : [''];
+    for (var ci = 0; ci < cities.length; ci++)
+      cities[ci] = cityToName[cities[ci]] || cities[ci];  // 城市名→站名
     var title = line ? '编辑线路' : '新增线路';
     var editingId = line ? line.id : 0;
 
@@ -183,14 +192,14 @@
       + '<div style="display:flex;gap:8px;margin-top:16px">'
       + '<button class="btn btn-primary" onclick="UI._lfSave(' + editingId + ')">保存</button>'
       + '<button class="btn" onclick="UI.closeModal()">取消</button></div>';
-    // 建立城市名 datalist
+    // 建立站名 datalist
     var dl = document.createElement('datalist');
-    dl.id = 'city-suggest-list';
-    var citiesSet = {};
+    dl.id = 'station-suggest-list';
+    var namesSet = {};
     for (var ci = 0; ci < (UI._allStations || []).length; ci++)
-      citiesSet[UI._allStations[ci].city] = true;
-    for (var cn in citiesSet)
-      dl.innerHTML += '<option value="' + U.esc(cn) + '">';
+      namesSet[UI._allStations[ci].name] = true;
+    for (var sn in namesSet)
+      dl.innerHTML += '<option value="' + U.esc(sn) + '">';
     UI._showModal(h);
     U.$('lf-city-list').parentNode.insertBefore(dl, U.$('lf-city-list'));
 
@@ -199,7 +208,7 @@
       var row = UI._lfAddRow(i);
       row.querySelector('input').value = cities[i];
       if (cities[i])
-        UI._lfCheckCity(row.querySelector('input'));
+        UI._lfCheckStation(row.querySelector('input'));
     }
     UI._lfUpdateRoles();
   };
@@ -214,11 +223,11 @@
     role.textContent = idx === 0 ? '起点' : '途经';
     var inp = document.createElement('input');
     inp.className = 'input';
-    inp.placeholder = '城市名';
+    inp.placeholder = '车站名';
     inp.setAttribute('autocomplete', 'off');
-    inp.setAttribute('list', 'city-suggest-list');
+    inp.setAttribute('list', 'station-suggest-list');
     inp.style.cssText = 'flex:1';
-    inp.oninput = function() { UI._lfCheckCity(inp); };
+    inp.oninput = function() { UI._lfCheckStation(inp); };
     var addBtn = document.createElement('button');
     addBtn.className = 'btn btn-sm';
     addBtn.style.cssText = 'background:#005530;color:#00ff88;border-color:#00ff88';
@@ -249,16 +258,16 @@
     return div;
   };
 
-  UI._lfCheckCity = function(inp) {
-    var city = inp.value.trim();
-    if (!city) {
+  UI._lfCheckStation = function(inp) {
+    var name = inp.value.trim();
+    if (!name) {
       inp.style.borderColor = '#0f3460';
       return;
     }
     var found = false;
     var stations = UI._allStations || [];
     for (var i = 0; i < stations.length; i++) {
-      if (stations[i].city === city) {
+      if (stations[i].name === name) {
         found = true;
         break;
       }
@@ -283,11 +292,15 @@
     var speed = parseInt(U.$('lf-speed').value) || 0;
     var rows = U.$('lf-city-list').querySelectorAll('div');
     var cities = [];
+    // 站名 → 城市名 映射
+    var nameToCity = {};
+    for (var si = 0; si < (UI._allStations || []).length; si++)
+      nameToCity[UI._allStations[si].name] = UI._allStations[si].city;
     for (var i = 0; i < rows.length; i++) {
-      var city = (rows[i].querySelector('input').value || '').trim();
-      if (!city)
-        return U.toast('站点城市名不能为空', 'error');
-      cities.push(city);
+      var val = (rows[i].querySelector('input').value || '').trim();
+      if (!val)
+        return U.toast('站点名不能为空', 'error');
+      cities.push(nameToCity[val] || val);  // 有映射用城市名，否则保持原值
     }
     if (cities.length < 2)
       return U.toast('至少需要起点和终点两个站点', 'error');
@@ -343,7 +356,7 @@
       + '<span style="color:#ff4444">⬤ 高铁站</span>'
       + '<span style="color:#44ff44">⬤ 普速站</span></div>'
       + '<div style="display:flex;gap:16px"><span style="color:#ff6666">━ 高铁线路</span>'
-      + '<span style="color:#ffaa00">━ 快铁铁路</span>'
+      + '<span style="color:#ffaa00">━ 快铁线路</span>'
       + '<span style="color:#66ff66">━ 普铁线路</span>'
       + '<span style="color:#66bbff">━ 城际线路</span></div>';
 
