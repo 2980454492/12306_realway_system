@@ -440,6 +440,12 @@
     container.appendChild(svg);
     var scl=1,tx=0,ty=0;
 
+    // 平移时只需更新文字层位置，无需重建边/节点，缓存上次完整渲染结果
+    var _panOnly = false;
+    var _cachedHidden = new Set();
+    var _cachedFEdges = [];
+    var _cachedEdgeCount = {};
+
     function getFilteredEdges() {
       var checks = document.querySelectorAll('.net-filter-line');
       var mask = {};
@@ -450,7 +456,13 @@
 
     function update(){
       zG.setAttribute('transform','translate('+tx+','+ty+') scale('+scl+')');
-      renderN();
+      if (_panOnly) {
+        // 仅平移：跳过边/节点重建，只更新文字层位置
+        renderT(_cachedHidden, _cachedFEdges, _cachedEdgeCount);
+        _panOnly = false;
+      } else {
+        renderN();
+      }
     }
 
     var rafId=null;
@@ -474,6 +486,7 @@
         return;
       tx = e.clientX - dx;
       ty = e.clientY - dy;
+      _panOnly = true;
       scheduleUpdate();
     });
     window.addEventListener('mouseup', function() {
@@ -612,6 +625,10 @@
         })(NODES[i]);
       }
 
+      // 缓存本次渲染结果，供后续平移时复用（避免重建边/节点）
+      _cachedHidden = hidden;
+      _cachedFEdges = fEdges;
+      _cachedEdgeCount = edgeCount;
       renderT(hidden, fEdges, edgeCount);
     }
 
