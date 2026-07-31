@@ -2,33 +2,47 @@
 #include "router_helpers.h"
 #include "infra_admin/station_service.h"
 #include "infra_admin/line_service.h"
+#include <unordered_set>
 
 namespace {
 
-/** 返回 400 Bad Request + JSON 错误信息 */
-void badRequest(httplib::Response& res, const std::string& msg) {
-    json j;
-    j["ok"] = false;
-    j["error"] = msg;
-    res.set_content(j.dump(), "application/json");
-    res.status = 400;
+/** 校验站名：非空且不与其他站点重复。excludeId=0 新增，非0 更新（排除自身）。
+ *  返回空字符串 = 通过，非空 = 错误信息 */
+std::string checkStationName(const std::string& name, uint32_t excludeId) {
+    if (name.empty())
+        return "站名不能为空";
+    for (const auto& s : station_service::getAll())
+        if (s.id != excludeId && s.name == name)
+            return "站名已存在: " + name;
+    return "";
 }
 
-/** 从路径参数中安全解析 uint32_t，失败时返回 400 并返回 false */
-bool parseUint32(const std::string& str, uint32_t& out, httplib::Response& res, const std::string& label) {
-    try {
-        // std::stoul 会去掉前导空格，但不能有非数字后缀，stoi 已足够
-        int64_t v = std::stoll(str);
-        if (v < 0) {
-            badRequest(res, "无效的" + label + "ID");
-            return false;
-        }
-        out = static_cast<uint32_t>(v);
-        return true;
-    } catch (const std::exception&) {
-        badRequest(res, "无效的" + label + "ID");
-        return false;
+/** 校验线路请求体：名称、车站数、时速、名称重复、车站存在。
+ *  excludeId=0 新增，非0 更新（排除自身）。
+ *  返回空字符串 = 通过，非空 = 错误信息 */
+std::string checkLineBody(const json& body, uint32_t excludeId) {
+    std::string name = body.value("name", "");
+    if (name.empty())
+        return "线路名称不能为空";
+    if (!body.contains("stations") || !body["stations"].is_array() || body["stations"].size() < 2)
+        return "至少需要起点和终点两个站点";
+    if (body.value("max_speed_kmh", 0) <= 0)
+        return "设计时速必须大于0";
+    for (const auto& l : line_service::getAll())
+        if (l.id != excludeId && l.name == name)
+            return "线路名称已存在: " + name;
+    // 车站存在性检查：用 hash set 将 O(S×L) 降为 O(S+L)
+    std::unordered_set<std::string> valid;
+    for (const auto& reg : station_service::getAll()) {
+        valid.insert(reg.name);
+        valid.insert(reg.city);
     }
+    for (const auto& s : body["stations"]) {
+        std::string st = s.get<std::string>();
+        if (!valid.count(st))
+            return "车站不存在: " + st;
+    }
+    return "";
 }
 
 }  // namespace
@@ -46,8 +60,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         j["data"] = station_service::getAll();
         res.set_content(j.dump(), "application/json");
     } catch (const std::exception& e) {
-        json j; j["ok"] = false; j["error"] = e.what();
-        res.set_content(j.dump(), "application/json"); res.status = 500;
+        internalError(res, e.what());
     }
     });
 
@@ -57,18 +70,12 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         if (!ctx) return;
         json body = json::parse(req.body);
 
-        // 校验：站名不能为空
         std::string name = body.value("name", "");
-        if (name.empty()) {
-            badRequest(res, "站名不能为空");
+        std::string err = checkStationName(name, 0);
+        if (!err.empty()) {
+            badRequest(res, err);
             return;
         }
-        // 校验：站名不能重复
-        for (const auto& s : station_service::getAll())
-            if (s.name == name) {
-                badRequest(res, "站名已存在: " + name);
-                return;
-            }
 
         Station station;
         station.id = body.value("id", 0);
@@ -84,8 +91,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         res.set_content(j.dump(), "application/json");
         res.status = 201;
     } catch (const std::exception& e) {
-        json j; j["ok"] = false; j["error"] = e.what();
-        res.set_content(j.dump(), "application/json"); res.status = 500;
+        internalError(res, e.what());
     }
     });
 
@@ -98,18 +104,12 @@ void registerInfraAdminRoutes(RailwayServer& server) {
             return;
         json body = json::parse(req.body);
 
-        // 校验：站名不能为空
         std::string name = body.value("name", "");
-        if (name.empty()) {
-            badRequest(res, "站名不能为空");
+        std::string err = checkStationName(name, id);
+        if (!err.empty()) {
+            badRequest(res, err);
             return;
         }
-        // 校验：站名不能与其他站点重复
-        for (const auto& s : station_service::getAll())
-            if (s.id != id && s.name == name) {
-                badRequest(res, "站名已存在: " + name);
-                return;
-            }
 
         Station station;
         station.id = body.value("id", 0);
@@ -126,8 +126,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         json j; j["ok"] = true;
         res.set_content(j.dump(), "application/json");
     } catch (const std::exception& e) {
-        json j; j["ok"] = false; j["error"] = e.what();
-        res.set_content(j.dump(), "application/json"); res.status = 500;
+        internalError(res, e.what());
     }
     });
 
@@ -146,8 +145,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         json j; j["ok"] = true;
         res.set_content(j.dump(), "application/json");
     } catch (const std::exception& e) {
-        json j; j["ok"] = false; j["error"] = e.what();
-        res.set_content(j.dump(), "application/json"); res.status = 500;
+        internalError(res, e.what());
     }
     });
 
@@ -162,8 +160,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         j["data"] = line_service::getAll();
         res.set_content(j.dump(), "application/json");
     } catch (const std::exception& e) {
-        json j; j["ok"] = false; j["error"] = e.what();
-        res.set_content(j.dump(), "application/json"); res.status = 500;
+        internalError(res, e.what());
     }
     });
 
@@ -173,57 +170,17 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         if (!ctx) return;
         json body = json::parse(req.body);
 
-        // ── 校验 ──
-
-        // 1. 线路名称不能为空
-        std::string line_name = body.value("name", "");
-        if (line_name.empty()) {
-            badRequest(res, "线路名称不能为空");
+        std::string err = checkLineBody(body, 0);
+        if (!err.empty()) {
+            badRequest(res, err);
             return;
-        }
-
-        // 2. 途经车站至少 2 个
-        if (!body.contains("stations") || !body["stations"].is_array() || body["stations"].size() < 2) {
-            badRequest(res, "至少需要起点和终点两个站点");
-            return;
-        }
-
-        // 3. 设计时速必须大于 0
-        int max_speed = body.value("max_speed_kmh", 0);
-        if (max_speed <= 0) {
-            badRequest(res, "设计时速必须大于0");
-            return;
-        }
-
-        // 4. 线路名称不能重复
-        for (const auto& l : line_service::getAll())
-            if (l.name == line_name) {
-                badRequest(res, "线路名称已存在: " + line_name);
-                return;
-            }
-
-        // 5. 每个途经车站必须在系统中已注册（按站名或城市名匹配）
-        auto all_stations = station_service::getAll();
-        for (const auto& s : body["stations"]) {
-            std::string st = s.get<std::string>();
-            bool found = false;
-            for (const auto& reg : all_stations) {
-                if (reg.name == st || reg.city == st) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                badRequest(res, "车站不存在: " + st);
-                return;
-            }
         }
 
         Line line;
         line.id = body.value("id", 0);
-        line.name = line_name;
+        line.name = body.value("name", "");
         line.type = body.value("type", LineType::NORMAL);
-        line.max_speed_kmh = max_speed;
+        line.max_speed_kmh = body.value("max_speed_kmh", 0);
         for (const auto& s : body["stations"])
             line.stations.push_back(s.get<std::string>());
         auto l = line_service::add(line);
@@ -233,8 +190,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         res.set_content(j.dump(), "application/json");
         res.status = 201;
     } catch (const std::exception& e) {
-        json j; j["ok"] = false; j["error"] = e.what();
-        res.set_content(j.dump(), "application/json"); res.status = 500;
+        internalError(res, e.what());
     }
     });
 
@@ -247,52 +203,17 @@ void registerInfraAdminRoutes(RailwayServer& server) {
             return;
         json body = json::parse(req.body);
 
-        // ── 校验（与新增相同，但名称重复检查排除自身）──
-
-        std::string line_name = body.value("name", "");
-        if (line_name.empty()) {
-            badRequest(res, "线路名称不能为空");
+        std::string err = checkLineBody(body, id);
+        if (!err.empty()) {
+            badRequest(res, err);
             return;
-        }
-
-        if (!body.contains("stations") || !body["stations"].is_array() || body["stations"].size() < 2) {
-            badRequest(res, "至少需要起点和终点两个站点");
-            return;
-        }
-
-        int max_speed = body.value("max_speed_kmh", 0);
-        if (max_speed <= 0) {
-            badRequest(res, "设计时速必须大于0");
-            return;
-        }
-
-        for (const auto& l : line_service::getAll())
-            if (l.id != id && l.name == line_name) {
-                badRequest(res, "线路名称已存在: " + line_name);
-                return;
-            }
-
-        auto all_stations = station_service::getAll();
-        for (const auto& s : body["stations"]) {
-            std::string st = s.get<std::string>();
-            bool found = false;
-            for (const auto& reg : all_stations) {
-                if (reg.name == st || reg.city == st) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                badRequest(res, "车站不存在: " + st);
-                return;
-            }
         }
 
         Line line;
         line.id = body.value("id", 0);
-        line.name = line_name;
+        line.name = body.value("name", "");
         line.type = body.value("type", LineType::NORMAL);
-        line.max_speed_kmh = max_speed;
+        line.max_speed_kmh = body.value("max_speed_kmh", 0);
         for (const auto& s : body["stations"])
             line.stations.push_back(s.get<std::string>());
         if (!line_service::update(id, line)) {
@@ -303,8 +224,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         json j; j["ok"] = true;
         res.set_content(j.dump(), "application/json");
     } catch (const std::exception& e) {
-        json j; j["ok"] = false; j["error"] = e.what();
-        res.set_content(j.dump(), "application/json"); res.status = 500;
+        internalError(res, e.what());
     }
     });
 
@@ -323,8 +243,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         json j; j["ok"] = true;
         res.set_content(j.dump(), "application/json");
     } catch (const std::exception& e) {
-        json j; j["ok"] = false; j["error"] = e.what();
-        res.set_content(j.dump(), "application/json"); res.status = 500;
+        internalError(res, e.what());
     }
     });
 

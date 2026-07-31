@@ -83,3 +83,60 @@ inline std::optional<AuthContext> checkAuth(const httplib::Request& req, httplib
     }
     return ctx;
 }
+
+// ── 通用 HTTP 响应工具 ──
+
+/** 返回 JSON 错误响应（400/404/409 等） */
+inline void jsonError(httplib::Response& res, const std::string& msg, int status) {
+    json j;
+    j["ok"] = false;
+    j["error"] = msg;
+    res.set_content(j.dump(), "application/json");
+    res.status = status;
+}
+
+/** 返回 400 Bad Request */
+inline void badRequest(httplib::Response& res, const std::string& msg) {
+    jsonError(res, msg, 400);
+}
+
+/** 返回 500 Internal Server Error，日志记录真实错误，客户端只看到通用信息 */
+inline void internalError(httplib::Response& res, const std::string& what) {
+    Logger::instance().error(what);
+    json j;
+    j["ok"] = false;
+    j["error"] = "Internal server error";
+    res.set_content(j.dump(), "application/json");
+    res.status = 500;
+}
+
+// ── 参数解析工具 ──
+
+/** 安全解析 uint32_t 路径参数，失败返回 400 */
+inline bool parseUint32(const std::string& str, uint32_t& out,
+                        httplib::Response& res, const std::string& label) {
+    try {
+        int64_t v = std::stoll(str);
+        if (v < 0) {
+            badRequest(res, "无效的" + label + "ID");
+            return false;
+        }
+        out = static_cast<uint32_t>(v);
+        return true;
+    } catch (const std::exception&) {
+        badRequest(res, "无效的" + label + "ID");
+        return false;
+    }
+}
+
+/** 解析逗号分隔的 uint32_t 列表 */
+inline std::vector<uint32_t> parseIds(const std::string& s) {
+    std::vector<uint32_t> ids;
+    size_t start = 0, end;
+    while ((end = s.find(',', start)) != std::string::npos) {
+        ids.push_back(std::stoul(s.substr(start, end - start)));
+        start = end + 1;
+    }
+    ids.push_back(std::stoul(s.substr(start)));
+    return ids;
+}

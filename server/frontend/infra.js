@@ -496,6 +496,25 @@
     function ek(e){return e.from<e.to?e.from+'-'+e.to:e.to+'-'+e.from}
     function isClose(a,b,th){var dx=(a.x-b.x)*scl,dy=(a.y-b.y)*scl;return Math.sqrt(dx*dx+dy*dy)<th}
 
+    /** 计算边的方向法向量，edge 和 label 渲染共用，避免两处独立计算不同步 */
+    function edgeNormal(k) {
+      var canonical = k.split('-');
+      var a = nodeById[canonical[0]];
+      var b = nodeById[canonical[1]];
+      var ddx = b.x - a.x;
+      var ddy = b.y - a.y;
+      var len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+      return { nx: -ddy / len, ny: ddx / len, len: len };
+    }
+
+    /** 计算平行边曲线偏移量：与边长成正比，短边弯度小，避免近站点间弧线过尖锐 */
+    function curveOffset(len, t2, idx) {
+      var off = Math.min(len * 0.3, 18);
+      if (t2 > 1 && off < 3)
+        off = 3;  // 多线路时保留最小间距，避免曲线重合
+      return (idx - (t2 + 1) / 2) * off;
+    }
+
     function renderN() {
       nG.innerHTML = '';
       eG.innerHTML = '';
@@ -559,20 +578,10 @@
           return;
         var mx = (a.x + b.x) / 2;
         var my = (a.y + b.y) / 2;
-        // 用规范化方向计算法向量，确保同站对间的平行线向不同侧偏移
-        var canonical = k.split('-');
-        var ddx = nodeById[canonical[1]].x - nodeById[canonical[0]].x;
-        var ddy = nodeById[canonical[1]].y - nodeById[canonical[0]].y;
-        var len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
-        // 曲线偏移与边长成正比：短边弯度小，长边渐增至上限 18，避免近站点间弧线过尖锐
-        var curveOff = Math.min(len * 0.3, 18);
-        if (t2 > 1 && curveOff < 3)
-          curveOff = 3;  // 多线路时保留最小间距，避免曲线重合
-        var off = (idx - (t2 + 1) / 2) * curveOff;
-        var nx = -ddy / len;
-        var ny = ddx / len;
-        var cx = mx + nx * off;
-        var cy = my + ny * off;
+        var geo = edgeNormal(k);
+        var off = curveOffset(geo.len, t2, idx);
+        var cx = mx + geo.nx * off;
+        var cy = my + geo.ny * off;
         var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         p.setAttribute('d', 'M' + a.x + ',' + a.y + ' Q' + cx + ',' + cy + ' ' + b.x + ',' + b.y);
         p.setAttribute('fill', 'none');
@@ -665,21 +674,11 @@
           return;
         var mx = (a.x + b.x) / 2;
         var my = (a.y + b.y) / 2;
-        // 用规范化方向计算法向量
-        var canonical = k.split('-');
-        var ddx = nodeById[canonical[1]].x - nodeById[canonical[0]].x;
-        var ddy = nodeById[canonical[1]].y - nodeById[canonical[0]].y;
-        var len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
-        var nx = -ddy / len;
-        var ny = ddx / len;
-        // 标签偏移与曲线偏移保持一致，近站点间标签也更贴近直线
-        var curveOff2 = Math.min(len * 0.3, 18);
-        if (t2 > 1 && curveOff2 < 3)
-          curveOff2 = 3;
-        var off2 = (idx - (t2 + 1) / 2) * curveOff2;
+        var geo = edgeNormal(k);
+        var off2 = curveOffset(geo.len, t2, idx);
         var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        t.setAttribute('x', (mx + nx * off2) * scl + tx);
-        t.setAttribute('y', (my + ny * off2) * scl + ty - 6);
+        t.setAttribute('x', (mx + geo.nx * off2) * scl + tx);
+        t.setAttribute('y', (my + geo.ny * off2) * scl + ty - 6);
         t.setAttribute('fill', '#9090b0');
         t.setAttribute('font-size', '12');
         t.setAttribute('text-anchor', 'middle');

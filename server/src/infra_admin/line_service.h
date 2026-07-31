@@ -6,7 +6,7 @@
 
 namespace line_service {
 
-std::vector<Line> getAll();
+const std::vector<Line>& getAll();
 Line add(const Line& line);
 bool update(uint32_t id, const Line& updated);
 bool remove(uint32_t id);

@@ -4,25 +4,6 @@
 
 void registerSysAdminRoutes(RailwayServer& server) {
     auto& app = server.getApp();
-    // ── GET /api/admin/debug — 管理员权限测试（仅 ADMIN 可访问）──
-    app.Get("/api/admin/debug", [](const httplib::Request& req, httplib::Response& res) {
-    try {
-        auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
-        if (!ctx) return;
-
-        json j;
-        j["ok"] = true;
-        j["message"] = "Welcome, admin " + ctx->user_id;
-        res.set_content(j.dump(), "application/json");
-    } catch (const std::exception& e) {
-        json j;
-        j["ok"] = false;
-        j["error"] = e.what();
-        res.set_content(j.dump(), "application/json");
-        res.status = 500;
-    }
-    });
-
     // ── 用户管理（SYS_ADMIN）──
 
     // GET /api/admin/users — 用户列表（脱敏密码哈希）

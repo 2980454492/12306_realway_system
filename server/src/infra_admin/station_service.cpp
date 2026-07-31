@@ -4,7 +4,7 @@
 
 namespace station_service {
 
-std::vector<Station> getAll() {
+const std::vector<Station>& getAll() {
     return DataStore::instance().getAllStations();
 }
 

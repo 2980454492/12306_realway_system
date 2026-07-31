@@ -176,6 +176,12 @@ const U = {
     return m[type] || type;
   },
   esc: function(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); },
+  /** 安全获取表单元素的值，元素不存在时返回 fallback */
+  val: function(id, fallback) { var el = U.$(id); return el ? el.value : (fallback || ''); },
+  /** 在数组中按 id 查找元素 */
+  findById: function(arr, id) { for (var i = 0; i < arr.length; i++) if (arr[i].id === id) return arr[i]; return null; },
+  /** 计算两站之间的行程耗时（分钟），将 HHMM 整数差值转为分钟 */
+  legDuration: function(dep, arr) { var dh = Math.floor(dep / 100) - Math.floor(arr / 100), dm = (dep % 100) - (arr % 100); return dh * 60 + dm; },
   showNav: function() {
     var u = U.$('nav-user'), b = U.$('btn-logout');
     if (u)

@@ -6,7 +6,7 @@
 
 namespace station_service {
 
-std::vector<Station> getAll();
+const std::vector<Station>& getAll();
 Station add(const Station& station);
 bool update(uint32_t id, const Station& updated);
 bool remove(uint32_t id);

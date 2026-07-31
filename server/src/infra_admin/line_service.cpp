@@ -4,7 +4,7 @@
 
 namespace line_service {
 
-std::vector<Line> getAll() {
+const std::vector<Line>& getAll() {
     return DataStore::instance().getAllLines();
 }
 
