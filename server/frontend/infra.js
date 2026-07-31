@@ -136,7 +136,7 @@
     tbl.className = 'users-table';
     tbl.innerHTML = '<thead><tr><th>ID</th><th>名称</th><th>类型</th><th>时速(km/h)</th><th>车站数</th><th>操作</th></tr></thead>';
     var tbody = document.createElement('tbody');
-    var typeLabels = {HIGH_SPEED:'高铁',NORMAL:'普速',INTERCITY:'城际'};
+    var typeLabels = {HIGH_SPEED:'高铁',EXPRESS:'快铁',NORMAL:'普铁',INTERCITY:'城际'};
     for (var i = 0; i < lines.length; i++) {
       var l = lines[i];
       var tr = document.createElement('tr');
@@ -171,10 +171,11 @@
       + '<div class="form-group"><label>线路名称</label><input id="lf-name" class="input" value="' + (line ? U.esc(line.name) : '') + '"></div>'
       + '<div class="form-group"><label>类型</label><select id="lf-type" class="input">'
       + '<option value="HIGH_SPEED"' + (line && line.type === 'HIGH_SPEED' ? ' selected' : '') + '>高铁</option>'
-      + '<option value="NORMAL"' + (line && line.type === 'NORMAL' ? ' selected' : '') + '>普速</option>'
+      + '<option value="EXPRESS"' + (line && line.type === 'EXPRESS' ? ' selected' : '') + '>快铁</option>'
+      + '<option value="NORMAL"' + (line && line.type === 'NORMAL' ? ' selected' : '') + '>普铁</option>'
       + '<option value="INTERCITY"' + (line && line.type === 'INTERCITY' ? ' selected' : '') + '>城际</option></select></div>'
       + '<div class="form-group"><label>设计时速（km/h）</label><input id="lf-speed" class="input" type="number" value="' + (line ? line.max_speed_kmh : '') + '"></div>'
-      + '<div class="form-group"><label>途经城市</label>'
+      + '<div class="form-group"><label>途经车站</label>'
       + '<div id="lf-city-list" style="display:flex;flex-direction:column;gap:6px"></div>'
       + '</div>'
       + '<div id="lf-error" class="error-msg"></div>'
@@ -335,7 +336,15 @@
 
     // 图例
     var legEl = U.$('network-legend');
-    if (legEl) legEl.innerHTML = '<div style="display:flex;gap:16px"><span style="color:#44aaff">⬤ 枢纽站</span><span style="color:#ff4444">⬤ 高铁站</span><span style="color:#44ff44">⬤ 普速站</span></div><div style="display:flex;gap:16px"><span style="color:#ff6666">━ 高铁线路</span><span style="color:#66ff66">━ 普速线路</span><span style="color:#66bbff">━ 城际线路</span></div>';
+    if (legEl) 
+      legEl.innerHTML = '<div style="display:flex;gap:16px">'
+      + '<span style="color:#44aaff">⬤ 枢纽站</span>'
+      + '<span style="color:#ff4444">⬤ 高铁站</span>'
+      + '<span style="color:#44ff44">⬤ 普速站</span></div>'
+      + '<div style="display:flex;gap:16px"><span style="color:#ff6666">━ 高铁线路</span>'
+      + '<span style="color:#ffaa00">━ 快铁铁路</span>'
+      + '<span style="color:#66ff66">━ 普铁线路</span>'
+      + '<span style="color:#66bbff">━ 城际线路</span></div>';
 
     try {
       var sr = await API.get('/api/admin/stations');
@@ -353,7 +362,12 @@
 
     // 经纬度投影
     var minLat=90,maxLat=-90,minLng=180,maxLng=-180;
-    stations.forEach(function(s){minLat=Math.min(minLat,s.latitude);maxLat=Math.max(maxLat,s.latitude);minLng=Math.min(minLng,s.longitude);maxLng=Math.max(maxLng,s.longitude)});
+    stations.forEach(function(s){
+      minLat=Math.min(minLat,s.latitude);
+      maxLat=Math.max(maxLat,s.latitude);
+      minLng=Math.min(minLng,s.longitude);
+      maxLng=Math.max(maxLng,s.longitude)
+    });
     var pad=40, lngR=maxLng-minLng||0.5, latR=maxLat-minLat||0.3;
     var W=container.clientWidth, H=container.clientHeight;
     var sc=Math.min((W-2*pad)/lngR,(H-2*pad)/latR)||1;
@@ -376,7 +390,7 @@
           from: l.stations[i],
           to: l.stations[i + 1],
           line_name: l.name,
-          type: l.type === 'HIGH_SPEED' ? 0 : l.type === 'INTERCITY' ? 2 : 1
+          type: l.type === 'HIGH_SPEED' ? 0 : l.type === 'INTERCITY' ? 2 : l.type === 'EXPRESS' ? 3 : 1
         });
     });
     var nodeById = {};
@@ -387,7 +401,7 @@
     });
 
     var tc = ['#ff4444', '#44ff44', '#44aaff'];
-    var ec = ['#ff6666', '#66ff66', '#66bbff'];
+    var ec = ['#ff6666', '#66ff66', '#66bbff', '#ffaa00'];
     var tp = [1, 2, 0];
 
     var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -395,7 +409,9 @@
     svg.style.cssText='display:block;width:100%;height:100%;pointer-events:auto;user-select:none;-webkit-user-select:none';
 
     var info=document.createElement('div');
-    info.style.cssText='position:absolute;top:8px;right:8px;background:rgba(22,33,62,0.95);border:1px solid #0f3460;border-radius:8px;padding:12px 16px;display:none;font-size:13px;z-index:10;pointer-events:none';
+    info.style.cssText='position:absolute;top:8px;right:8px;background:rgba(22,33,62,0.95);'
+    + 'border:1px solid #0f3460;border-radius:8px;padding:12px 16px;'
+    + 'display:none;font-size:13px;z-index:10;pointer-events:none';
     container.appendChild(info);
 
     // 缩放层（站点/线路随缩放变化）+ 文字层（固定大小）

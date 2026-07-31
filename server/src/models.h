@@ -25,13 +25,15 @@ NLOHMANN_JSON_SERIALIZE_ENUM(StationType, {
 /** 线路类型 */
 enum class LineType : uint8_t {
     HIGH_SPEED = 0,  // 高铁线路（设计时速 ≥250km/h）
-    NORMAL     = 1,  // 普速线路（设计时速 <250km/h）
+    EXPRESS    = 3,  // 快铁铁路（设计时速 200km/h）
+    NORMAL     = 1,  // 普铁线路（设计时速 <200km/h）
     INTERCITY  = 2   // 城际线路
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(LineType, {
     {LineType::HIGH_SPEED, "HIGH_SPEED"},
     {LineType::NORMAL,     "NORMAL"},
     {LineType::INTERCITY,  "INTERCITY"},
+    {LineType::EXPRESS,    "EXPRESS"},
 })
 
 /** 列车类型 */
