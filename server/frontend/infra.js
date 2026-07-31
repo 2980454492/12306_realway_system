@@ -69,6 +69,7 @@
 
   UI.saveStation = async function(id) {
     var body = {
+      id: 0,
       name: U.$('sf-name').value.trim(),
       city: U.$('sf-city').value.trim(),
       type: U.$('sf-type').value,
