@@ -557,7 +557,6 @@
         var b = nodeById[e.to];
         if (!a || !b)
           return;
-        var off = (idx - (t2 + 1) / 2) * 18;
         var mx = (a.x + b.x) / 2;
         var my = (a.y + b.y) / 2;
         // 用规范化方向计算法向量，确保同站对间的平行线向不同侧偏移
@@ -565,6 +564,11 @@
         var ddx = nodeById[canonical[1]].x - nodeById[canonical[0]].x;
         var ddy = nodeById[canonical[1]].y - nodeById[canonical[0]].y;
         var len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+        // 曲线偏移与边长成正比：短边弯度小，长边渐增至上限 18，避免近站点间弧线过尖锐
+        var curveOff = Math.min(len * 0.3, 18);
+        if (t2 > 1 && curveOff < 3)
+          curveOff = 3;  // 多线路时保留最小间距，避免曲线重合
+        var off = (idx - (t2 + 1) / 2) * curveOff;
         var nx = -ddy / len;
         var ny = ddx / len;
         var cx = mx + nx * off;
@@ -668,7 +672,11 @@
         var len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
         var nx = -ddy / len;
         var ny = ddx / len;
-        var off2 = (idx - (t2 + 1) / 2) * 18;
+        // 标签偏移与曲线偏移保持一致，近站点间标签也更贴近直线
+        var curveOff2 = Math.min(len * 0.3, 18);
+        if (t2 > 1 && curveOff2 < 3)
+          curveOff2 = 3;
+        var off2 = (idx - (t2 + 1) / 2) * curveOff2;
         var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         t.setAttribute('x', (mx + nx * off2) * scl + tx);
         t.setAttribute('y', (my + ny * off2) * scl + ty - 6);
