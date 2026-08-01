@@ -52,21 +52,22 @@ bool DataStore::initialize() {
 // ── 查询接口 ──
 
 const Station* DataStore::getStation(uint32_t id) const {
-    std::shared_lock<std::shared_mutex> lock(mutex_);
+    // 不加锁：被 saveTrains/buildStationLineIndex 等内部方法在已持锁上下文中调用，
+    // 加 shared_lock 会同线程重复加锁触发死锁。HTTP 单线程事件循环提供外部同步。
     auto it = station_index_.find(id);
     if (it == station_index_.end()) return nullptr;
     return &stations_[it->second];
 }
 
 const Train* DataStore::getTrain(const std::string& id) const {
-    std::shared_lock<std::shared_mutex> lock(mutex_);
     auto it = train_index_.find(id);
     if (it == train_index_.end()) return nullptr;
     return &trains_[it->second];
 }
 
 Train* DataStore::getTrainMutable(const std::string& id) {
-    std::shared_lock<std::shared_mutex> lock(mutex_);
+    // 不加锁：返回可变指针意味着调用方将修改数据，调用方负责外部同步。
+    // 加 shared_lock 会在调用方后续调 saveTrains() 时因读锁→写锁升级而触发死锁。
     auto it = train_index_.find(id);
     if (it == train_index_.end()) return nullptr;
     return &trains_[it->second];
