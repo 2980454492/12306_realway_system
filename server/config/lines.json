@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "max_speed_kmh": 300,
+    "max_speed_kmh": 250,
     "name": "京包高铁",
     "stations": [
       "北京",
@@ -124,6 +124,10 @@
     "name": "西成高铁",
     "stations": [
       "西安",
+      "汉中",
+      "广元",
+      "绵阳",
+      "德阳",
       "成都"
     ],
     "type": "HIGH_SPEED"
@@ -183,27 +187,37 @@
     "name": "银西高铁",
     "stations": [
       "银川",
+      "吴忠",
+      "庆阳",
+      "咸阳",
       "西安"
     ],
     "type": "HIGH_SPEED"
   },
   {
     "id": 16,
-    "max_speed_kmh": 250,
-    "name": "兰新高铁",
+    "max_speed_kmh": 200,
+    "name": "兰新客专",
     "stations": [
       "兰州",
-      "西宁"
+      "海东",
+      "西宁",
+      "张掖",
+      "酒泉",
+      "嘉峪关",
+      "哈密",
+      "吐鲁番",
+      "乌鲁木齐"
     ],
-    "type": "HIGH_SPEED"
+    "type": "EXPRESS"
   },
   {
     "id": 17,
     "max_speed_kmh": 300,
-    "name": "大西高铁",
+    "name": "乌大高铁",
     "stations": [
-      "大同",
-      "太原"
+      "乌兰察布",
+      "大同"
     ],
     "type": "HIGH_SPEED"
   },
@@ -223,17 +237,10 @@
     "name": "福厦高铁",
     "stations": [
       "福州",
-      "厦门"
-    ],
-    "type": "HIGH_SPEED"
-  },
-  {
-    "id": 21,
-    "max_speed_kmh": 350,
-    "name": "杭甬高铁",
-    "stations": [
-      "杭州",
-      "宁波"
+      "莆田",
+      "泉州",
+      "厦门",
+      "漳州"
     ],
     "type": "HIGH_SPEED"
   },
@@ -285,26 +292,6 @@
     "type": "NORMAL"
   },
   {
-    "id": 24,
-    "max_speed_kmh": 160,
-    "name": "呼太铁路",
-    "stations": [
-      "呼和浩特",
-      "太原"
-    ],
-    "type": "NORMAL"
-  },
-  {
-    "id": 25,
-    "max_speed_kmh": 120,
-    "name": "南昆铁路",
-    "stations": [
-      "南宁",
-      "昆明"
-    ],
-    "type": "NORMAL"
-  },
-  {
     "id": 26,
     "max_speed_kmh": 120,
     "name": "湘桂铁路",
@@ -337,6 +324,7 @@
     "stations": [
       "徐州",
       "商丘",
+      "兰考",
       "开封",
       "郑州",
       "洛阳",
@@ -353,11 +341,12 @@
   },
   {
     "id": 29,
-    "max_speed_kmh": 300,
-    "name": "广昆高铁",
+    "max_speed_kmh": 250,
+    "name": "南昆客专",
     "stations": [
-      "广州",
       "南宁",
+      "百色",
+      "文山",
       "昆明"
     ],
     "type": "HIGH_SPEED"
@@ -403,7 +392,7 @@
       "遂宁",
       "成都"
     ],
-    "type": "NORMAL"
+    "type": "EXPRESS"
   },
   {
     "id": 33,
@@ -426,8 +415,11 @@
       "菏泽",
       "商丘",
       "亳州",
+      "阜阳",
+      "淮南",
       "合肥",
       "安庆",
+      "黄梅",
       "九江",
       "南昌",
       "吉安",
@@ -435,6 +427,534 @@
       "河源",
       "惠州",
       "深圳"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 35,
+    "max_speed_kmh": 250,
+    "name": "郑太客专",
+    "stations": [
+      "太原",
+      "晋中",
+      "长治",
+      "晋城",
+      "焦作",
+      "郑州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 36,
+    "max_speed_kmh": 250,
+    "name": "银兰高铁",
+    "stations": [
+      "吴忠",
+      "中卫",
+      "白银",
+      "兰州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 37,
+    "max_speed_kmh": 350,
+    "name": "郑渝高铁",
+    "stations": [
+      "郑州",
+      "平顶山",
+      "南阳",
+      "襄阳",
+      "重庆"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 38,
+    "max_speed_kmh": 250,
+    "name": "南广高铁",
+    "stations": [
+      "南宁",
+      "贵港",
+      "梧州",
+      "云浮",
+      "肇庆",
+      "佛山",
+      "广州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 39,
+    "max_speed_kmh": 250,
+    "name": "贵广高铁",
+    "stations": [
+      "贵阳",
+      "黔南",
+      "桂林",
+      "贺州",
+      "肇庆",
+      "佛山",
+      "广州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 40,
+    "max_speed_kmh": 250,
+    "name": "贵南高铁",
+    "stations": [
+      "贵阳",
+      "黔南",
+      "河池",
+      "南宁"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 41,
+    "max_speed_kmh": 350,
+    "name": "西武高铁",
+    "stations": [
+      "西安",
+      "商洛",
+      "十堰",
+      "襄阳",
+      "随州",
+      "孝感",
+      "武汉"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 42,
+    "max_speed_kmh": 200,
+    "name": "杭深线",
+    "stations": [
+      "杭州",
+      "绍兴",
+      "宁波",
+      "台州",
+      "温州",
+      "宁德",
+      "福州",
+      "莆田",
+      "泉州",
+      "厦门",
+      "漳州",
+      "潮州",
+      "汕尾",
+      "深圳"
+    ],
+    "type": "EXPRESS"
+  },
+  {
+    "id": 43,
+    "max_speed_kmh": 250,
+    "name": "武九客专",
+    "stations": [
+      "武汉",
+      "鄂州",
+      "黄石",
+      "九江"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 44,
+    "max_speed_kmh": 200,
+    "name": "昌福铁路",
+    "stations": [
+      "南昌",
+      "抚州",
+      "三明",
+      "福州"
+    ],
+    "type": "EXPRESS"
+  },
+  {
+    "id": 45,
+    "max_speed_kmh": 350,
+    "name": "合蚌高铁",
+    "stations": [
+      "合肥",
+      "淮南",
+      "蚌埠"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 46,
+    "max_speed_kmh": 250,
+    "name": "张大客专",
+    "stations": [
+      "张家口",
+      "大同"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 47,
+    "max_speed_kmh": 250,
+    "name": "大西高铁",
+    "stations": [
+      "大同",
+      "朔州",
+      "忻州",
+      "太原",
+      "晋中",
+      "临汾",
+      "运城",
+      "渭南",
+      "西安"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 48,
+    "max_speed_kmh": 350,
+    "name": "济郑高铁",
+    "stations": [
+      "济南",
+      "聊城",
+      "濮阳",
+      "新乡",
+      "郑州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 49,
+    "max_speed_kmh": 350,
+    "name": "郑阜高铁",
+    "stations": [
+      "郑州",
+      "周口",
+      "阜阳"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 50,
+    "max_speed_kmh": 250,
+    "name": "宁安城际",
+    "stations": [
+      "南京",
+      "马鞍山",
+      "芜湖",
+      "铜陵",
+      "池州",
+      "安庆"
+    ],
+    "type": "INTERCITY"
+  },
+  {
+    "id": 51,
+    "max_speed_kmh": 250,
+    "name": "徐盐客专",
+    "stations": [
+      "徐州",
+      "宿迁",
+      "淮安",
+      "盐城"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 52,
+    "max_speed_kmh": 350,
+    "name": "宁杭高铁",
+    "stations": [
+      "南京",
+      "湖州",
+      "杭州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 53,
+    "max_speed_kmh": 250,
+    "name": "连镇高铁",
+    "stations": [
+      "连云港",
+      "淮安",
+      "扬州",
+      "镇江"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 54,
+    "max_speed_kmh": 200,
+    "name": "宁启线",
+    "stations": [
+      "南京",
+      "扬州",
+      "泰州",
+      "南通"
+    ],
+    "type": "EXPRESS"
+  },
+  {
+    "id": 55,
+    "max_speed_kmh": 350,
+    "name": "合杭高铁",
+    "stations": [
+      "合肥",
+      "芜湖",
+      "宣城",
+      "湖州",
+      "杭州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 56,
+    "max_speed_kmh": 350,
+    "name": "杭台高铁",
+    "stations": [
+      "杭州",
+      "绍兴",
+      "台州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 57,
+    "max_speed_kmh": 350,
+    "name": "杭昌高铁",
+    "stations": [
+      "杭州",
+      "绩溪",
+      "黄山",
+      "景德镇",
+      "南昌"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 58,
+    "max_speed_kmh": 350,
+    "name": "杭温高铁",
+    "stations": [
+      "杭州",
+      "温州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 59,
+    "max_speed_kmh": 200,
+    "name": "金温线",
+    "stations": [
+      "金华",
+      "丽水",
+      "温州"
+    ],
+    "type": "EXPRESS"
+  },
+  {
+    "id": 60,
+    "max_speed_kmh": 350,
+    "name": "杭衢高铁",
+    "stations": [
+      "杭州",
+      "衢州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 61,
+    "max_speed_kmh": 350,
+    "name": "合福高铁",
+    "stations": [
+      "合肥",
+      "铜陵",
+      "绩溪",
+      "黄山",
+      "上饶",
+      "南平",
+      "延平",
+      "福州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 62,
+    "max_speed_kmh": 350,
+    "name": "池黄高铁",
+    "stations": [
+      "池州",
+      "黄山"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 63,
+    "max_speed_kmh": 350,
+    "name": "宣绩高铁",
+    "stations": [
+      "宣城",
+      "绩溪"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 64,
+    "max_speed_kmh": 200,
+    "name": "龙漳线",
+    "stations": [
+      "龙岩",
+      "漳州"
+    ],
+    "type": "EXPRESS"
+  },
+  {
+    "id": 65,
+    "max_speed_kmh": 200,
+    "name": "南龙线",
+    "stations": [
+      "延平",
+      "三明",
+      "龙岩"
+    ],
+    "type": "EXPRESS"
+  },
+  {
+    "id": 66,
+    "max_speed_kmh": 200,
+    "name": "昌九城际",
+    "stations": [
+      "南昌",
+      "九江"
+    ],
+    "type": "INTERCITY"
+  },
+  {
+    "id": 67,
+    "max_speed_kmh": 350,
+    "name": "沪苏湖高铁",
+    "stations": [
+      "上海",
+      "湖州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 68,
+    "max_speed_kmh": 200,
+    "name": "青盐线",
+    "stations": [
+      "青岛",
+      "日照",
+      "连云港",
+      "盐城"
+    ],
+    "type": "EXPRESS"
+  },
+  {
+    "id": 69,
+    "max_speed_kmh": 350,
+    "name": "盐通高铁",
+    "stations": [
+      "盐城",
+      "南通"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 70,
+    "max_speed_kmh": 200,
+    "name": "沪苏通线",
+    "stations": [
+      "上海",
+      "张家港",
+      "南通"
+    ],
+    "type": "EXPRESS"
+  },
+  {
+    "id": 71,
+    "max_speed_kmh": 350,
+    "name": "日兰高铁",
+    "stations": [
+      "日照",
+      "临沂",
+      "济宁",
+      "菏泽",
+      "兰考"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 72,
+    "max_speed_kmh": 350,
+    "name": "襄荆高铁",
+    "stations": [
+      "襄阳",
+      "荆门"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 73,
+    "max_speed_kmh": 350,
+    "name": "荆荆高铁",
+    "stations": [
+      "荆门",
+      "荆州"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 74,
+    "max_speed_kmh": 350,
+    "name": "沪渝蓉高铁",
+    "stations": [
+      "武汉",
+      "荆门",
+      "宜昌"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 75,
+    "max_speed_kmh": 350,
+    "name": "黄黄高铁",
+    "stations": [
+      "黄冈",
+      "黄梅"
+    ],
+    "type": "HIGH_SPEED"
+  },
+  {
+    "id": 76,
+    "max_speed_kmh": 200,
+    "name": "武冈城际",
+    "stations": [
+      "武汉",
+      "黄冈"
+    ],
+    "type": "INTERCITY"
+  },
+  {
+    "id": 77,
+    "max_speed_kmh": 250,
+    "name": "武咸城际",
+    "stations": [
+      "武汉",
+      "咸宁"
+    ],
+    "type": "INTERCITY"
+  },
+  {
+    "id": 78,
+    "max_speed_kmh": 250,
+    "name": "石太客专",
+    "stations": [
+      "石家庄",
+      "阳泉",
+      "太原"
     ],
     "type": "HIGH_SPEED"
   }
