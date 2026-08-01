@@ -44,16 +44,6 @@ void registerPassengerRoutes(RailwayServer& server) {
         std::vector<uint32_t> from_ids, to_ids;
         std::string date;
         try {
-            auto parseIds = [](const std::string& s) {
-                std::vector<uint32_t> ids;
-                size_t start = 0, end;
-                while ((end = s.find(',', start)) != std::string::npos) {
-                    ids.push_back(std::stoul(s.substr(start, end - start)));
-                    start = end + 1;
-                }
-                ids.push_back(std::stoul(s.substr(start)));
-                return ids;
-            };
             if (req.has_param("from")) from_ids = parseIds(req.get_param_value("from"));
             if (req.has_param("to")) to_ids = parseIds(req.get_param_value("to"));
             date = req.has_param("date") ? req.get_param_value("date") : "2026-07-07";
@@ -225,16 +215,10 @@ void registerPassengerRoutes(RailwayServer& server) {
 
         // 解析逗号分隔的车站 ID（前端 resolveStationIds 已统一完成城市→ID 转换）
         std::vector<uint32_t> target_ids;
-        {
-            std::istringstream iss(station_param);
-            std::string token;
-            while (std::getline(iss, token, ',')) {
-                try {
-                    target_ids.push_back(static_cast<uint32_t>(std::stoul(token)));
-                } catch (...) {
-                    // 跳过无效 ID
-                }
-            }
+        try {
+            target_ids = parseIds(station_param);
+        } catch (...) {
+            // 跳过无效 ID
         }
         if (target_ids.empty()) {
             json j;

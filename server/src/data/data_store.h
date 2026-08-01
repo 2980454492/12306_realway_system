@@ -8,7 +8,7 @@
 #include <map>
 #include <unordered_map>
 #include <optional>
-#include <mutex>
+#include <shared_mutex>
 
 /**
  * DataStore 单例 — 启动时从 JSON 文件加载种子数据到内存。
@@ -113,5 +113,5 @@ private:
 
     bool ready_ = false;
 
-    mutable std::mutex mutex_;  // Phase 2 用普通锁，Phase 5 升级为 shared_mutex
+    mutable std::shared_mutex mutex_;  // 读共享，写独占
 };

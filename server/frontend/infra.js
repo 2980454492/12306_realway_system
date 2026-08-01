@@ -6,6 +6,7 @@
     var res = await API.get('/api/admin/stations');
     if (!res.ok) return U.toast('加载失败', 'error');
     UI._allStations = res.data.data || [];
+    State.stations = UI._allStations;  // 同步给依赖 State.stations 的旧代码使用
     UI.renderStations();
   };
 

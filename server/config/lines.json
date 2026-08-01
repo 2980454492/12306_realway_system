@@ -957,5 +957,17 @@
       "太原"
     ],
     "type": "HIGH_SPEED"
+  },
+  {
+    "id": 79,
+    "max_speed_kmh": 250,
+    "name": "石济客专",
+    "stations": [
+      "石家庄",
+      "衡水",
+      "德州",
+      "济南"
+    ],
+    "type": "HIGH_SPEED"
   }
 ]

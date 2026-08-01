@@ -17,7 +17,7 @@ DataStore& DataStore::instance() {
 }
 
 bool DataStore::initialize() {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
 
     if (ready_) {
         Logger::instance().warn("DataStore already initialized");
@@ -52,24 +52,28 @@ bool DataStore::initialize() {
 // ── 查询接口 ──
 
 const Station* DataStore::getStation(uint32_t id) const {
+    std::shared_lock<std::shared_mutex> lock(mutex_);
     auto it = station_index_.find(id);
     if (it == station_index_.end()) return nullptr;
     return &stations_[it->second];
 }
 
 const Train* DataStore::getTrain(const std::string& id) const {
+    std::shared_lock<std::shared_mutex> lock(mutex_);
     auto it = train_index_.find(id);
     if (it == train_index_.end()) return nullptr;
     return &trains_[it->second];
 }
 
 Train* DataStore::getTrainMutable(const std::string& id) {
+    std::shared_lock<std::shared_mutex> lock(mutex_);
     auto it = train_index_.find(id);
     if (it == train_index_.end()) return nullptr;
     return &trains_[it->second];
 }
 
 std::vector<const Train*> DataStore::getTrainsByStation(uint32_t station_id) const {
+    std::shared_lock<std::shared_mutex> lock(mutex_);
     std::vector<const Train*> result;
     for (const auto& train : trains_) {
         for (const auto& stop : train.stops) {
@@ -129,17 +133,7 @@ bool DataStore::loadLines() {
     try {
         json j;
         file >> j;
-        lines_.clear();
-        for (auto& jl : j) {
-            Line line;
-            line.id = jl.value("id", 0U);
-            line.name = jl.value("name", "");
-            line.max_speed_kmh = jl.value("max_speed_kmh", 0U);
-            line.type = jl.value("type", LineType::NORMAL);
-            for (const auto& s : jl["stations"])
-                line.stations.push_back(s.get<std::string>());
-            lines_.push_back(std::move(line));
-        }
+        lines_ = j.get<std::vector<Line>>();
         Logger::instance().info("Loaded " + std::to_string(lines_.size()) + " lines");
         return true;
     } catch (const std::exception& e) {
@@ -171,7 +165,7 @@ bool DataStore::loadTrains() {
 // ── 运行时变更 ──
 
 void DataStore::addTrain(const Train& train) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
     // 已归档同名覆盖：更新已有槽位，不新增（避免 trains_ 中出现重复条目）
     auto it = train_index_.find(train.id);
     if (it != train_index_.end()) {
@@ -183,7 +177,7 @@ void DataStore::addTrain(const Train& train) {
 }
 
 bool DataStore::removeTrain(const std::string& train_id) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
     auto it = train_index_.find(train_id);
     if (it == train_index_.end()) return false;
     trains_[it->second].status = TrainStatus::ARCHIVED;
@@ -191,16 +185,20 @@ bool DataStore::removeTrain(const std::string& train_id) {
 }
 
 bool DataStore::saveTrains() const {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
     std::string path = config::TRAINS_FILE;
     try {
+        // line_name — 构建 line_id→name 映射避免三重循环
+        std::unordered_map<uint32_t, std::string> line_id_to_name;
+        for (const auto& ln : lines_)
+            line_id_to_name[ln.id] = ln.name;
+
         json arr = json::array();
         for (const auto& train : trains_) {
-            json jt = train;  // NLOHMANN 核心字段（不含 station_name/line_name/stop_type）
-            // enrich stops：补齐前端展示用的冗余字段
+            json jt = train;
             auto& jstops = jt["stops"];
-            for (size_t i = 0; i < train.stops.size(); ++i) {
-                const auto& s = train.stops[i];
+            for (size_t i = 0; i < jstops.size(); i++) {
+                auto& s = train.stops[i];
                 // station_name
                 auto* st = getStation(s.station_id);
                 jstops[i]["station_name"] = st ? st->name : "?";
@@ -213,21 +211,13 @@ bool DataStore::saveTrains() const {
                 }
                 jstops[i]["stop_type"] = stype;
                 jstops[i]["stop_type_name"] = (stype == 0 ? "始发" : stype == 1 ? "停靠" : stype == 2 ? "通过" : "终到");
-                // line_name
-                std::string lname;
+                // line_name — O(1) 查表，替代原三重循环
                 if (s.line_id > 0) {
-                    auto& idx = getStationLineIndex();
-                    for (const auto& [sid, neighbors] : idx) {
-                        for (const auto& nb : neighbors) {
-                            if (nb.line_id == s.line_id) {
-                                lname = nb.line_name;
-                                break;
-                            }
-                        }
-                        if (!lname.empty()) break;
-                    }
+                    auto it = line_id_to_name.find(s.line_id);
+                    jstops[i]["line_name"] = (it != line_id_to_name.end()) ? it->second : "";
+                } else {
+                    jstops[i]["line_name"] = "";
                 }
-                jstops[i]["line_name"] = lname;
             }
             arr.push_back(jt);
         }
@@ -242,15 +232,20 @@ bool DataStore::saveTrains() const {
 
 // ── 站点管理 ──
 
+/** 获取下一个可用 ID（当前最大 ID + 1） */
+template<typename T>
+static uint32_t nextId(const std::vector<T>& items) {
+    uint32_t max_id = 0;
+    for (const auto& item : items)
+        if (item.id > max_id) max_id = item.id;
+    return max_id + 1;
+}
+
 Station DataStore::addStation(const Station& station) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
     Station s = station;
-    if (s.id == 0) {
-        uint32_t max_id = 0;
-        for (const auto& st : stations_)
-            if (st.id > max_id) max_id = st.id;
-        s.id = max_id + 1;
-    }
+    if (s.id == 0)
+        s.id = nextId(stations_);
     stations_.push_back(s);
     station_index_[s.id] = stations_.size() - 1;
     saveStations();
@@ -258,7 +253,7 @@ Station DataStore::addStation(const Station& station) {
 }
 
 bool DataStore::updateStation(uint32_t id, const Station& updated) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
     auto it = station_index_.find(id);
     if (it == station_index_.end()) return false;
     stations_[it->second] = updated;
@@ -268,7 +263,7 @@ bool DataStore::updateStation(uint32_t id, const Station& updated) {
 }
 
 bool DataStore::removeStation(uint32_t id) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
     auto it = station_index_.find(id);
     if (it == station_index_.end()) return false;
     size_t idx = it->second;
@@ -299,21 +294,17 @@ bool DataStore::saveStations() const {
 // ── 线路管理 ──
 
 Line DataStore::addLine(const Line& line) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
     Line l = line;
-    if (l.id == 0) {
-        uint32_t max_id = 0;
-        for (const auto& ln : lines_)
-            if (ln.id > max_id) max_id = ln.id;
-        l.id = max_id + 1;
-    }
+    if (l.id == 0)
+        l.id = nextId(lines_);
     lines_.push_back(l);
     saveLines();
     return l;
 }
 
 bool DataStore::updateLine(uint32_t id, const Line& updated) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
     for (auto& ln : lines_) {
         if (ln.id == id) {
             ln = updated;
@@ -326,7 +317,7 @@ bool DataStore::updateLine(uint32_t id, const Line& updated) {
 }
 
 bool DataStore::removeLine(uint32_t id) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::shared_mutex> lock(mutex_);
     auto it = std::find_if(lines_.begin(), lines_.end(),
         [id](const Line& l) { return l.id == id; });
     if (it == lines_.end()) return false;

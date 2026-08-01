@@ -296,6 +296,7 @@ std::vector<Order> OrderService::getOrders(const std::string& user_id,
 }
 
 const Order* OrderService::getOrder(const std::string& order_id) const {
+    std::lock_guard<std::mutex> lock(mutex_);
     for (const auto& o : orders_) {
         if (o.id == order_id) return &o;
     }

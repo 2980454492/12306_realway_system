@@ -223,6 +223,15 @@ const U = {
       b.style.display = 'none';
   },
 
+  /** 加载站点列表到 State.stations */
+  loadStations: async function() {
+    var res = await API.get('/api/admin/stations');
+    if (res.ok && res.data && res.data.data) {
+      State.stations = res.data.data;
+      UI._allStations = State.stations;
+    }
+  },
+
 };
 
 // ═══════════════════════════════════════════

@@ -991,9 +991,3 @@
     U.$('detail-overlay').classList.add('show');
   };
 
-  UI.loadStations = async function() {
-    var res = await API.get('/api/admin/stations');
-    if (!res.ok) return U.toast('加载失败', 'error');
-    UI._allStations = res.data.data || [];
-    UI.renderStations();
-  };

@@ -2,7 +2,11 @@
 'use strict';
 
 
-  UI.showAddTrainForm = function() {
+  UI.showAddTrainForm = async function() {
+    // 确保站点列表已加载
+    if (!State.stations.length) {
+      await U.loadStations();
+    }
     // 先加载邻居索引（新增和编辑都需要）
     var needIndex = (Object.keys(State._neighborIndex).length === 0);
     if (needIndex) {
@@ -637,8 +641,9 @@
   UI._stationName = function(id, fallback) {
     if (fallback)
       return fallback;
+    // 用 == 而非 ===，兼容后端返回 string/number 类型不一致
     for (var i = 0; i < State.stations.length; i++) {
-      if (State.stations[i].id === id)
+      if (State.stations[i].id == id)
         return State.stations[i].name;
     }
     return '站#' + id;

@@ -136,7 +136,8 @@ void AuditLogger::writerLoop() {
         AuditRecord record;
         {
             std::unique_lock<std::mutex> lock(mutex_);
-            cv_.wait_for(lock, std::chrono::milliseconds(500), [this] {
+            // 阻塞等待直到有数据或关闭信号，避免 500ms 轮询导致审计记录延迟写盘
+            cv_.wait(lock, [this] {
                 return !queue_.empty() || !running_.load();
             });
             if (queue_.empty())
@@ -147,15 +148,16 @@ void AuditLogger::writerLoop() {
         processRecord(record);
     }
 
-    // 排空剩余队列（逐条取出后释放锁再处理，避免双锁）
+    // 排空剩余队列：一次性 swap 整队列，减少锁竞争
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-        while (!queue_.empty()) {
-            auto record = std::move(queue_.front());
-            queue_.pop();
-            lock.unlock();
-            processRecord(record);
-            lock.lock();
+        std::queue<AuditRecord> remaining;
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            remaining.swap(queue_);
+        }
+        while (!remaining.empty()) {
+            processRecord(remaining.front());
+            remaining.pop();
         }
     }
 }

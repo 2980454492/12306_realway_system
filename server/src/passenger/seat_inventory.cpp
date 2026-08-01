@@ -151,24 +151,33 @@ SeatInventory::TrainInventory& SeatInventory::getOrCreate(
     const std::string& train_id, const std::string& date)
 {
     std::string key = makeKey(train_id, date);
-    auto it = inventories_.find(key);
-    if (it != inventories_.end()) return it->second;
-
-    // 惰性初始化：从列车种子数据读取席位配置
-    TrainInventory inv;
-    auto* train = DataStore::instance().getTrain(train_id);
-    if (train) {
-        auto& cfg = train->seat_config;
-        ensureSeatType(inv, SeatType::BUSINESS,     cfg.business_seats);
-        ensureSeatType(inv, SeatType::FIRST,        cfg.first_seats);
-        ensureSeatType(inv, SeatType::SECOND,       cfg.second_seats);
-        ensureSeatType(inv, SeatType::HARD_SLEEPER, cfg.hard_sleeper);
-        ensureSeatType(inv, SeatType::HARD_SEAT,    cfg.hard_seat);
-        ensureSeatType(inv, SeatType::NO_SEAT,      cfg.no_seat);
+    // Double-check 双重检查：防止两个 shared_lock 同时 emplace 导致 data race
+    {
+        std::shared_lock<std::shared_mutex> lock(global_mutex_);
+        auto it = inventories_.find(key);
+        if (it != inventories_.end()) return it->second;
     }
+    {
+        std::unique_lock<std::shared_mutex> lock(global_mutex_);
+        auto it = inventories_.find(key);
+        if (it != inventories_.end()) return it->second;
 
-    auto [inserted_it, _] = inventories_.emplace(key, std::move(inv));
-    return inserted_it->second;
+        // 惰性初始化：从列车种子数据读取席位配置
+        TrainInventory inv;
+        auto* train = DataStore::instance().getTrain(train_id);
+        if (train) {
+            auto& cfg = train->seat_config;
+            ensureSeatType(inv, SeatType::BUSINESS,     cfg.business_seats);
+            ensureSeatType(inv, SeatType::FIRST,        cfg.first_seats);
+            ensureSeatType(inv, SeatType::SECOND,       cfg.second_seats);
+            ensureSeatType(inv, SeatType::HARD_SLEEPER, cfg.hard_sleeper);
+            ensureSeatType(inv, SeatType::HARD_SEAT,    cfg.hard_seat);
+            ensureSeatType(inv, SeatType::NO_SEAT,      cfg.no_seat);
+        }
+
+        auto [inserted_it, _] = inventories_.emplace(key, std::move(inv));
+        return inserted_it->second;
+    }
 }
 
 void SeatInventory::ensureSeatType(TrainInventory& inv, SeatType type, uint16_t count) {

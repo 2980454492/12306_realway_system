@@ -44,6 +44,8 @@ public:
 private:
     SystemConfig() = default;
     void save() const;
+    /** 无锁序列化，调用者须持有 mutex_ */
+    std::string toJsonLocked() const;
 
     // 用 seatTypeToKey/prefixToKey 压缩到连续数组
     static int seatIdx(SeatType s);

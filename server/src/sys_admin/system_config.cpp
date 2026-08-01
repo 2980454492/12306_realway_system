@@ -120,26 +120,9 @@ double SystemConfig::refundRate2h() const {
     std::lock_guard<std::mutex> l(mutex_); return refund_rate_2h_;
 }
 
-// ── 写入 ──
+// ── 序列化（调用者须持有 mutex_）──
 
-void SystemConfig::setRate(char prefix, SeatType seat, double rate) {
-    {
-        std::lock_guard<std::mutex> l(mutex_);
-        rates_[prefixIdx(prefix)][seatIdx(seat)] = rate;
-    }
-    save();
-}
-
-void SystemConfig::setRefundRates(double r24h, double r2_24h, double r2h) {
-    {
-        std::lock_guard<std::mutex> l(mutex_);
-        refund_rate_24h_ = r24h; refund_rate_2_24h_ = r2_24h; refund_rate_2h_ = r2h;
-    }
-    save();
-}
-
-std::string SystemConfig::toJson() const {
-    std::lock_guard<std::mutex> l(mutex_);
+std::string SystemConfig::toJsonLocked() const {
     json j;
 
     json rates_obj = json::object();
@@ -157,11 +140,45 @@ std::string SystemConfig::toJson() const {
     return j.dump(2);
 }
 
+std::string SystemConfig::toJson() const {
+    std::lock_guard<std::mutex> l(mutex_);
+    return toJsonLocked();
+}
+
+// ── 写入 ──
+
+void SystemConfig::setRate(char prefix, SeatType seat, double rate) {
+    std::lock_guard<std::mutex> l(mutex_);
+    rates_[prefixIdx(prefix)][seatIdx(seat)] = rate;
+    if (!file_path_.empty()) {
+        try {
+            std::ofstream out(file_path_);
+            out << toJsonLocked();
+        } catch (const std::exception& e) {
+            Logger::instance().error(std::string("Failed to save config: ") + e.what());
+        }
+    }
+}
+
+void SystemConfig::setRefundRates(double r24h, double r2_24h, double r2h) {
+    std::lock_guard<std::mutex> l(mutex_);
+    refund_rate_24h_ = r24h; refund_rate_2_24h_ = r2_24h; refund_rate_2h_ = r2h;
+    if (!file_path_.empty()) {
+        try {
+            std::ofstream out(file_path_);
+            out << toJsonLocked();
+        } catch (const std::exception& e) {
+            Logger::instance().error(std::string("Failed to save config: ") + e.what());
+        }
+    }
+}
+
 void SystemConfig::save() const {
+    std::lock_guard<std::mutex> l(mutex_);
     if (file_path_.empty()) return;
     try {
         std::ofstream out(file_path_);
-        out << toJson();
+        out << toJsonLocked();
     } catch (const std::exception& e) {
         Logger::instance().error(std::string("Failed to save config: ") + e.what());
     }
