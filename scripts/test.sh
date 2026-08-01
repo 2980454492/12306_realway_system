@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 # test.sh — 构建并运行全部测试
-set -euo pipefail
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-BUILD_DIR="$PROJECT_DIR/build"
+# 用法: bash scripts/test.sh [测试参数...]
+# 功能: CMake 配置 → 构建 railway_tests → 运行测试
+source "$(dirname "$0")/common.sh"
 
 echo "=== 步骤 1：CMake 配置 ==="
-cmake -S "$PROJECT_DIR/server" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Debug
+cmake -S "$SERVER_DIR" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Debug
 
 echo ""
 echo "=== 步骤 2：构建测试 ==="
@@ -15,5 +13,5 @@ cmake --build "$BUILD_DIR" --target railway_tests -j"$(nproc)"
 
 echo ""
 echo "=== 步骤 3：运行测试 ==="
-mkdir -p "$PROJECT_DIR/server/data"
-cd "$PROJECT_DIR/server" && "$BUILD_DIR/tests/railway_tests" "$@"
+mkdir -p "$SERVER_DIR/data"
+cd "$SERVER_DIR" && "$BUILD_DIR/tests/railway_tests" "$@"

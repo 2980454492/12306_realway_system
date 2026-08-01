@@ -35,7 +35,20 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(json)
 
 # libsodium — argon2id 密码哈希、AES-256-GCM 加密
-find_library(SODIUM_LIB sodium REQUIRED)
+# 本地构建用 find_library，交叉编译用 SODIUM_LIB_PATH
+option(SODIUM_LIB_PATH "Path to pre-compiled libsodium.a (for cross-compilation)" "")
+option(SODIUM_INCLUDE_PATH "Path to libsodium include dir (for cross-compilation)" "")
+
+if(SODIUM_LIB_PATH AND SODIUM_INCLUDE_PATH)
+    # 交叉编译：使用预编译的静态库
+    add_library(sodium STATIC IMPORTED)
+    set_target_properties(sodium PROPERTIES
+        IMPORTED_LOCATION "${SODIUM_LIB_PATH}"
+        INTERFACE_INCLUDE_DIRECTORIES "${SODIUM_INCLUDE_PATH}"
+    )
+else()
+    find_library(SODIUM_LIB sodium REQUIRED)
+endif()
 
 # ── 可执行目标 ──
 set(SOURCES
@@ -108,11 +121,20 @@ target_include_directories(railway_server PRIVATE
 
 # ── 链接库 ──
 # nlohmann/json (header-only, 但 CMake 包提供 target)
-target_link_libraries(railway_server PRIVATE nlohmann_json::nlohmann_json ${SODIUM_LIB})
+if(SODIUM_LIB_PATH)
+    target_link_libraries(railway_server PRIVATE nlohmann_json::nlohmann_json sodium)
+else()
+    target_link_libraries(railway_server PRIVATE nlohmann_json::nlohmann_json ${SODIUM_LIB})
+endif()
 
 # cpp-httplib 在 Linux 上需要 pthread
 if(UNIX)
     target_link_libraries(railway_server PRIVATE pthread)
+endif()
+
+# Windows 交叉编译：静态链接运行时库，对方无需安装 MinGW DLL
+if(MINGW)
+    target_link_options(railway_server PRIVATE -static-libgcc -static-libstdc++ -static)
 endif()
 
 # ── 测试 ──

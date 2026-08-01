@@ -1,29 +1,12 @@
 #!/usr/bin/env bash
 # run.sh — 12306 铁路票务系统启动脚本
-# 检查构建产物 → 启动服务 → 等待退出
-set -euo pipefail
+# 用法: bash scripts/run.sh
+# 功能: 检查构建产物 → 检查端口 → 检查数据目录 → 启动服务
+# 环境变量: PORT=8080 HOST=127.0.0.1
+source "$(dirname "$0")/common.sh"
 
-# ── 颜色输出函数 ──
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
-
-info()    { echo -e "${CYAN}[INFO]${NC} $*"; }
-warn()    { echo -e "${YELLOW}[WARN]${NC} $*"; }
-error()   { echo -e "${RED}[ERROR]${NC} $*"; }
-success() { echo -e "${GREEN}[OK]${NC} $*"; }
-
-# ── 路径变量 ──
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-SERVER_DIR="$PROJECT_ROOT/server"
-BUILD_DIR="$PROJECT_ROOT/build"
 EXECUTABLE="$BUILD_DIR/railway_server"
-
-# ── 默认配置 ──
-PORT="${PORT:-8080}"  # 可通过环境变量覆盖，与 Dockerfile / README 保持一致
+PORT="${PORT:-8080}"
 HOST="${HOST:-127.0.0.1}"
 
 info "项目根目录: $PROJECT_ROOT"

@@ -1,25 +1,8 @@
 #!/usr/bin/env bash
 # build.sh — 12306 铁路票务系统自动构建脚本
-# 检查依赖 → CMake 配置 → 编译 → 报告结果
-set -euo pipefail
-
-# ── 颜色输出函数 ──
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
-
-info()    { echo -e "${CYAN}[INFO]${NC} $*"; }
-warn()    { echo -e "${YELLOW}[WARN]${NC} $*"; }
-error()   { echo -e "${RED}[ERROR]${NC} $*"; }
-success() { echo -e "${GREEN}[OK]${NC} $*"; }
-
-# ── 路径变量 ──
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-SERVER_DIR="$PROJECT_ROOT/server"
-BUILD_DIR="$PROJECT_ROOT/build"
+# 用法: bash scripts/build.sh
+# 功能: 检查依赖 → CMake 配置 → 编译 → 冒烟测试 → 报告结果
+source "$(dirname "$0")/common.sh"
 
 info "Project root: $PROJECT_ROOT"
 info "Build dir:    $BUILD_DIR"

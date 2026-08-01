@@ -2,4 +2,5 @@
 .cache/
 .vscode/
 build/
+build_win_libsodium/
 server/data/

@@ -66,35 +66,40 @@
 | 加密 | libsodium | argon2id 密码哈希、HMAC-SHA256 JWT |
 | 前端 | HTML/CSS/JS | 纯手写 SPA，零 npm 依赖 |
 | 构建 | CMake | `cmake -S server -B build` |
-| 部署 | Docker（计划） | Phase 10 |
+| 部署 | Docker | 多阶段构建，一键启动 |
+| 分发 | MinGW 交叉编译 | Linux → Windows .exe |
 
 ---
 
 ## 快速开始
 
-### 环境要求
+### Docker（推荐，零依赖）
 
-- C++17 编译器（GCC 9+ / Clang 10+）
-- CMake 3.14+
-- libsodium
+```bash
+git clone <repo-url> && cd 12306_realway_system
+docker-compose up -d
+# 浏览器打开 http://localhost:8080
+```
+
+### Windows 分发（交叉编译）
+
+在 Linux 上一键产出 `railway_server.exe`，压缩发给 Windows 用户双击即可运行：
+
+```bash
+sudo apt install g++-mingw-w64-x86-64   # 一次性安装交叉编译器
+bash scripts/build_win.sh               # 产出 dist/railway-windows/
+```
+
+分发目录 `dist/railway-windows/` 包含 `.exe` + 配置文件 + 前端 + 启动脚本，可直接压缩为 `.zip`。
+
+### 手动构建
 
 ```bash
 # Ubuntu/Debian
 sudo apt install build-essential cmake libsodium-dev
 
-# macOS
-brew install cmake libsodium
-```
-
-### 构建与运行
-
-```bash
 cd 12306_realway_system
-
-# 构建
 bash scripts/build.sh
-
-# 运行
 bash scripts/run.sh
 # 服务监听 http://0.0.0.0:8080
 ```

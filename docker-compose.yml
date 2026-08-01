@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  railway:
+    build: .
+    container_name: railway-12306
+    ports:
+      - "8080:8080"
+    volumes:
+      - railway_data:/app/data
+    restart: unless-stopped
+volumes:
+  railway_data:
