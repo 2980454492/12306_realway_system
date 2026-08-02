@@ -16,7 +16,7 @@ void registerRoutes(RailwayServer& server) {
     // 静态文件托管
     app.set_mount_point(config::STATIC_MOUNT_POINT, config::FRONTEND_DIR);
 
-    // 调试端点
+    /** GET /api/debug/stations — 调试用：站点全景预览 */
     app.Get("/api/debug/stations", [](const httplib::Request& /*req*/, httplib::Response& res) {
         try {
             auto& ds = DataStore::instance();

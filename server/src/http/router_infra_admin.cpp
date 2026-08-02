@@ -18,9 +18,8 @@ std::string checkStationName(const std::string& name, uint32_t excludeId) {
 }
 
 /** 校验线路请求体：名称、车站数、时速、车站存在。
- *  excludeId=0 新增，非0 更新（排除自身）。
  *  返回空字符串 = 通过，非空 = 错误信息 */
-std::string checkLineBody(const json& body, uint32_t /*excludeId*/) {
+std::string checkLineBody(const json& body) {
     std::string name = body.value("name", "");
     if (name.empty())
         return "线路名称不能为空";
@@ -48,6 +47,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
     auto& app = server.getApp();
     // ── 站点管理（INFRA_ADMIN）──
 
+    /** GET /api/admin/stations — 获取全部站点列表 */
     app.Get("/api/admin/stations", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_STATIONS);
@@ -61,6 +61,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
     }
     });
 
+    /** POST /api/admin/stations — 新增站点 */
     app.Post("/api/admin/stations", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_STATIONS);
@@ -92,6 +93,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
     }
     });
 
+    /** PUT /api/admin/stations/{id} — 修改站点 */
     app.Put(R"(/api/admin/stations/(\d+))", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_STATIONS);
@@ -127,6 +129,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
     }
     });
 
+    /** DELETE /api/admin/stations/{id} — 删除站点 */
     app.Delete(R"(/api/admin/stations/(\d+))", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_STATIONS);
@@ -148,6 +151,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
 
     // ── 线路管理（INFRA_ADMIN）──
 
+    /** GET /api/admin/lines — 获取全部线路列表 */
     app.Get("/api/admin/lines", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_LINES);
@@ -161,13 +165,14 @@ void registerInfraAdminRoutes(RailwayServer& server) {
     }
     });
 
+    /** POST /api/admin/lines — 新增线路 */
     app.Post("/api/admin/lines", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_LINES);
         if (!ctx) return;
         json body = json::parse(req.body);
 
-        std::string err = checkLineBody(body, 0);
+        std::string err = checkLineBody(body);
         if (!err.empty()) {
             badRequest(res, err);
             return;
@@ -191,6 +196,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
     }
     });
 
+    /** PUT /api/admin/lines/{id} — 修改线路 */
     app.Put(R"(/api/admin/lines/(\d+))", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_LINES);
@@ -200,7 +206,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
             return;
         json body = json::parse(req.body);
 
-        std::string err = checkLineBody(body, id);
+        std::string err = checkLineBody(body);
         if (!err.empty()) {
             badRequest(res, err);
             return;
@@ -225,6 +231,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
     }
     });
 
+    /** DELETE /api/admin/lines/{id} — 删除线路 */
     app.Delete(R"(/api/admin/lines/(\d+))", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_LINES);

@@ -7,6 +7,7 @@ void registerAuthRoutes(RailwayServer& server) {
     // 返回服务状态、运行时长、版本号
     auto start_time = std::chrono::steady_clock::now();  // 服务启动时间
 
+    /** GET /health — 健康检查，返回服务版本与运行时长 */
     app.Get("/health", [start_time](const httplib::Request& /*req*/, httplib::Response& res) {
     try {
         auto now = std::chrono::steady_clock::now();
@@ -28,7 +29,7 @@ void registerAuthRoutes(RailwayServer& server) {
     }
     });
 
-    // ── POST /api/auth/login — 登录 ──
+    /** POST /api/auth/login — 登录，返回 JWT Token */
     app.Post("/api/auth/login", [](const httplib::Request& req, httplib::Response& res) {
     if (!checkRateLimit("login:" + clientIP(req), 10, 10.0/60, res)) return;
     try {
@@ -89,7 +90,7 @@ void registerAuthRoutes(RailwayServer& server) {
     }
     });
 
-    // ── POST /api/auth/register — 旅客自助注册 ──
+    /** POST /api/auth/register — 旅客自助注册 */
     app.Post("/api/auth/register", [](const httplib::Request& req, httplib::Response& res) {
     if (!checkRateLimit("register:" + clientIP(req), 5, 5.0/3600, res)) return;
     try {
@@ -148,7 +149,7 @@ void registerAuthRoutes(RailwayServer& server) {
     }
     });
 
-    // ── GET /api/whoami — 验证 JWT + RBAC 中间件（调试验证用）──
+    /** GET /api/whoami — 验证 JWT Token，返回当前用户身份与权限 */
     app.Get("/api/whoami", [](const httplib::Request& req, httplib::Response& res) {
     try {
         // 1. 鉴权：从 Authorization header 提取并校验 JWT

@@ -3,7 +3,7 @@
 
 void registerPassengerRoutes(RailwayServer& server) {
     auto& app = server.getApp();
-    // ── GET /api/stations/neighbors — 车站-线路-邻居索引（职工新增列车选线用）──
+    /** GET /api/stations/neighbors — 获取车站-线路-邻居索引 */
     app.Get("/api/stations/neighbors", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
@@ -32,7 +32,7 @@ void registerPassengerRoutes(RailwayServer& server) {
     // 旅客端点
     // ═════════════════════════════════════════════════
 
-    // ── GET /api/trains/query — 查票（直达+换乘）──
+    /** GET /api/trains/query — 查票（直达 + 一次换乘） */
     app.Get("/api/trains/query", [](const httplib::Request& req, httplib::Response& res) {
     if (!checkRateLimit("query:" + clientIP(req), 120, 120.0/60, res)) return;
     try {
@@ -196,7 +196,7 @@ void registerPassengerRoutes(RailwayServer& server) {
     }
     });
 
-    // ── GET /api/trains/station — 车站查询 ──
+    /** GET /api/trains/station — 按车站查询经停列车 */
     app.Get("/api/trains/station", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::QUERY_TRAINS);
@@ -263,7 +263,7 @@ void registerPassengerRoutes(RailwayServer& server) {
     }
     });
 
-    // ── GET /api/trains/{id}/stops — 列车经停站详情 ──
+    /** GET /api/trains/{id}/stops — 获取列车经停站详情 */
     app.Get(R"(/api/trains/([^/]+)/stops)", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::QUERY_TRAINS);
@@ -295,7 +295,7 @@ void registerPassengerRoutes(RailwayServer& server) {
     }
     });
 
-    // ── POST /api/orders — 购票 ──
+    /** POST /api/orders — 购票 */
     app.Post("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
     if (!checkRateLimit("buy:" + clientIP(req), 10, 10.0/60, res)) return;
     try {
@@ -341,7 +341,7 @@ void registerPassengerRoutes(RailwayServer& server) {
     }
     });
 
-    // ── GET /api/orders — 订单查询 ──
+    /** GET /api/orders — 查询订单（支持状态筛选） */
     app.Get("/api/orders", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::VIEW_OWN_ORDERS);
@@ -406,7 +406,7 @@ void registerPassengerRoutes(RailwayServer& server) {
     }
     });
 
-    // ── POST /api/orders/{id}/refund — 退票 ──
+    /** POST /api/orders/{id}/refund — 退票 */
     app.Post(R"(/api/orders/([^/]+)/refund)", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::REFUND_OWN);

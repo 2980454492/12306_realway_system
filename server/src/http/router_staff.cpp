@@ -3,7 +3,7 @@
 
 void registerStaffRoutes(RailwayServer& server) {
     auto& app = server.getApp();
-    // ── GET/PUT /api/admin/config — 系统配置（SYS_ADMIN）──
+    /** GET /api/admin/config — 获取系统配置（票价费率、退票费率） */
     app.Get("/api/admin/config", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::SYSTEM_CONFIG);
@@ -22,6 +22,7 @@ void registerStaffRoutes(RailwayServer& server) {
     }
     });
 
+    /** PUT /api/admin/config — 修改系统配置（票价费率、退票费率） */
     app.Put("/api/admin/config", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::SYSTEM_CONFIG);
@@ -65,7 +66,7 @@ void registerStaffRoutes(RailwayServer& server) {
     }
     });
 
-    // ── GET /api/admin/trains — 列车列表 ──
+    /** GET /api/admin/trains — 获取列车列表（支持状态筛选） */
     app.Get("/api/admin/trains", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
@@ -167,10 +168,12 @@ void registerStaffRoutes(RailwayServer& server) {
     }
     };
 
+    /** POST /api/admin/trains — 新增列车 */
     app.Post("/api/admin/trains", [handleTrainSubmit](const httplib::Request& req, httplib::Response& res) {
     handleTrainSubmit(req, res, true);
     });
 
+    /** PUT /api/admin/trains/{id} — 修改列车时刻 */
     app.Put(R"(/api/admin/trains/([^/]+))", [handleTrainSubmit](const httplib::Request& req, httplib::Response& res) {
     // 校验 URL 中的 train ID 与请求体一致，防止修改错列车
     try {
@@ -196,7 +199,7 @@ void registerStaffRoutes(RailwayServer& server) {
     handleTrainSubmit(req, res, false);
     });
 
-    // ── POST /api/admin/approvals/{id}/reject — 审批驳回 ──
+    /** POST /api/admin/approvals/{id}/reject — 驳回审批申请 */
     app.Post(R"(/api/admin/approvals/([^/]+)/reject)", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::APPROVE);

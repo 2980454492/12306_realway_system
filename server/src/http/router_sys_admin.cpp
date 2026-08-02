@@ -6,7 +6,7 @@ void registerSysAdminRoutes(RailwayServer& server) {
     auto& app = server.getApp();
     // ── 用户管理（SYS_ADMIN）──
 
-    // GET /api/admin/users — 用户列表（脱敏密码哈希）
+    /** GET /api/admin/users — 获取用户列表 */
     app.Get("/api/admin/users", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
@@ -31,7 +31,7 @@ void registerSysAdminRoutes(RailwayServer& server) {
     }
     });
 
-    // POST /api/admin/users — 创建用户（SYS_ADMIN 可建任意角色）
+    /** POST /api/admin/users — 创建用户 */
     app.Post("/api/admin/users", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
@@ -79,7 +79,7 @@ void registerSysAdminRoutes(RailwayServer& server) {
     }
     });
 
-    // PUT /api/admin/users/{id} — 更新用户（角色/状态/密码）
+    /** PUT /api/admin/users/{id} — 更新用户信息 */
     app.Put(R"(/api/admin/users/([^/]+))", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
@@ -121,7 +121,7 @@ void registerSysAdminRoutes(RailwayServer& server) {
     }
     });
 
-    // DELETE /api/admin/users/{id} — 删除用户
+    /** DELETE /api/admin/users/{id} — 删除用户 */
     app.Delete(R"(/api/admin/users/([^/]+))", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_USERS);
@@ -150,7 +150,7 @@ void registerSysAdminRoutes(RailwayServer& server) {
     }
     });
 
-    // ── GET /api/admin/audit — 审计日志查询（SYS_ADMIN）──
+    /** GET /api/admin/audit — 查询审计日志 */
     app.Get("/api/admin/audit", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::VIEW_AUDIT);

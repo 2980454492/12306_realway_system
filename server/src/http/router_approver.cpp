@@ -3,7 +3,7 @@
 
 void registerApprovalRoutes(RailwayServer& server) {
     auto& app = server.getApp();
-    // ── DELETE /api/admin/trains/{id} — 删除列车（提交审批）──
+    /** DELETE /api/admin/trains/{id} — 删除列车（走审批流） */
     app.Delete(R"(/api/admin/trains/([^/]+))", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
@@ -63,7 +63,7 @@ void registerApprovalRoutes(RailwayServer& server) {
     }
     });
 
-    // ── GET /api/admin/approvals — 审批列表（STAFF 看自己提交 / APPROVER 看所有+审批记录）──
+    /** GET /api/admin/approvals — 获取审批列表（STAFF 看自己，APPROVER 看全部） */
     app.Get("/api/admin/approvals", [](const httplib::Request& req, httplib::Response& res) {
     try {
         // STAFF 和 APPROVER 均可访问（STAFF 只能看自己的提交）
@@ -140,7 +140,7 @@ void registerApprovalRoutes(RailwayServer& server) {
     }
     });
 
-    // ── POST /api/admin/approvals/{id}/approve — 审批通过 ──
+    /** POST /api/admin/approvals/{id}/approve — 审批通过 */
     app.Post(R"(/api/admin/approvals/([^/]+)/approve)", [](const httplib::Request& req, httplib::Response& res) {
     try {
         auto ctx = checkAuth(req, res, Permission::APPROVE);
