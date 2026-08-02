@@ -150,6 +150,64 @@ void registerSysAdminRoutes(RailwayServer& server) {
     }
     });
 
+    // ── 系统配置（SYS_ADMIN）──
+
+    /** GET /api/admin/config — 获取系统配置（票价费率、退票费率） */
+    app.Get("/api/admin/config", [](const httplib::Request& req, httplib::Response& res) {
+    try {
+        auto ctx = checkAuth(req, res, Permission::SYSTEM_CONFIG);
+        if (!ctx) return;
+
+        json j;
+        j["ok"] = true;
+        j["data"] = json::parse(SystemConfig::instance().toJson());
+        res.set_content(j.dump(), "application/json");
+    } catch (const std::exception& e) {
+        internalError(res, e.what());
+    }
+    });
+
+    /** PUT /api/admin/config — 修改系统配置（票价费率、退票费率） */
+    app.Put("/api/admin/config", [](const httplib::Request& req, httplib::Response& res) {
+    try {
+        auto ctx = checkAuth(req, res, Permission::SYSTEM_CONFIG);
+        if (!ctx) return;
+
+        json body = json::parse(req.body);
+        auto& cfg = SystemConfig::instance();
+
+        if (body.contains("rates")) {
+            for (const auto& [prefix_key, seat_obj] : body["rates"].items()) {
+                if (prefix_key.size() != 1) continue;
+                char prefix = prefix_key[0];
+                for (const auto& [seat_key, rate_val] : seat_obj.items()) {
+                    SeatType st = nlohmann::json(seat_key).get<SeatType>();
+                    cfg.setRate(prefix, st, rate_val.get<double>());
+                }
+            }
+        }
+        if (body.contains("refund_rate_24h") && body.contains("refund_rate_2_24h")
+            && body.contains("refund_rate_2h")) {
+            cfg.setRefundRates(
+                body["refund_rate_24h"].get<double>(),
+                body["refund_rate_2_24h"].get<double>(),
+                body["refund_rate_2h"].get<double>());
+        }
+
+        AuditLogger::instance().log(ctx->user_id, ctx->role, "CONFIG_UPDATE",
+            "system", body.dump(), "success");
+
+        json j;
+        j["ok"] = true;
+        j["data"] = json::parse(cfg.toJson());
+        res.set_content(j.dump(), "application/json");
+    } catch (const std::exception& e) {
+        internalError(res, e.what());
+    }
+    });
+
+    // ── 审计日志（SYS_ADMIN）──
+
     /** GET /api/admin/audit — 查询审计日志 */
     app.Get("/api/admin/audit", [](const httplib::Request& req, httplib::Response& res) {
     try {
