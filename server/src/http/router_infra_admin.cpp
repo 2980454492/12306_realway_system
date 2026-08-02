@@ -17,10 +17,10 @@ std::string checkStationName(const std::string& name, uint32_t excludeId) {
     return "";
 }
 
-/** 校验线路请求体：名称、车站数、时速、名称重复、车站存在。
+/** 校验线路请求体：名称、车站数、时速、车站存在。
  *  excludeId=0 新增，非0 更新（排除自身）。
  *  返回空字符串 = 通过，非空 = 错误信息 */
-std::string checkLineBody(const json& body, uint32_t excludeId) {
+std::string checkLineBody(const json& body, uint32_t /*excludeId*/) {
     std::string name = body.value("name", "");
     if (name.empty())
         return "线路名称不能为空";
@@ -28,9 +28,6 @@ std::string checkLineBody(const json& body, uint32_t excludeId) {
         return "至少需要起点和终点两个站点";
     if (body.value("max_speed_kmh", 0) <= 0)
         return "设计时速必须大于0";
-    for (const auto& l : line_service::getAll())
-        if (l.id != excludeId && l.name == name)
-            return "线路名称已存在: " + name;
     // 车站存在性检查：用 hash set 将 O(S×L) 降为 O(S+L)
     std::unordered_set<std::string> valid;
     for (const auto& reg : station_service::getAll()) {
