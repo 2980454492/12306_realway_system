@@ -1,6 +1,7 @@
 // logger.cpp — Logger 单例实现
 #include "logger.h"
 #include "config.h"
+#include "utils.h"
 
 #include <iostream>
 #include <chrono>
@@ -17,7 +18,7 @@ std::string timestamp() {
                   now.time_since_epoch()) % 1000;
 
     std::tm tm_now{};
-    localtime_r(&time_t_now, &tm_now);  // 线程安全版本
+    localtime_platform(&time_t_now, &tm_now);
 
     std::ostringstream oss;
     oss << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S")

@@ -26,14 +26,26 @@ target_include_directories(railway_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../src
     ${CMAKE_CURRENT_SOURCE_DIR}/../vendor
 )
+if(SODIUM_INCLUDE_PATH)
+    target_include_directories(railway_tests PRIVATE ${SODIUM_INCLUDE_PATH})
+endif()
 
 # Link against all project source files (not a library, so compile them in)
-target_link_libraries(railway_tests PRIVATE
-    gtest_main
-    nlohmann_json::nlohmann_json
-    ${SODIUM_LIB}
-    pthread
-)
+if(SODIUM_LIB_PATH)
+    target_link_libraries(railway_tests PRIVATE
+        gtest_main
+        nlohmann_json::nlohmann_json
+        sodium
+        ws2_32
+    )
+else()
+    target_link_libraries(railway_tests PRIVATE
+        gtest_main
+        nlohmann_json::nlohmann_json
+        ${SODIUM_LIB}
+        pthread
+    )
+endif()
 
 # Add project sources (reuse the main project's source files)
 set(PROJECT_SOURCES

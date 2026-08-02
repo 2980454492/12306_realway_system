@@ -27,7 +27,6 @@ if [ ! -f "$SODIUM_LIB" ]; then
     info "交叉编译 libsodium…"
     mkdir -p "$SODIUM_DIR/src"
     LIBSODIUM_TAR="libsodium-${LIBSODIUM_VER}.tar.gz"
-    LIBSODIUM_SRC="$SODIUM_DIR/src/libsodium-${LIBSODIUM_VER}"
 
     if [ ! -f "$SODIUM_DIR/src/$LIBSODIUM_TAR" ]; then
         info "下载 libsodium-${LIBSODIUM_VER}…"
@@ -49,12 +48,19 @@ if [ ! -f "$SODIUM_LIB" ]; then
         exit 1
     }
 
-    if [ ! -d "$LIBSODIUM_SRC" ]; then
-        error "解压后未找到目录 $LIBSODIUM_SRC"
+    # tar 内目录名可能是 libsodium-stable 而非 libsodium-X.Y.Z
+    LIBSODIUM_SRC=""
+    for d in "$SODIUM_DIR/src"/libsodium*/; do
+        LIBSODIUM_SRC="${d%/}"
+        break
+    done
+    if [ -z "$LIBSODIUM_SRC" ] || [ ! -d "$LIBSODIUM_SRC" ]; then
+        error "解压后未找到 libsodium 源码目录"
         info "实际内容:"
         ls -la "$SODIUM_DIR/src/"
         exit 1
     fi
+    info "源码目录: $LIBSODIUM_SRC"
 
     cd "$LIBSODIUM_SRC"
 

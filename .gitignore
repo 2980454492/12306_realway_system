@@ -2,5 +2,7 @@
 .cache/
 .vscode/
 build/
+build_win/
 build_win_libsodium/
+dist/railway-windows/
 server/data/

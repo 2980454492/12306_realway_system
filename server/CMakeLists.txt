@@ -118,6 +118,9 @@ target_include_directories(railway_server PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor
 )
+if(SODIUM_INCLUDE_PATH)
+    target_include_directories(railway_server PRIVATE ${SODIUM_INCLUDE_PATH})
+endif()
 
 # ── 链接库 ──
 # nlohmann/json (header-only, 但 CMake 包提供 target)
@@ -132,8 +135,9 @@ if(UNIX)
     target_link_libraries(railway_server PRIVATE pthread)
 endif()
 
-# Windows 交叉编译：静态链接运行时库，对方无需安装 MinGW DLL
+# Windows 交叉编译：链接 Winsock2（httplib 依赖）+ 静态链接运行时库
 if(MINGW)
+    target_link_libraries(railway_server PRIVATE ws2_32)
     target_link_options(railway_server PRIVATE -static-libgcc -static-libstdc++ -static)
 endif()
 

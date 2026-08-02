@@ -33,12 +33,21 @@ inline std::string generateUuid() {
 
 // ── 时间工具 ──
 
+/** 跨平台 localtime：Linux 用 localtime_r，Windows 用 localtime_s */
+inline void localtime_platform(const time_t* t, std::tm* tm) {
+#ifdef _WIN32
+    localtime_s(tm, t);
+#else
+    localtime_r(t, tm);
+#endif
+}
+
 /** 当前本地时间，所有时间函数的唯一 system_clock 入口 */
 inline std::tm nowTm() {
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
     std::tm tm{};
-    localtime_r(&t, &tm);
+    localtime_platform(&t, &tm);
     return tm;
 }
 
@@ -61,7 +70,7 @@ inline std::string nowIso() {
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
     std::tm local{};
-    localtime_r(&t, &local);
+    localtime_platform(&t, &local);
     std::ostringstream oss;
     oss << std::put_time(&local, "%Y-%m-%dT%H:%M:%S");
     return oss.str();
@@ -80,7 +89,7 @@ inline bool isFuture(const std::string& date, int maxDays, int departure_hhmm = 
     auto tm = nowTm();
     auto max_t = std::mktime(&tm) + maxDays * 86400;
     std::tm max_tm{};
-    localtime_r(&max_t, &max_tm);
+    localtime_platform(&max_t, &max_tm);
     char buf[11];
     std::strftime(buf, sizeof(buf), "%Y-%m-%d", &max_tm);
     if (date > std::string(buf)) return false;
@@ -120,11 +129,12 @@ inline std::pair<int, int> findIndices(const std::vector<uint32_t>& ids, uint32_
 
 /** 两站点间的大圆距离（km），Haversine 公式 */
 inline double haversineDist(const Station& a, const Station& b) {
+    constexpr double PI = 3.14159265358979323846;
     const double EARTH_RADIUS_KM = 6371.0;
-    double lat1 = a.latitude * M_PI / 180.0;
-    double lat2 = b.latitude * M_PI / 180.0;
+    double lat1 = a.latitude * PI / 180.0;
+    double lat2 = b.latitude * PI / 180.0;
     double dlat = lat2 - lat1;
-    double dlon = (b.longitude - a.longitude) * M_PI / 180.0;
+    double dlon = (b.longitude - a.longitude) * PI / 180.0;
 
     double sin_dlat = std::sin(dlat / 2.0);
     double sin_dlon = std::sin(dlon / 2.0);
