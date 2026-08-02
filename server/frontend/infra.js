@@ -138,7 +138,7 @@
     tbl.className = 'users-table';
     tbl.innerHTML = '<thead><tr><th>ID</th><th>名称</th><th>类型</th><th>时速(km/h)</th><th>车站数</th><th>操作</th></tr></thead>';
     var tbody = document.createElement('tbody');
-    var typeLabels = {HIGH_SPEED:'高铁',EXPRESS:'快铁',NORMAL:'普铁',INTERCITY:'城际'};
+    var typeLabels = {HIGH_SPEED:'高铁',EXPRESS:'快铁',NORMAL:'普铁'};
     for (var i = 0; i < lines.length; i++) {
       var l = lines[i];
       var tr = document.createElement('tr');
@@ -184,7 +184,7 @@
       + '<option value="HIGH_SPEED"' + (line && line.type === 'HIGH_SPEED' ? ' selected' : '') + '>高铁</option>'
       + '<option value="EXPRESS"' + (line && line.type === 'EXPRESS' ? ' selected' : '') + '>快铁</option>'
       + '<option value="NORMAL"' + (line && line.type === 'NORMAL' ? ' selected' : '') + '>普铁</option>'
-      + '<option value="INTERCITY"' + (line && line.type === 'INTERCITY' ? ' selected' : '') + '>城际</option></select></div>'
+      + '</select></div>'
       + '<div class="form-group"><label>设计时速（km/h）</label><input id="lf-speed" class="input" type="number" value="' + (line ? line.max_speed_kmh : '') + '"></div>'
       + '<div class="form-group"><label>途经车站</label>'
       + '<div id="lf-city-list" style="display:flex;flex-direction:column;gap:6px"></div>'
@@ -358,8 +358,7 @@
       + '<span style="color:#44ff44">⬤ 普速站</span></div>'
       + '<div style="display:flex;gap:16px"><span style="color:#ff6666">━ 高铁线路</span>'
       + '<span style="color:#ffaa00">━ 快铁线路</span>'
-      + '<span style="color:#66ff66">━ 普铁线路</span>'
-      + '<span style="color:#66bbff">━ 城际线路</span></div>';
+      + '<span style="color:#66ff66">━ 普铁线路</span></div>';
 
     try {
       var sr = await API.get('/api/admin/stations');
@@ -405,7 +404,7 @@
           from: l.stations[i],
           to: l.stations[i + 1],
           line_name: l.name,
-          type: l.type === 'HIGH_SPEED' ? 0 : l.type === 'INTERCITY' ? 2 : l.type === 'EXPRESS' ? 3 : 1
+          type: l.type === 'HIGH_SPEED' ? 0 : l.type === 'EXPRESS' ? 3 : 1
         });
     });
     var nodeById = {};
