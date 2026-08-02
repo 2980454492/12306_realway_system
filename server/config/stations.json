@@ -396,7 +396,7 @@
     "id": 50,
     "latitude": 41.56,
     "longitude": 120.45,
-    "name": "朝阳南",
+    "name": "辽宁朝阳",
     "type": "HIGH_SPEED"
   },
   {
@@ -2597,6 +2597,94 @@
     "latitude": 30.06,
     "longitude": 115.97,
     "name": "黄梅东",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "霸州",
+    "id": 326,
+    "latitude": 39.09,
+    "longitude": 116.35,
+    "name": "霸州西",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "敦化",
+    "id": 327,
+    "latitude": 43.38,
+    "longitude": 128.25,
+    "name": "敦化",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "喀左",
+    "id": 328,
+    "latitude": 41.22,
+    "longitude": 119.81,
+    "name": "喀左",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "新民",
+    "id": 329,
+    "latitude": 42.02,
+    "longitude": 122.81,
+    "name": "新民北",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "珲春",
+    "id": 330,
+    "latitude": 42.9,
+    "longitude": 130.41,
+    "name": "珲春",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "莱西",
+    "id": 331,
+    "latitude": 36.82,
+    "longitude": 120.53,
+    "name": "莱西",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "荣成",
+    "id": 332,
+    "latitude": 37.14,
+    "longitude": 122.41,
+    "name": "荣成",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "弥勒",
+    "id": 333,
+    "latitude": 24.34,
+    "longitude": 103.41,
+    "name": "弥勒",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "龙川",
+    "id": 334,
+    "latitude": 24.08,
+    "longitude": 115.18,
+    "name": "龙川西",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "潮汕",
+    "id": 335,
+    "latitude": 23.54,
+    "longitude": 116.59,
+    "name": "潮汕",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "小榄",
+    "id": 336,
+    "latitude": 22.65,
+    "longitude": 113.27,
+    "name": "小榄",
     "type": "HIGH_SPEED"
   }
 ]
