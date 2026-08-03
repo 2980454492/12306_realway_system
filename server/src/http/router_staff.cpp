@@ -110,7 +110,7 @@ void registerStaffRoutes(RailwayServer& server) {
     handleTrainSubmit(req, res, true);
     });
 
-    /** PUT /api/admin/trains/{id} — 修改列车时刻 */
+    /** PUT /api/admin/trains/{id} — 修改列车 */
     app.Put(R"(/api/admin/trains/([^/]+))", [handleTrainSubmit](const httplib::Request& req, httplib::Response& res) {
     // 校验 URL 中的 train ID 与请求体一致，防止修改错列车
     try {
