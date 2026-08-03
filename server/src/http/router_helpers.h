@@ -76,7 +76,7 @@ inline std::optional<AuthContext> checkAuth(const httplib::Request& req, httplib
     if (!ctx || !RbacMiddleware::authorize(*ctx, perm)) {
         json j;
         j["ok"] = false;
-        j["error"] = ctx ? "Forbidden" : "Unauthorized";
+        j["error"] = ctx ? "权限不足" : "未登录";
         res.set_content(j.dump(), "application/json");
         res.status = ctx ? 403 : 401;
         return std::nullopt;
@@ -105,7 +105,7 @@ inline void internalError(httplib::Response& res, const std::string& what) {
     Logger::instance().error(what);
     json j;
     j["ok"] = false;
-    j["error"] = "Internal server error";
+    j["error"] = "服务器内部错误";
     res.set_content(j.dump(), "application/json");
     res.status = 500;
 }

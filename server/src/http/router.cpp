@@ -23,7 +23,7 @@ void registerRoutes(RailwayServer& server) {
             if (!ds.isReady()) {
                 json j;
                 j["ok"] = false;
-                j["error"] = "DataStore not ready";
+                j["error"] = "数据尚未初始化";
                 res.set_content(j.dump(), "application/json");
                 res.status = 503;
                 return;

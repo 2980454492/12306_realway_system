@@ -23,7 +23,7 @@ void registerAuthRoutes(RailwayServer& server) {
         Logger::instance().error(std::string("/health error: ") + e.what());
         json j;
         j["ok"] = false;
-        j["error"] = "Internal server error";
+        j["error"] = "服务器内部错误";
         res.set_content(j.dump(), "application/json");
         res.status = 500;
     }
@@ -40,7 +40,7 @@ void registerAuthRoutes(RailwayServer& server) {
         if (username.empty() || password.empty()) {
             json j;
             j["ok"] = false;
-            j["error"] = "username and password are required";
+            j["error"] = "用户名和密码不能为空";
             res.set_content(j.dump(), "application/json");
             res.status = 400;
             return;
@@ -52,7 +52,7 @@ void registerAuthRoutes(RailwayServer& server) {
                 "user:" + username, "", "failure");
             json j;
             j["ok"] = false;
-            j["error"] = "Invalid credentials or account locked";
+            j["error"] = "用户名或密码错误，或账号已被锁定";
             res.set_content(j.dump(), "application/json");
             res.status = 401;
             return;
@@ -160,7 +160,7 @@ void registerAuthRoutes(RailwayServer& server) {
         if (!ctx) {
             json j;
             j["ok"] = false;
-            j["error"] = "Unauthorized: invalid or expired token";
+            j["error"] = "认证失败：Token 无效或已过期";
             res.set_content(j.dump(), "application/json");
             res.status = 401;
             return;

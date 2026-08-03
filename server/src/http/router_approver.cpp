@@ -73,7 +73,7 @@ void registerApprovalRoutes(RailwayServer& server) {
                   && !RbacMiddleware::authorize(*ctx, Permission::MANAGE_TRAINS))) {
             json j;
             j["ok"] = false;
-            j["error"] = ctx ? "Forbidden" : "Unauthorized";
+            j["error"] = ctx ? "权限不足" : "未登录";
             res.set_content(j.dump(), "application/json");
             res.status = ctx ? 403 : 401;
             return;

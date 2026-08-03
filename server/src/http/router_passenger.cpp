@@ -50,7 +50,7 @@ void registerPassengerRoutes(RailwayServer& server) {
         } catch (const std::exception&) {
             json j;
             j["ok"] = false;
-            j["error"] = "Invalid from/to parameter";
+            j["error"] = "无效的出发/到达参数";
             res.set_content(j.dump(), "application/json");
             res.status = 400;
             return;
@@ -59,7 +59,7 @@ void registerPassengerRoutes(RailwayServer& server) {
         if (from_ids.empty() || to_ids.empty()) {
             json j;
             j["ok"] = false;
-            j["error"] = "from and to station IDs are required";
+            j["error"] = "请选择出发站和到达站";
             res.set_content(j.dump(), "application/json");
             res.status = 400;
             return;
@@ -67,7 +67,7 @@ void registerPassengerRoutes(RailwayServer& server) {
         if (!isFuture(date, MAX_ADVANCE_DAYS)) {
             json j;
             j["ok"] = false;
-            j["error"] = "Date must be within " + std::to_string(MAX_ADVANCE_DAYS) + " days from today";
+            j["error"] = "日期须在 " + std::to_string(MAX_ADVANCE_DAYS) + " 天内";
             res.set_content(j.dump(), "application/json");
             res.status = 400;
             return;
@@ -275,7 +275,7 @@ void registerPassengerRoutes(RailwayServer& server) {
         if (!train) {
             json j;
             j["ok"] = false;
-            j["error"] = "Train not found";
+            j["error"] = "列车不存在";
             res.set_content(j.dump(), "application/json");
             res.status = 404;
             return;
