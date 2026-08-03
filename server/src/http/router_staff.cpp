@@ -3,11 +3,20 @@
 
 void registerStaffRoutes(RailwayServer& server) {
     auto& app = server.getApp();
-    /** GET /api/admin/trains — 获取列车列表（支持状态筛选） */
+    /** GET /api/admin/trains — 获取列车列表（STAFF + APPROVER 均可访问） */
     app.Get("/api/admin/trains", [](const httplib::Request& req, httplib::Response& res) {
     try {
-        auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
-        if (!ctx) return;
+        auto ctx = RbacMiddleware::authenticate(
+            req.has_header("Authorization") ? req.get_header_value("Authorization") : "");
+        if (!ctx || (!RbacMiddleware::authorize(*ctx, Permission::MANAGE_TRAINS)
+                  && !RbacMiddleware::authorize(*ctx, Permission::APPROVE))) {
+            json j;
+            j["ok"] = false;
+            j["error"] = ctx ? "权限不足" : "未登录";
+            res.set_content(j.dump(), "application/json");
+            res.status = ctx ? 403 : 401;
+            return;
+        }
 
         auto& trains = TrainManager::instance().getAllTrains();
         json arr = json::array();

@@ -225,7 +225,7 @@ const U = {
 
   /** 加载站点列表到 State.stations */
   loadStations: async function() {
-    var res = await API.get('/api/admin/stations');
+    var res = await API.get('/api/stations');
     if (res.ok && res.data && res.data.data) {
       State.stations = res.data.data;
       UI._allStations = State.stations;

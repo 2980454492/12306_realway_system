@@ -174,37 +174,61 @@ std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Tr
     std::vector<ConflictDetail> conflicts;
     std::lock_guard<std::mutex> lock(mutex_);
 
-    auto segs = buildSegments(train, DataStore::instance());
+    auto& ds = DataStore::instance();
+    auto segs = buildSegments(train, ds);
     for (const auto& seg : segs) {
-        int new_enter = seg.enter_time;
-        int new_leave = seg.leave_time;
-        if (new_enter <= 0 || new_leave <= 0 || seg.line_id == 0) continue;
+        int new_dep = seg.enter_time;  // 从 from_station 发车/通过时间
+        int new_arr = seg.leave_time;  // 到达 to_station 的时间
+        if (new_dep <= 0 || new_arr <= 0 || seg.line_id == 0) continue;
 
         auto key = occKey(seg.from_station, seg.to_station, seg.line_id);
         auto it = occupancy_.find(key);
         if (it == occupancy_.end()) continue;
 
-        // 遍历该区间已有占用，检查重叠（含 5 分钟裕量）
-        for (const auto& [ex_enter, ex_leave] : it->second) {
-            int overlap_start = std::max(new_enter, ex_enter);
-            int overlap_end   = std::min(new_leave, ex_leave);
-            if (overlap_start < overlap_end + SAFETY_MARGIN_MINUTES) {
-                // 查找冲突车次，排除自身
-                std::string conflict_train;
-                auto dit = occ_detail_.find(key);
-                if (dit != occ_detail_.end()) {
-                    for (const auto& [tid, times] : dit->second) {
-                        if (times.first == ex_enter && times.second == ex_leave) {
-                            if (tid != train.id)
-                                conflict_train = tid;
-                            break;
-                        }
+        for (const auto& [ex_dep, ex_arr] : it->second) {
+            // 查找已占用车次号，排除自身
+            std::string ex_tid;
+            auto dit = occ_detail_.find(key);
+            if (dit != occ_detail_.end()) {
+                for (const auto& [tid, times] : dit->second) {
+                    if (times.first == ex_dep && times.second == ex_arr) {
+                        if (tid != train.id) ex_tid = tid;
+                        break;
                     }
                 }
-                if (conflict_train.empty()) continue;  // 自冲突跳过
-                conflicts.push_back({conflict_train,
-                    seg.from_station, seg.to_station,
-                    seg.line_id, ex_enter, ex_leave});
+            }
+            if (ex_tid.empty()) continue;
+
+            // ── 规则 1：发车间隔 ≥ 5 分钟 ──
+            if (std::abs(new_dep - ex_dep) < SAFETY_MARGIN_MINUTES) {
+                conflicts.push_back({ex_tid, seg.from_station, seg.to_station,
+                    seg.line_id, ex_dep, ex_arr});
+                continue;
+            }
+
+            // ── 规则 2：到达间隔 ≥ 5 分钟 ──
+            if (std::abs(new_arr - ex_arr) < SAFETY_MARGIN_MINUTES) {
+                conflicts.push_back({ex_tid, seg.from_station, seg.to_station,
+                    seg.line_id, ex_dep, ex_arr});
+                continue;
+            }
+
+            // ── 规则 3：禁止越行 ──
+            // 后发车的必须先到站；但前车在到达站停靠时可让行
+            if (new_dep > ex_dep && new_arr <= ex_arr) {
+                // 前车是否在此站停靠？是则允许越行（前车在站台让出轨道）
+                const Train* ex_train = ds.getTrain(ex_tid);
+                bool ex_stops = false;
+                if (ex_train) {
+                    for (const auto& stop : ex_train->stops)
+                        if (stop.station_id == seg.to_station && stop.stop_type == 1)
+                            { ex_stops = true; break; }
+                }
+                if (!ex_stops) {
+                    conflicts.push_back({ex_tid, seg.from_station, seg.to_station,
+                        seg.line_id, ex_dep, ex_arr});
+                    continue;
+                }
             }
         }
     }
@@ -291,27 +315,15 @@ TrainManager::UpdateResult TrainManager::updateTrain(const std::string& train_id
     auto old_stops = train->stops;
     removeFromOccupancy(*train);
 
-    // 2. 临时应用新 stops 检测冲突（stops 是 segments 的唯一数据源）
+    // 2. 临时应用新 stops 检测冲突
     train->stops = updated.stops;
-    auto new_segs = buildSegments(*train, ds);
-    for (const auto& seg : new_segs) {
-        int new_enter = seg.enter_time;
-        int new_leave = seg.leave_time;
-        if (new_enter <= 0 || new_leave <= 0 || seg.line_id == 0) continue;
-
-        auto key = occKey(seg.from_station, seg.to_station, seg.line_id);
-        auto it = occupancy_.find(key);
-        if (it == occupancy_.end()) continue;
-
-        for (const auto& [ex_enter, ex_leave] : it->second) {
-            if (std::max(new_enter, ex_enter) < std::min(new_leave, ex_leave) + SAFETY_MARGIN_MINUTES) {
-                // 回滚：恢复旧 stops + 旧占用
-                train->stops = old_stops;
-                addToOccupancyUnsafe(*train);
-                result.error = "运行图冲突：区间重叠";
-                return result;
-            }
-        }
+    auto new_conflicts = detectConflicts(*train);
+    if (!new_conflicts.empty()) {
+        // 回滚：恢复旧 stops + 旧占用
+        train->stops = old_stops;
+        addToOccupancyUnsafe(*train);
+        result.error = "运行图冲突：与 " + new_conflicts[0].train_id + " 在区间重叠";
+        return result;
     }
 
     // 3. 通过 → 覆盖其他字段 + 加入新占用

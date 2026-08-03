@@ -420,6 +420,9 @@
     last.is_terminal = false;
     if (last.departure === -1)
       last.departure = 0;
+    // 清除待确认的下一站选择，防止跳过被删站点直接确认
+    State._pendingNeighbor = null;
+    U.$('stop-config').style.display = 'none';
     U.$('neighbor-panel').style.display = '';
     UI.renderRoutePath();
     UI.showNeighbors(last.station_id);
@@ -878,8 +881,21 @@
     if (!item)
       return;
     if (Object.keys(State._neighborIndex).length === 0) await UI.loadNeighborIndex();
+    // 新增/调整时刻等类型 payload 只有车次号，直接从 API 查完整列车数据
+    if ((!item.stops || !item.stops.length) && item.train_id) {
+      var tr = await API.get('/api/admin/trains');
+      if (tr.ok) {
+        var trains = tr.data.data || [];
+        for (var ti = 0; ti < trains.length; ti++) {
+          if (trains[ti].id === item.train_id) {
+            item.stops = trains[ti].stops || [];
+            item.segments = trains[ti].segments || [];
+            break;
+          }
+        }
+      }
+    }
     var title = item.train_id + ' 停站时刻表';
-    // 调整时刻/新增线路/新增站点等类型无 stops 数据时，显示基本信息
     if (!item.stops || !item.stops.length) {
       title = item.train_id + ' — ' + UI.TYPE_LABEL[item.approval_type];
       U.$('detail-train-id').textContent = title;
@@ -915,8 +931,8 @@
     var tid = train ? train.id : '?';
     var tstops = train ? (train.stops || []) : [];
     var tsegs = train ? (train.segments || []) : [];
-    // 删除列车：payload 无 stops，从列车索引查找
-    if (a.type === 4 /* DELETE_TRAIN */ && !tstops.length) {
+    // 新增/删除列车：payload 只有车次号，从列车索引查找完整停站数据
+    if ((a.type === 0 /* CREATE_TRAIN */ || a.type === 4 /* DELETE_TRAIN */) && !tstops.length) {
       var cached = State._trainMap && State._trainMap[tid];
       if (cached) {
         tstops = cached.stops || [];

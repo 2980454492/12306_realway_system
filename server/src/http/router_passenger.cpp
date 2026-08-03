@@ -3,6 +3,21 @@
 
 void registerPassengerRoutes(RailwayServer& server) {
     auto& app = server.getApp();
+    /** GET /api/stations — 获取全部站点列表（所有登录用户可用） */
+    app.Get("/api/stations", [](const httplib::Request& req, httplib::Response& res) {
+    try {
+        auto ctx = checkAuth(req, res, Permission::QUERY_TRAINS);
+        if (!ctx) return;
+
+        json j;
+        j["ok"] = true;
+        j["data"] = DataStore::instance().getAllStations();
+        res.set_content(j.dump(), "application/json");
+    } catch (const std::exception& e) {
+        internalError(res, e.what());
+    }
+    });
+
     /** GET /api/stations/neighbors — 获取车站-线路-邻居索引 */
     app.Get("/api/stations/neighbors", [](const httplib::Request& req, httplib::Response& res) {
     try {

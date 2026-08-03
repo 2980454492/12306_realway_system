@@ -281,7 +281,7 @@
         var d = Math.floor(item.departure_time / 100);  // HHMM → 小时
         if (depFrom != null && d < depFrom)
           return false;
-        if (depTo   != null && d > depTo)
+        if (depTo   != null && d >= depTo)
           return false;
         return true;
       });
@@ -295,7 +295,7 @@
         var a = Math.floor(item.arrival_time / 100);
         if (arrFrom != null && a < arrFrom)
           return false;
-        if (arrTo   != null && a > arrTo)
+        if (arrTo   != null && a >= arrTo)
           return false;
         return true;
       });
@@ -575,7 +575,7 @@
     var from = U.$('query-from'), to = U.$('query-to');
     if (!from || !to)
       return;
-    U.buildStationDatalist('stations-datalist');
+    UI.buildStationDatalist('stations-datalist');
     // 绑定 datalist
     from.setAttribute('list', 'stations-datalist');
     to.setAttribute('list', 'stations-datalist');
@@ -680,7 +680,7 @@
     var dl = U.$('station-query-datalist');
     if (!el || !dl || !State.stations.length)
       return;
-    U.buildStationDatalist('station-query-datalist');
+    UI.buildStationDatalist('station-query-datalist');
     el.setAttribute('list', 'station-query-datalist');
   };
 
