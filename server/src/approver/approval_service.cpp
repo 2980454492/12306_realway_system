@@ -129,12 +129,9 @@ int findStopInsertIndex(const Train& train, uint32_t line_id,
             }
         }
     }
-    // 在列车停站中匹配相邻站名（必须同线路）
+    // 在列车停站中匹配相邻站名
     if (!prev_name.empty() && !next_name.empty()) {
         for (size_t i = 0; i + 1 < train.stops.size(); i++) {
-            if (train.stops[i].line_id != line_id
-                || train.stops[i + 1].line_id != line_id)
-                continue;
             auto* s1 = ds.getStation(train.stops[i].station_id);
             auto* s2 = ds.getStation(train.stops[i + 1].station_id);
             if (s1 && s2 && s1->name == prev_name && s2->name == next_name)

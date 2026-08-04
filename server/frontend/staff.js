@@ -961,7 +961,10 @@
       card.querySelector('.si-arr-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
       card.querySelector('.si-dep-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
       card.querySelector('.si-is-stop').onchange = function() { UI._siToggle(this.closest('.si-card')); };
-      card.querySelector('.si-submit-btn').onclick = function() { UI.submitStopInsert(this.closest('.si-card')); };
+      var btns = card.querySelectorAll('.si-actions .btn');
+      btns[0].onclick = function() { UI.submitStopInsert(this.closest('.si-card')); };
+      btns[1].onclick = function(e) { e.stopPropagation(); UI.editTrain(tid); };
+      btns[2].onclick = function(e) { e.stopPropagation(); UI.deleteTrain(tid); };
 
       // 存每卡片数据供事件处理用
       var root = card.querySelector('.si-card');

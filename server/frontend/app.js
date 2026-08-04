@@ -252,7 +252,7 @@ const U = {
 
   /** O(1) 站名查找（替代 for 循环遍历 State.stations） */
   stationName: function(id, fallback) {
-    if (fallback !== undefined) return fallback;
+    if (fallback) return fallback;
     return (State._staName && State._staName[id]) || ('站#' + id);
   },
 
