@@ -178,4 +178,29 @@ void registerStaffRoutes(RailwayServer& server) {
     }
     });
 
+    /** PUT /api/admin/approvals/{id}/stop-time — STAFF 为线路加站审批填写停站时间 */
+    app.Put(R"(/api/admin/approvals/([^/]+)/stop-time)", [](const httplib::Request& req, httplib::Response& res) {
+    try {
+        auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+        if (!ctx) return;
+
+        std::string approval_id = req.matches[1];
+        json body = json::parse(req.body);
+        int arr = body.value("arrival", 0);
+        int dep = body.value("departure", 0);
+        if (arr <= 0 || dep <= 0) {
+            badRequest(res, "请填写到达和发车时间");
+            return;
+        }
+
+        auto result = ApprovalService::instance().updateStopTime(approval_id, arr, dep);
+        json j;
+        j["ok"] = result;
+        if (!result) j["error"] = "审批不存在或类型不匹配";
+        res.set_content(j.dump(), "application/json");
+    } catch (const std::exception& e) {
+        internalError(res, e.what());
+    }
+    });
+
 }

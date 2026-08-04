@@ -96,6 +96,23 @@ void ApprovalService::archivePendingTrain(const ApprovalRequest& req) {
     }
 }
 
+// ── 停站时间 ──
+
+bool ApprovalService::updateStopTime(const std::string& approval_id, int arrival, int departure) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (auto& a : approvals_) {
+        if (a.id == approval_id && a.type == ApprovalType::STOP_INSERT) {
+            json payload = json::parse(a.payload);
+            payload["arrival"] = arrival;
+            payload["departure"] = departure;
+            a.payload = payload.dump();
+            saveApprovals();
+            return true;
+        }
+    }
+    return false;
+}
+
 // ── 审批 ──
 
 ApprovalService::ApproveResult ApprovalService::approve(
@@ -190,6 +207,62 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 result.error = ur.error;
                 return result;
             }
+            ds.saveTrains();
+            result.train_id = tid;
+        } else if (it->type == ApprovalType::STOP_INSERT) {
+            std::string tid = payload.value("train_id", "");
+            uint32_t line_id = payload.value("line_id", 0U);
+            auto* train = ds.getTrainMutable(tid);
+            if (!train) {
+                cas_lock_.clear();
+                result.error = "列车 " + tid + " 不存在";
+                return result;
+            }
+            // 解析站名→站ID
+            std::string st_city = payload.value("station_city", "");
+            uint32_t st_id = 0;
+            for (const auto& st : ds.getAllStations())
+                if (st.city == st_city) { st_id = st.id; break; }
+            if (st_id == 0) {
+                cas_lock_.clear();
+                result.error = "站点 " + st_city + " 不存在";
+                return result;
+            }
+            // 找插入位置：该线路上的前后相邻站
+            int insert_idx = -1;
+            for (size_t i = 0; i + 1 < train->stops.size(); i++) {
+                if (train->stops[i].line_id == line_id
+                    && train->stops[i + 1].line_id == line_id) {
+                    insert_idx = static_cast<int>(i + 1);
+                    break;
+                }
+            }
+            if (insert_idx < 0) {
+                cas_lock_.clear();
+                result.error = "未找到该线路在列车停站中的区间";
+                return result;
+            }
+            // 新停站：默认通过，有填写时间则用填写值
+            Stop new_stop;
+            new_stop.station_id = st_id;
+            new_stop.line_id = line_id;
+            new_stop.stop_type = 2;  // 默认通过
+            if (payload.contains("arrival") && payload.contains("departure")) {
+                new_stop.arrival = payload.value("arrival", 0);
+                new_stop.departure = payload.value("departure", 0);
+                new_stop.stop_type = (new_stop.arrival == new_stop.departure) ? 2 : 1;
+            } else {
+                // 通过：到达=发车=前站到站+后站发车的中点
+                int prev_arr = train->stops[insert_idx - 1].arrival;
+                int next_dep = train->stops[insert_idx].departure;
+                int mid = (prev_arr > 0 && next_dep > 0)
+                    ? (prev_arr + next_dep) / 2 : prev_arr;
+                new_stop.arrival = mid;
+                new_stop.departure = mid;
+            }
+            train->stops.insert(train->stops.begin() + insert_idx, new_stop);
+            // 重建占用表（adjustSchedule 内部完成移除旧占用→更新 stops→加入新占用）
+            TrainManager::instance().adjustSchedule(tid, train->stops);
             ds.saveTrains();
             result.train_id = tid;
         }

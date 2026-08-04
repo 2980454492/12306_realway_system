@@ -25,6 +25,7 @@ const State = {
   _approvalFilter: '',     // 审批状态筛选（默认待审批）
   _mySubmissions: [],      // 我的提交列表
   _mySubFilter: '',        // 我的提交状态筛选
+  _stopInserts: [],         // 线路加站待处理列表
   _neighborIndex: {},      // 车站-线路-邻居索引缓存
   _routePath: [],          // 当前正在构建的运行路径 [{station_id, station_name, line_id, line_name, arrival, departure, is_stop, distance_km, max_speed}]
   _pendingNeighbor: null,  // 待确认的邻居选择
@@ -157,7 +158,7 @@ const U = {
     setTimeout(function() { el.className = 'toast'; }, 3000);
   },
   fmtTime: function(hhmm) {
-    if (hhmm < 0)
+    if (hhmm <= 0 || hhmm % 100 >= 60)
       return '--:--';
     var h = String(Math.floor(hhmm / 100));
     if (h.length < 2)
@@ -201,6 +202,8 @@ const U = {
         items[i].style.display = isStaff ? '' : 'none';
       else if (page === 'approvals')
         items[i].style.display = isApprover ? '' : 'none';
+      else if (page === 'stop-inserts')
+        items[i].style.display = isStaff ? '' : 'none';
       else if (page === 'users' || page === 'audit' || page === 'config')
         items[i].style.display = isSysAdmin ? '' : 'none';
       else if (page === 'stations' || page === 'lines' || page === 'network' || page === 'infra-divider')
@@ -252,7 +255,7 @@ const UI = {
   ],
 
   /** 审批类型/状态/样式映射（renderMySubmissions 和 renderApprovals 共用） */
-  TYPE_LABEL: {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车'},
+  TYPE_LABEL: {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车',5:'线路加站-补停站'},
   STATUS_LABEL: {0:'待审批',1:'已通过',2:'已驳回',3:'已取消'},
   STATUS_CLS: {0:'submitted',1:'approved',2:'rejected',3:'withdrawn'},
 
@@ -285,6 +288,8 @@ const UI = {
       UI.loadTrains();
     if (name === 'my-submissions')
       UI.loadMySubmissions();
+    if (name === 'stop-inserts')
+      UI.loadStopInserts();
     if (name === 'approvals')
       UI.loadApprovals();
     if (name === 'users')
@@ -319,6 +324,8 @@ const UI = {
     if ((name === 'trains' || name === 'my-submissions' || name === 'add-train') && !isStaff)
       return;
     if (name === 'approvals' && !isApprover)
+      return;
+    if (name === 'stop-inserts' && !isStaff)
       return;
     if (name === 'users' && !isSysAdmin)
       return;

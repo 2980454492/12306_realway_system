@@ -76,6 +76,9 @@
       <a class="sidebar-item staff-only" data-page="my-submissions" style="display:none" onclick="UI.navTo('my-submissions')">
         <span class="sidebar-icon">📤</span> 我的提交
       </a>
+      <a class="sidebar-item staff-only" data-page="stop-inserts" style="display:none" onclick="UI.navTo('stop-inserts')">
+        <span class="sidebar-icon">➕</span> 线路加站
+      </a>
       <a class="sidebar-item staff-only" data-page="approvals" style="display:none" onclick="UI.navTo('approvals')">
         <span class="sidebar-icon">✅</span> 审批中心
       </a>
@@ -423,6 +426,14 @@
       </div>
       <div id="trains-loading" class="loading" style="display:none">加载中…</div>
       <div id="trains-list"></div>
+    </section>
+
+    <!-- ═══ 线路加站（职工）═══ -->
+    <section id="page-stop-inserts" class="page">
+      <h2>线路加站 — 补停站</h2>
+      <p style="color:#9090b0">线路新增站点后，需要为受影响的列车补充通过或停靠时间。</p>
+      <div id="stop-inserts-loading" class="loading" style="display:none">加载中…</div>
+      <div id="stop-inserts-list"></div>
     </section>
 
     <!-- ═══ 我的提交（职工）═══ -->

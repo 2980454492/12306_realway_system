@@ -24,7 +24,7 @@ void RailwayServer::start(int port) {
     // httplib::Server::listen() 是阻塞调用，放在独立线程中方便主线程处理信号
     // 绑定 0.0.0.0 而非 127.0.0.1——WSL2 环境下 Windows 浏览器需要通过虚拟网卡访问
     thread_ = std::make_unique<std::thread>([this, port]() {
-        Logger::instance().info("Server listening on http://0.0.0.0:" + std::to_string(port));
+        Logger::instance().info("Server listening on http://127.0.0.1:" + std::to_string(port));
         app_.listen("0.0.0.0", port);
         Logger::instance().info("Server stopped listening");
     });

@@ -58,7 +58,8 @@
       stEl.textContent = UI.STATUS_LABEL[a.status] || '未知';
       stEl.className = 'approval-status ' + (UI.STATUS_CLS[a.status] || 'submitted');
       // 提交人
-      card.querySelector('.approval-meta-submitter').textContent = '提交人: ' + (a.submitter_id || '?') + ' | ' + (a.submitted_at || '');
+      var submitter = (a.type === 5) ? 'INFRA管理员' : (a.submitter_id || '?');
+      card.querySelector('.approval-meta-submitter').textContent = '提交人: ' + submitter + ' | ' + (a.submitted_at || '');
       // 车次
       card.querySelector('.approval-payload').textContent = '车次: ' + (info.tid || '?');
       // 审批操作按钮（仅待审批状态）

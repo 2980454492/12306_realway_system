@@ -106,7 +106,8 @@ enum class ApprovalType : uint8_t {
     ADJUST_SCHEDULE = 1,  // 调整时刻
     ADD_LINE       = 2,  // 新增线路
     ADD_STATION    = 3,  // 新增站点
-    DELETE_TRAIN   = 4   // 删除列车
+    DELETE_TRAIN   = 4,  // 删除列车
+    STOP_INSERT    = 5   // 线路新增车站 → 相关列车补停站
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalType, {
     {ApprovalType::CREATE_TRAIN,   "CREATE_TRAIN"},
@@ -114,6 +115,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalType, {
     {ApprovalType::ADD_LINE,       "ADD_LINE"},
     {ApprovalType::ADD_STATION,    "ADD_STATION"},
     {ApprovalType::DELETE_TRAIN,   "DELETE_TRAIN"},
+    {ApprovalType::STOP_INSERT,    "STOP_INSERT"},
 })
 
 /** 审批状态 */

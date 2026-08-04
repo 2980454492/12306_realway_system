@@ -212,6 +212,11 @@ void registerInfraAdminRoutes(RailwayServer& server) {
             return;
         }
 
+        // 保存旧站点列表用于比较
+        std::vector<std::string> old_stations;
+        for (const auto& l : line_service::getAll())
+            if (l.id == id) { old_stations = l.stations; break; }
+
         Line line;
         line.id = body.value("id", 0);
         line.name = body.value("name", "");
@@ -219,12 +224,62 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         line.max_speed_kmh = body.value("max_speed_kmh", 0);
         for (const auto& s : body["stations"])
             line.stations.push_back(s.get<std::string>());
+
         if (!line_service::update(id, line)) {
             json j; j["ok"] = false; j["error"] = "线路不存在";
             res.set_content(j.dump(), "application/json"); res.status = 404;
             return;
         }
-        json j; j["ok"] = true;
+
+        // 检测新增站点，为经过该线路的列车创建补站审批
+        json affected_trains = json::array();
+        auto& ds = DataStore::instance();
+        for (const auto& new_st : line.stations) {
+            auto it = std::find(old_stations.begin(), old_stations.end(), new_st);
+            if (it != old_stations.end()) continue;  // 已有站点跳过
+
+            Logger::instance().info("Line " + std::to_string(id) + " new station: " + new_st);
+
+            // 查城市名对应的站 ID
+            uint32_t new_st_id = 0;
+            for (const auto& st : ds.getAllStations())
+                if (st.city == new_st) { new_st_id = st.id; break; }
+            if (new_st_id == 0) {
+                Logger::instance().warn("Station city not found: " + new_st);
+                continue;
+            }
+
+            // 查所有列车（含 ACTIVE 和 PENDING），看哪些经过此线路
+            for (const auto& train : ds.getAllTrains()) {
+                bool on_this_line = false;
+                for (const auto& stop : train.stops)
+                    if (stop.line_id == id) { on_this_line = true; break; }
+                if (!on_this_line) continue;
+
+                // 检查此列车是否已包含该站
+                bool has_station = false;
+                for (const auto& stop : train.stops)
+                    if (stop.station_id == new_st_id) { has_station = true; break; }
+                if (has_station) continue;
+
+                Logger::instance().info("Creating STOP_INSERT for train " + train.id + " station " + new_st);
+
+                // 提交补站审批
+                json payload;
+                payload["train_id"] = train.id;
+                payload["line_id"] = id;
+                payload["station_city"] = new_st;
+                payload["action"] = "insert";
+                std::string aid = ApprovalService::instance().submit(
+                    ApprovalType::STOP_INSERT, ctx->user_id, payload.dump());
+                affected_trains.push_back({{"train_id", train.id}, {"approval_id", aid}});
+            }
+        }
+
+        json j;
+        j["ok"] = true;
+        if (!affected_trains.empty())
+            j["affected_trains"] = affected_trains;
         res.set_content(j.dump(), "application/json");
     } catch (const std::exception& e) {
         internalError(res, e.what());
