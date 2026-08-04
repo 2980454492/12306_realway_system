@@ -33,11 +33,8 @@ bool DataStore::initialize() {
 
     buildIndexes();
 
-    // 车站-线路邻居索引：优先从本地缓存加载
-    if (!tryLoadStationLineIndex()) {
-        buildStationLineIndex();
-        saveStationLineIndex();
-    }
+    // 车站-线路邻居索引：每次启动从 lines_ 重建（数据量小，毫秒级）
+    buildStationLineIndex();
 
     ready_ = true;
 
@@ -356,47 +353,6 @@ bool DataStore::saveLines() const {
 }
 
 // ── 车站-线路-邻居索引 ──
-
-// 从 data/station_line_index.json 加载索引缓存，失败返回 false
-bool DataStore::tryLoadStationLineIndex() {
-    std::string path = config::STATION_LINE_INDEX_FILE;
-    if (!fs::exists(path)) return false;
-
-    try {
-        std::ifstream in(path);
-        json j;
-        in >> j;
-
-        station_line_index_.clear();
-        for (auto& [key, neighbors] : j.items()) {
-            uint32_t sid = static_cast<uint32_t>(std::stoul(key));
-            station_line_index_[sid] = neighbors.get<std::vector<LineNeighbor>>();
-        }
-        Logger::instance().info("Station-line index loaded from cache: "
-            + std::to_string(station_line_index_.size()) + " stations");
-        return true;
-    } catch (const std::exception& e) {
-        Logger::instance().warn(std::string("Failed to load station-line index: ") + e.what());
-        return false;
-    }
-}
-
-// 将索引序列化为 JSON 并写入 data/station_line_index.json
-void DataStore::saveStationLineIndex() const {
-    std::string path = config::STATION_LINE_INDEX_FILE;
-    try {
-        json j;
-        for (const auto& [sid, neighbors] : station_line_index_) {
-            j[std::to_string(sid)] = neighbors;
-        }
-        std::ofstream out(path);
-        out << j.dump();
-        Logger::instance().info("Station-line index saved: "
-            + std::to_string(station_line_index_.size()) + " stations");
-    } catch (const std::exception& e) {
-        Logger::instance().error(std::string("Failed to save station-line index: ") + e.what());
-    }
-}
 
 // 从 lines_ 构建索引：遍历每条线路的站点序列，取相邻站对，Haversine 算距离，合并到 map
 void DataStore::buildStationLineIndex() {

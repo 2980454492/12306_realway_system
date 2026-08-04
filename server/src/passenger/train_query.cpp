@@ -2,21 +2,12 @@
 #include "passenger/train_query.h"
 #include "data/data_store.h"
 #include "passenger/seat_inventory.h"
-#include "config.h"
-#include "sys_admin/system_config.h"
 #include "utils.h"
 #include "system/logger.h"
 
 #include <set>
 #include <tuple>
 #include <unordered_map>
-#include <optional>
-#include <fstream>
-#include <filesystem>
-#include <nlohmann/json.hpp>
-
-namespace fs = std::filesystem;
-using json = nlohmann::json;
 
 namespace {
 
@@ -30,56 +21,9 @@ struct TrainStopEntry {
 
 /**
  * 车站-列车索引：站ID → 经过该站的所有列车条目。
- * 换乘查询的核心数据结构，构建一次，O(1) 查找。
+ * 换乘查询的核心数据结构，每次启动重建（数据量小，毫秒级），无需磁盘缓存。
  */
 using StationTrainIndex = std::unordered_map<uint32_t, std::vector<TrainStopEntry>>;
-
-// ── 索引持久化 ──
-
-/** 将索引序列化为 JSON 并写入文件。key 用车站 ID（转字符串），value 为 [{train_id, stop_idx}] */
-void saveIndex(const std::string& path, const StationTrainIndex& idx) {
-    json j;
-    for (const auto& [station_id, entries] : idx) {
-        json arr = json::array();
-        for (const auto& entry : entries) {
-            arr.push_back({{"train_id", entry.train_id}, {"stop_idx", entry.stop_idx}});
-        }
-        j[std::to_string(station_id)] = arr;
-    }
-    std::ofstream out(path);
-    out << j.dump();
-}
-
-/**
- * 从 JSON 文件加载索引，train 指针通过 DataStore 解析。
- * 文件不存在或损坏时返回 nullopt，调用方回退到全量构建。
- */
-std::optional<StationTrainIndex> loadIndex(const std::string& path, DataStore& ds) {
-    if (!fs::exists(path)) return std::nullopt;
-
-    try {
-        std::ifstream in(path);
-        json j;
-        in >> j;
-
-        StationTrainIndex idx;
-        for (auto& [key, arr] : j.items()) {
-            uint32_t station_id = std::stoul(key);
-            auto& vec = idx[station_id];
-            for (auto& entry : arr) {
-                std::string train_id = entry["train_id"].get<std::string>();
-                int stop_idx = entry["stop_idx"].get<int>();
-                auto* train = ds.getTrain(train_id);
-                if (train && train->status == TrainStatus::ACTIVE)
-                    vec.push_back({train_id, stop_idx});
-            }
-        }
-        return idx;
-    } catch (const std::exception& e) {
-        Logger::instance().warn(std::string("Failed to load index: ") + e.what());
-        return std::nullopt;
-    }
-}
 
 // ── 工具函数 ──
 
@@ -108,24 +52,16 @@ StationTrainIndex buildStationTrainIndex(DataStore& ds) {
 }
 
 /**
- * 初始化索引：优先从 JSON 加载，失败则全量构建并持久化。
+ * 初始化索引：每次启动全量构建（数据量小，毫秒级）。
  * 只被 getStationIndex() 调用一次。
  */
 StationTrainIndex initStationIndex(DataStore& ds) {
-    auto loaded = loadIndex(config::STATION_TRAIN_INDEX_FILE, ds);
-    if (loaded) {
-        Logger::instance().info("Station-train index loaded from file");
-        return *loaded;
-    }
     Logger::instance().info("Building station-train index...");
-    auto idx = buildStationTrainIndex(ds);
-    saveIndex(config::STATION_TRAIN_INDEX_FILE, idx);
-    Logger::instance().info("Station-train index saved to " + std::string(config::STATION_TRAIN_INDEX_FILE));
-    return idx;
+    return buildStationTrainIndex(ds);
 }
 
 /**
- * 获取车站-列车索引（懒初始化 + 文件持久化）。
+ * 获取车站-列车索引（懒初始化，每次启动重建）。
  * C++11 static 局部变量保证线程安全的单次初始化。
  */
 StationTrainIndex& getStationIndex(DataStore& ds) {

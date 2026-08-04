@@ -5,7 +5,6 @@
 #include "http/router.h"
 #include "system/logger.h"
 #include "data/data_store.h"
-#include "data/railway_graph.h"
 #include "auth/auth_service.h"
 #include "auth/jwt_service.h"
 #include "auth/rbac_middleware.h"
@@ -55,10 +54,6 @@ int main() {
         Logger::instance().error("Failed to initialize DataStore");
         return 1;
     }
-
-    // 构建铁路网拓扑图（优先从本地缓存加载）
-    RailwayGraph graph;
-    graph.build(DataStore::instance().getAllLines());
 
     // ── 初始化 WAL 预写日志 ──
     WalWriter::instance().initialize(config::WAL_FILE);

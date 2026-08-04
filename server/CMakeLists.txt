@@ -71,7 +71,6 @@ set(SOURCES
     src/security/rate_limiter.cpp
     src/security/crypto.cpp
     src/data/data_store.cpp
-    src/data/railway_graph.cpp
     src/auth/auth_service.cpp
     src/auth/jwt_service.cpp
     src/auth/rbac_middleware.cpp
@@ -99,7 +98,6 @@ set(HEADERS
     src/security/rate_limiter.h
     src/security/crypto.h
     src/data/data_store.h
-    src/data/railway_graph.h
     src/auth/auth_service.h
     src/auth/jwt_service.h
     src/auth/rbac_middleware.h

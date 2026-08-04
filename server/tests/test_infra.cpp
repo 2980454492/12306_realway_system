@@ -3,7 +3,6 @@
 #include "data/data_store.h"
 #include "infra_admin/station_service.h"
 #include "infra_admin/line_service.h"
-#include "data/railway_graph.h"
 
 class InfraTest : public ::testing::Test {
 protected:
@@ -53,13 +52,6 @@ TEST_F(InfraTest, LineServiceCRUD) {
     EXPECT_TRUE(line_service::update(added.id, added));
 
     EXPECT_TRUE(line_service::remove(added.id));
-}
-
-TEST_F(InfraTest, RailwayGraphBuild) {
-    RailwayGraph graph;
-    graph.build(DataStore::instance().getAllLines());
-    // Graph built successfully — no crash
-    SUCCEED();
 }
 
 TEST_F(InfraTest, NewLineTypeExpress) {

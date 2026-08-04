@@ -59,7 +59,6 @@ set(PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/security/rate_limiter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/security/crypto.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/data/data_store.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/data/railway_graph.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/auth/auth_service.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/auth/jwt_service.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/auth/rbac_middleware.cpp
