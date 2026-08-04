@@ -38,6 +38,7 @@ public:
     const Station* getStation(uint32_t id) const;
     const Train* getTrain(const std::string& id) const;
     Train* getTrainMutable(const std::string& id);
+    const Line* getLine(uint32_t id) const;
 
     /** 按站点 ID 查找所有经过的列车（通过检查列车的停站序列） */
     std::vector<const Train*> getTrainsByStation(uint32_t station_id) const;
@@ -132,6 +133,7 @@ private:
     // 索引：ID → vector 下标（O(1) 查 station / train）
     std::unordered_map<uint32_t, size_t> station_index_;
     std::unordered_map<std::string, size_t> train_index_;
+    std::unordered_map<uint32_t, size_t> line_index_;
 
     // 车站-线路-邻居索引：map<station_id, vector<LineNeighbor>>
     std::map<uint32_t, std::vector<LineNeighbor>> station_line_index_;

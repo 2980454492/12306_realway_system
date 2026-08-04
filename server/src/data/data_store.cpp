@@ -66,11 +66,15 @@ const Train* DataStore::getTrain(const std::string& id) const {
 }
 
 Train* DataStore::getTrainMutable(const std::string& id) {
-    // 不加锁：返回可变指针意味着调用方将修改数据，调用方负责外部同步。
-    // 加 shared_lock 会在调用方后续调 saveTrains() 时因读锁→写锁升级而触发死锁。
     auto it = train_index_.find(id);
     if (it == train_index_.end()) return nullptr;
     return &trains_[it->second];
+}
+
+const Line* DataStore::getLine(uint32_t id) const {
+    auto it = line_index_.find(id);
+    if (it == line_index_.end()) return nullptr;
+    return &lines_[it->second];
 }
 
 std::vector<const Train*> DataStore::getTrainsByStation(uint32_t station_id) const {
@@ -103,6 +107,9 @@ void DataStore::buildIndexes() {
     }
     for (size_t i = 0; i < trains_.size(); ++i) {
         train_index_[trains_[i].id] = i;
+    }
+    for (size_t i = 0; i < lines_.size(); ++i) {
+        line_index_[lines_[i].id] = i;
     }
 }
 

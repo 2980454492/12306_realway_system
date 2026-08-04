@@ -120,18 +120,17 @@ int getTrainMaxSpeed(const std::string& train_id) {
  *  找不到时回退到线路上第一对连续站。 */
 int findStopInsertIndex(const Train& train, uint32_t line_id,
                         const std::string& st_city, const DataStore& ds) {
-    // 1. 从线路站点顺序中找新站的前后邻站城市
+    // 1. O(1) 查线路，从站点顺序中找新站的前后邻站城市
     std::string prev_city, next_city;
-    for (const auto& ln : ds.getAllLines()) {
-        if (ln.id != line_id) continue;
-        for (size_t i = 0; i < ln.stations.size(); i++) {
-            if (ln.stations[i] == st_city) {
-                if (i > 0) prev_city = ln.stations[i - 1];
-                if (i + 1 < ln.stations.size()) next_city = ln.stations[i + 1];
+    auto* line = ds.getLine(line_id);
+    if (line) {
+        for (size_t i = 0; i < line->stations.size(); i++) {
+            if (line->stations[i] == st_city) {
+                if (i > 0) prev_city = line->stations[i - 1];
+                if (i + 1 < line->stations.size()) next_city = line->stations[i + 1];
                 break;
             }
         }
-        break;
     }
 
     // 2. 在列车停站中匹配这对相邻城市（必须同线路）
@@ -233,10 +232,8 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
     }
 
     int train_max = getTrainMaxSpeed(tid);
-    int line_max = 300;
-    for (const auto& ln : ds.getAllLines()) {
-        if (ln.id == line_id) { line_max = ln.max_speed_kmh; break; }
-    }
+    auto* line = ds.getLine(line_id);
+    int line_max = line ? line->max_speed_kmh : 300;
     int speed_limit = std::min(train_max, line_max);
 
     auto checkSegment = [speed_limit, &result](const Station& from, const Station& to,
