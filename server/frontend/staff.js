@@ -881,11 +881,6 @@
   UI.loadStopInserts = async function() {
     await UI._ensureTrainsLoaded();
     if (!State.stations.length) await U.loadStations();
-    if (Object.keys(State._neighborIndex).length === 0) await UI.loadNeighborIndex();
-    if (!UI._allLines || !UI._allLines.length) {
-      var lr = await API.get('/api/admin/lines');
-      if (lr.ok) UI._allLines = lr.data.data || [];
-    }
     // 用专用端点，不受 APPROVER 端过滤影响
     var res = await API.get('/api/admin/stop-inserts');
     if (!res.ok) return U.toast('加载失败', 'error');
@@ -916,34 +911,33 @@
       var stops = train ? (train.stops || []) : [];
       if (!stops.length) continue;
 
-      // 找到列车在该线路上的途经站（line_id 含义：本站→下一站的线路）
-      // 用 == 避免 string/number 类型不匹配
-      var lineStopIndices = [];
+      // 找到列车在该线路上的途经站数量 + 首站位置（line_id 含义：本站→下一站的线路）
+      var firstLineIdx = -1, lineStopCount = 0;
       var lineName = pl.line_name || '';
       for (var si = 0; si < stops.length; si++) {
         if (stops[si].line_id == lineId) {
-          lineStopIndices.push(si);
+          if (firstLineIdx < 0) firstLineIdx = si;
+          lineStopCount++;
           if (!lineName && stops[si].line_name)
             lineName = stops[si].line_name;
         }
       }
       // 末尾站：前一个站的 line_id 指向它的，也算在该线路上
       var lastIdx = stops.length - 1;
-      if (lastIdx > 0 && stops[lastIdx - 1] && stops[lastIdx - 1].line_id == lineId)
-        if (lineStopIndices.indexOf(lastIdx) < 0)
-          lineStopIndices.push(lastIdx);
+      if (lastIdx > 0 && stops[lastIdx - 1] && stops[lastIdx - 1].line_id == lineId) {
+        if (firstLineIdx < 0) firstLineIdx = lastIdx;
+        lineStopCount++;
+      }
 
-      // 确定插入上下文：取线路首站和它后面的站
+      // 确定插入上下文：取线路首站和紧接其后的站
       var prevStop = null, nextStop = null;
-      if (lineStopIndices.length >= 2) {
-        prevStop = stops[lineStopIndices[0]];
-        nextStop = stops[lineStopIndices[0] + 1] || stops[lineStopIndices[1]];
-      } else if (lineStopIndices.length === 1) {
-        var idx = lineStopIndices[0];
-        if (idx + 1 < stops.length) {
-          prevStop = stops[idx]; nextStop = stops[idx + 1];
-        } else if (idx > 0) {
-          prevStop = stops[idx - 1]; nextStop = stops[idx];
+      if (firstLineIdx >= 0) {
+        if (firstLineIdx + 1 < stops.length) {
+          prevStop = stops[firstLineIdx];
+          nextStop = stops[firstLineIdx + 1];
+        } else if (firstLineIdx > 0) {
+          prevStop = stops[firstLineIdx - 1];
+          nextStop = stops[firstLineIdx];
         }
       }
       if (!prevStop || !nextStop) continue;
@@ -956,7 +950,6 @@
 
       var card = document.createElement('div');
       card.className = 'approval-card';
-      card.style.cssText = 'background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:14px 18px;margin-bottom:10px';
       card.innerHTML =
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
         '<span style="font-weight:600;color:#53a8ff;font-size:16px">' + U.esc(tid) + '</span>' +
@@ -964,7 +957,7 @@
         '<div style="font-size:12px;color:#707090;margin-bottom:10px">' +
         '前站: <span style="color:#e0e0e0">' + U.esc(prevName) + '</span> 发车 ' + U.fmtTime(prevDep) +
         ' ｜ 后站: <span style="color:#e0e0e0">' + U.esc(nextName) + '</span> 到达 ' + U.fmtTime(nextArr) +
-        ' ｜ 途经站数: ' + lineStopIndices.length + '</div>' +
+        ' ｜ 途经站数: ' + lineStopCount + '</div>' +
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
         '<label style="font-size:13px;color:#e0e0e0;cursor:pointer">' +
         '<input type="checkbox" id="si-is-stop-' + i + '" checked onchange="UI._siToggle(' + i + ')"> 停靠本站</label>' +

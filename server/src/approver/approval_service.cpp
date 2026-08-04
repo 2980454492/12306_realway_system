@@ -188,9 +188,9 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         return result;
     }
 
-    // 5. 速度校验：用 Haversine 距离计算两段时速，限速 = min(列车设计时速, 线路设计时速)
-    const auto& prev_stop = train->stops[insert_idx - 1];
-    const auto& next_stop = train->stops[insert_idx];
+    // 5. 速度校验：用 timeDiff() + haversineDist()，限速 = min(列车设计时速, 线路设计时速)
+    const auto& prev_stop = modified.stops[insert_idx - 1];
+    const auto& next_stop = modified.stops[insert_idx + 1];
     auto* prev_station = ds.getStation(prev_stop.station_id);
     auto* next_station = ds.getStation(next_stop.station_id);
     if (!prev_station || !next_station) {
@@ -205,37 +205,24 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
     }
     int speed_limit = std::min(train_max, line_max);
 
-    // 段1：前站 → 新站
-    double dist1 = haversineDist(*prev_station, *new_station);
-    if (dist1 > 0 && arrival > prev_stop.departure) {
-        int mins1 = (arrival / 100 - prev_stop.departure / 100) * 60
-                  + (arrival % 100 - prev_stop.departure % 100);
-        if (mins1 > 0) {
-            int speed1 = static_cast<int>(dist1 / (mins1 / 60.0));
-            if (speed1 > speed_limit) {
-                result.error = prev_station->name + " → " + new_station->name
-                    + " 段时速 " + std::to_string(speed1)
-                    + " km/h 超限（限速 " + std::to_string(speed_limit) + " km/h）";
-                return result;
-            }
-        }
-    }
+    auto checkSegment = [&](const Station& from, const Station& to,
+                            int time_from, int time_to) -> bool {
+        double dist = haversineDist(from, to);
+        int mins = timeDiff(time_from, time_to);
+        if (dist <= 0 || mins <= 0) return true;
+        int speed = static_cast<int>(dist / (mins / 60.0));
+        if (speed <= speed_limit) return true;
+        result.error = from.name + " → " + to.name
+            + " 段时速 " + std::to_string(speed)
+            + " km/h 超限（限速 " + std::to_string(speed_limit) + " km/h）";
+        return false;
+    };
 
-    // 段2：新站 → 后站
-    double dist2 = haversineDist(*new_station, *next_station);
-    if (dist2 > 0 && next_stop.arrival > 0 && next_stop.arrival > departure) {
-        int mins2 = (next_stop.arrival / 100 - departure / 100) * 60
-                  + (next_stop.arrival % 100 - departure % 100);
-        if (mins2 > 0) {
-            int speed2 = static_cast<int>(dist2 / (mins2 / 60.0));
-            if (speed2 > speed_limit) {
-                result.error = new_station->name + " → " + next_station->name
-                    + " 段时速 " + std::to_string(speed2)
-                    + " km/h 超限（限速 " + std::to_string(speed_limit) + " km/h）";
-                return result;
-            }
-        }
-    }
+    if (!checkSegment(*prev_station, *new_station, prev_stop.departure, arrival))
+        return result;
+    if (next_stop.arrival > 0
+        && !checkSegment(*new_station, *next_station, departure, next_stop.arrival))
+        return result;
 
     // 6. 全部通过，写入 payload
     payload["arrival"] = arrival;
@@ -397,10 +384,8 @@ ApprovalService::ApproveResult ApprovalService::approve(
             }
 
             // 二次冲突校验：模拟插入后的运行图
-            auto modified_stops = train->stops;
-            modified_stops.insert(modified_stops.begin() + insert_idx, new_stop);
             Train modified = *train;
-            modified.stops = modified_stops;
+            modified.stops.insert(modified.stops.begin() + insert_idx, new_stop);
             auto conflicts = TrainManager::instance().detectConflicts(modified);
             if (!conflicts.empty()) {
                 cas_lock_.clear();
@@ -409,7 +394,7 @@ ApprovalService::ApproveResult ApprovalService::approve(
             }
 
             // 插入并重建占用表
-            train->stops = modified_stops;
+            train->stops = modified.stops;
             TrainManager::instance().adjustSchedule(tid, train->stops);
             ds.saveTrains();
             result.train_id = tid;

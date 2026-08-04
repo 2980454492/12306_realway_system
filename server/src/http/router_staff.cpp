@@ -9,11 +9,10 @@ void registerStaffRoutes(RailwayServer& server) {
         auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
         if (!ctx) return;
 
-        auto approvals = ApprovalService::instance().getApprovals(std::nullopt);
+        auto approvals = ApprovalService::instance().getApprovals(ApprovalState::SUBMITTED);
         json arr = json::array();
         for (const auto& a : approvals) {
             if (a.type != ApprovalType::STOP_INSERT) continue;
-            if (a.status != ApprovalState::SUBMITTED) continue;
             json ja;
             ja["id"] = a.id;
             ja["type"] = static_cast<int>(a.type);
