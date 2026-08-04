@@ -11,7 +11,7 @@ std::string checkStationName(const std::string& name, uint32_t excludeId) {
     if (name.empty())
         return "站名不能为空";
     // O(1)：用预建索引 name→id 查重
-    uint32_t existId = DataStore::instance().nameToStationId(name);
+    uint32_t existId = DataStore::instance().stationToId(name);
     if (existId != 0 && existId != excludeId)
         return "站名已存在: " + name;
     return "";
@@ -217,13 +217,9 @@ void registerInfraAdminRoutes(RailwayServer& server) {
             return;
         }
 
-        // 保存旧站点列表用于比较
-        std::vector<std::string> old_stations;
-        for (const auto& l : line_service::getAll())
-            if (l.id == id) { 
-                old_stations = l.stations; 
-                break; 
-            }
+        // 保存旧站点列表用于比较（O(1) 索引查线路）
+        auto* old_line = DataStore::instance().getLine(id);
+        std::vector<std::string> old_stations = old_line ? old_line->stations : std::vector<std::string>{};
 
         Line line;
         line.id = body.value("id", 0);
@@ -251,10 +247,10 @@ void registerInfraAdminRoutes(RailwayServer& server) {
 
             Logger::instance().info("Line " + std::to_string(id) + " new station: " + new_st);
 
-            // O(1) 城市名 → 站 ID
-            uint32_t new_st_id = ds.cityToStationId(new_st);
+            // O(1) 站名 → 站 ID
+            uint32_t new_st_id = ds.stationToId(new_st);
             if (new_st_id == 0) {
-                Logger::instance().warn("Station city not found: " + new_st);
+                Logger::instance().warn("Station not found: " + new_st);
                 continue;
             }
 

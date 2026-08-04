@@ -186,7 +186,7 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         return result;
     }
 
-    uint32_t st_id = ds.cityToStationId(st_city);
+    uint32_t st_id = ds.stationToId(st_city);
     if (st_id == 0) {
         result.error = "站点 " + st_city + " 不存在";
         return result;
@@ -197,7 +197,7 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         return result;
     }
 
-    // 3. 用线路站点顺序精确定位插入位置（而非总是第一个区间）
+    // 3. 用线路站点顺序精确定位插入位置
     int insert_idx = findStopInsertIndex(*train, line_id, st_city, ds);
     if (insert_idx < 0) {
         result.error = "未找到该线路在列车停站中的区间";
@@ -376,7 +376,7 @@ ApprovalService::ApproveResult ApprovalService::approve(
             }
             // O(1) 城市名→站ID
             std::string st_city = payload.value("station_city", "");
-            uint32_t st_id = ds.cityToStationId(st_city);
+            uint32_t st_id = ds.stationToId(st_city);
             if (st_id == 0) {
                 cas_lock_.clear();
                 result.error = "站点 " + st_city + " 不存在";

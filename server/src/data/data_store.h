@@ -67,7 +67,7 @@ public:
     }
 
     /** 站名 → 站 ID（预建，O(1) 按站名查站） */
-    uint32_t nameToStationId(const std::string& name) const {
+    uint32_t stationToId(const std::string& name) const {
         auto it = name_to_id_.find(name);
         return (it != name_to_id_.end()) ? it->second : 0;
     }

@@ -193,16 +193,7 @@
       if (sr.ok)
         UI._allStations = sr.data.data || [];
     }
-    // 城市名 → 站名（取每个城市第一个站）
-    var cityToName = {};
-    for (let si = 0; si < (UI._allStations || []).length; si++) {
-      var st = UI._allStations[si];
-      if (!cityToName[st.city])
-        cityToName[st.city] = st.name;
-    }
-    var cities = line ? (line.stations || []).slice() : [''];
-    for (let ci = 0; ci < cities.length; ci++)
-      cities[ci] = cityToName[cities[ci]] || cities[ci];  // 城市名→站名
+    var stations = line ? (line.stations || []).slice() : [''];
     var title = line ? '编辑线路' : '新增线路';
     var editingId = line ? line.id : 0;
 
@@ -233,10 +224,10 @@
     U.$('lf-city-list').parentNode.insertBefore(dl, U.$('lf-city-list'));
 
     // 初始化已有车站
-    for (let i = 0; i < cities.length; i++) {
+    for (let i = 0; i < stations.length; i++) {
       var row = UI._lfAddRow(i);
-      row.querySelector('input').value = cities[i];
-      if (cities[i])
+      row.querySelector('input').value = stations[i];
+      if (stations[i])
         UI._lfCheckStation(row.querySelector('input'));
     }
     UI._lfUpdateRoles();
@@ -320,25 +311,21 @@
     var type = U.$('lf-type').value;
     var speed = parseInt(U.$('lf-speed').value) || 0;
     var rows = U.$('lf-city-list').querySelectorAll('div');
-    var cities = [];
-    // 站名 → 城市名 映射
-    var nameToCity = {};
-    for (let si = 0; si < (UI._allStations || []).length; si++)
-      nameToCity[UI._allStations[si].name] = UI._allStations[si].city;
+    var stations = [];
     for (let i = 0; i < rows.length; i++) {
       var val = (rows[i].querySelector('input').value || '').trim();
       if (!val)
-        return U.toast('站点名不能为空', 'error');
-      cities.push(nameToCity[val] || val);  // 有映射用城市名，否则保持原值
+        return U.toast('车站名不能为空', 'error');
+      stations.push(val);
     }
-    if (cities.length < 2)
+    if (stations.length < 2)
       return U.toast('至少需要起点和终点两个站点', 'error');
 
     var body = {
       id: 0,
       name: name,
       type: type,
-      stations: cities,
+      stations: stations,
       max_speed_kmh: speed
     };
     var res = id
@@ -425,26 +412,25 @@
         lng: s.longitude, lat: s.latitude
       };
     });
+    // 站名→节点（站名唯一，同城多站独立）
+    var nodeByName = {};
+    NODES.forEach(function(n) { nodeByName[n.name] = n; });
+    var nodeById = {};
+    NODES.forEach(function(n) { nodeById[n.id] = n; });
+    // l.stations 现在是站名，直接用站名查节点
     var EDGES = [];
     lines.forEach(function(l) {
-      for (let i = 0; i + 1 < l.stations.length; i++)
-        EDGES.push({
-          from: l.stations[i],
-          to: l.stations[i + 1],
-          line_name: l.name,
-          type: l.type === 'HIGH_SPEED' ? 0 : l.type === 'EXPRESS' ? 3 : 1
-        });
-    });
-    var nodeById = {};
-    NODES.forEach(function(n) {
-      nodeById[n.id] = n;
-      if (n.city)
-        nodeById[n.city] = n;
+      for (let i = 0; i + 1 < l.stations.length; i++) {
+        var a = nodeByName[l.stations[i]];
+        var b = nodeByName[l.stations[i + 1]];
+        if (a && b)
+          EDGES.push({ from: a.id, to: b.id, line_name: l.name,
+            type: l.type === 'HIGH_SPEED' ? 0 : l.type === 'EXPRESS' ? 3 : 1 });
+      }
     });
 
     var tc = ['#ff4444', '#44ff44', '#44aaff'];
     var ec = ['#ff6666', '#66ff66', '#66bbff', '#ffaa00'];
-    var tp = [1, 2, 0];
 
     var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
     svg.setAttribute('viewBox','0 0 '+W+' '+H);
@@ -562,50 +548,10 @@
       var fEdges = getFilteredEdges();
       var edgeCount = {};
       fEdges.forEach(function(e) { var k = ek(e); edgeCount[k] = (edgeCount[k] || 0) + 1; });
-      var th = 30 / scl;
+      // 所有站均独立展示，不聚合邻近站
       var hidden = new Set();
-      var r = 5 / scl;
+      var r = 6 / scl;
       var sw = 1.5 / scl;
-
-      // 网格索引加速聚类
-      var cell = {};
-      var cSize = Math.max(th, 10);
-      for (let i = 0; i < NODES.length; i++) {
-        var cx = Math.floor(NODES[i].x / cSize);
-        var cy = Math.floor(NODES[i].y / cSize);
-        var ck = cx + ',' + cy;
-        if (!cell[ck])
-          cell[ck] = [];
-        cell[ck].push(i);
-      }
-      for (let ck in cell) {
-        var parts = ck.split(',');
-        var cx = +parts[0];
-        var cy = +parts[1];
-        for (let dx = -1; dx <= 1; dx++) {
-          for (let dy = -1; dy <= 1; dy++) {
-            var nk = (cx + dx) + ',' + (cy + dy);
-            if (!cell[nk])
-              continue;
-            for (let ai = 0; ai < cell[ck].length; ai++) {
-              var i = cell[ck][ai];
-              if (hidden.has(i))
-                continue;
-              for (let bi = 0; bi < cell[nk].length; bi++) {
-                var j = cell[nk][bi];
-                if (j <= i || hidden.has(j))
-                  continue;
-                if (isClose(NODES[i], NODES[j], th)) {
-                  if (tp[NODES[i].type] <= tp[NODES[j].type])
-                    hidden.add(j);
-                  else
-                    hidden.add(i);
-                }
-              }
-            }
-          }
-        }
-      }
 
       // 边
       var eOff = {};

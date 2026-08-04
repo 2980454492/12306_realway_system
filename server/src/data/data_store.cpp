@@ -362,13 +362,13 @@ void DataStore::buildStationLineIndex() {
     station_line_index_.clear();
 
     for (const auto& line : lines_) {
-        // 城市名 → 站点 ID（O(1) 查索引）
+        // 站名 → 站点 ID（O(1) 查索引）
         std::vector<uint32_t> ids;
-        for (const auto& city : line.stations) {
-            uint32_t sid = cityToStationId(city);
+        for (const auto& name : line.stations) {
+            uint32_t sid = stationToId(name);
             if (sid) ids.push_back(sid);
             else Logger::instance().warn("Line '" + line.name
-                + "': city '" + city + "' not found in stations");
+                + "': station '" + name + "' not found");
         }
         if (ids.size() != line.stations.size() || ids.size() < 2) continue;
 
