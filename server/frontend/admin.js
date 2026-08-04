@@ -28,7 +28,7 @@
     tbl.innerHTML = '<thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>';
     var tbody = document.createElement('tbody');
     var tpl = U.$('tpl-user-row');
-    for (var i = 0; i < users.length; i++) {
+    for (let i = 0; i < users.length; i++) {
       var u = users[i];
       var row = tpl.content.cloneNode(true);
       row.querySelector('.user-username').textContent = u.username;
@@ -68,7 +68,7 @@
   };
 
   UI.editUserForm = function(id) {
-    for (var i = 0; i < UI._allUsers.length; i++)
+    for (let i = 0; i < UI._allUsers.length; i++)
       if (UI._allUsers[i].id === id) {
         UI.showUserForm(UI._allUsers[i]);
         return;
@@ -140,16 +140,26 @@
     var pre = UI._ratePrefixes, seats = UI._rateSeats;
     var tbody = U.$('cfg-rate-table').querySelector('tbody');
     tbody.innerHTML = '';
-    for (var pi = 0; pi < pre.length; pi++) {
+    for (let pi = 0; pi < pre.length; pi++) {
       var p = pre[pi];
       var row = document.createElement('tr');
-      row.innerHTML = '<td style="font-weight:600;color:#e0e0e0">' + (UI._ratePrefixLabels[p] || p) + '</td>';
-      for (var si = 0; si < seats.length; si++) {
+      var labelTd = document.createElement('td');
+      labelTd.className = 'infra-name';
+      labelTd.textContent = UI._ratePrefixLabels[p] || p;
+      row.appendChild(labelTd);
+      for (let si = 0; si < seats.length; si++) {
         var rate = (UI._cfgRates[p] && UI._cfgRates[p][seats[si]]) || 0;
-        var id = 'cfg-r-' + p + '-' + seats[si];
-        row.innerHTML += '<td><input id="' + id + '" type="number" step="0.01" min="0" max="10"'
-          + ' value="' + rate + '" style="width:72px;padding:4px;background:#0a0a1e;border:1px solid #0f3460;'
-          + 'border-radius:4px;color:' + (rate > 0 ? '#e0e0e0' : '#505050') + ';font-size:12px;text-align:center"></td>';
+        var inp = document.createElement('input');
+        inp.id = 'cfg-r-' + p + '-' + seats[si];
+        inp.type = 'number';
+        inp.step = '0.01';
+        inp.min = '0';
+        inp.max = '10';
+        inp.value = rate;
+        inp.className = 'cfg-rate-input' + (rate > 0 ? '' : ' zero');
+        var td = document.createElement('td');
+        td.appendChild(inp);
+        row.appendChild(td);
       }
       tbody.appendChild(row);
     }
@@ -168,10 +178,10 @@
   UI.saveConfig = async function() {
     var pre = UI._ratePrefixes, seats = UI._rateSeats;
     var rates = {};
-    for (var pi = 0; pi < pre.length; pi++) {
+    for (let pi = 0; pi < pre.length; pi++) {
       var p = pre[pi];
       rates[p] = {};
-      for (var si = 0; si < seats.length; si++) {
+      for (let si = 0; si < seats.length; si++) {
         var el = document.getElementById('cfg-r-' + p + '-' + seats[si]);
         rates[p][seats[si]] = el ? (parseFloat(el.value) || 0) : 0;
       }
@@ -252,18 +262,21 @@
     tbl.className = 'users-table';
     tbl.innerHTML = '<thead><tr><th>时间</th><th>用户</th><th>操作</th><th>目标</th><th>结果</th></tr></thead>';
     var tbody = document.createElement('tbody');
-    for (var i = 0; i < filtered.length; i++) {
+    for (let i = 0; i < filtered.length; i++) {
       var r = filtered[i];
       var tr = document.createElement('tr');
-      var resultTag = r.result === 'success'
-        ? '<span class="tag tag-active">成功</span>'
-        : '<span class="tag" style="background:#550000;color:#ff4444">失败</span>';
       var timeShort = (r.timestamp || '').replace('T', ' ').substring(0, 19);
-      tr.innerHTML = '<td style="font-size:12px;color:#9090b0">' + timeShort + '</td>'
-        + '<td style="font-size:13px">' + U.esc(r.user_id || '—') + '</td>'
-        + '<td>' + (ACTION_LABEL[r.action] || r.action) + '</td>'
-        + '<td style="font-size:13px">' + U.esc(r.target || '—') + '</td>'
-        + '<td>' + resultTag + '</td>';
+      [timeShort, r.user_id || '—', ACTION_LABEL[r.action] || r.action, r.target || '—'].forEach(function(v) {
+        var td = document.createElement('td');
+        td.textContent = v;
+        tr.appendChild(td);
+      });
+      var resultTd = document.createElement('td');
+      var resultSpan = document.createElement('span');
+      resultSpan.className = 'tag ' + (r.result === 'success' ? 'tag-active' : 'tag-error');
+      resultSpan.textContent = r.result === 'success' ? '成功' : '失败';
+      resultTd.appendChild(resultSpan);
+      tr.appendChild(resultTd);
       tbody.appendChild(tr);
     }
     tbl.appendChild(tbody);

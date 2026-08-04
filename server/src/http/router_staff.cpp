@@ -220,6 +220,11 @@ void registerStaffRoutes(RailwayServer& server) {
             badRequest(res, "请填写到达和发车时间");
             return;
         }
+        // HHMM 格式校验：分钟部分须在 00-59
+        if (arr % 100 >= 60 || dep % 100 >= 60) {
+            badRequest(res, "时间格式错误（HHMM 分钟须在 00-59）");
+            return;
+        }
 
         auto result = ApprovalService::instance().updateStopTime(approval_id, arr, dep);
         json j;

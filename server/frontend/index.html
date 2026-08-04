@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <!-- build:20260721-v5 -->
 <title>12306 铁路票务系统</title>
-<link rel="stylesheet" href="/style.css?v=20260728c">
+<link rel="stylesheet" href="/style.css?v=20260804a">
 </head>
 <body>
 
@@ -142,15 +142,7 @@
         <div class="filter-row">
           <div class="filter-group" id="filter-type-group">
             <span class="filter-label">车型</span>
-            <label class="filter-check"><input type="checkbox" class="filter-type-all" checked onchange="UI.toggleAllTypes(this)"> 全部</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="G" checked onchange="UI.onTypeChange()"> G</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="D" checked onchange="UI.onTypeChange()"> D</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="C" checked onchange="UI.onTypeChange()"> C</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="Z" checked onchange="UI.onTypeChange()"> Z</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="T" checked onchange="UI.onTypeChange()"> T</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="K" checked onchange="UI.onTypeChange()"> K</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="S" checked onchange="UI.onTypeChange()"> S</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="OTHER" checked onchange="UI.onTypeChange()"> 其他</label>
+            <span class="filter-type-group" id="filter-types-query"></span>
           </div>
         </div>
         <div class="filter-row" id="filter-station-row">
@@ -211,15 +203,7 @@
         <div class="filter-row">
           <div class="filter-group" id="station-filter-type-group">
             <span class="filter-label">车型</span>
-            <label class="filter-check"><input type="checkbox" class="station-filter-type-all" checked onchange="UI.toggleAllTypes(this)"> 全部</label>
-            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="G" checked onchange="UI.onTypeChange()"> G</label>
-            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="D" checked onchange="UI.onTypeChange()"> D</label>
-            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="C" checked onchange="UI.onTypeChange()"> C</label>
-            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="Z" checked onchange="UI.onTypeChange()"> Z</label>
-            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="T" checked onchange="UI.onTypeChange()"> T</label>
-            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="K" checked onchange="UI.onTypeChange()"> K</label>
-            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="S" checked onchange="UI.onTypeChange()"> S</label>
-            <label class="filter-check"><input type="checkbox" class="station-filter-type-item" value="OTHER" checked onchange="UI.onTypeChange()"> 其他</label>
+            <span class="filter-type-group" id="filter-types-station"></span>
           </div>
         </div>
         <div class="filter-row" id="station-filter-st-row" style="display:none">
@@ -405,15 +389,7 @@
         <div class="filter-row">
           <div class="filter-group">
             <span class="filter-label">车型</span>
-            <label class="filter-check"><input type="checkbox" class="filter-type-all" checked onchange="UI.toggleAllTypes(this)"> 全部</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="G" checked onchange="UI.onTypeChange()"> G</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="D" checked onchange="UI.onTypeChange()"> D</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="C" checked onchange="UI.onTypeChange()"> C</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="Z" checked onchange="UI.onTypeChange()"> Z</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="T" checked onchange="UI.onTypeChange()"> T</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="K" checked onchange="UI.onTypeChange()"> K</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="S" checked onchange="UI.onTypeChange()"> S</label>
-            <label class="filter-check"><input type="checkbox" class="filter-type-item" value="OTHER" checked onchange="UI.onTypeChange()"> 其他</label>
+            <span class="filter-type-group" id="filter-types-trains"></span>
           </div>
         </div>
       </div>
@@ -648,6 +624,41 @@
   </div>
 </template>
 
+<template id="tpl-neighbor-card">
+  <div class="neighbor-card">
+    <span class="neighbor-line"></span>
+    <span class="neighbor-arrow">→</span>
+    <span class="neighbor-station"></span>
+    <span class="neighbor-meta"></span>
+  </div>
+</template>
+
+<template id="tpl-stop-insert-card">
+  <div class="approval-card si-card">
+    <div class="si-header">
+      <span class="si-train-id"></span>
+      <span class="si-line-station"></span>
+    </div>
+    <div class="si-meta">
+      <span class="si-prev-info">前站: <span class="si-prev-name"></span> 发车 <span class="si-prev-time"></span></span>
+      <span class="si-meta-sep">｜</span>
+      <span class="si-next-info">后站: <span class="si-next-name"></span> 到达 <span class="si-next-time"></span></span>
+      <span class="si-meta-sep">｜</span>
+      <span class="si-stop-count"></span>
+    </div>
+    <div class="si-controls">
+      <label class="si-check-label">
+        <input type="checkbox" class="si-is-stop" checked> 停靠本站
+      </label>
+      <input type="time" class="input si-arr-time">
+      <span class="si-time-sep">—</span>
+      <input type="time" class="input si-dep-time">
+      <span class="si-speed"></span>
+    </div>
+    <button class="btn btn-primary btn-sm si-submit-btn">提交</button>
+  </div>
+</template>
+
 <!-- ═══ 删除日期弹窗 ═══ -->
 <div id="delete-date-modal" class="overlay" style="display:none">
   <div class="detail-card" style="width:320px" onclick="event.stopPropagation()">
@@ -707,11 +718,11 @@
 <!-- ═══ Toast 通知 ═══ -->
 <div id="toast" class="toast"></div>
 
-<script src="/app.js?v=20260730a"></script>
-<script src="/passenger.js?v=20260730a"></script>
-<script src="/staff.js?v=20260730a"></script>
-<script src="/approver.js?v=20260730a"></script>
-<script src="/admin.js?v=20260730a"></script>
-<script src="/infra.js?v=20260730a"></script>
+<script src="/app.js?v=20260804c"></script>
+<script src="/passenger.js?v=20260804c"></script>
+<script src="/staff.js?v=20260804d"></script>
+<script src="/approver.js?v=20260804c"></script>
+<script src="/admin.js?v=20260804c"></script>
+<script src="/infra.js?v=20260804c"></script>
 </body>
 </html>

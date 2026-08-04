@@ -205,7 +205,7 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
     }
     int speed_limit = std::min(train_max, line_max);
 
-    auto checkSegment = [&](const Station& from, const Station& to,
+    auto checkSegment = [speed_limit, &result](const Station& from, const Station& to,
                             int time_from, int time_to) -> bool {
         double dist = haversineDist(from, to);
         int mins = timeDiff(time_from, time_to);
@@ -221,8 +221,9 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
     if (!checkSegment(*prev_station, *new_station, prev_stop.departure, arrival))
         return result;
     if (next_stop.arrival > 0
-        && !checkSegment(*new_station, *next_station, departure, next_stop.arrival))
+        && !checkSegment(*new_station, *next_station, departure, next_stop.arrival)) {
         return result;
+    }
 
     // 6. 全部通过，写入 payload
     payload["arrival"] = arrival;

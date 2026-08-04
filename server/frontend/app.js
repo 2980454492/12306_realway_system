@@ -180,7 +180,7 @@ const U = {
   /** 安全获取表单元素的值，元素不存在时返回 fallback */
   val: function(id, fallback) { var el = U.$(id); return el ? el.value : (fallback || ''); },
   /** 在数组中按 id 查找元素 */
-  findById: function(arr, id) { for (var i = 0; i < arr.length; i++) if (arr[i].id === id) return arr[i]; return null; },
+  findById: function(arr, id) { for (let i = 0; i < arr.length; i++) if (arr[i].id === id) return arr[i]; return null; },
   /** 计算两站之间的行程耗时（分钟），将 HHMM 整数差值转为分钟 */
   legDuration: function(dep, arr) { var dh = Math.floor(dep / 100) - Math.floor(arr / 100), dm = (dep % 100) - (arr % 100); return dh * 60 + dm; },
   showNav: function() {
@@ -196,7 +196,7 @@ const U = {
     var isSysAdmin = (role === 'SYS_ADMIN');                   // 用户管理/审计/配置
     var isInfraAdmin = (role === 'INFRA_ADMIN');               // 站点/线路管理
     var items = document.querySelectorAll('.staff-only');
-    for (var i = 0; i < items.length; i++) {
+    for (let i = 0; i < items.length; i++) {
       var page = items[i].getAttribute('data-page');
       if (page === 'trains' || page === 'my-submissions')
         items[i].style.display = isStaff ? '' : 'none';
@@ -212,7 +212,7 @@ const U = {
         items[i].style.display = (isStaff || isApprover || isSysAdmin || isInfraAdmin) ? '' : 'none';
     }
     var infraItems = document.querySelectorAll('.infra-only');
-    for (var j = 0; j < infraItems.length; j++)
+    for (let j = 0; j < infraItems.length; j++)
       infraItems[j].style.display = isInfraAdmin ? '' : 'none';
     var divider = document.querySelector('.sidebar-divider');
     if (divider)
@@ -226,13 +226,52 @@ const U = {
       b.style.display = 'none';
   },
 
-  /** 加载站点列表到 State.stations */
+  /** 加载站点列表到 State.stations + 构建 O(1) 索引 */
   loadStations: async function() {
     var res = await API.get('/api/stations');
     if (res.ok && res.data && res.data.data) {
       State.stations = res.data.data;
       UI._allStations = State.stations;
+      // O(1) 索引：id→name, id→city, name→id, city→[ids]
+      State._staName = {};
+      State._staCity = {};
+      State._nameToId = {};
+      State._cityToIds = {};
+      for (let i = 0; i < State.stations.length; i++) {
+        var s = State.stations[i];
+        State._staName[s.id] = s.name;
+        State._staCity[s.id] = s.city;
+        State._nameToId[s.name] = s.id;
+        if (!State._cityToIds[s.city]) State._cityToIds[s.city] = [];
+        State._cityToIds[s.city].push(s.id);
+      }
     }
+  },
+
+  /** O(1) 站名查找（替代 for 循环遍历 State.stations） */
+  stationName: function(id, fallback) {
+    if (fallback !== undefined) return fallback;
+    return State._staName[id] || ('站#' + id);
+  },
+
+  /** O(1) 站名→ID */
+  stationNameToId: function(name) {
+    return State._nameToId[name] || 0;
+  },
+
+  /** 车型筛选常量 */
+  TYPE_FILTERS: ['G','D','C','Z','T','K','S','OTHER'],
+
+  /** 往容器中填入车型筛选 checkbox（替代 HTML 中 3 处重复拷贝） */
+  buildTypeFilters: function(containerId) {
+    var el = U.$(containerId);
+    if (!el) return;
+    var html = '<label class="filter-check"><input type="checkbox" class="filter-type-all" checked onchange="UI.toggleAllTypes(this)"> 全部</label>';
+    for (let i = 0; i < U.TYPE_FILTERS.length; i++) {
+      var t = U.TYPE_FILTERS[i];
+      html += '<label class="filter-check"><input type="checkbox" class="filter-type-item" value="' + t + '" checked onchange="UI.onTypeChange()"> ' + (t === 'OTHER' ? '其他' : t) + '</label>';
+    }
+    el.innerHTML = html;
   },
 
 };
@@ -262,7 +301,7 @@ const UI = {
   showPage: function(name) {
     // 隐藏所有页面
     var pages = document.querySelectorAll('.page');
-    for (var i = 0; i < pages.length; i++) { pages[i].classList.remove('active'); }
+    for (let i = 0; i < pages.length; i++) { pages[i].classList.remove('active'); }
     // 显示目标页
     var page = U.$('page-' + name);
     if (page)
@@ -273,7 +312,7 @@ const UI = {
       layout.style.display = (name === 'login' || name === 'register') ? 'none' : 'flex';
     // 更新侧边栏高亮
     var items = document.querySelectorAll('.sidebar-item');
-    for (var j = 0; j < items.length; j++) {
+    for (let j = 0; j < items.length; j++) {
       items[j].classList.toggle('active', items[j].getAttribute('data-page') === name);
     }
     if (name === 'query')
@@ -388,6 +427,10 @@ const UI = {
 // ═══════════════════════════════════════════
 
 (function init() {
+  // 车型筛选统一从 JS 构建（替代 HTML 中 3 处拷贝）
+  U.buildTypeFilters('filter-types-query');
+  U.buildTypeFilters('filter-types-station');
+  U.buildTypeFilters('filter-types-trains');
   try {
     if (State.token && State.user) {
       U.showNav();

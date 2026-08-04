@@ -28,7 +28,7 @@
     State._approvalFilter = status;
     var labels = {'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回'};
     var btns = document.querySelectorAll('#page-approvals .filter-bar .btn');
-    for (var i = 0; i < btns.length; i++) {
+    for (let i = 0; i < btns.length; i++) {
       btns[i].classList.toggle('active', btns[i].textContent.trim() === (labels[status] || '待审批'));
     }
     UI.loadApprovals();
@@ -43,7 +43,7 @@
       listEl.innerHTML = '<div class="loading">暂无审批</div>';
       return;
     }
-    for (var i = 0; i < approvals.length; i++) {
+    for (let i = 0; i < approvals.length; i++) {
       var a = approvals[i];
       var card = tpl.content.cloneNode(true);
 

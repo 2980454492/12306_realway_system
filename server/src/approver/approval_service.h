@@ -41,7 +41,8 @@ public:
     };
     ApproveResult approve(const std::string& approval_id, const std::string& approver_id);
 
-    /** STAFF 为 STOP_INSERT 审批填写停站时间，含速度校验 + 冲突检测 */
+    /** 停站时间更新的返回结果：success 表示通过所有校验（时间合法性 + 速度限速 + 冲突检测）；
+     *  失败时 error 含具体原因（超速段名称与限速值 / 冲突车次与区间） */
     struct UpdateStopTimeResult {
         bool success = false;
         std::string error;

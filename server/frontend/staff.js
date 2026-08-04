@@ -20,7 +20,7 @@
     U.$('add-train-error').textContent = '';
     // 填充站名 datalist
     var html = '';
-    for (var i = 0; i < State.stations.length; i++) {
+    for (let i = 0; i < State.stations.length; i++) {
       html += '<option value="' + U.esc(State.stations[i].name) + '">';
     }
     U.$('train-station-datalist').innerHTML = html;
@@ -78,12 +78,12 @@
 
     // 构建办客站 ID 集合（用于判断 is_stop）
     var stopIds = {};
-    for (var i = 0; i < stops.length; i++) {
+    for (let i = 0; i < stops.length; i++) {
       stopIds[stops[i].station_id] = true;
     }
 
     var path = [];
-    for (var i = 0; i < segments.length; i++) {
+    for (let i = 0; i < segments.length; i++) {
       var seg = segments[i];
       if (i === 0) {
         path.push({
@@ -113,7 +113,7 @@
       });
     }
     // 填充中间站的发车时间（= 下一段的 enter_time）
-    for (var i = 0; i < path.length - 1; i++) {
+    for (let i = 0; i < path.length - 1; i++) {
       if (path[i].departure <= 0)
         path[i].departure = segments[i].enter_time;
     }
@@ -123,7 +123,7 @@
   UI._populateEditForm = function() {
     var trainId = State._editingTrainId;
     var train = null;
-    for (var i = 0; i < State._allTrains.length; i++) {
+    for (let i = 0; i < State._allTrains.length; i++) {
       if (State._allTrains[i].id === trainId) {
         train = State._allTrains[i];
         break;
@@ -204,13 +204,7 @@
     var depTime = (U.$('first-depart-time') || {}).value || '';
     if (!name || !depTime)
       return;
-    var sid = 0;
-    for (var i = 0; i < State.stations.length; i++) {
-      if (State.stations[i].name === name) {
-        sid = State.stations[i].id;
-        break;
-      }
-    }
+    var sid = U.stationNameToId(name);
     if (!sid)
       return;
     State._routePath = [{ station_id: sid, station_name: name, departure: UI._toHHMM(depTime), is_stop: true, is_terminal: false }];
@@ -225,17 +219,18 @@
       return;
     }
     U.$('neighbor-panel').style.display = '';
-    var html = '';
-    for (var i = 0; i < neighbors.length; i++) {
+    var container = U.$('neighbor-options');
+    container.innerHTML = '';
+    var tpl = U.$('tpl-neighbor-card');
+    for (let i = 0; i < neighbors.length; i++) {
       var n = neighbors[i];
-      html += '<div class="neighbor-card" onclick="UI.selectNeighbor(' + i + ',' + stationId + ')">' +
-        '<span class="neighbor-line">' + U.esc(n.line_name) + '</span>' +
-        '<span class="neighbor-arrow">→</span>' +
-        '<span class="neighbor-station">' + U.esc(n.neighbor_name) + '</span>' +
-        '<span class="neighbor-meta">限速 ' + (n.max_speed_kmh || '?') + ' km/h · ' + (n.distance_km ? n.distance_km.toFixed(0) : '?') + ' km</span>' +
-      '</div>';
+      var card = tpl.content.cloneNode(true);
+      card.querySelector('.neighbor-line').textContent = n.line_name;
+      card.querySelector('.neighbor-station').textContent = n.neighbor_name;
+      card.querySelector('.neighbor-meta').textContent = '限速 ' + (n.max_speed_kmh || '?') + ' km/h · ' + (n.distance_km ? n.distance_km.toFixed(0) : '?') + ' km';
+      card.querySelector('.neighbor-card').onclick = (function(idx, sid) { return function() { UI.selectNeighbor(idx, sid); }; })(i, stationId);
+      container.appendChild(card);
     }
-    U.$('neighbor-options').innerHTML = html;
   };
 
   UI.selectNeighbor = function(idx, fromStationId) {
@@ -375,6 +370,7 @@
     U.toast('已设终点站', 'success');
   };
 
+  // 表格行结构随站点位置变化（始发/终到/停靠/通过标签、删除按钮），不适合用 template
   UI.renderRoutePath = function() {
     var path = State._routePath;
     if (!path.length) {
@@ -383,7 +379,7 @@
     }
     var html = '<table class="route-table">' +
       '<tr><th>#</th><th>站点</th><th>线路</th><th>类型</th><th>到</th><th>发</th><th>里程</th><th>时速</th><th></th></tr>';
-    for (var i = 0; i < path.length; i++) {
+    for (let i = 0; i < path.length; i++) {
       var s = path[i];
       var isFirst = (i === 0), isLast = s.is_terminal === true;
       var tag = isFirst ? '始发' : isLast ? '终到' : s.is_stop ? '停靠' : '通过';
@@ -391,13 +387,8 @@
       var depTime = isLast ? '---' : (s.departure > 0 ? U.fmtTime(s.departure) : U.fmtTime(s.arrival));
       // 里程：neighbor API 提供；时速：本地根据时间差计算
       var dist = (i > 0 && s.distance_km) ? Number(s.distance_km).toFixed(0) + ' km' : '';
-      var speedStr = '';
-      if (i > 0 && s.distance_km && s.arrival > 0 && path[i-1].departure > 0) {
-        var prevMin = Math.floor(path[i-1].departure/100)*60 + (path[i-1].departure%100);
-        var curMin = Math.floor(s.arrival/100)*60 + (s.arrival%100);
-        if (curMin > prevMin)
-          speedStr = Math.round(Number(s.distance_km) / ((curMin - prevMin) / 60)) + ' km/h';
-      }
+      // speed_kmh 由 confirmStop 预计算（Haversine 距离 / 时间差），直接取用
+      var speedStr = (i > 0 && s.speed_kmh) ? s.speed_kmh + ' km/h' : '';
       html += '<tr>' +
         '<td class="route-idx">' + (i + 1) + '</td>' +
         '<td class="route-sta">' + U.esc(s.station_name) + '</td>' +
@@ -441,7 +432,7 @@
 
     // stops: 全部站（含通过），始发+停靠+通过+终到（segments 由后端从 stops 推导）
     var stops = [];
-    for (var i = 0; i < path.length; i++) {
+    for (let i = 0; i < path.length; i++) {
       var s = path[i];
       var isFirst = (i === 0), isLast = (i === path.length - 1);
       stops.push({
@@ -489,15 +480,10 @@
       var errMsg = (res.data && res.data.error) || '提交失败';
       var conflicts = (res.data && res.data.conflicts) || [];
       if (conflicts.length > 0) {
-        for (var c = 0; c < conflicts.length; c++) {
+        for (let c = 0; c < conflicts.length; c++) {
           var cf = conflicts[c];
-          var sa = '', sb = '';
-          for (var si = 0; si < State.stations.length; si++) {
-            if (State.stations[si].id === cf.station_a)
-              sa = State.stations[si].name;
-            if (State.stations[si].id === cf.station_b)
-              sb = State.stations[si].name;
-          }
+          var sa = U.stationName(cf.station_a, '');
+          var sb = U.stationName(cf.station_b, '');
           errMsg += '\n• ' + cf.train_id + ' 占用了 ' + (sa || cf.station_a) + ' → ' + (sb || cf.station_b) +
             ' 区间 ' + U.fmtTime(cf.conflicting_enter) + '–' + U.fmtTime(cf.conflicting_leave);
         }
@@ -521,7 +507,7 @@
     State._allTrains = res.data.data || [];
     // 构建 id→train 索引，供审批列表 O(1) 查找 stops
     State._trainMap = {};
-    for (var ti = 0; ti < State._allTrains.length; ti++)
+    for (let ti = 0; ti < State._allTrains.length; ti++)
       State._trainMap[State._allTrains[ti].id] = State._allTrains[ti];
     // 清空搜索框和排序（不重置复选框，HTML checked 属性自然生效）
     var inp = U.$('train-search-input');
@@ -538,7 +524,7 @@
   UI.filterTrains = function(status) {
     State._trainStatusFilter = status;
     var btns = document.querySelectorAll('#page-trains .filter-bar .btn');
-    for (var i = 0; i < btns.length; i++) {
+    for (let i = 0; i < btns.length; i++) {
       var txt = btns[i].textContent.trim();
       var match = (status === '' ? '全部' : status === 'ACTIVE' ? '运行中' : status === 'PENDING' ? '待审批' : '已归档');
       btns[i].classList.toggle('active', txt === match);
@@ -570,7 +556,7 @@
     var scope = document.querySelector('.page.active') || document;
     var typeItems = scope.querySelectorAll('.filter-type-item');
     if (typeItems.length > 0) {
-      for (var ti = 0; ti < typeItems.length; ti++)
+      for (let ti = 0; ti < typeItems.length; ti++)
         enabledTypes[typeItems[ti].value] = typeItems[ti].checked;
       trains = trains.filter(function(t) {
         var prefix = (t.id || '')[0].toUpperCase();
@@ -608,7 +594,7 @@
       listEl.innerHTML = '<div class="loading">暂无列车数据</div>';
       return;
     }
-    for (var i = 0; i < trains.length; i++) {
+    for (let i = 0; i < trains.length; i++) {
       var t = trains[i];
       var card = tpl.content.cloneNode(true);
       var key = 'train_' + i;
@@ -641,15 +627,9 @@
     }
   };
 
+  /** O(1) 站名查找，委托给 U.stationName */
   UI._stationName = function(id, fallback) {
-    if (fallback)
-      return fallback;
-    // 用 == 而非 ===，兼容后端返回 string/number 类型不一致
-    for (var i = 0; i < State.stations.length; i++) {
-      if (State.stations[i].id == id)
-        return State.stations[i].name;
-    }
-    return '站#' + id;
+    return U.stationName(id, fallback);
   };
 
   UI._lineName = function(lineId) {
@@ -658,9 +638,9 @@
     if (!State._lineNameIndex) {
       State._lineNameIndex = {};
       var idx = State._neighborIndex || {};
-      for (var sid in idx) {
+      for (let sid in idx) {
         var nb = idx[sid];
-        for (var n = 0; n < nb.length; n++) {
+        for (let n = 0; n < nb.length; n++) {
           if (nb[n].line_id && !State._lineNameIndex[nb[n].line_id])
             State._lineNameIndex[nb[n].line_id] = nb[n].line_name;
         }
@@ -674,7 +654,7 @@
       return stops;
     // 从 segments 提取第一个站 + 每个 segment 的 to 站
     var result = [];
-    for (var i = 0; i < segments.length; i++) {
+    for (let i = 0; i < segments.length; i++) {
       var seg = segments[i];
       if (i === 0) {
         result.push({ station_id: seg.from_station, line_id: 0, arrival: -1, departure: seg.enter_time });
@@ -682,7 +662,7 @@
       var isLast = (i === segments.length - 1);
       // 判断通过：该站是否在 stops 中（有 departure != arrival）
       var stopMatch = null;
-      for (var j = 0; j < stops.length; j++) {
+      for (let j = 0; j < stops.length; j++) {
         if (stops[j].station_id === seg.to_station) {
           stopMatch = stops[j];
           break;
@@ -700,6 +680,7 @@
     return result;
   };
 
+  // 表格行结构随停站类型变化（始发/终到/停靠/通过标签），不适合用 template
   UI._showStopTable = function(title, stops, segments) {
     U.$('detail-train-id').textContent = title;
     var fullStops = UI._buildFullStops(stops || [], segments || []);
@@ -709,7 +690,7 @@
     }
     var html = '<table class="route-table">' +
       '<tr><th>#</th><th>站点</th><th>线路</th><th>类型</th><th>到</th><th>发</th><th>里程</th><th>时速</th></tr>';
-    for (var i = 0; i < fullStops.length; i++) {
+    for (let i = 0; i < fullStops.length; i++) {
       var s = fullStops[i];
       var isFirst = (i === 0), isLast = (i === fullStops.length - 1);
       var isPass = !isFirst && !isLast && s.arrival > 0 && s.departure > 0 && s.arrival === s.departure;
@@ -810,7 +791,7 @@
     State._mySubFilter = status;
     var labels = {'': '全部', 'SUBMITTED': '待审批', 'APPROVED': '已通过', 'REJECTED': '已驳回', 'WITHDRAWN': '已取消'};
     var btns = document.querySelectorAll('#page-my-submissions .filter-bar .btn');
-    for (var i = 0; i < btns.length; i++) {
+    for (let i = 0; i < btns.length; i++) {
       btns[i].classList.toggle('active', btns[i].textContent.trim() === (labels[status] || '全部'));
     }
     UI.loadMySubmissions();
@@ -825,7 +806,7 @@
       listEl.innerHTML = '<div class="loading">暂无提交记录</div>';
       return;
     }
-    for (var i = 0; i < items.length; i++) {
+    for (let i = 0; i < items.length; i++) {
       var a = items[i];
       var card = tpl.content.cloneNode(true);
       // 解析 payload 存起来供详情使用
@@ -896,7 +877,10 @@
       listEl.innerHTML = '<div class="loading">暂无待处理的线路加站</div>';
       return;
     }
-    for (var i = 0; i < items.length; i++) {
+    if (!State._trainMap) State._trainMap = {};
+    var tpl = U.$('tpl-stop-insert-card');
+
+    for (let i = 0; i < items.length; i++) {
       var a = items[i];
       var pl = null;
       try { pl = (typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload); } catch (e) {}
@@ -905,16 +889,14 @@
       var stCity = pl.station_city || '?';
       var lineId = pl.line_id || 0;
 
-      // 从列车索引获取完整停站数据
-      if (!State._trainMap) State._trainMap = {};
       var train = State._trainMap[tid];
       var stops = train ? (train.stops || []) : [];
       if (!stops.length) continue;
 
-      // 找到列车在该线路上的途经站数量 + 首站位置（line_id 含义：本站→下一站的线路）
+      // 找到列车在该线路上的途经站数量 + 首站位置
       var firstLineIdx = -1, lineStopCount = 0;
       var lineName = pl.line_name || '';
-      for (var si = 0; si < stops.length; si++) {
+      for (let si = 0; si < stops.length; si++) {
         if (stops[si].line_id == lineId) {
           if (firstLineIdx < 0) firstLineIdx = si;
           lineStopCount++;
@@ -922,14 +904,12 @@
             lineName = stops[si].line_name;
         }
       }
-      // 末尾站：前一个站的 line_id 指向它的，也算在该线路上
       var lastIdx = stops.length - 1;
       if (lastIdx > 0 && stops[lastIdx - 1] && stops[lastIdx - 1].line_id == lineId) {
         if (firstLineIdx < 0) firstLineIdx = lastIdx;
         lineStopCount++;
       }
 
-      // 确定插入上下文：取线路首站和紧接其后的站
       var prevStop = null, nextStop = null;
       if (firstLineIdx >= 0) {
         if (firstLineIdx + 1 < stops.length) {
@@ -945,79 +925,83 @@
       var prevName = prevStop.station_name || UI._stationName(prevStop.station_id, '');
       var nextName = nextStop.station_name || UI._stationName(nextStop.station_id, '');
       var prevDep = prevStop.departure;
-      // 后站到达时间：优先 arrival，fallback 到 departure（通过/终到兼容）
       var nextArr = nextStop.arrival || nextStop.departure || 0;
 
-      var card = document.createElement('div');
-      card.className = 'approval-card';
-      card.innerHTML =
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
-        '<span style="font-weight:600;color:#53a8ff;font-size:16px">' + U.esc(tid) + '</span>' +
-        '<span style="font-size:13px;color:#e0e0e0">' + U.esc(lineName) + ' ＋ ' + U.esc(stCity) + '</span></div>' +
-        '<div style="font-size:12px;color:#707090;margin-bottom:10px">' +
-        '前站: <span style="color:#e0e0e0">' + U.esc(prevName) + '</span> 发车 ' + U.fmtTime(prevDep) +
-        ' ｜ 后站: <span style="color:#e0e0e0">' + U.esc(nextName) + '</span> 到达 ' + U.fmtTime(nextArr) +
-        ' ｜ 途经站数: ' + lineStopCount + '</div>' +
-        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
-        '<label style="font-size:13px;color:#e0e0e0;cursor:pointer">' +
-        '<input type="checkbox" id="si-is-stop-' + i + '" checked onchange="UI._siToggle(' + i + ')"> 停靠本站</label>' +
-        '<input type="time" id="si-arr-' + i + '" class="input" style="width:130px" onchange="UI._siCalcSpeed(' + i + ',' + prevDep + ',' + nextArr + ',' + lineId + ')">' +
-        '<span id="si-sep-' + i + '" style="color:#707090">—</span>' +
-        '<input type="time" id="si-dep-' + i + '" class="input" style="width:130px" onchange="UI._siCalcSpeed(' + i + ',' + prevDep + ',' + nextArr + ',' + lineId + ')">' +
-        '<span id="si-speed-' + i + '" style="font-size:12px;color:#9090b0;min-width:150px"></span>' +
-        '</div>' +
-        '<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="UI.submitStopInsert(\'' + a.id + '\',' + i + ',' + prevDep + ',' + nextArr + ',' + lineId + ')">提交</button>';
+      // 从模板克隆，填数据
+      var card = tpl.content.cloneNode(true);
+      card.querySelector('.si-train-id').textContent = tid;
+      card.querySelector('.si-line-station').textContent = lineName + ' ＋ ' + stCity;
+      card.querySelector('.si-prev-name').textContent = prevName;
+      card.querySelector('.si-prev-time').textContent = U.fmtTime(prevDep);
+      card.querySelector('.si-next-name').textContent = nextName;
+      card.querySelector('.si-next-time').textContent = U.fmtTime(nextArr);
+      card.querySelector('.si-stop-count').textContent = '途经站数: ' + lineStopCount;
+      card.querySelector('.si-arr-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
+      card.querySelector('.si-dep-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
+      card.querySelector('.si-is-stop').onchange = function() { UI._siToggle(this.closest('.si-card')); };
+      card.querySelector('.si-submit-btn').onclick = function() { UI.submitStopInsert(this.closest('.si-card')); };
+
+      // 存每卡片数据供事件处理用
+      var root = card.querySelector('.si-card');
+      root._siData = { approvalId: a.id, prevDep: prevDep, nextArr: nextArr, lineId: lineId, tid: tid };
+
       listEl.appendChild(card);
     }
-    // 所有项都没渲染出来时显示提示（而非空白页）
     if (!listEl.children.length)
       listEl.innerHTML = '<div class="loading">暂无待处理的线路加站</div>';
   };
 
   /** 切换停靠/通过：通过站只需一个时间 */
-  UI._siToggle = function(idx) {
-    var isStop = (U.$('si-is-stop-' + idx) || {}).checked;
-    U.$('si-arr-' + idx).style.display = isStop ? '' : 'none';
-    U.$('si-sep-' + idx).style.display = isStop ? '' : 'none';
-    // type="time" 无需改 placeholder
+  UI._siToggle = function(card) {
+    if (!card) return;
+    var isStop = card.querySelector('.si-is-stop').checked;
+    card.querySelector('.si-arr-time').style.display = isStop ? '' : 'none';
+    card.querySelector('.si-time-sep').style.display = isStop ? '' : 'none';
   };
 
-  /** 实时计算并显示时速 */
-  UI._siCalcSpeed = function(idx, prevDep, nextArr, lineId) {
-    var isStop = (U.$('si-is-stop-' + idx) || {}).checked;
-    var arr = UI._parseTimeStr((U.$('si-arr-' + idx) || {}).value);
-    var dep = UI._parseTimeStr((U.$('si-dep-' + idx) || {}).value);
-    var el = U.$('si-speed-' + idx);
-    if (!el || !dep) return;
+  /** 实时计算并显示时速（前端近似，后端做权威校验） */
+  UI._siCalcSpeed = function(card) {
+    if (!card) return;
+    var d = card._siData;
+    if (!d) return;
+    var isStop = card.querySelector('.si-is-stop').checked;
+    var arr = UI._parseTimeStr(card.querySelector('.si-arr-time').value);
+    var dep = UI._parseTimeStr(card.querySelector('.si-dep-time').value);
+    var el = card.querySelector('.si-speed');
+    if (!dep) {
+      el.textContent = '';
+      el.className = 'si-speed';
+      return;
+    }
     var effectiveArr = isStop ? arr : dep;
-    // 从邻居索引查线路限速和距离
     var nbList = State._neighborIndex || {};
     var limit = 999, dist = 0;
-    for (var key in nbList) {
-      for (var ni = 0; ni < nbList[key].length; ni++) {
-        if (nbList[key][ni].line_id === lineId) {
+    for (let key in nbList) {
+      for (let ni = 0; ni < nbList[key].length; ni++) {
+        if (nbList[key][ni].line_id == d.lineId) {
           limit = Math.min(limit, nbList[key][ni].max_speed_kmh || 999);
           if (dist === 0) dist = nbList[key][ni].distance_km || 0;
         }
       }
     }
     var speeds = [];
-    if (prevDep > 0 && effectiveArr > prevDep) {
-      var dm = Math.floor(prevDep/100)*60 + (prevDep%100);
+    if (d.prevDep > 0 && effectiveArr > d.prevDep) {
+      var dm = Math.floor(d.prevDep/100)*60 + (d.prevDep%100);
       var am = Math.floor(effectiveArr/100)*60 + (effectiveArr%100);
       if (am > dm) speeds.push(Math.round(dist / ((am - dm) / 60)));
     }
-    if (nextArr > 0 && dep > 0 && nextArr > dep) {
+    if (d.nextArr > 0 && dep > 0 && d.nextArr > dep) {
       var dm2 = Math.floor(dep/100)*60 + (dep%100);
-      var nm = Math.floor(nextArr/100)*60 + (nextArr%100);
+      var nm = Math.floor(d.nextArr/100)*60 + (d.nextArr%100);
       if (nm > dm2) speeds.push(Math.round(dist / ((nm - dm2) / 60)));
     }
     var txt = speeds.length ? speeds.join(' / ') + ' km/h' : '';
     var ok = true;
-    for (var si = 0; si < speeds.length; si++)
-      if (speeds[si] > limit) { ok = false; break; }
+    for (let si = 0; si < speeds.length; si++)
+      if (speeds[si] > limit)
+        ok = false;
     el.textContent = txt + (txt ? '（限速 ' + limit + '）' : '');
-    el.style.color = ok ? '#00ff88' : '#ff4444';
+    el.className = 'si-speed ' + (txt ? (ok ? 'ok' : 'warn') : '');
   };
 
   /** 将 HH:MM 字符串转为 HHMM 整数 */
@@ -1025,55 +1009,40 @@
     if (!s) return 0;
     var parts = s.split(':');
     if (parts.length === 2) return parseInt(parts[0]) * 100 + parseInt(parts[1]);
-    return parseInt(s) || 0;  // 兼容旧的 HHMM 格式
+    return parseInt(s) || 0;
   };
 
-  UI.submitStopInsert = async function(approvalId, idx, prevDep, nextArr, lineId) {
-    var isStop = (U.$('si-is-stop-' + idx) || {}).checked;
-    var arr = UI._parseTimeStr((U.$('si-arr-' + idx) || {}).value);
-    var dep = UI._parseTimeStr((U.$('si-dep-' + idx) || {}).value);
-    if (!dep) { U.toast('请填写时间', 'error'); return; }
-    if (isStop && !arr) { U.toast('停靠时请填写到站时间', 'error'); return; }
-    if (isStop && arr >= dep) { U.toast('发车须晚于到站', 'error'); return; }
-    var effectiveArr = isStop ? arr : dep;  // 通过站到站=通过时间
-    if (effectiveArr <= prevDep) { U.toast('时间须晚于前站发车 ' + U.fmtTime(prevDep), 'error'); return; }
-    if (nextArr > 0 && dep >= nextArr) { U.toast('时间须早于后站到达 ' + U.fmtTime(nextArr), 'error'); return; }
-
-    // 速度校验：前站发车→本站到达，本站发车→后站发车
-    var nb = (State._neighborIndex[String(prevDep)] || []).concat(State._neighborIndex[String(nextArr)] || []);
-    var prefix = (U.$('new-train-prefix') || {}).value || '';
-    var trainMax = UI._speedLimits[prefix] || 999;
-    var valid = true;
-    for (var ni = 0; ni < nb.length; ni++) {
-      if (nb[ni].line_id !== lineId) continue;
-      var lineMax = nb[ni].max_speed_kmh || 999;
-      var limit = Math.min(trainMax, lineMax);
-      if (nb[ni].neighbor_station_id === nextArr) continue;  // skip wrong direction
-      var segDist = nb[ni].distance_km || 0;
-      if (segDist > 0) {
-        var mins = 0;
-        var speed = 0;
-        // 检查: 前站发车 → 本站
-        if (prevDep > 0 && effectiveArr > prevDep) {
-          mins = Math.floor(prevDep/100)*60 + (prevDep%100);
-          var am = Math.floor(effectiveArr/100)*60 + (effectiveArr%100);
-          mins = am - mins;
-          if (mins > 0) { speed = Math.round(segDist / (mins / 60)); }
-        }
-        if (speed > limit) { U.toast('前段时速 ' + speed + ' 超限 ' + limit + ' km/h', 'error'); valid = false; break; }
-        // 检查: 本站 → 后站
-        if (nextArr > 0 && dep > 0 && nextArr > dep) {
-          var dm = Math.floor(dep/100)*60 + (dep%100);
-          var nm = Math.floor(nextArr/100)*60 + (nextArr%100);
-          mins = nm - dm;
-          if (mins > 0) { speed = Math.round(segDist / (mins / 60)); }
-        }
-        if (speed > limit) { U.toast('后段时速 ' + speed + ' 超限 ' + limit + ' km/h', 'error'); valid = false; break; }
-      }
+  /** 提交补站时间（前端本地基本校验，后端做权威校验） */
+  UI.submitStopInsert = async function(card) {
+    if (!card) return;
+    var d = card._siData;
+    if (!d) return;
+    var isStop = card.querySelector('.si-is-stop').checked;
+    var arr = UI._parseTimeStr(card.querySelector('.si-arr-time').value);
+    var dep = UI._parseTimeStr(card.querySelector('.si-dep-time').value);
+    if (!dep) {
+      U.toast('请填写时间', 'error');
+      return;
+    }
+    if (isStop && !arr) {
+      U.toast('停靠时请填写到站时间', 'error');
+      return;
+    }
+    if (isStop && arr >= dep) {
+      U.toast('发车须晚于到站', 'error');
+      return;
+    }
+    var effectiveArr = isStop ? arr : dep;
+    if (effectiveArr <= d.prevDep) {
+      U.toast('时间须晚于前站发车 ' + U.fmtTime(d.prevDep), 'error');
+      return;
+    }
+    if (d.nextArr > 0 && dep >= d.nextArr) {
+      U.toast('时间须早于后站到达 ' + U.fmtTime(d.nextArr), 'error');
+      return;
     }
 
-    if (!valid) return;
-    var res = await API.put('/api/admin/approvals/' + approvalId + '/stop-time',
+    var res = await API.put('/api/admin/approvals/' + d.approvalId + '/stop-time',
       { arrival: effectiveArr, departure: dep });
     if (res.ok) {
       U.toast('已提交，等待审批', 'success');
@@ -1092,7 +1061,7 @@
       var tr = await API.get('/api/admin/trains');
       if (tr.ok) {
         var trains = tr.data.data || [];
-        for (var ti = 0; ti < trains.length; ti++) {
+        for (let ti = 0; ti < trains.length; ti++) {
           if (trains[ti].id === item.train_id) {
             item.stops = trains[ti].stops || [];
             item.segments = trains[ti].segments || [];
@@ -1158,7 +1127,7 @@
       if (tr.ok) {
         State._allTrains = tr.data.data || [];
         State._trainMap = {};
-        for (var ti = 0; ti < State._allTrains.length; ti++)
+        for (let ti = 0; ti < State._allTrains.length; ti++)
           State._trainMap[State._allTrains[ti].id] = State._allTrains[ti];
       }
     } catch (_) {}

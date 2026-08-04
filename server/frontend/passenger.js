@@ -45,7 +45,7 @@
     UI.renderResults(State.currentTab);
     // 保持当前标签页高亮
     var tabs = document.querySelectorAll('.tab');
-    for (var ti = 0; ti < tabs.length; ti++) {
+    for (let ti = 0; ti < tabs.length; ti++) {
       var attr = tabs[ti].getAttribute('onclick') || '';
       tabs[ti].classList.toggle('active', attr.indexOf("'" + State.currentTab + "'") >= 0);
     }
@@ -64,7 +64,7 @@
       var seats = item.available_seats || {};
       var prices = item.seat_prices || {};
       var best = Infinity;
-      for (var m = 0; m < UI.SEAT_MAP.length; m++) {
+      for (let m = 0; m < UI.SEAT_MAP.length; m++) {
         if ((seats[UI.SEAT_MAP[m].key] || 0)
           > 0) {
           var p = prices[UI.SEAT_MAP[m].priceKey];
@@ -76,7 +76,7 @@
     }
 
     // 预计算最低票价，排序时 O(1) 复用
-    for (var pi = 0; pi < list.length; pi++) {
+    for (let pi = 0; pi < list.length; pi++) {
       list[pi]._cp = cheapestPrice(list[pi]);
     }
 
@@ -100,7 +100,7 @@
     var html = '';
     if (!list || !list.length)
       html = '<div class="loading">暂无结果</div>';
-    else for (var i = 0; i < list.length; i++) {
+    else for (let i = 0; i < list.length; i++) {
       var item = list[i];
       var seats = item.available_seats || {};
       var prices = item.seat_prices || {};
@@ -124,7 +124,7 @@
 
       function buildSeatRow(avail, priceMap, itemKey, seatType) {
         var h = '';
-        for (var s = 0; s < UI.SEAT_MAP.length; s++) {
+        for (let s = 0; s < UI.SEAT_MAP.length; s++) {
           var st = UI.SEAT_MAP[s];
           var cnt = avail[st.key] || 0;
           if (cnt > 0) {
@@ -151,15 +151,10 @@
 
         // 通过站名反查中转站 ID
         var transferId = 0;
-        for (var si = 0; si < State.stations.length; si++) {
-          if (State.stations[si].name === item.transfer_station) {
-            transferId = State.stations[si].id;
-            break;
-          }
-        }
+        transferId = U.stationNameToId(item.transfer_station);
         // 第一程用户的上下车站
         var f1Name = '', t1Name = '';
-        for (var si = 0; si < s1.length; si++) {
+        for (let si = 0; si < s1.length; si++) {
           if (s1[si].station_id === item.from_station)
             f1Name = s1[si].station_name;
           if (s1[si].station_id === transferId)
@@ -167,7 +162,7 @@
         }
         // 第二程用户的上下车站
         var f2Name = '', t2Name = '';
-        for (var si = 0; si < s2.length; si++) {
+        for (let si = 0; si < s2.length; si++) {
           if (s2[si].station_id === transferId)
             f2Name = s2[si].station_name;
           if (s2[si].station_id === item.to_station)
@@ -216,7 +211,7 @@
         // ── 直达卡片 ──
         // 查用户上车站名和下车站名
         var fromName = '', toName = '';
-        for (var si = 0; si < (item.stops || []).length; si++) {
+        for (let si = 0; si < (item.stops || []).length; si++) {
           if (item.stops[si].station_id === item.from_station)
             fromName = item.stops[si].station_name;
           if (item.stops[si].station_id === item.to_station)
@@ -245,7 +240,7 @@
     var enabledTypes = {};
     var scope = document.querySelector('.page.active') || document;
     var typeItems = scope.querySelectorAll('.filter-type-item');
-    for (var t = 0; t < typeItems.length; t++) {
+    for (let t = 0; t < typeItems.length; t++) {
       enabledTypes[typeItems[t].value] = typeItems[t].checked;
     }
     list = list.filter(function(item) {
@@ -305,11 +300,11 @@
     var fromChecks = document.querySelectorAll('.filter-from-st:not(:checked)');
     if (fromChecks.length > 0) {
       var excludeFrom = [];
-      for (var fi = 0; fi < fromChecks.length; fi++) { excludeFrom.push(fromChecks[fi].value); }
+      for (let fi = 0; fi < fromChecks.length; fi++) { excludeFrom.push(fromChecks[fi].value); }
       list = list.filter(function(item) {
         var fname = item.from_station_name;
         if (!fname && item.stops) {
-          for (var j = 0; j < item.stops.length; j++) {
+          for (let j = 0; j < item.stops.length; j++) {
             if (item.stops[j].station_id === item.from_station) {
               fname = item.stops[j].station_name;
               break;
@@ -324,11 +319,11 @@
     var toChecks = document.querySelectorAll('.filter-to-st:not(:checked)');
     if (toChecks.length > 0) {
       var excludeTo = [];
-      for (var ti = 0; ti < toChecks.length; ti++) { excludeTo.push(toChecks[ti].value); }
+      for (let ti = 0; ti < toChecks.length; ti++) { excludeTo.push(toChecks[ti].value); }
       list = list.filter(function(item) {
         var tname = item.to_station_name;
         if (!tname && item.stops) {
-          for (var j = 0; j < item.stops.length; j++) {
+          for (let j = 0; j < item.stops.length; j++) {
             if (item.stops[j].station_id === item.to_station) {
               tname = item.stops[j].station_name;
               break;
@@ -347,8 +342,8 @@
     var scope = document.querySelector('.page.active');
     if (!scope)
       return;
-    var items = scope.querySelectorAll('.filter-type-item, .station-filter-type-item');
-    for (var i = 0; i < items.length; i++) {
+    var items = scope.querySelectorAll('.filter-type-item');
+    for (let i = 0; i < items.length; i++) {
       items[i].checked = el.checked;
       items[i].disabled = el.checked;
     }
@@ -359,12 +354,12 @@
     var scope = document.querySelector('.page.active');
     if (!scope)
       return;
-    var allEl = scope.querySelector('.filter-type-all, .station-filter-type-all');
+    var allEl = scope.querySelector('.filter-type-all');
     if (!allEl)
       return;
-    var items = scope.querySelectorAll('.filter-type-item, .station-filter-type-item');
+    var items = scope.querySelectorAll('.filter-type-item');
     var allChecked = true;
-    for (var i = 0; i < items.length; i++) {
+    for (let i = 0; i < items.length; i++) {
       if (!items[i].checked) {
         allChecked = false;
         break;
@@ -380,14 +375,8 @@
       return;
     // 通过站名查中转站 ID
     var transferId = 0;
-    if (item.transfer_station) {
-      for (var si = 0; si < State.stations.length; si++) {
-        if (State.stations[si].name === item.transfer_station) {
-          transferId = State.stations[si].id;
-          break;
-        }
-      }
-    }
+    if (item.transfer_station)
+      transferId = U.stationNameToId(item.transfer_station);
 
     var prices, trainId, depTime, arrTime, fromSt, toSt;
     if (leg === 'first') {
@@ -521,7 +510,7 @@
     var orders = (res.data && res.data.data) ? res.data.data : [];
     if (!orders.length)
       html = '<div class="loading">暂无订单</div>';
-    else for (var i = 0; i < orders.length; i++) {
+    else for (let i = 0; i < orders.length; i++) {
       var o = orders[i];
       var oKey = 'order_' + i;
       State._trainItems[oKey] = o;
@@ -610,14 +599,14 @@
       return;
     var cities = {};
     var html = '';
-    for (var i = 0; i < State.stations.length; i++) {
+    for (let i = 0; i < State.stations.length; i++) {
       var s = State.stations[i];
       html += '<option value="' + U.esc(s.name) + '">';
       if (!cities[s.city])
         cities[s.city] = true;
     }
     var cityNames = Object.keys(cities);
-    for (var c = 0; c < cityNames.length; c++) {
+    for (let c = 0; c < cityNames.length; c++) {
       html += '<option value="🏠 ' + U.esc(cityNames[c]) + '">';
     }
     dl.innerHTML = html;
@@ -626,12 +615,12 @@
   UI.populateStationFilters = function(list) {
     // 收集当前结果中的站名
     var fromNames = {}, toNames = {};
-    for (var i = 0; i < list.length; i++) {
+    for (let i = 0; i < list.length; i++) {
       var item = list[i];
       var fname = item.from_station_name;
       var tname = item.to_station_name;
       if (!fname && item.stops) {
-        for (var j = 0; j < item.stops.length; j++) {
+        for (let j = 0; j < item.stops.length; j++) {
           if (item.stops[j].station_id === item.from_station)
             fname = item.stops[j].station_name;
           if (item.stops[j].station_id === item.to_station)
@@ -648,7 +637,7 @@
     function saveUnchecked(cls) {
       var unchecked = [];
       var els = document.querySelectorAll('.' + cls + ':not(:checked)');
-      for (var u = 0; u < els.length; u++) { unchecked.push(els[u].value); }
+      for (let u = 0; u < els.length; u++) { unchecked.push(els[u].value); }
       State._uncheckedStations = State._uncheckedStations || {};
       State._uncheckedStations[cls] = unchecked;
     }
@@ -662,7 +651,7 @@
       var keys = Object.keys(names).sort();
       var unchecked = (State._uncheckedStations || {})[cls] || [];
       var html = '<span class="filter-label">' + (containerId === 'filter-from-stations' ? '出发站' : '到达站') + '</span>';
-      for (var k = 0; k < keys.length; k++) {
+      for (let k = 0; k < keys.length; k++) {
         var isChecked = (unchecked.indexOf(keys[k]) < 0) ? ' checked' : '';
         html += '<label class="filter-check"><input type="checkbox" class="filter-station ' + cls +
           '" value="' + U.esc(keys[k]) + '"' + isChecked + ' onchange="UI.applyFilters()"> ' +
@@ -716,27 +705,25 @@
       State.stationCityStations = [];
       if (isCity) {
         var searchName = input.slice(3);
-        for (var si = 0; si < State.stations.length; si++) {
-          if (State.stations[si].city === searchName) {
-            State.stationCityStations.push(State.stations[si]);
-          }
-        }
+        var cityIds = State._cityToIds[searchName] || [];
+        for (let ci = 0; ci < cityIds.length; ci++)
+          State.stationCityStations.push({ id: cityIds[ci], name: U.stationName(cityIds[ci], '') });
       }
 
       // 初始化车站筛选勾选状态
       State.stationFilterSt = {};
-      for (var k = 0; k < State.stationCityStations.length; k++) {
+      for (let k = 0; k < State.stationCityStations.length; k++) {
         var sn = State.stationCityStations[k].name;
         var unchecked = (State._stationUnchecked || {})[sn];
         State.stationFilterSt[sn] = (unchecked !== true);
       }
 
       // 初始化车型筛选（默认全选，重置静态 checkbox）
-      var allEl = document.querySelector('.station-filter-type-all');
+      var allEl = document.querySelector('.filter-type-all');
       if (allEl) {
         allEl.checked = true;
-        var items = document.querySelectorAll('.station-filter-type-item');
-        for (var t = 0; t < items.length; t++) {
+        var items = document.querySelectorAll('.filter-type-item');
+        for (let t = 0; t < items.length; t++) {
           items[t].checked = true;
           items[t].disabled = false;
         }
@@ -759,8 +746,8 @@
 
     // 读取车型筛选（从静态 checkbox 读取）
     var enabledTypes = {};
-    var typeItems = document.querySelectorAll('.station-filter-type-item');
-    for (var ti = 0; ti < typeItems.length; ti++) {
+    var typeItems = document.querySelectorAll('.filter-type-item');
+    for (let ti = 0; ti < typeItems.length; ti++) {
       enabledTypes[typeItems[ti].value] = typeItems[ti].checked;
     }
     list = list.filter(function(item) {
@@ -774,7 +761,7 @@
       var enabledSt = {};
       var stChecks = document.querySelectorAll('.station-filter-st-check');
       var anyChecked = false;
-      for (var si = 0; si < stChecks.length; si++) {
+      for (let si = 0; si < stChecks.length; si++) {
         enabledSt[stChecks[si].value] = stChecks[si].checked;
         if (stChecks[si].checked)
           anyChecked = true;
@@ -791,11 +778,11 @@
     // 渲染筛选栏：车站筛选按需填充
     if (State.stationIsCity && State.stationCityStations.length > 1) {
       var liveChecks = document.querySelectorAll('.station-filter-st-check');
-      for (var l = 0; l < liveChecks.length; l++) {
+      for (let l = 0; l < liveChecks.length; l++) {
         State.stationFilterSt[liveChecks[l].value] = liveChecks[l].checked;
       }
       var stHtml = '<span class="filter-label">车站</span>';
-      for (var i = 0; i < State.stationCityStations.length; i++) {
+      for (let i = 0; i < State.stationCityStations.length; i++) {
         var sn = State.stationCityStations[i].name;
         var checked = State.stationFilterSt[sn] !== false ? ' checked' : '';
         stHtml += '<label class="filter-check"><input type="checkbox" class="station-filter-st-check" value="' +
@@ -816,7 +803,7 @@
 
     // 渲染结果卡片
     var html = '';
-    for (var j = 0; j < list.length; j++) {
+    for (let j = 0; j < list.length; j++) {
       var item = list[j];
       var dir = U.esc(item.from_station_name || '始发') + ' → ' + U.esc(item.to_station_name || '终到');
 
@@ -846,7 +833,7 @@
     var ids = highlightIds || {};
     var h = (label ? '<div class="timeline-label">' + U.esc(label) + '</div>' : '');
     h += '<div class="timeline">';
-    for (var i = 0; i < stops.length; i++) {
+    for (let i = 0; i < stops.length; i++) {
       var s = stops[i];
       var isFirst = (i === 0), isLast = (i === stops.length - 1);
       // 通过站：到达==发车且非始发终到
@@ -861,12 +848,7 @@
       // 解析站名：优先用已有 station_name，否则从 State.stations 查找
       var name = s.station_name || '';
       if (!name && s.station_id) {
-        for (var si = 0; si < State.stations.length; si++) {
-          if (State.stations[si].id === s.station_id) {
-            name = State.stations[si].name;
-            break;
-          }
-        }
+        name = U.stationName(s.station_id, '?');
       }
       if (!name)
         name = '站#' + (s.station_id || '?');
@@ -894,13 +876,12 @@
       return '';
     var isCity = (input.indexOf('🏠 ') === 0);
     var name = isCity ? input.slice(3) : input;
-    var ids = [];
-    for (var i = 0; i < State.stations.length; i++) {
-      var s = State.stations[i];
-      if (isCity ? (s.city === name)
-        : (s.name === name)) {
-        ids.push(s.id);
-      }
+    var ids;
+    if (isCity)
+      ids = State._cityToIds[name] || [];
+    else {
+      var sid = U.stationNameToId(name);
+      ids = sid ? [sid] : [];
     }
     return ids.length ? ids.join(',') : '0';  // '0' 会导致后端校验失败
   };
@@ -920,12 +901,12 @@
 
   UI.initHourSelects = function() {
     var hoursHtml = '<option value="">不限</option>';
-    for (var h = 0; h <= 23; h++) {
+    for (let h = 0; h <= 23; h++) {
       var label = (h < 10 ? '0' : '') + h + ':00';
       hoursHtml += '<option value="' + h + '">' + label + '</option>';
     }
     var ids = ['filter-dep-from', 'filter-dep-to', 'filter-arr-from', 'filter-arr-to'];
-    for (var i = 0; i < ids.length; i++) {
+    for (let i = 0; i < ids.length; i++) {
       var el = U.$(ids[i]);
       if (el) {
         var val = el.value;
@@ -942,7 +923,7 @@
     var fromVal = fromEl.value, toVal = toEl.value;
     var minH = fromVal === '' ? 0 : parseInt(fromVal, 10) + 1;
     var html = '<option value="">不限</option>';
-    for (var h = minH; h <= 23; h++) {
+    for (let h = minH; h <= 23; h++) {
       html += '<option value="' + h + '">' + (h < 10 ? '0' : '') + h + ':00</option>';
     }
     toEl.innerHTML = html;
@@ -957,7 +938,7 @@
   UI.filterOrders = function(status) {
     State.currentStatusFilter = status;
     var btns = document.querySelectorAll('.filter-bar .btn');
-    for (var i = 0; i < btns.length; i++) {
+    for (let i = 0; i < btns.length; i++) {
       var txt = btns[i].textContent.trim();
       btns[i].classList.toggle('active', txt === (status === '' ? '全部' : status === 'PAID' ? '已支付' : '已退票'));
     }
@@ -967,7 +948,7 @@
   UI.switchTab = function(tab) {
     State.currentTab = tab;
     var tabs = document.querySelectorAll('.tab');
-    for (var i = 0; i < tabs.length; i++) {
+    for (let i = 0; i < tabs.length; i++) {
       var attr = tabs[i].getAttribute('onclick') || '';
       tabs[i].classList.toggle('active', attr.indexOf("'" + tab + "'") >= 0);
     }
@@ -981,7 +962,7 @@
     U.$('detail-train-id').textContent = item.train_id + ' 经停时刻表';
     var highlightIds = {};
     if (State.stationIsCity) {
-      for (var ci = 0; ci < State.stationCityStations.length; ci++) {
+      for (let ci = 0; ci < State.stationCityStations.length; ci++) {
         highlightIds[State.stationCityStations[ci].id] = true;
       }
     } else {

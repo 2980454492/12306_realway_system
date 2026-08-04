@@ -35,15 +35,27 @@
     tbl.innerHTML = '<thead><tr><th>ID</th><th>站名</th><th>城市</th><th>类型</th><th>操作</th></tr></thead>';
     var tbody = document.createElement('tbody');
     var typeLabels = {HIGH_SPEED:'高铁站',NORMAL:'普速站',HUB:'枢纽站'};
-    for (var i = 0; i < stations.length; i++) {
+    for (let i = 0; i < stations.length; i++) {
       var s = stations[i];
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + s.id + '</td>'
-        + '<td style="font-weight:600;color:#e0e0e0">' + U.esc(s.name) + '</td>'
-        + '<td>' + U.esc(s.city) + '</td>'
-        + '<td>' + (typeLabels[s.type] || s.type) + '</td>'
-        + '<td class="user-actions"><button class="btn btn-sm btn-primary">编辑</button>'
-        + '<button class="btn btn-sm btn-danger">删除</button></td>';
+      var td1 = document.createElement('td');
+      td1.textContent = s.id;
+      var td2 = document.createElement('td');
+      td2.className = 'infra-name';
+      td2.textContent = s.name;
+      var td3 = document.createElement('td');
+      td3.textContent = s.city;
+      var td4 = document.createElement('td');
+      td4.textContent = typeLabels[s.type] || s.type;
+      var td5 = document.createElement('td');
+      td5.className = 'user-actions';
+      td5.innerHTML = '<button class="btn btn-sm btn-primary">编辑</button>'
+        + '<button class="btn btn-sm btn-danger">删除</button>';
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tr.appendChild(td3);
+      tr.appendChild(td4);
+      tr.appendChild(td5);
       var btns = tr.querySelectorAll('button');
       btns[0].onclick = (function(id){return function(){UI.editStation(id);};})(s.id);
       btns[1].onclick = (function(id,name){return function(){UI.deleteStation(id,name);};})(s.id, s.name);
@@ -53,6 +65,7 @@
     listEl.appendChild(tbl);
   };
 
+  // 结构随编辑/新增变化（title、按钮回调），不适合用 template，保留字符串拼接
   UI.showStationForm = function(station) {
     var h = '<h3>' + (station ? '编辑站点' : '新增站点') + '</h3>'
       + '<div class="form-group"><label>站名</label><input id="sf-name" class="input" value="' + (station ? U.esc(station.name) : '') + '"></div>'
@@ -89,7 +102,7 @@
   };
 
   UI.editStation = function(id) {
-    for (var i = 0; i < UI._allStations.length; i++)
+    for (let i = 0; i < UI._allStations.length; i++)
       if (UI._allStations[i].id === id) {
         UI.showStationForm(UI._allStations[i]);
         return;
@@ -139,16 +152,30 @@
     tbl.innerHTML = '<thead><tr><th>ID</th><th>名称</th><th>类型</th><th>时速(km/h)</th><th>车站数</th><th>操作</th></tr></thead>';
     var tbody = document.createElement('tbody');
     var typeLabels = {HIGH_SPEED:'高铁',EXPRESS:'快铁',NORMAL:'普铁'};
-    for (var i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
       var l = lines[i];
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + l.id + '</td>'
-        + '<td style="font-weight:600;color:#e0e0e0">' + U.esc(l.name) + '</td>'
-        + '<td>' + (typeLabels[l.type] || l.type) + '</td>'
-        + '<td>' + (l.max_speed_kmh || 0) + '</td>'
-        + '<td>' + (l.stations ? l.stations.length : 0) + '</td>'
-        + '<td class="user-actions"><button class="btn btn-sm btn-primary">编辑</button>'
-        + '<button class="btn btn-sm btn-danger">删除</button></td>';
+      var td1 = document.createElement('td');
+      td1.textContent = l.id;
+      var td2 = document.createElement('td');
+      td2.className = 'infra-name';
+      td2.textContent = l.name;
+      var td3 = document.createElement('td');
+      td3.textContent = typeLabels[l.type] || l.type;
+      var td4 = document.createElement('td');
+      td4.textContent = l.max_speed_kmh || 0;
+      var td5 = document.createElement('td');
+      td5.textContent = l.stations ? l.stations.length : 0;
+      var td6 = document.createElement('td');
+      td6.className = 'user-actions';
+      td6.innerHTML = '<button class="btn btn-sm btn-primary">编辑</button>'
+        + '<button class="btn btn-sm btn-danger">删除</button>';
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tr.appendChild(td3);
+      tr.appendChild(td4);
+      tr.appendChild(td5);
+      tr.appendChild(td6);
       var btns = tr.querySelectorAll('button');
       btns[0].onclick = (function(id){return function(){UI.editLine(id);};})(l.id);
       btns[1].onclick = (function(id,name){return function(){UI.deleteLine(id,name);};})(l.id, l.name);
@@ -158,6 +185,7 @@
     listEl.appendChild(tbl);
   };
 
+  // 结构随编辑/新增变化（站点列表、按钮回调），不适合用 template，保留字符串拼接
   UI.showLineForm = async function(line) {
     // 确保站点列表已加载（用于城市名校验）
     if (!UI._allStations || !UI._allStations.length) {
@@ -167,13 +195,13 @@
     }
     // 城市名 → 站名（取每个城市第一个站）
     var cityToName = {};
-    for (var si = 0; si < (UI._allStations || []).length; si++) {
+    for (let si = 0; si < (UI._allStations || []).length; si++) {
       var st = UI._allStations[si];
       if (!cityToName[st.city])
         cityToName[st.city] = st.name;
     }
     var cities = line ? (line.stations || []).slice() : [''];
-    for (var ci = 0; ci < cities.length; ci++)
+    for (let ci = 0; ci < cities.length; ci++)
       cities[ci] = cityToName[cities[ci]] || cities[ci];  // 城市名→站名
     var title = line ? '编辑线路' : '新增线路';
     var editingId = line ? line.id : 0;
@@ -197,15 +225,15 @@
     var dl = document.createElement('datalist');
     dl.id = 'station-suggest-list';
     var namesSet = {};
-    for (var ci = 0; ci < (UI._allStations || []).length; ci++)
+    for (let ci = 0; ci < (UI._allStations || []).length; ci++)
       namesSet[UI._allStations[ci].name] = true;
-    for (var sn in namesSet)
+    for (let sn in namesSet)
       dl.innerHTML += '<option value="' + U.esc(sn) + '">';
     UI._showModal(h);
     U.$('lf-city-list').parentNode.insertBefore(dl, U.$('lf-city-list'));
 
     // 初始化已有车站
-    for (var i = 0; i < cities.length; i++) {
+    for (let i = 0; i < cities.length; i++) {
       var row = UI._lfAddRow(i);
       row.querySelector('input').value = cities[i];
       if (cities[i])
@@ -267,7 +295,7 @@
     }
     var found = false;
     var stations = UI._allStations || [];
-    for (var i = 0; i < stations.length; i++) {
+    for (let i = 0; i < stations.length; i++) {
       if (stations[i].name === name) {
         found = true;
         break;
@@ -281,7 +309,7 @@
     if (rows.length === 0)
       return;
     rows[0].querySelector('.lf-role').textContent = '起点';
-    for (var i = 1; i < rows.length; i++)
+    for (let i = 1; i < rows.length; i++)
       rows[i].querySelector('.lf-role').textContent = i === rows.length - 1 ? '终点' : '途经';
   };
 
@@ -295,9 +323,9 @@
     var cities = [];
     // 站名 → 城市名 映射
     var nameToCity = {};
-    for (var si = 0; si < (UI._allStations || []).length; si++)
+    for (let si = 0; si < (UI._allStations || []).length; si++)
       nameToCity[UI._allStations[si].name] = UI._allStations[si].city;
-    for (var i = 0; i < rows.length; i++) {
+    for (let i = 0; i < rows.length; i++) {
       var val = (rows[i].querySelector('input').value || '').trim();
       if (!val)
         return U.toast('站点名不能为空', 'error');
@@ -326,7 +354,7 @@
   };
 
   UI.editLine = function(id) {
-    for (var i = 0; i < UI._allLines.length; i++)
+    for (let i = 0; i < UI._allLines.length; i++)
       if (UI._allLines[i].id === id) {
         UI.showLineForm(UI._allLines[i]);
         return;
@@ -399,7 +427,7 @@
     });
     var EDGES = [];
     lines.forEach(function(l) {
-      for (var i = 0; i + 1 < l.stations.length; i++)
+      for (let i = 0; i + 1 < l.stations.length; i++)
         EDGES.push({
           from: l.stations[i],
           to: l.stations[i + 1],
@@ -449,7 +477,7 @@
     function getFilteredEdges() {
       var checks = document.querySelectorAll('.net-filter-line');
       var mask = {};
-      for (var ci = 0; ci < checks.length; ci++)
+      for (let ci = 0; ci < checks.length; ci++)
         mask[parseInt(checks[ci].value)] = checks[ci].checked;
       return EDGES.filter(function(e) { return mask[e.type]; });
     }
@@ -542,7 +570,7 @@
       // 网格索引加速聚类
       var cell = {};
       var cSize = Math.max(th, 10);
-      for (var i = 0; i < NODES.length; i++) {
+      for (let i = 0; i < NODES.length; i++) {
         var cx = Math.floor(NODES[i].x / cSize);
         var cy = Math.floor(NODES[i].y / cSize);
         var ck = cx + ',' + cy;
@@ -550,20 +578,20 @@
           cell[ck] = [];
         cell[ck].push(i);
       }
-      for (var ck in cell) {
+      for (let ck in cell) {
         var parts = ck.split(',');
         var cx = +parts[0];
         var cy = +parts[1];
-        for (var dx = -1; dx <= 1; dx++) {
-          for (var dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dy = -1; dy <= 1; dy++) {
             var nk = (cx + dx) + ',' + (cy + dy);
             if (!cell[nk])
               continue;
-            for (var ai = 0; ai < cell[ck].length; ai++) {
+            for (let ai = 0; ai < cell[ck].length; ai++) {
               var i = cell[ck][ai];
               if (hidden.has(i))
                 continue;
-              for (var bi = 0; bi < cell[nk].length; bi++) {
+              for (let bi = 0; bi < cell[nk].length; bi++) {
                 var j = cell[nk][bi];
                 if (j <= i || hidden.has(j))
                   continue;
@@ -605,7 +633,7 @@
       });
 
       // 站点圆点
-      for (var i = 0; i < NODES.length; i++) {
+      for (let i = 0; i < NODES.length; i++) {
         if (hidden.has(i))
           continue;
         (function(n) {
@@ -635,7 +663,7 @@
     function renderT(hidden, fEdges, edgeCount) {
       tG.innerHTML = '';
       // 站名
-      for (var i = 0; i < NODES.length; i++) {
+      for (let i = 0; i < NODES.length; i++) {
         if (hidden.has(i))
           continue;
         var n = NODES[i];
@@ -651,10 +679,10 @@
 
       // 线路标签重叠检测
       var eh = new Set();
-      for (var i = 0; i < fEdges.length; i++) {
+      for (let i = 0; i < fEdges.length; i++) {
         if (eh.has(i))
           continue;
-        for (var j = i + 1; j < fEdges.length; j++) {
+        for (let j = i + 1; j < fEdges.length; j++) {
           if (eh.has(j))
             continue;
           var a = nodeById[fEdges[i].from];
