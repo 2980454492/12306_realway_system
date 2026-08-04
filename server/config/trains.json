@@ -117,17 +117,6 @@
         "stop_type_name": "停靠"
       },
       {
-        "arrival": 778,
-        "departure": 778,
-        "line_id": 5,
-        "line_name": "京广高铁",
-        "platform": 0,
-        "station_id": 337,
-        "station_name": "衡山西",
-        "stop_type": 2,
-        "stop_type_name": "通过"
-      },
-      {
         "arrival": 814,
         "departure": 816,
         "line_id": 5,
@@ -161,8 +150,19 @@
         "stop_type_name": "通过"
       },
       {
-        "arrival": 930,
-        "departure": 930,
+        "arrival": 920,
+        "departure": 928,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 337,
+        "station_name": "衡山西",
+        "stop_type": 1,
+        "stop_type_name": "停靠"
+      },
+      {
+        "arrival": 945,
+        "departure": 945,
         "line_id": 5,
         "line_name": "京广高铁",
         "platform": 0,
@@ -266,17 +266,6 @@
         "stop_type_name": "通过"
       },
       {
-        "arrival": 791,
-        "departure": 791,
-        "line_id": 5,
-        "line_name": "京广高铁",
-        "platform": 0,
-        "station_id": 337,
-        "station_name": "衡山西",
-        "stop_type": 2,
-        "stop_type_name": "通过"
-      },
-      {
         "arrival": 829,
         "departure": 829,
         "line_id": 5,
@@ -310,8 +299,19 @@
         "stop_type_name": "通过"
       },
       {
-        "arrival": 946,
-        "departure": 946,
+        "arrival": 940,
+        "departure": 940,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 337,
+        "station_name": "衡山西",
+        "stop_type": 2,
+        "stop_type_name": "通过"
+      },
+      {
+        "arrival": 950,
+        "departure": 950,
         "line_id": 5,
         "line_name": "京广高铁",
         "platform": 0,

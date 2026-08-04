@@ -212,15 +212,21 @@ bool DataStore::saveTrains() const {
                 // station_name
                 auto* st = getStation(s.station_id);
                 jstops[i]["station_name"] = st ? st->name : "?";
-                // stop_type
-                int stype = s.stop_type;
-                if (stype == 0) {
-                    if (i == 0) stype = 0;
-                    else if (i == train.stops.size() - 1) stype = 3;
-                    else stype = (s.arrival > 0 && s.departure > 0 && s.arrival == s.departure) ? 2 : 1;
+                // stop_type：未初始化时动态计算
+                StopType stype = s.stop_type;
+                if (stype == StopType::ORIGIN) {
+                    if (i == 0)
+                        stype = StopType::ORIGIN;
+                    else if (i == train.stops.size() - 1)
+                        stype = StopType::TERMINAL;
+                    else
+                        stype = (s.arrival > 0 && s.departure > 0 && s.arrival == s.departure)
+                            ? StopType::PASS : StopType::STOP;
                 }
-                jstops[i]["stop_type"] = stype;
-                jstops[i]["stop_type_name"] = (stype == 0 ? "始发" : stype == 1 ? "停靠" : stype == 2 ? "通过" : "终到");
+                jstops[i]["stop_type"] = static_cast<int>(stype);
+                jstops[i]["stop_type_name"] = (stype == StopType::ORIGIN ? "始发"
+                    : stype == StopType::STOP ? "停靠"
+                    : stype == StopType::PASS ? "通过" : "终到");
                 // line_name — O(1) 查表，替代原三重循环
                 if (s.line_id > 0) {
                     auto it = line_id_to_name.find(s.line_id);

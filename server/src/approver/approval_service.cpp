@@ -210,7 +210,7 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
     new_stop.line_id = line_id;
     new_stop.arrival = arrival;
     new_stop.departure = departure;
-    new_stop.stop_type = (arrival == departure) ? 2 : 1;  // 通过/停靠
+    new_stop.stop_type = (arrival == departure) ? StopType::PASS : StopType::STOP;  // 通过/停靠
 
     Train modified = *train;
     modified.stops.insert(modified.stops.begin() + insert_idx, new_stop);
@@ -393,11 +393,11 @@ ApprovalService::ApproveResult ApprovalService::approve(
             Stop new_stop;
             new_stop.station_id = st_id;
             new_stop.line_id = line_id;
-            new_stop.stop_type = 2;  // 默认通过
+            new_stop.stop_type = StopType::PASS;  // 默认通过
             if (payload.contains("arrival") && payload.contains("departure")) {
                 new_stop.arrival = payload.value("arrival", 0);
                 new_stop.departure = payload.value("departure", 0);
-                new_stop.stop_type = (new_stop.arrival == new_stop.departure) ? 2 : 1;
+                new_stop.stop_type = (new_stop.arrival == new_stop.departure) ? StopType::PASS : StopType::STOP;
             } else {
                 // 通过：到达=发车=前站发车+后站到达的中点
                 int prev_dep = train->stops[insert_idx - 1].departure;

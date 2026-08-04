@@ -48,10 +48,12 @@ inline bool checkRateLimit(const std::string& key, int max, double rate,
     return true;
 }
 
-/** 停站序列 → JSON 数组 */
+/** 停站序列 → JSON 数组。stop_type 动态计算而非依赖持久化值 */
 inline json stopsToJson(const std::vector<Stop>& stops, DataStore& ds) {
     json arr = json::array();
-    for (const auto& stop : stops) {
+    size_t n = stops.size();
+    for (size_t i = 0; i < n; ++i) {
+        const auto& stop = stops[i];
         json sd;
         sd["station_id"] = stop.station_id;
         sd["station_name"] = stop.station_name.empty()
@@ -61,7 +63,13 @@ inline json stopsToJson(const std::vector<Stop>& stops, DataStore& ds) {
         sd["line_name"] = stop.line_name;
         sd["arrival"] = stop.arrival;
         sd["departure"] = stop.departure;
-        sd["stop_type"] = stop.stop_type;
+        StopType st = stop.stop_type;
+        if (st == StopType::ORIGIN)
+            st = (i == 0) ? StopType::ORIGIN
+                : (i == n - 1) ? StopType::TERMINAL
+                : (stop.arrival > 0 && stop.departure > 0 && stop.arrival == stop.departure)
+                    ? StopType::PASS : StopType::STOP;
+        sd["stop_type"] = static_cast<int>(st);
         arr.push_back(sd);
     }
     return arr;

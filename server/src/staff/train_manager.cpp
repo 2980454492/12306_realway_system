@@ -221,8 +221,10 @@ std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Tr
                 bool ex_stops = false;
                 if (ex_train) {
                     for (const auto& stop : ex_train->stops)
-                        if (stop.station_id == seg.to_station && stop.stop_type == 1)
-                            { ex_stops = true; break; }
+                        if (stop.station_id == seg.to_station && stop.stop_type == StopType::STOP){ 
+                            ex_stops = true; 
+                            break; 
+                        }
                 }
                 if (!ex_stops) {
                     conflicts.push_back({ex_tid, seg.from_station, seg.to_station,

@@ -132,6 +132,14 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalState, {
     {ApprovalState::WITHDRAWN, "WITHDRAWN"},
 })
 
+/** 停站类型 */
+enum class StopType : uint8_t {
+    ORIGIN = 0,    // 始发
+    STOP = 1,      // 停靠
+    PASS = 2,      // 通过
+    TERMINAL = 3   // 终到
+};
+
 // ── 核心数据结构 ──
 
 /** 经停站 — 列车在一个站点的到发信息。时间用 HHMM 整数（如 1430=14:30）。
@@ -145,7 +153,7 @@ struct Stop {
     uint8_t platform = 0;       // 站台号，0 表示未指定
     std::string station_name;   // 站名（持久化冗余，避免前端反查）
     std::string line_name;      // 线路名（持久化冗余）
-    int stop_type = 0;          // 0=始发 1=停靠 2=通过 3=终到
+    StopType stop_type = StopType::ORIGIN;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Stop, station_id, line_id, arrival, departure, platform)
 // station_name / line_name / stop_type 不在宏中——请求体不含这些字段，
