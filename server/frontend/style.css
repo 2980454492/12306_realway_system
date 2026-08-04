@@ -122,14 +122,15 @@ h2 { font-size: 22px; margin-bottom: 20px; color: var(--text-bright); }
 }
 .filter-row { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
 .filter-row + .filter-row { margin-top: 8px; }
-.filter-group { display: flex; align-items: center; gap: 6px; }
-.filter-label { color: var(--text-muted); font-size: 13px; margin-right: 4px; }
-.filter-check { font-size: 13px; color: var(--text-mid); cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+.filter-group { display: flex; align-items: center; gap: 8px; }
+.filter-label { color: var(--text-muted); font-size: 14px; margin-right: 4px; }
+.filter-check { font-size: 14px; color: var(--text-mid); cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap; }
 .filter-check input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
 .filter-time {
   padding: 4px 8px; background: var(--input); border: 1px solid var(--border); border-radius: 4px;
-  color: var(--text); font-size: 13px; outline: none; width: 90px; cursor: pointer;
+  color: var(--text); font-size: 14px; outline: none; width: 90px; cursor: pointer;
 }
+.filter-type-group { display: inline-flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
 .filter-time:focus { border-color: var(--accent); }
 .filter-time-sep { color: var(--text-muted); font-size: 13px; }
 
