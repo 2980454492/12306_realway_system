@@ -862,7 +862,11 @@
   UI.loadStopInserts = async function() {
     await UI._ensureTrainsLoaded();
     if (!State.stations.length) await U.loadStations();
-    // 用专用端点，不受 APPROVER 端过滤影响
+    // 线路数据用于城市匹配查插入位置
+    if (!UI._allLines || !UI._allLines.length) {
+      var lr = await API.get('/api/admin/lines');
+      if (lr.ok) UI._allLines = lr.data.data || [];
+    }
     var res = await API.get('/api/admin/stop-inserts');
     if (!res.ok) return U.toast('加载失败', 'error');
     State._stopInserts = res.data.data || [];
@@ -910,8 +914,26 @@
         lineStopCount++;
       }
 
+      // 用线路站点顺序精确定位新站的插入位置（前后城市的 stops）
       var prevStop = null, nextStop = null;
-      if (firstLineIdx >= 0) {
+      var line = UI._allLines ? UI._allLines.filter(function(l) { return l.id == lineId; })[0] : null;
+      if (line && line.stations) {
+        var stIdx = -1;
+        for (let si = 0; si < line.stations.length; si++)
+          if (line.stations[si] === stCity) { stIdx = si; break; }
+        var prevCity = stIdx > 0 ? line.stations[stIdx - 1] : '';
+        var nextCity = (stIdx >= 0 && stIdx + 1 < line.stations.length) ? line.stations[stIdx + 1] : '';
+        for (let si = 0; si + 1 < stops.length; si++) {
+          if (stops[si].line_id != lineId || stops[si + 1].line_id != lineId) continue;
+          var c1 = (State._staCity && State._staCity[stops[si].station_id]) || '';
+          var c2 = (State._staCity && State._staCity[stops[si + 1].station_id]) || '';
+          if (c1 === prevCity && c2 === nextCity) {
+            prevStop = stops[si]; nextStop = stops[si + 1]; break;
+          }
+        }
+      }
+      // 回退：线路数据不可用或匹配失败时，取首个在线路上的站
+      if (!prevStop && firstLineIdx >= 0) {
         if (firstLineIdx + 1 < stops.length) {
           prevStop = stops[firstLineIdx];
           nextStop = stops[firstLineIdx + 1];
