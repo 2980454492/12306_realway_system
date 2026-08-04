@@ -415,6 +415,38 @@ ApprovalService::ApproveResult ApprovalService::approve(
             TrainManager::instance().adjustSchedule(tid, train->stops);
             ds.saveTrains();
             result.train_id = tid;
+        } else if (it->type == ApprovalType::STOP_REMOVE) {
+            // 线路删除车站 → 从受影响列车中移除该站
+            std::string tid = payload.value("train_id", "");
+            uint32_t line_id = payload.value("line_id", 0U);
+            auto* train = ds.getTrainMutable(tid);
+            if (!train) {
+                cas_lock_.clear();
+                result.error = "列车 " + tid + " 不存在";
+                return result;
+            }
+            std::string st_city = payload.value("station_city", "");
+            uint32_t st_id = ds.stationToId(st_city);
+            if (st_id == 0) {
+                cas_lock_.clear();
+                result.error = "站点 " + st_city + " 不存在";
+                return result;
+            }
+            // 按 station_id + line_id 精确匹配要移除的 stop
+            auto stop_it = std::find_if(train->stops.begin(), train->stops.end(),
+                [st_id, line_id](const Stop& s) {
+                    return s.station_id == st_id && s.line_id == line_id;
+                });
+            if (stop_it == train->stops.end()) {
+                cas_lock_.clear();
+                result.error = "列车 " + tid + " 中未找到站点 " + st_city;
+                return result;
+            }
+            train->stops.erase(stop_it);
+            TrainManager::instance().adjustSchedule(tid, train->stops);
+            ds.saveTrains();
+            Logger::instance().info("STOP_REMOVE: removed " + st_city + " from " + tid);
+            result.train_id = tid;
         }
 
         it->status = ApprovalState::APPROVED;

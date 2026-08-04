@@ -344,7 +344,7 @@ h2 { font-size: 22px; margin-bottom: 20px; color: var(--text-bright); }
 .approval-actions { margin-top: 10px; display: flex; gap: 8px; }
 .approval-comment { font-size: 12px; color: var(--comment-error); margin-top: 6px; }
 
-/* ── 线路加站卡片 ── */
+/* ── 线路变更卡片 ── */
 .si-card { padding: 14px 18px; }
 .si-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .si-train-id { font-weight: 600; color: var(--blue); font-size: 16px; }

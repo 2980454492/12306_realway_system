@@ -857,7 +857,7 @@
     else U.toast((res.data && res.data.error) || '撤回失败', 'error');
   };
 
-  // ── 线路加站 ──
+  // ── 线路变更 ──
 
   UI.loadStopInserts = async function() {
     await UI._ensureTrainsLoaded();
@@ -878,7 +878,7 @@
     listEl.innerHTML = '';
     var items = State._stopInserts || [];
     if (!items.length) {
-      listEl.innerHTML = '<div class="loading">暂无待处理的线路加站</div>';
+      listEl.innerHTML = '<div class="loading">暂无待处理的线路变更</div>';
       return;
     }
     if (!State._trainMap) State._trainMap = {};
@@ -974,7 +974,7 @@
       listEl.appendChild(card);
     }
     if (!listEl.children.length)
-      listEl.innerHTML = '<div class="loading">暂无待处理的线路加站</div>';
+      listEl.innerHTML = '<div class="loading">暂无待处理的线路变更</div>';
   };
 
   /** 切换停靠/通过：通过站只需一个时间 */

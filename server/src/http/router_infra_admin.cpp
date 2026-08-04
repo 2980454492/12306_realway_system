@@ -287,10 +287,48 @@ void registerInfraAdminRoutes(RailwayServer& server) {
             }
         }
 
+        // 检测被删除站点，为经过该线路且包含该站的列车创建删站审批
+        json removed_trains = json::array();
+        for (const auto& old_st : old_stations) {
+            auto it = std::find(line.stations.begin(), line.stations.end(), old_st);
+            if (it != line.stations.end()) continue;  // 仍在线路中，跳过
+
+            Logger::instance().info("Line " + std::to_string(id) + " removed station: " + old_st);
+
+            uint32_t old_st_id = ds.stationToId(old_st);
+            if (old_st_id == 0) {
+                Logger::instance().warn("Station not found: " + old_st);
+                continue;
+            }
+
+            for (const auto& train : ds.getAllTrains()) {
+                bool on_this_line = false;
+                bool has_station = false;
+                for (const auto& stop : train.stops) {
+                    if (stop.line_id == id) on_this_line = true;
+                    if (stop.station_id == old_st_id) has_station = true;
+                }
+                if (!on_this_line || !has_station) continue;
+
+                Logger::instance().info("Creating STOP_REMOVE for train " + train.id + " station " + old_st);
+
+                json payload;
+                payload["train_id"] = train.id;
+                payload["line_id"] = id;
+                payload["station_city"] = old_st;
+                payload["action"] = "remove";
+                std::string aid = ApprovalService::instance().submit(
+                    ApprovalType::STOP_REMOVE, ctx->user_id, payload.dump());
+                removed_trains.push_back({{"train_id", train.id}, {"approval_id", aid}});
+            }
+        }
+
         json j;
         j["ok"] = true;
         if (!affected_trains.empty())
             j["affected_trains"] = affected_trains;
+        if (!removed_trains.empty())
+            j["removed_trains"] = removed_trains;
         res.set_content(j.dump(), "application/json");
     } catch (const std::exception& e) {
         internalError(res, e.what());
