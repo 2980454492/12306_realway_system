@@ -2686,5 +2686,13 @@
     "longitude": 113.27,
     "name": "小榄",
     "type": "HIGH_SPEED"
+  },
+  {
+    "city": "衡山",
+    "id": 337,
+    "latitude": 27.48,
+    "longitude": 112.79,
+    "name": "衡山西",
+    "type": "HIGH_SPEED"
   }
 ]

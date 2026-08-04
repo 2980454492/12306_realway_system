@@ -47,73 +47,10 @@
   {
     "active": true,
     "failed_attempts": 0,
-    "id": "c075b293-425a-4812-8277-a45f07d3d16c",
+    "id": "7a754d77-e2b2-4c0f-8a36-5e84c5c99e3a",
     "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$yGzJKU+1tsNaWxjwkSzmgw$6xz/Ht8q5PL1ELg+Vbf6Eflq5AbaWKco5wRXqoJLQY4",
+    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$cBrhMPUyAaR4ti2gS1pR3g$KQpopCO2WJUbQcCOZmWyHiKm/5oPMt+x80Pltzv5pUE",
     "role": "PASSENGER",
-    "username": "passenger2"
-  },
-  {
-    "active": true,
-    "failed_attempts": 0,
-    "id": "47585a47-5ff1-4aa7-8920-f87ec325ef5f",
-    "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$gpzesm1dSG9E2w1sbfqbLQ$bfAtvgp4UHI/lpgnEjXGqhIF4n5Xz2sddLzMnklZ+Us",
-    "role": "PASSENGER",
-    "username": "passenger3"
-  },
-  {
-    "active": true,
-    "failed_attempts": 0,
-    "id": "76885d59-d6df-4545-82a6-9dbefce7ec11",
-    "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$ISXds1KG/CWjSZeFznBCNA$dCR9aiMIy41lno1QuswzPeIEaZX7y9iGWfFmTkclCUk",
-    "role": "PASSENGER",
-    "username": "passenger4"
-  },
-  {
-    "active": true,
-    "failed_attempts": 0,
-    "id": "99a4d39f-b404-40c2-8d9a-54492f686a9d",
-    "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$R6RtETFreCZBuQgDFolvPg$QGuCBZDqGABp5pDBTIYxRUm+36tq+6Huw0jxuOEz6Rk",
-    "role": "PASSENGER",
-    "username": "testuser"
-  },
-  {
-    "active": true,
-    "failed_attempts": 0,
-    "id": "3e10f8dc-4f9e-4075-815c-07f539931f1b",
-    "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$1qgMlKF0tH1q8N15rg5zJA$w4W24GOwBDW8mSJy/ZtsFqqvgrkqoL7RhcH9RJ5LFbA",
-    "role": "PASSENGER",
-    "username": "ut_66747eae"
-  },
-  {
-    "active": true,
-    "failed_attempts": 0,
-    "id": "508fd32c-8a62-4999-8d3b-335e4455f60a",
-    "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$1yOoas8UKyCmw7KYFnQRrA$qXPgrH7FaEBAESDDqzL6F0+Q+j3n6sCV0p2vNtJXxQ4",
-    "role": "PASSENGER",
-    "username": "ut_8482baf1"
-  },
-  {
-    "active": true,
-    "failed_attempts": 0,
-    "id": "bae7b16c-ae74-4771-8d85-2b098536986a",
-    "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$rVyfdRSEyWstJ2lSr+wMFA$JILq1M/dqfCLdQV9DwZ2riW0n7pOoSSKM2D05b5ytqc",
-    "role": "PASSENGER",
-    "username": "ut_14625dcf"
-  },
-  {
-    "active": true,
-    "failed_attempts": 0,
-    "id": "eaaf48aa-7f1b-48bf-815f-63328b34370d",
-    "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$cOwBQ1wlLIVo92YCQKI2gQ$DCzfrKNg9KrfwqmgZtGP6LocoZpouYkFo2Se9styRys",
-    "role": "PASSENGER",
-    "username": "ut_36a2ef79"
+    "username": "jnz"
   }
 ]
