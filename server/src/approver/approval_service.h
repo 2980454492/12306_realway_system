@@ -41,8 +41,12 @@ public:
     };
     ApproveResult approve(const std::string& approval_id, const std::string& approver_id);
 
-    /** STAFF 为 STOP_INSERT 审批填写停站时间 */
-    bool updateStopTime(const std::string& approval_id, int arrival, int departure);
+    /** STAFF 为 STOP_INSERT 审批填写停站时间，含速度校验 + 冲突检测 */
+    struct UpdateStopTimeResult {
+        bool success = false;
+        std::string error;
+    };
+    UpdateStopTimeResult updateStopTime(const std::string& approval_id, int arrival, int departure);
 
     /** 审批驳回 */
     struct RejectResult {

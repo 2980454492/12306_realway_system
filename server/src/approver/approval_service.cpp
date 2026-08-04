@@ -98,19 +98,156 @@ void ApprovalService::archivePendingTrain(const ApprovalRequest& req) {
 
 // ── 停站时间 ──
 
-bool ApprovalService::updateStopTime(const std::string& approval_id, int arrival, int departure) {
+namespace {
+
+/** 根据车次号前缀返回列车最高设计时速（km/h） */
+int getTrainMaxSpeed(const std::string& train_id) {
+    if (train_id.empty()) return 120;
+    switch (train_id[0]) {
+        case 'G': return 350;
+        case 'D': return 300;
+        case 'C': return 350;
+        case 'Z': return 160;
+        case 'T': return 140;
+        case 'K': return 120;
+        case 'S': return 999;
+        default:  return 120;
+    }
+}
+
+}  // namespace
+
+ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
+    const std::string& approval_id, int arrival, int departure) {
+
+    UpdateStopTimeResult result;
     std::lock_guard<std::mutex> lock(mutex_);
-    for (auto& a : approvals_) {
-        if (a.id == approval_id && a.type == ApprovalType::STOP_INSERT) {
-            json payload = json::parse(a.payload);
-            payload["arrival"] = arrival;
-            payload["departure"] = departure;
-            a.payload = payload.dump();
-            saveApprovals();
-            return true;
+
+    // 1. 找到审批
+    auto it = std::find_if(approvals_.begin(), approvals_.end(),
+        [&](const ApprovalRequest& a) {
+            return a.id == approval_id && a.type == ApprovalType::STOP_INSERT;
+        });
+    if (it == approvals_.end()) {
+        result.error = "审批不存在或类型不匹配";
+        return result;
+    }
+
+    // 2. 解析载荷
+    json payload = json::parse(it->payload);
+    std::string tid = payload.value("train_id", "");
+    uint32_t line_id = payload.value("line_id", 0U);
+    std::string st_city = payload.value("station_city", "");
+
+    auto& ds = DataStore::instance();
+    auto* train = ds.getTrain(tid);
+    if (!train) {
+        result.error = "列车 " + tid + " 不存在";
+        return result;
+    }
+
+    uint32_t st_id = ds.cityToStationId(st_city);
+    if (st_id == 0) {
+        result.error = "站点 " + st_city + " 不存在";
+        return result;
+    }
+    auto* new_station = ds.getStation(st_id);
+    if (!new_station) {
+        result.error = "站点数据缺失";
+        return result;
+    }
+
+    // 3. 找插入位置：该线路上第一对连续站之间
+    int insert_idx = -1;
+    for (size_t i = 0; i + 1 < train->stops.size(); i++) {
+        if (train->stops[i].line_id == line_id
+            && train->stops[i + 1].line_id == line_id) {
+            insert_idx = static_cast<int>(i + 1);
+            break;
         }
     }
-    return false;
+    if (insert_idx < 0) {
+        result.error = "未找到该线路在列车停站中的区间";
+        return result;
+    }
+
+    // 4. 构建插入后的临时列车，复用 checkTrain() 做时间校验 + 冲突检测
+    Stop new_stop;
+    new_stop.station_id = st_id;
+    new_stop.line_id = line_id;
+    new_stop.arrival = arrival;
+    new_stop.departure = departure;
+    new_stop.stop_type = (arrival == departure) ? 2 : 1;  // 通过/停靠
+
+    Train modified = *train;
+    modified.stops.insert(modified.stops.begin() + insert_idx, new_stop);
+
+    auto cr = TrainManager::instance().checkTrain(modified, false);
+    if (!cr.valid) {
+        result.error = cr.error;
+        return result;
+    }
+
+    // 5. 速度校验：用 Haversine 距离计算两段时速，限速 = min(列车设计时速, 线路设计时速)
+    const auto& prev_stop = train->stops[insert_idx - 1];
+    const auto& next_stop = train->stops[insert_idx];
+    auto* prev_station = ds.getStation(prev_stop.station_id);
+    auto* next_station = ds.getStation(next_stop.station_id);
+    if (!prev_station || !next_station) {
+        result.error = "相邻站点数据缺失";
+        return result;
+    }
+
+    int train_max = getTrainMaxSpeed(tid);
+    int line_max = 300;
+    for (const auto& ln : ds.getAllLines()) {
+        if (ln.id == line_id) { line_max = ln.max_speed_kmh; break; }
+    }
+    int speed_limit = std::min(train_max, line_max);
+
+    // 段1：前站 → 新站
+    double dist1 = haversineDist(*prev_station, *new_station);
+    if (dist1 > 0 && arrival > prev_stop.departure) {
+        int mins1 = (arrival / 100 - prev_stop.departure / 100) * 60
+                  + (arrival % 100 - prev_stop.departure % 100);
+        if (mins1 > 0) {
+            int speed1 = static_cast<int>(dist1 / (mins1 / 60.0));
+            if (speed1 > speed_limit) {
+                result.error = prev_station->name + " → " + new_station->name
+                    + " 段时速 " + std::to_string(speed1)
+                    + " km/h 超限（限速 " + std::to_string(speed_limit) + " km/h）";
+                return result;
+            }
+        }
+    }
+
+    // 段2：新站 → 后站
+    double dist2 = haversineDist(*new_station, *next_station);
+    if (dist2 > 0 && next_stop.arrival > 0 && next_stop.arrival > departure) {
+        int mins2 = (next_stop.arrival / 100 - departure / 100) * 60
+                  + (next_stop.arrival % 100 - departure % 100);
+        if (mins2 > 0) {
+            int speed2 = static_cast<int>(dist2 / (mins2 / 60.0));
+            if (speed2 > speed_limit) {
+                result.error = new_station->name + " → " + next_station->name
+                    + " 段时速 " + std::to_string(speed2)
+                    + " km/h 超限（限速 " + std::to_string(speed_limit) + " km/h）";
+                return result;
+            }
+        }
+    }
+
+    // 6. 全部通过，写入 payload
+    payload["arrival"] = arrival;
+    payload["departure"] = departure;
+    it->payload = payload.dump();
+    saveApprovals();
+    result.success = true;
+    Logger::instance().info("Stop time validated for " + tid
+        + " at " + st_city + ": arr=" + std::to_string(arrival)
+        + " dep=" + std::to_string(departure)
+        + " speed_limit=" + std::to_string(speed_limit));
+    return result;
 }
 
 // ── 审批 ──
@@ -240,7 +377,7 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 result.error = "未找到该线路在列车停站中的区间";
                 return result;
             }
-            // 新停站：默认通过，有填写时间则用填写值
+            // 构建新停站
             Stop new_stop;
             new_stop.station_id = st_id;
             new_stop.line_id = line_id;
@@ -250,16 +387,29 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 new_stop.departure = payload.value("departure", 0);
                 new_stop.stop_type = (new_stop.arrival == new_stop.departure) ? 2 : 1;
             } else {
-                // 通过：到达=发车=前站到站+后站发车的中点
-                int prev_arr = train->stops[insert_idx - 1].arrival;
-                int next_dep = train->stops[insert_idx].departure;
-                int mid = (prev_arr > 0 && next_dep > 0)
-                    ? (prev_arr + next_dep) / 2 : prev_arr;
+                // 通过：到达=发车=前站发车+后站到达的中点
+                int prev_dep = train->stops[insert_idx - 1].departure;
+                int next_arr = train->stops[insert_idx].arrival;
+                int mid = (prev_dep > 0 && next_arr > 0)
+                    ? (prev_dep + next_arr) / 2 : prev_dep;
                 new_stop.arrival = mid;
                 new_stop.departure = mid;
             }
-            train->stops.insert(train->stops.begin() + insert_idx, new_stop);
-            // 重建占用表（adjustSchedule 内部完成移除旧占用→更新 stops→加入新占用）
+
+            // 二次冲突校验：模拟插入后的运行图
+            auto modified_stops = train->stops;
+            modified_stops.insert(modified_stops.begin() + insert_idx, new_stop);
+            Train modified = *train;
+            modified.stops = modified_stops;
+            auto conflicts = TrainManager::instance().detectConflicts(modified);
+            if (!conflicts.empty()) {
+                cas_lock_.clear();
+                result.error = "二次冲突校验失败：与 " + conflicts[0].train_id + " 在区间重叠";
+                return result;
+            }
+
+            // 插入并重建占用表
+            train->stops = modified_stops;
             TrainManager::instance().adjustSchedule(tid, train->stops);
             ds.saveTrains();
             result.train_id = tid;

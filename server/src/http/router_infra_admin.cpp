@@ -147,11 +147,20 @@ void registerInfraAdminRoutes(RailwayServer& server) {
 
     // ── 线路管理（INFRA_ADMIN）──
 
-    /** GET /api/admin/lines — 获取全部线路列表 */
+    /** GET /api/admin/lines — 获取全部线路列表（INFRA_ADMIN + STAFF 均可访问） */
     app.Get("/api/admin/lines", [](const httplib::Request& req, httplib::Response& res) {
     try {
-        auto ctx = checkAuth(req, res, Permission::MANAGE_LINES);
-        if (!ctx) return;
+        auto ctx = RbacMiddleware::authenticate(
+            req.has_header("Authorization") ? req.get_header_value("Authorization") : "");
+        if (!ctx || (!RbacMiddleware::authorize(*ctx, Permission::MANAGE_LINES)
+                  && !RbacMiddleware::authorize(*ctx, Permission::MANAGE_TRAINS))) {
+            json j;
+            j["ok"] = false;
+            j["error"] = ctx ? "权限不足" : "未登录";
+            res.set_content(j.dump(), "application/json");
+            res.status = ctx ? 403 : 401;
+            return;
+        }
         json j;
         j["ok"] = true;
         j["data"] = line_service::getAll();

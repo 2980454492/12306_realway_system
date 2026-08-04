@@ -105,6 +105,13 @@ void registerApprovalRoutes(RailwayServer& server) {
         for (const auto& a : approvals) {
             if (!submitter_id.empty() && a.submitter_id != submitter_id) continue;
             if (!approver_id.empty() && a.approver_id != approver_id) continue;
+            // STOP_INSERT 须 STAFF 先填写停站时间后才对 APPROVER 可见
+            if (a.type == ApprovalType::STOP_INSERT) {
+                try {
+                    json pl = json::parse(a.payload);
+                    if (!pl.contains("arrival") || !pl.contains("departure")) continue;
+                } catch (...) { continue; }
+            }
 
             json ja;
             ja["id"] = a.id;

@@ -880,14 +880,16 @@
 
   UI.loadStopInserts = async function() {
     await UI._ensureTrainsLoaded();
+    if (!State.stations.length) await U.loadStations();
     if (Object.keys(State._neighborIndex).length === 0) await UI.loadNeighborIndex();
     if (!UI._allLines || !UI._allLines.length) {
       var lr = await API.get('/api/admin/lines');
       if (lr.ok) UI._allLines = lr.data.data || [];
     }
-    var res = await API.get('/api/admin/approvals?status=SUBMITTED');
+    // 用专用端点，不受 APPROVER 端过滤影响
+    var res = await API.get('/api/admin/stop-inserts');
     if (!res.ok) return U.toast('加载失败', 'error');
-    State._stopInserts = (res.data.data || []).filter(function(a) { return a.type === 5; });
+    State._stopInserts = res.data.data || [];
     UI.renderStopInserts();
   };
 
@@ -909,54 +911,46 @@
       var lineId = pl.line_id || 0;
 
       // 从列车索引获取完整停站数据
-      var train = State._trainMap && State._trainMap[tid];
+      if (!State._trainMap) State._trainMap = {};
+      var train = State._trainMap[tid];
       var stops = train ? (train.stops || []) : [];
       if (!stops.length) continue;
 
-      // 从线路站点列表找新站的前后站（需要线路数据）；无数据时退回到第一匹配段
-      var prevStop = null, nextStop = null, insertIdx = -1;
+      // 找到列车在该线路上的途经站（line_id 含义：本站→下一站的线路）
+      // 用 == 避免 string/number 类型不匹配
+      var lineStopIndices = [];
       var lineName = pl.line_name || '';
-      var line = null;
-      for (var li = 0; li < (UI._allLines || []).length; li++) {
-        if (UI._allLines[li].id === lineId) { line = UI._allLines[li]; break; }
-      }
-      if (line && line.stations) {
-        var stIdx = -1;
-        for (var si = 0; si < line.stations.length; si++)
-          if (line.stations[si] === stCity) { stIdx = si; break; }
-        var prevCity = '', nextCity = '';
-        if (stIdx > 0) prevCity = line.stations[stIdx - 1];
-        if (stIdx >= 0 && stIdx + 1 < line.stations.length) nextCity = line.stations[stIdx + 1];
-        for (var si = 0; si + 1 < stops.length; si++) {
-          var s1 = stops[si], s2 = stops[si + 1];
-          if (s1.line_id !== lineId || s2.line_id !== lineId) continue;
-          var c1 = '', c2 = '';
-          for (var k = 0; k < State.stations.length; k++) {
-            if (State.stations[k].id === s1.station_id) c1 = State.stations[k].city;
-            if (State.stations[k].id === s2.station_id) c2 = State.stations[k].city;
-          }
-          if (c1 === prevCity && c2 === nextCity) {
-            insertIdx = si + 1; prevStop = s1; nextStop = s2;
-            lineName = s1.line_name || lineName; break;
-          }
+      for (var si = 0; si < stops.length; si++) {
+        if (stops[si].line_id == lineId) {
+          lineStopIndices.push(si);
+          if (!lineName && stops[si].line_name)
+            lineName = stops[si].line_name;
         }
       }
-      // 回退：线路数据不可用时取同线路第一段
-      if (insertIdx < 0) {
-        for (var si = 0; si + 1 < stops.length; si++) {
-          if (stops[si].line_id === lineId && stops[si + 1].line_id === lineId) {
-            insertIdx = si + 1;
-            prevStop = stops[si]; nextStop = stops[si + 1];
-            lineName = prevStop.line_name || pl.line_name || ''; break;
-          }
-        }
-      }
-      if (insertIdx < 0) continue;
+      // 末尾站：前一个站的 line_id 指向它的，也算在该线路上
+      var lastIdx = stops.length - 1;
+      if (lastIdx > 0 && stops[lastIdx - 1] && stops[lastIdx - 1].line_id == lineId)
+        if (lineStopIndices.indexOf(lastIdx) < 0)
+          lineStopIndices.push(lastIdx);
 
-      // 站点名解析
-      prevName = prevStop.station_name || UI._stationName(prevStop.station_id, '');
-      nextName = nextStop.station_name || UI._stationName(nextStop.station_id, '');
-      var prevDep = prevStop.departure;     // 前站发车时间
+      // 确定插入上下文：取线路首站和它后面的站
+      var prevStop = null, nextStop = null;
+      if (lineStopIndices.length >= 2) {
+        prevStop = stops[lineStopIndices[0]];
+        nextStop = stops[lineStopIndices[0] + 1] || stops[lineStopIndices[1]];
+      } else if (lineStopIndices.length === 1) {
+        var idx = lineStopIndices[0];
+        if (idx + 1 < stops.length) {
+          prevStop = stops[idx]; nextStop = stops[idx + 1];
+        } else if (idx > 0) {
+          prevStop = stops[idx - 1]; nextStop = stops[idx];
+        }
+      }
+      if (!prevStop || !nextStop) continue;
+
+      var prevName = prevStop.station_name || UI._stationName(prevStop.station_id, '');
+      var nextName = nextStop.station_name || UI._stationName(nextStop.station_id, '');
+      var prevDep = prevStop.departure;
       // 后站到达时间：优先 arrival，fallback 到 departure（通过/终到兼容）
       var nextArr = nextStop.arrival || nextStop.departure || 0;
 
@@ -966,10 +960,11 @@
       card.innerHTML =
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
         '<span style="font-weight:600;color:#53a8ff;font-size:16px">' + U.esc(tid) + '</span>' +
-        '<span style="font-size:13px;color:#e0e0e0">' + U.esc(lineName) + ' → ' + U.esc(stCity) + '</span></div>' +
+        '<span style="font-size:13px;color:#e0e0e0">' + U.esc(lineName) + ' ＋ ' + U.esc(stCity) + '</span></div>' +
         '<div style="font-size:12px;color:#707090;margin-bottom:10px">' +
         '前站: <span style="color:#e0e0e0">' + U.esc(prevName) + '</span> 发车 ' + U.fmtTime(prevDep) +
-        '｜后站: <span style="color:#e0e0e0">' + U.esc(nextName) + '</span> 到达 ' + U.fmtTime(nextArr) + '</div>' +
+        ' ｜ 后站: <span style="color:#e0e0e0">' + U.esc(nextName) + '</span> 到达 ' + U.fmtTime(nextArr) +
+        ' ｜ 途经站数: ' + lineStopIndices.length + '</div>' +
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
         '<label style="font-size:13px;color:#e0e0e0;cursor:pointer">' +
         '<input type="checkbox" id="si-is-stop-' + i + '" checked onchange="UI._siToggle(' + i + ')"> 停靠本站</label>' +
@@ -981,6 +976,9 @@
         '<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="UI.submitStopInsert(\'' + a.id + '\',' + i + ',' + prevDep + ',' + nextArr + ',' + lineId + ')">提交</button>';
       listEl.appendChild(card);
     }
+    // 所有项都没渲染出来时显示提示（而非空白页）
+    if (!listEl.children.length)
+      listEl.innerHTML = '<div class="loading">暂无待处理的线路加站</div>';
   };
 
   /** 切换停靠/通过：通过站只需一个时间 */
