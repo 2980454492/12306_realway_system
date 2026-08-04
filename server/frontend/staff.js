@@ -921,13 +921,13 @@
         var stIdx = -1;
         for (let si = 0; si < line.stations.length; si++)
           if (line.stations[si] === stCity) { stIdx = si; break; }
-        var prevCity = stIdx > 0 ? line.stations[stIdx - 1] : '';
-        var nextCity = (stIdx >= 0 && stIdx + 1 < line.stations.length) ? line.stations[stIdx + 1] : '';
+        var prevStation = stIdx > 0 ? line.stations[stIdx - 1] : '';
+        var nextStation = (stIdx >= 0 && stIdx + 1 < line.stations.length) ? line.stations[stIdx + 1] : '';
         for (let si = 0; si + 1 < stops.length; si++) {
           if (stops[si].line_id != lineId || stops[si + 1].line_id != lineId) continue;
-          var c1 = (State._staCity && State._staCity[stops[si].station_id]) || '';
-          var c2 = (State._staCity && State._staCity[stops[si + 1].station_id]) || '';
-          if (c1 === prevCity && c2 === nextCity) {
+          var n1 = stops[si].station_name || UI._stationName(stops[si].station_id, '');
+          var n2 = stops[si + 1].station_name || UI._stationName(stops[si + 1].station_id, '');
+          if (n1 === prevStation && n2 === nextStation) {
             prevStop = stops[si]; nextStop = stops[si + 1]; break;
           }
         }

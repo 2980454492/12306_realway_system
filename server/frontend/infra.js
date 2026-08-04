@@ -6,7 +6,20 @@
     var res = await API.get('/api/admin/stations');
     if (!res.ok) return U.toast('加载失败', 'error');
     UI._allStations = res.data.data || [];
-    State.stations = UI._allStations;  // 同步给依赖 State.stations 的旧代码使用
+    State.stations = UI._allStations;
+    // 构建 O(1) 索引（与 U.loadStations 保持一致，否则 _staCity 等为空导致城市匹配失败）
+    State._staName = {};
+    State._staCity = {};
+    State._nameToId = {};
+    State._cityToIds = {};
+    for (let i = 0; i < State.stations.length; i++) {
+      var s = State.stations[i];
+      State._staName[s.id] = s.name;
+      State._staCity[s.id] = s.city;
+      State._nameToId[s.name] = s.id;
+      if (!State._cityToIds[s.city]) State._cityToIds[s.city] = [];
+      State._cityToIds[s.city].push(s.id);
+    }
     UI.renderStations();
   };
 

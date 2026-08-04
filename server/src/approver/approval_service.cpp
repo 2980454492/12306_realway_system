@@ -115,38 +115,33 @@ int getTrainMaxSpeed(const std::string& train_id) {
     }
 }
 
-/** 用线路站点顺序精确定位新站的插入位置。
- *  在 train.stops 中找到新站前后相邻城市对应的连续停站对，返回插入索引。
- *  找不到时回退到线路上第一对连续站。 */
+/** 用线路站点顺序精确定位新站的插入位置。line->stations 存的是站名。 */
 int findStopInsertIndex(const Train& train, uint32_t line_id,
-                        const std::string& st_city, const DataStore& ds) {
-    // 1. O(1) 查线路，从站点顺序中找新站的前后邻站城市
-    std::string prev_city, next_city;
+                        const std::string& st_name, const DataStore& ds) {
+    std::string prev_name, next_name;
     auto* line = ds.getLine(line_id);
     if (line) {
         for (size_t i = 0; i < line->stations.size(); i++) {
-            if (line->stations[i] == st_city) {
-                if (i > 0) prev_city = line->stations[i - 1];
-                if (i + 1 < line->stations.size()) next_city = line->stations[i + 1];
+            if (line->stations[i] == st_name) {
+                if (i > 0) prev_name = line->stations[i - 1];
+                if (i + 1 < line->stations.size()) next_name = line->stations[i + 1];
                 break;
             }
         }
     }
-
-    // 2. 在列车停站中匹配这对相邻城市（必须同线路）
-    if (!prev_city.empty() && !next_city.empty()) {
+    // 在列车停站中匹配相邻站名（必须同线路）
+    if (!prev_name.empty() && !next_name.empty()) {
         for (size_t i = 0; i + 1 < train.stops.size(); i++) {
             if (train.stops[i].line_id != line_id
                 || train.stops[i + 1].line_id != line_id)
                 continue;
             auto* s1 = ds.getStation(train.stops[i].station_id);
             auto* s2 = ds.getStation(train.stops[i + 1].station_id);
-            if (s1 && s2 && s1->city == prev_city && s2->city == next_city)
+            if (s1 && s2 && s1->name == prev_name && s2->name == next_name)
                 return static_cast<int>(i + 1);
         }
     }
-
-    // 3. 回退：线路上第一对连续站（兼容旧数据）
+    // 回退：线路上第一对连续站
     for (size_t i = 0; i + 1 < train.stops.size(); i++) {
         if (train.stops[i].line_id == line_id
             && train.stops[i + 1].line_id == line_id)
