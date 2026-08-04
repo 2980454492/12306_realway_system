@@ -56,7 +56,6 @@
     if (!el)
       return;
     var rawList = State.queryResult ? (tab === 'direct' ? State.queryResult.direct : State.queryResult.transfers) : [];
-    // 排序：先拷贝再排，不改变原始数据
     var sortEl = U.$('query-sort');
     var sortBy = sortEl ? sortEl.value : 'departure';
     var list = rawList.slice();
@@ -65,174 +64,129 @@
       var prices = item.seat_prices || {};
       var best = Infinity;
       for (let m = 0; m < UI.SEAT_MAP.length; m++) {
-        if ((seats[UI.SEAT_MAP[m].key] || 0)
-          > 0) {
+        if ((seats[UI.SEAT_MAP[m].key] || 0) > 0) {
           var p = prices[UI.SEAT_MAP[m].priceKey];
-          if (p != null && p < best)
-            best = p;
+          if (p != null && p < best) best = p;
         }
       }
       return best === Infinity ? (item.price || 9999) : best;
     }
-
-    // 预计算最低票价，排序时 O(1) 复用
-    for (let pi = 0; pi < list.length; pi++) {
+    for (let pi = 0; pi < list.length; pi++)
       list[pi]._cp = cheapestPrice(list[pi]);
-    }
 
     list.sort(function(a, b) {
       switch (sortBy) {
-        case 'arrival':   return (a.arrival_time   || 9999) - (b.arrival_time   || 9999);
-        case 'duration':  return (a.duration_minutes || 9999) - (b.duration_minutes || 9999);
-        case 'distance':  return (a.distance_km     || 9999) - (b.distance_km     || 9999);
-        case 'price':     return (a._cp || 9999) - (b._cp || 9999);
-        default:          return (a.departure_time  || 9999) - (b.departure_time  || 9999);
+        case 'arrival':  return (a.arrival_time || 9999) - (b.arrival_time || 9999);
+        case 'duration': return (a.duration_minutes || 9999) - (b.duration_minutes || 9999);
+        case 'distance': return (a.distance_km || 9999) - (b.distance_km || 9999);
+        case 'price':    return (a._cp || 9999) - (b._cp || 9999);
+        default:         return (a.departure_time || 9999) - (b.departure_time || 9999);
       }
     });
 
-    // ── 筛选 ──
     list = UI.filterList(list);
-    // 更新标签页计数（筛选后）
     var countEl = U.$('tab-' + tab + '-count');
-    if (countEl)
-      countEl.textContent = '(' + list.length + ')';
+    if (countEl) countEl.textContent = '(' + list.length + ')';
 
-    var html = '';
-    if (!list || !list.length)
-      html = '<div class="loading">暂无结果</div>';
-    else for (let i = 0; i < list.length; i++) {
+    el.innerHTML = '';
+    if (!list.length) {
+      el.innerHTML = '<div class="loading">暂无结果</div>';
+      return;
+    }
+
+    var tplDirect = U.$('tpl-direct-card');
+    var tplTransfer = U.$('tpl-transfer-card');
+
+    for (let i = 0; i < list.length; i++) {
       var item = list[i];
       var seats = item.available_seats || {};
       var prices = item.seat_prices || {};
-      var tid = U.esc(item.train_id);
-      var orig = item.origin_station || '?';
-      var term = item.terminal_station || '?';
-      // 存储供 detail 弹窗使用
       var itemKey = 'item_' + tab + '_' + i;
       State._trainItems[itemKey] = item;
 
-      /** 时间条：历时在上，时间分列横线两端 */
-      function timeBar(dep, dur, arr) {
-        return '<div class="tb-wrap">' +
-               '<span class="tb-dur">' + U.fmtDuration(dur) + '</span>' +
-               '<div class="tb-line">' +
-                 '<span class="tb-time">' + U.fmtTime(dep) + '</span>' +
-                 '<span class="tb-dash">——</span>' +
-                 '<span class="tb-time">' + U.fmtTime(arr) + '</span>' +
-               '</div></div>';
-      }
-
-      function buildSeatRow(avail, priceMap, itemKey, seatType) {
-        var h = '';
-        for (let s = 0; s < UI.SEAT_MAP.length; s++) {
-          var st = UI.SEAT_MAP[s];
-          var cnt = avail[st.key] || 0;
-          if (cnt > 0) {
-            var p = (priceMap || {})[st.priceKey] || 0;
-            h += '<span class="seat-tag" onclick="UI.buySeat(\'' + itemKey + '\',\'' + st.priceKey + '\',\'' + (seatType || '') + '\');event.stopPropagation()">' +
-              st.label + ' <b>' + cnt + '</b>张 <span class="tag-price">¥' + p.toFixed(0) + '</span></span>';
-          }
-        }
-        return h;
-      }
-
-      var cardHtml;
       if (item.is_transfer) {
-        // ── 换乘卡片：五行布局 ──
-        var tid1 = U.esc(item.train_id.split(' → ')[0] || '');
-        var tid2 = U.esc(item.second_train_id || '');
-        // T1／T2 的始发终到站
+        var card = tplTransfer.content.cloneNode(true);
+        var tid1 = item.train_id.split(' → ')[0] || '';
+        var tid2 = item.second_train_id || '';
         var s1 = item.stops || [];
         var s2 = item.second_stops || [];
-        var t1orig = (s1.length ? s1[0].station_name : '?');
-        var t1term = (s1.length ? s1[s1.length-1].station_name : '?');
-        var t2orig = (s2.length ? s2[0].station_name : '?');
-        var t2term = (s2.length ? s2[s2.length-1].station_name : '?');
-
-        // 通过站名反查中转站 ID
-        var transferId = 0;
-        transferId = U.stationNameToId(item.transfer_station);
-        // 第一程用户的上下车站
+        var t1orig = s1.length ? s1[0].station_name : '?';
+        var t1term = s1.length ? s1[s1.length-1].station_name : '?';
+        var t2orig = s2.length ? s2[0].station_name : '?';
+        var t2term = s2.length ? s2[s2.length-1].station_name : '?';
+        var transferId = U.stationNameToId(item.transfer_station);
         var f1Name = '', t1Name = '';
         for (let si = 0; si < s1.length; si++) {
-          if (s1[si].station_id === item.from_station)
-            f1Name = s1[si].station_name;
-          if (s1[si].station_id === transferId)
-            t1Name = s1[si].station_name;
+          if (s1[si].station_id === item.from_station) f1Name = s1[si].station_name;
+          if (s1[si].station_id === transferId) t1Name = s1[si].station_name;
         }
-        // 第二程用户的上下车站
         var f2Name = '', t2Name = '';
         for (let si = 0; si < s2.length; si++) {
-          if (s2[si].station_id === transferId)
-            f2Name = s2[si].station_name;
-          if (s2[si].station_id === item.to_station)
-            t2Name = s2[si].station_name;
+          if (s2[si].station_id === transferId) f2Name = s2[si].station_name;
+          if (s2[si].station_id === item.to_station) t2Name = s2[si].station_name;
         }
-        // 各段时长计算
-        function legDuration(dep, arr) {
-          var dm = Math.floor(dep/100)*60 + dep%100;
-          var am = Math.floor(arr/100)*60 + arr%100;
-          if (am < dm)
-            am += 1440;
-          return am - dm;
-        }
+        function legDur(d, a) { var dm = Math.floor(d/100)*60+d%100, am = Math.floor(a/100)*60+a%100; if (am < dm) am += 1440; return am - dm; }
+        var l1d = legDur(item.departure_time, item.transfer_arrival_time);
+        var l2d = legDur(item.transfer_departure_time, item.arrival_time);
 
-        // 每程时间行 HTML
-        var leg1Dur = legDuration(item.departure_time, item.transfer_arrival_time);
-        var leg2Dur = legDuration(item.transfer_departure_time, item.arrival_time);
-        cardHtml =
-          '<div class="train-card" onclick="UI.showDetail(\'' + itemKey + '\')">' +
-          // 总时间右上角
-          '<div class="transfer-summary tb-big">' +
-            timeBar(item.departure_time, item.duration_minutes, item.arrival_time) +
-          '</div>' +
-          // 第一程
-          '<div class="train-main">' +
-            '<div class="train-info">' +
-              '<div class="train-meta"><span class="train-id-inline">' + tid1 + '</span>　' + U.esc(f1Name || t1orig) + ' → ' + U.esc(t1Name || item.transfer_station) + '</div>' +
-              '<div class="train-meta train-route">始发 · ' + U.esc(t1orig) + ' — 终到 · ' + U.esc(t1term) + '</div>' +
-            '</div>' +
-            '<div class="train-time">' + timeBar(item.departure_time, leg1Dur, item.transfer_arrival_time) + '</div>' +
-          '</div>' +
-          '<div class="train-seats-row">' + buildSeatRow(item.first_leg_seats || {}, item.first_leg_seat_prices || {}, itemKey, 'first') + '</div>' +
-          // 换乘间隔
-          '<div class="transfer-gap">换乘 ' + U.esc(item.transfer_station || '?') + ' · ' + U.fmtDuration(item.transfer_gap_minutes || 0) + '</div>' +
-          // 第二程
-          '<div class="train-main">' +
-            '<div class="train-info">' +
-              '<div class="train-meta"><span class="train-id-inline">' + tid2 + '</span>　' + U.esc(f2Name || item.transfer_station) + ' → ' + U.esc(t2Name || t2term) + '</div>' +
-              '<div class="train-meta train-route">始发 · ' + U.esc(t2orig) + ' — 终到 · ' + U.esc(t2term) + '</div>' +
-            '</div>' +
-            '<div class="train-time">' + timeBar(item.transfer_departure_time, leg2Dur, item.arrival_time) + '</div>' +
-          '</div>' +
-          '<div class="train-seats-row">' + buildSeatRow(item.second_leg_seats || {}, item.second_leg_seat_prices || {}, itemKey, 'second') + '</div>' +
-          '</div>';
+        card.querySelector('.tc-total-time').innerHTML = UI._timeBar(item.departure_time, item.duration_minutes, item.arrival_time);
+        card.querySelector('.tc-l1-id').textContent = tid1;
+        card.querySelector('.tc-l1-route').textContent = (f1Name || t1orig) + ' → ' + (t1Name || item.transfer_station);
+        card.querySelector('.tc-l1-origin').textContent = t1orig;
+        card.querySelector('.tc-l1-terminal').textContent = t1term;
+        card.querySelector('.tc-l1-time').innerHTML = UI._timeBar(item.departure_time, l1d, item.transfer_arrival_time);
+        card.querySelector('.tc-l1-seats').innerHTML = UI._buildSeatRow(item.first_leg_seats || {}, item.first_leg_seat_prices || {}, itemKey, 'first');
+        card.querySelector('.transfer-gap').textContent = '换乘 ' + (item.transfer_station || '?') + ' · ' + U.fmtDuration(item.transfer_gap_minutes || 0);
+        card.querySelector('.tc-l2-id').textContent = tid2;
+        card.querySelector('.tc-l2-route').textContent = (f2Name || item.transfer_station) + ' → ' + (t2Name || t2term);
+        card.querySelector('.tc-l2-origin').textContent = t2orig;
+        card.querySelector('.tc-l2-terminal').textContent = t2term;
+        card.querySelector('.tc-l2-time').innerHTML = UI._timeBar(item.transfer_departure_time, l2d, item.arrival_time);
+        card.querySelector('.tc-l2-seats').innerHTML = UI._buildSeatRow(item.second_leg_seats || {}, item.second_leg_seat_prices || {}, itemKey, 'second');
+        card.querySelector('.train-card').onclick = (function(k) { return function() { UI.showDetail(k); }; })(itemKey);
+        el.appendChild(card);
       } else {
-        // ── 直达卡片 ──
-        // 查用户上车站名和下车站名
+        var card = tplDirect.content.cloneNode(true);
+        var orig = item.origin_station || '?';
+        var term = item.terminal_station || '?';
         var fromName = '', toName = '';
         for (let si = 0; si < (item.stops || []).length; si++) {
-          if (item.stops[si].station_id === item.from_station)
-            fromName = item.stops[si].station_name;
-          if (item.stops[si].station_id === item.to_station)
-            toName = item.stops[si].station_name;
+          if (item.stops[si].station_id === item.from_station) fromName = item.stops[si].station_name;
+          if (item.stops[si].station_id === item.to_station) toName = item.stops[si].station_name;
         }
-
-        cardHtml = '<div class="train-card" onclick="UI.showDetail(\'' + itemKey + '\')">' +
-          '<div class="train-main">' +
-            '<div class="train-info">' +
-              '<div class="train-meta"><span class="train-id-inline">' + tid + '</span>　' + U.esc(fromName || orig) + ' → ' + U.esc(toName || term) + '</div>' +
-              '<div class="train-meta train-route">始发 · ' + U.esc(orig) + ' — 终到 · ' + U.esc(term) + '</div>' +
-            '</div>' +
-            '<div class="train-time tb-big">' + timeBar(item.departure_time, item.duration_minutes, item.arrival_time) + '</div>' +
-          '</div>' +
-          '<div class="train-seats-row">' + buildSeatRow(seats, prices, itemKey) + '</div>' +
-        '</div>';
+        card.querySelector('.train-id-inline').textContent = item.train_id;
+        card.querySelector('.dc-route-text').textContent = (fromName || orig) + ' → ' + (toName || term);
+        card.querySelector('.dc-origin').textContent = orig;
+        card.querySelector('.dc-terminal').textContent = term;
+        card.querySelector('.dc-time-bar').innerHTML = UI._timeBar(item.departure_time, item.duration_minutes, item.arrival_time);
+        card.querySelector('.train-seats-row').innerHTML = UI._buildSeatRow(seats, prices, itemKey);
+        card.querySelector('.train-card').onclick = (function(k) { return function() { UI.showDetail(k); }; })(itemKey);
+        el.appendChild(card);
       }
-
-      html += cardHtml;
     }
-    el.innerHTML = html;
+  };
+
+  /** 时间条 HTML（仅含格式化数字，无用户数据，可安全 innerHTML） */
+  UI._timeBar = function(dep, dur, arr) {
+    return '<div class="tb-wrap"><span class="tb-dur">' + U.fmtDuration(dur) + '</span>'
+      + '<div class="tb-line"><span class="tb-time">' + U.fmtTime(dep) + '</span>'
+      + '<span class="tb-dash">——</span>'
+      + '<span class="tb-time">' + U.fmtTime(arr) + '</span></div></div>';
+  };
+
+  /** 席位标签行 HTML（含 onclick，数据已过 esc） */
+  UI._buildSeatRow = function(avail, priceMap, itemKey, seatType) {
+    var h = '';
+    for (let s = 0; s < UI.SEAT_MAP.length; s++) {
+      var st = UI.SEAT_MAP[s];
+      var cnt = avail[st.key] || 0;
+      if (cnt > 0) {
+        var p = (priceMap || {})[st.priceKey] || 0;
+        h += '<span class="seat-tag" onclick="UI.buySeat(\'' + itemKey + '\',\'' + st.priceKey + '\',\'' + (seatType || '') + '\');event.stopPropagation()">'
+          + st.label + ' <b>' + cnt + '</b>张 <span class="tag-price">¥' + p.toFixed(0) + '</span></span>';
+      }
+    }
+    return h;
   };
 
   UI.filterList = function(list) {

@@ -624,6 +624,42 @@
   </div>
 </template>
 
+<template id="tpl-direct-card">
+  <div class="train-card">
+    <div class="train-main">
+      <div class="train-info">
+        <div class="train-meta"><span class="train-id-inline"></span>　<span class="dc-route-text"></span></div>
+        <div class="train-meta train-route">始发 · <span class="dc-origin"></span> — 终到 · <span class="dc-terminal"></span></div>
+      </div>
+      <div class="train-time tb-big dc-time-bar"></div>
+    </div>
+    <div class="train-seats-row"></div>
+  </div>
+</template>
+
+<template id="tpl-transfer-card">
+  <div class="train-card">
+    <div class="transfer-summary tb-big tc-total-time"></div>
+    <div class="train-main">
+      <div class="train-info">
+        <div class="train-meta"><span class="train-id-inline tc-l1-id"></span>　<span class="tc-l1-route"></span></div>
+        <div class="train-meta train-route">始发 · <span class="tc-l1-origin"></span> — 终到 · <span class="tc-l1-terminal"></span></div>
+      </div>
+      <div class="train-time tc-l1-time"></div>
+    </div>
+    <div class="train-seats-row tc-l1-seats"></div>
+    <div class="transfer-gap"></div>
+    <div class="train-main">
+      <div class="train-info">
+        <div class="train-meta"><span class="train-id-inline tc-l2-id"></span>　<span class="tc-l2-route"></span></div>
+        <div class="train-meta train-route">始发 · <span class="tc-l2-origin"></span> — 终到 · <span class="tc-l2-terminal"></span></div>
+      </div>
+      <div class="train-time tc-l2-time"></div>
+    </div>
+    <div class="train-seats-row tc-l2-seats"></div>
+  </div>
+</template>
+
 <template id="tpl-neighbor-card">
   <div class="neighbor-card">
     <span class="neighbor-line"></span>
