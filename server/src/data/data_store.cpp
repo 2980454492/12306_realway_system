@@ -223,10 +223,7 @@ bool DataStore::saveTrains() const {
                         stype = (s.arrival > 0 && s.departure > 0 && s.arrival == s.departure)
                             ? StopType::PASS : StopType::STOP;
                 }
-                jstops[i]["stop_type"] = static_cast<int>(stype);
-                jstops[i]["stop_type_name"] = (stype == StopType::ORIGIN ? "始发"
-                    : stype == StopType::STOP ? "停靠"
-                    : stype == StopType::PASS ? "通过" : "终到");
+                jstops[i]["stop_type"] = stype;
                 // line_name — O(1) 查表，替代原三重循环
                 if (s.line_id > 0) {
                     auto it = line_id_to_name.find(s.line_id);

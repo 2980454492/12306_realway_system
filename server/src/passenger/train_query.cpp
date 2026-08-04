@@ -110,6 +110,11 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
             }
             if (to_idx < 0) continue;
 
+            // 通过站不办客，不可作为乘车站或到达站
+            if (train->stops[from_idx].stop_type == StopType::PASS
+                || train->stops[to_idx].stop_type == StopType::PASS)
+                continue;
+
             // 查当天车次时，过滤已发车的
             int dep_hhmm = train->stops[from_idx].departure;
             if (dep_hhmm > 0 && isToday(date) && nowHHMM() > dep_hhmm) continue;
@@ -145,12 +150,14 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
             auto* train1 = ds.getTrain(train1_id);
             if (!train1 || train1->status != TrainStatus::ACTIVE) continue;
 
-            // 第一程已发车则跳过
+            // 第一程已发车则跳过；通过站不可上车
+            if (train1->stops[from_idx].stop_type == StopType::PASS) continue;
             int dep_hhmm = train1->stops[from_idx].departure;
             if (dep_hhmm > 0 && isToday(date) && nowHHMM() > dep_hhmm) continue;
 
-            // T1 在 from 站之后的所有停站都可以作为中转候选
+            // T1 在 from 站之后的所有可下车/换乘的站作为中转候选（跳过通过站）
             for (size_t traini = from_idx + 1; traini < train1->stops.size(); ++traini) {
+                if (train1->stops[traini].stop_type == StopType::PASS) continue;  // 通过站不可下车
                 uint32_t transfer_id = train1->stops[traini].station_id;
                 if (transfer_id == to_station) continue;  // 直达已处理
                 int arrival_at_transfer = train1->stops[traini].arrival;
@@ -167,6 +174,9 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                     if (!train2 || train2->status != TrainStatus::ACTIVE) continue;
                     if (train1->id == train2->id) continue;  // 同车次不算换乘
 
+                    // 通过站不可上车或下车
+                    if (train2->stops[trans_idx].stop_type == StopType::PASS) continue;
+
                     // T2 从中转站之后必须能到 to
                     int to_idx2 = -1;
                     for (size_t j = trans_idx + 1; j < train2->stops.size(); ++j) {
@@ -176,6 +186,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                         }
                     }
                     if (to_idx2 < 0) continue;
+                    if (train2->stops[to_idx2].stop_type == StopType::PASS) continue;  // 通过站不可作为到达站
 
                     // 去重
                     std::string pair_key = train1->id + "|" + train2->id;

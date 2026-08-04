@@ -155,9 +155,13 @@ struct Stop {
     std::string line_name;      // 线路名（持久化冗余）
     StopType stop_type = StopType::ORIGIN;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Stop, station_id, line_id, arrival, departure, platform)
-// station_name / line_name / stop_type 不在宏中——请求体不含这些字段，
-// 仅在 saveTrains() 写入 JSON 前由 enrich 逻辑补齐，stopsToJson() 输出时查 DataStore
+NLOHMANN_JSON_SERIALIZE_ENUM(StopType, {
+    {StopType::ORIGIN, "ORIGIN"},
+    {StopType::STOP, "STOP"},
+    {StopType::PASS, "PASS"},
+    {StopType::TERMINAL, "TERMINAL"},
+})
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Stop, station_id, line_id, arrival, departure, platform, stop_type, station_name, line_name)
 
 /** 席位配置 — 一列车各席位的座位数量 */
 struct SeatConfig {

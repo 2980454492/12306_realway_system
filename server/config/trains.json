@@ -19,8 +19,7 @@
         "platform": 0,
         "station_id": 1,
         "station_name": "北京",
-        "stop_type": 0,
-        "stop_type_name": "始发"
+        "stop_type": "ORIGIN"
       },
       {
         "arrival": 118,
@@ -30,8 +29,7 @@
         "platform": 0,
         "station_id": 14,
         "station_name": "廊坊",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 135,
@@ -41,8 +39,7 @@
         "platform": 0,
         "station_id": 3,
         "station_name": "天津",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 200,
@@ -52,8 +49,7 @@
         "platform": 0,
         "station_id": 13,
         "station_name": "沧州",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 220,
@@ -63,8 +59,7 @@
         "platform": 0,
         "station_id": 142,
         "station_name": "德州",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 240,
@@ -74,8 +69,7 @@
         "platform": 0,
         "station_id": 132,
         "station_name": "济南",
-        "stop_type": 3,
-        "stop_type_name": "终到"
+        "stop_type": "TERMINAL"
       }
     ],
     "type": "REGULAR",
@@ -102,8 +96,7 @@
         "platform": 0,
         "station_id": 165,
         "station_name": "武汉",
-        "stop_type": 0,
-        "stop_type_name": "始发"
+        "stop_type": "ORIGIN"
       },
       {
         "arrival": 741,
@@ -113,8 +106,7 @@
         "platform": 0,
         "station_id": 175,
         "station_name": "咸宁",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 814,
@@ -124,8 +116,7 @@
         "platform": 0,
         "station_id": 182,
         "station_name": "岳阳",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 850,
@@ -135,8 +126,7 @@
         "platform": 0,
         "station_id": 178,
         "station_name": "长沙",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 904,
@@ -146,8 +136,7 @@
         "platform": 0,
         "station_id": 179,
         "station_name": "株洲",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 920,
@@ -157,8 +146,7 @@
         "platform": 0,
         "station_id": 337,
         "station_name": "衡山西",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 945,
@@ -168,8 +156,7 @@
         "platform": 0,
         "station_id": 181,
         "station_name": "衡阳",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 1013,
@@ -179,8 +166,7 @@
         "platform": 0,
         "station_id": 184,
         "station_name": "郴州",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 1050,
@@ -190,8 +176,7 @@
         "platform": 0,
         "station_id": 200,
         "station_name": "韶关",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 1125,
@@ -201,8 +186,7 @@
         "platform": 0,
         "station_id": 208,
         "station_name": "清远",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 1140,
@@ -212,8 +196,7 @@
         "platform": 0,
         "station_id": 192,
         "station_name": "广州",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 1219,
@@ -223,8 +206,7 @@
         "platform": 0,
         "station_id": 193,
         "station_name": "深圳",
-        "stop_type": 3,
-        "stop_type_name": "终到"
+        "stop_type": "TERMINAL"
       }
     ],
     "type": "REGULAR",
@@ -251,8 +233,7 @@
         "platform": 0,
         "station_id": 165,
         "station_name": "武汉",
-        "stop_type": 0,
-        "stop_type_name": "始发"
+        "stop_type": "ORIGIN"
       },
       {
         "arrival": 754,
@@ -262,8 +243,7 @@
         "platform": 0,
         "station_id": 175,
         "station_name": "咸宁",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 829,
@@ -273,8 +253,7 @@
         "platform": 0,
         "station_id": 182,
         "station_name": "岳阳",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 905,
@@ -284,8 +263,7 @@
         "platform": 0,
         "station_id": 178,
         "station_name": "长沙",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 920,
@@ -295,8 +273,7 @@
         "platform": 0,
         "station_id": 179,
         "station_name": "株洲",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 940,
@@ -306,8 +283,7 @@
         "platform": 0,
         "station_id": 337,
         "station_name": "衡山西",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 950,
@@ -317,8 +293,7 @@
         "platform": 0,
         "station_id": 181,
         "station_name": "衡阳",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 1028,
@@ -328,8 +303,7 @@
         "platform": 0,
         "station_id": 184,
         "station_name": "郴州",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 1101,
@@ -339,8 +313,7 @@
         "platform": 0,
         "station_id": 200,
         "station_name": "韶关",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 1134,
@@ -350,8 +323,7 @@
         "platform": 0,
         "station_id": 208,
         "station_name": "清远",
-        "stop_type": 2,
-        "stop_type_name": "通过"
+        "stop_type": "PASS"
       },
       {
         "arrival": 1152,
@@ -361,8 +333,7 @@
         "platform": 0,
         "station_id": 192,
         "station_name": "广州",
-        "stop_type": 1,
-        "stop_type_name": "停靠"
+        "stop_type": "STOP"
       },
       {
         "arrival": 1240,
@@ -372,8 +343,7 @@
         "platform": 0,
         "station_id": 193,
         "station_name": "深圳",
-        "stop_type": 3,
-        "stop_type_name": "终到"
+        "stop_type": "TERMINAL"
       }
     ],
     "type": "REGULAR",

@@ -1314,8 +1314,8 @@
   {
     "city": "武汉",
     "id": 165,
-    "latitude": 30.59,
-    "longitude": 114.31,
+    "latitude": 30.6,
+    "longitude": 114.42,
     "name": "武汉",
     "type": "HUB"
   },
@@ -2693,6 +2693,14 @@
     "latitude": 27.48,
     "longitude": 112.79,
     "name": "衡山西",
+    "type": "HIGH_SPEED"
+  },
+  {
+    "city": "武汉",
+    "id": 338,
+    "latitude": 30.62,
+    "longitude": 114.25,
+    "name": "汉口",
     "type": "HIGH_SPEED"
   }
 ]
