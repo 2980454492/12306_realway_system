@@ -531,7 +531,9 @@
     var d = U.$('query-date'); if (d) {
       var savedDate = d.value;
       if (!savedDate || savedDate < d.min || savedDate > d.max) {
-        d.value = new Date().toISOString().slice(0, 10);
+        var tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        d.value = tomorrow.toISOString().slice(0, 10);
       }
       var today = new Date();
       var maxDay = new Date(today);
