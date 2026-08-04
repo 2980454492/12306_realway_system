@@ -115,6 +115,47 @@ int getTrainMaxSpeed(const std::string& train_id) {
     }
 }
 
+/** 用线路站点顺序精确定位新站的插入位置。
+ *  在 train.stops 中找到新站前后相邻城市对应的连续停站对，返回插入索引。
+ *  找不到时回退到线路上第一对连续站。 */
+int findStopInsertIndex(const Train& train, uint32_t line_id,
+                        const std::string& st_city, const DataStore& ds) {
+    // 1. 从线路站点顺序中找新站的前后邻站城市
+    std::string prev_city, next_city;
+    for (const auto& ln : ds.getAllLines()) {
+        if (ln.id != line_id) continue;
+        for (size_t i = 0; i < ln.stations.size(); i++) {
+            if (ln.stations[i] == st_city) {
+                if (i > 0) prev_city = ln.stations[i - 1];
+                if (i + 1 < ln.stations.size()) next_city = ln.stations[i + 1];
+                break;
+            }
+        }
+        break;
+    }
+
+    // 2. 在列车停站中匹配这对相邻城市（必须同线路）
+    if (!prev_city.empty() && !next_city.empty()) {
+        for (size_t i = 0; i + 1 < train.stops.size(); i++) {
+            if (train.stops[i].line_id != line_id
+                || train.stops[i + 1].line_id != line_id)
+                continue;
+            auto* s1 = ds.getStation(train.stops[i].station_id);
+            auto* s2 = ds.getStation(train.stops[i + 1].station_id);
+            if (s1 && s2 && s1->city == prev_city && s2->city == next_city)
+                return static_cast<int>(i + 1);
+        }
+    }
+
+    // 3. 回退：线路上第一对连续站（兼容旧数据）
+    for (size_t i = 0; i + 1 < train.stops.size(); i++) {
+        if (train.stops[i].line_id == line_id
+            && train.stops[i + 1].line_id == line_id)
+            return static_cast<int>(i + 1);
+    }
+    return -1;
+}
+
 }  // namespace
 
 ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
@@ -157,15 +198,8 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         return result;
     }
 
-    // 3. 找插入位置：该线路上第一对连续站之间
-    int insert_idx = -1;
-    for (size_t i = 0; i + 1 < train->stops.size(); i++) {
-        if (train->stops[i].line_id == line_id
-            && train->stops[i + 1].line_id == line_id) {
-            insert_idx = static_cast<int>(i + 1);
-            break;
-        }
-    }
+    // 3. 用线路站点顺序精确定位插入位置（而非总是第一个区间）
+    int insert_idx = findStopInsertIndex(*train, line_id, st_city, ds);
     if (insert_idx < 0) {
         result.error = "未找到该线路在列车停站中的区间";
         return result;
@@ -351,15 +385,8 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 result.error = "站点 " + st_city + " 不存在";
                 return result;
             }
-            // 找插入位置：该线路上的前后相邻站
-            int insert_idx = -1;
-            for (size_t i = 0; i + 1 < train->stops.size(); i++) {
-                if (train->stops[i].line_id == line_id
-                    && train->stops[i + 1].line_id == line_id) {
-                    insert_idx = static_cast<int>(i + 1);
-                    break;
-                }
-            }
+            // 用线路站点顺序精确定位插入位置（而非总是第一个区间）
+            int insert_idx = findStopInsertIndex(*train, line_id, st_city, ds);
             if (insert_idx < 0) {
                 cas_lock_.clear();
                 result.error = "未找到该线路在列车停站中的区间";

@@ -232,16 +232,18 @@ const U = {
     if (res.ok && res.data && res.data.data) {
       State.stations = res.data.data;
       UI._allStations = State.stations;
-      // O(1) 索引：id→name, id→city, name→id, city→[ids]
+      // O(1) 索引：id→name, id→city, name→id, city→[ids], id→{lat,lon}
       State._staName = {};
       State._staCity = {};
       State._nameToId = {};
       State._cityToIds = {};
+      State._staCoord = {};  // id → {lat, lon}，前端距离计算用
       for (let i = 0; i < State.stations.length; i++) {
         var s = State.stations[i];
         State._staName[s.id] = s.name;
         State._staCity[s.id] = s.city;
         State._nameToId[s.name] = s.id;
+        State._staCoord[s.id] = { lat: s.latitude, lon: s.longitude };
         if (!State._cityToIds[s.city]) State._cityToIds[s.city] = [];
         State._cityToIds[s.city].push(s.id);
       }
@@ -251,12 +253,12 @@ const U = {
   /** O(1) 站名查找（替代 for 循环遍历 State.stations） */
   stationName: function(id, fallback) {
     if (fallback !== undefined) return fallback;
-    return State._staName[id] || ('站#' + id);
+    return (State._staName && State._staName[id]) || ('站#' + id);
   },
 
   /** O(1) 站名→ID */
   stationNameToId: function(name) {
-    return State._nameToId[name] || 0;
+    return (State._nameToId && State._nameToId[name]) || 0;
   },
 
   /** 车型筛选常量 */

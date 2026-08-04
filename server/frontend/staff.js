@@ -965,7 +965,8 @@
 
       // 存每卡片数据供事件处理用
       var root = card.querySelector('.si-card');
-      root._siData = { approvalId: a.id, prevDep: prevDep, nextArr: nextArr, lineId: lineId, tid: tid };
+      root._siData = { approvalId: a.id, prevDep: prevDep, nextArr: nextArr, lineId: lineId, tid: tid,
+        prevStationId: prevStop.station_id, nextStationId: nextStop.station_id, stCity: stCity };
 
       listEl.appendChild(card);
     }
@@ -981,7 +982,19 @@
     card.querySelector('.si-time-sep').style.display = isStop ? '' : 'none';
   };
 
-  /** 实时计算并显示时速（前端近似，后端做权威校验） */
+  /** Haversine 距离（km），用于前端实时估算时速 */
+  UI._haversineDist = function(lat1, lon1, lat2, lon2) {
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLon = (lon2 - lon1) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+          + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+          * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  /** 实时计算并显示时速（前端 Haversine 近似，后端做权威校验） */
   UI._siCalcSpeed = function(card) {
     if (!card) return;
     var d = card._siData;
@@ -996,27 +1009,51 @@
       return;
     }
     var effectiveArr = isStop ? arr : dep;
-    var nbList = State._neighborIndex || {};
-    var limit = 999, dist = 0;
-    for (let key in nbList) {
-      for (let ni = 0; ni < nbList[key].length; ni++) {
-        if (nbList[key][ni].line_id == d.lineId) {
-          limit = Math.min(limit, nbList[key][ni].max_speed_kmh || 999);
-          if (dist === 0) dist = nbList[key][ni].distance_km || 0;
+
+    // 获取新站坐标：由城市名查找第一站的 lat/lon
+    var newCoord = null;
+    if (d.stCity && State._cityToIds && State._cityToIds[d.stCity]) {
+      var newStationId = State._cityToIds[d.stCity][0];
+      newCoord = State._staCoord ? State._staCoord[newStationId] : null;
+    }
+    var prevCoord = (State._staCoord && d.prevStationId) ? State._staCoord[d.prevStationId] : null;
+    var nextCoord = (State._staCoord && d.nextStationId) ? State._staCoord[d.nextStationId] : null;
+
+    // 限速 = min(列车设计时速, 线路设计时速)
+    var limit = 999;
+    if (d.tid) {
+      var prefix = d.tid.charAt(0);
+      var trainMax = UI._speedLimits[prefix] || 999;
+      limit = Math.min(limit, trainMax);
+    }
+    if (d.lineId && UI._allLines) {
+      for (let li = 0; li < UI._allLines.length; li++) {
+        if (UI._allLines[li].id == d.lineId) {
+          limit = Math.min(limit, UI._allLines[li].max_speed_kmh || 999);
+          break;
         }
       }
     }
+
+    // 两个 segment 各自计算距离和时速
     var speeds = [];
-    if (d.prevDep > 0 && effectiveArr > d.prevDep) {
-      var dm = Math.floor(d.prevDep/100)*60 + (d.prevDep%100);
-      var am = Math.floor(effectiveArr/100)*60 + (effectiveArr%100);
-      if (am > dm) speeds.push(Math.round(dist / ((am - dm) / 60)));
+    if (prevCoord && newCoord) {
+      var dist1 = UI._haversineDist(prevCoord.lat, prevCoord.lon, newCoord.lat, newCoord.lon);
+      if (d.prevDep > 0 && effectiveArr > d.prevDep && dist1 > 0) {
+        var dm = Math.floor(d.prevDep/100)*60 + (d.prevDep%100);
+        var am = Math.floor(effectiveArr/100)*60 + (effectiveArr%100);
+        if (am > dm) speeds.push(Math.round(dist1 / ((am - dm) / 60)));
+      }
     }
-    if (d.nextArr > 0 && dep > 0 && d.nextArr > dep) {
-      var dm2 = Math.floor(dep/100)*60 + (dep%100);
-      var nm = Math.floor(d.nextArr/100)*60 + (d.nextArr%100);
-      if (nm > dm2) speeds.push(Math.round(dist / ((nm - dm2) / 60)));
+    if (newCoord && nextCoord) {
+      var dist2 = UI._haversineDist(newCoord.lat, newCoord.lon, nextCoord.lat, nextCoord.lon);
+      if (d.nextArr > 0 && dep > 0 && d.nextArr > dep && dist2 > 0) {
+        var dm2 = Math.floor(dep/100)*60 + (dep%100);
+        var nm = Math.floor(d.nextArr/100)*60 + (d.nextArr%100);
+        if (nm > dm2) speeds.push(Math.round(dist2 / ((nm - dm2) / 60)));
+      }
     }
+
     var txt = speeds.length ? speeds.join(' / ') + ' km/h' : '';
     var ok = true;
     for (let si = 0; si < speeds.length; si++)
