@@ -218,11 +218,9 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 result.error = "列车 " + tid + " 不存在";
                 return result;
             }
-            // 解析站名→站ID
+            // O(1) 城市名→站ID
             std::string st_city = payload.value("station_city", "");
-            uint32_t st_id = 0;
-            for (const auto& st : ds.getAllStations())
-                if (st.city == st_city) { st_id = st.id; break; }
+            uint32_t st_id = ds.cityToStationId(st_city);
             if (st_id == 0) {
                 cas_lock_.clear();
                 result.error = "站点 " + st_city + " 不存在";

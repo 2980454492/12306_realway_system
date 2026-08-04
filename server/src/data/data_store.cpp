@@ -92,9 +92,14 @@ std::vector<const Train*> DataStore::getTrainsByStation(uint32_t station_id) con
 void DataStore::buildIndexes() {
     station_index_.clear();
     train_index_.clear();
+    station_name_set_.clear();
 
     for (size_t i = 0; i < stations_.size(); ++i) {
         station_index_[stations_[i].id] = i;
+        station_name_set_.insert(stations_[i].name);
+        station_name_set_.insert(stations_[i].city);
+        city_to_ids_[stations_[i].city].push_back(stations_[i].id);
+        name_to_id_[stations_[i].name] = stations_[i].id;
     }
     for (size_t i = 0; i < trains_.size(); ++i) {
         train_index_[trains_[i].id] = i;
@@ -249,6 +254,9 @@ Station DataStore::addStation(const Station& station) {
         s.id = nextId(stations_);
     stations_.push_back(s);
     station_index_[s.id] = stations_.size() - 1;
+    station_name_set_.insert(s.name);
+    station_name_set_.insert(s.city);
+    city_to_ids_[s.city].push_back(s.id);
     saveStations();
     return s;
 }
@@ -388,19 +396,13 @@ void DataStore::buildStationLineIndex() {
     station_line_index_.clear();
 
     for (const auto& line : lines_) {
-        // 城市名 → 站点 ID
+        // 城市名 → 站点 ID（O(1) 查索引）
         std::vector<uint32_t> ids;
         for (const auto& city : line.stations) {
-            bool found = false;
-            for (const auto& st : stations_)
-                if (st.city == city) {
-                    ids.push_back(st.id);
-                    found = true;
-                    break;
-                }
-            if (!found)
-                Logger::instance().warn("Line '" + line.name
-                    + "': city '" + city + "' not found in stations");
+            uint32_t sid = cityToStationId(city);
+            if (sid) ids.push_back(sid);
+            else Logger::instance().warn("Line '" + line.name
+                + "': city '" + city + "' not found in stations");
         }
         if (ids.size() != line.stations.size() || ids.size() < 2) continue;
 

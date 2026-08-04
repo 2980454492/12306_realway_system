@@ -65,20 +65,14 @@ void RailwayGraph::build(const std::vector<Line>& lines) {
 
     auto& ds = DataStore::instance();
 
-    // 城市名 → 站点 ID 辅助函数（未找到返回 0 并记录警告）
-    auto stationId = [&](const std::string& city) -> uint32_t {
-        for (const auto& st : ds.getAllStations())
-            if (st.city == city) return st.id;
-        Logger::instance().warn("RailwayGraph: city '" + city + "' not found");
-        return 0;
-    };
+    // O(1) 城市名 → 站点 ID（DataStore 预建索引）
 
     for (const auto& line : lines) {
         if (line.stations.size() < 2) continue;
 
         for (size_t i = 0; i + 1 < line.stations.size(); ++i) {
-            uint32_t u = stationId(line.stations[i]);
-            uint32_t v = stationId(line.stations[i + 1]);
+            uint32_t u = ds.cityToStationId(line.stations[i]);
+            uint32_t v = ds.cityToStationId(line.stations[i + 1]);
             if (!u || !v) continue;
             auto* sa = ds.getStation(u);
             auto* sb = ds.getStation(v);

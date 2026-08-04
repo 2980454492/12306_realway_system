@@ -2,7 +2,6 @@
 #include "router_helpers.h"
 #include "infra_admin/station_service.h"
 #include "infra_admin/line_service.h"
-#include <unordered_set>
 
 namespace {
 
@@ -11,9 +10,10 @@ namespace {
 std::string checkStationName(const std::string& name, uint32_t excludeId) {
     if (name.empty())
         return "站名不能为空";
-    for (const auto& s : station_service::getAll())
-        if (s.id != excludeId && s.name == name)
-            return "站名已存在: " + name;
+    // O(1)：用预建索引 name→id 查重
+    uint32_t existId = DataStore::instance().nameToStationId(name);
+    if (existId != 0 && existId != excludeId)
+        return "站名已存在: " + name;
     return "";
 }
 
@@ -27,12 +27,8 @@ std::string checkLineBody(const json& body) {
         return "至少需要起点和终点两个站点";
     if (body.value("max_speed_kmh", 0) <= 0)
         return "设计时速必须大于0";
-    // 车站存在性检查：用 hash set 将 O(S×L) 降为 O(S+L)
-    std::unordered_set<std::string> valid;
-    for (const auto& reg : station_service::getAll()) {
-        valid.insert(reg.name);
-        valid.insert(reg.city);
-    }
+    // 车站存在性检查：DataStore 初始化时已预建 name/city 集合，O(1) 查表
+    auto& valid = DataStore::instance().getStationNameSet();
     for (const auto& s : body["stations"]) {
         std::string st = s.get<std::string>();
         if (!valid.count(st))
@@ -215,7 +211,10 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         // 保存旧站点列表用于比较
         std::vector<std::string> old_stations;
         for (const auto& l : line_service::getAll())
-            if (l.id == id) { old_stations = l.stations; break; }
+            if (l.id == id) { 
+                old_stations = l.stations; 
+                break; 
+            }
 
         Line line;
         line.id = body.value("id", 0);
@@ -226,8 +225,11 @@ void registerInfraAdminRoutes(RailwayServer& server) {
             line.stations.push_back(s.get<std::string>());
 
         if (!line_service::update(id, line)) {
-            json j; j["ok"] = false; j["error"] = "线路不存在";
-            res.set_content(j.dump(), "application/json"); res.status = 404;
+            json j; 
+            j["ok"] = false; 
+            j["error"] = "线路不存在";
+            res.set_content(j.dump(), "application/json"); 
+            res.status = 404;
             return;
         }
 
@@ -240,10 +242,8 @@ void registerInfraAdminRoutes(RailwayServer& server) {
 
             Logger::instance().info("Line " + std::to_string(id) + " new station: " + new_st);
 
-            // 查城市名对应的站 ID
-            uint32_t new_st_id = 0;
-            for (const auto& st : ds.getAllStations())
-                if (st.city == new_st) { new_st_id = st.id; break; }
+            // O(1) 城市名 → 站 ID
+            uint32_t new_st_id = ds.cityToStationId(new_st);
             if (new_st_id == 0) {
                 Logger::instance().warn("Station city not found: " + new_st);
                 continue;
@@ -253,13 +253,19 @@ void registerInfraAdminRoutes(RailwayServer& server) {
             for (const auto& train : ds.getAllTrains()) {
                 bool on_this_line = false;
                 for (const auto& stop : train.stops)
-                    if (stop.line_id == id) { on_this_line = true; break; }
+                    if (stop.line_id == id) { 
+                        on_this_line = true; 
+                        break; 
+                    }
                 if (!on_this_line) continue;
 
                 // 检查此列车是否已包含该站
                 bool has_station = false;
                 for (const auto& stop : train.stops)
-                    if (stop.station_id == new_st_id) { has_station = true; break; }
+                    if (stop.station_id == new_st_id) { 
+                        has_station = true; 
+                        break; 
+                    }
                 if (has_station) continue;
 
                 Logger::instance().info("Creating STOP_INSERT for train " + train.id + " station " + new_st);

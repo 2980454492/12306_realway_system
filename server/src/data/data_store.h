@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <optional>
 #include <shared_mutex>
 
@@ -44,6 +45,30 @@ public:
     /** 车站-线路-邻居索引：每个站在每条线路上的相邻站 */
     const std::map<uint32_t, std::vector<LineNeighbor>>& getStationLineIndex() const {
         return station_line_index_;
+    }
+
+    /** 站名/城市名集合（预建，O(1) 校验合法性） */
+    const std::unordered_set<std::string>& getStationNameSet() const {
+        return station_name_set_;
+    }
+
+    /** 城市名 → 站 ID（取第一个，无站返回 0）。一个城市多个站时用 getStationIdsByCity() */
+    uint32_t cityToStationId(const std::string& city) const {
+        auto it = city_to_ids_.find(city);
+        return (it != city_to_ids_.end() && !it->second.empty()) ? it->second[0] : 0;
+    }
+
+    /** 城市名 → 全部站 ID（一个城市可能有多个站） */
+    const std::vector<uint32_t>& getStationIdsByCity(const std::string& city) const {
+        static const std::vector<uint32_t> empty;
+        auto it = city_to_ids_.find(city);
+        return (it != city_to_ids_.end()) ? it->second : empty;
+    }
+
+    /** 站名 → 站 ID（预建，O(1) 按站名查站） */
+    uint32_t nameToStationId(const std::string& name) const {
+        auto it = name_to_id_.find(name);
+        return (it != name_to_id_.end()) ? it->second : 0;
     }
 
     // ── 运行时变更（职工端）──
@@ -110,6 +135,13 @@ private:
 
     // 车站-线路-邻居索引：map<station_id, vector<LineNeighbor>>
     std::map<uint32_t, std::vector<LineNeighbor>> station_line_index_;
+
+    // 站名/城市名 → 存在性（预建，O(1) 校验站名合法）
+    std::unordered_set<std::string> station_name_set_;
+    // 城市名 → 站 ID 列表（预建，O(1) 按城市查站，一个城市可能有多个站）
+    std::unordered_map<std::string, std::vector<uint32_t>> city_to_ids_;
+    // 站名 → 站 ID（预建，O(1) 按站名查站，站名全局唯一）
+    std::unordered_map<std::string, uint32_t> name_to_id_;
 
     bool ready_ = false;
 
