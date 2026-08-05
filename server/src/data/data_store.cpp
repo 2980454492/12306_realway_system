@@ -263,6 +263,7 @@ Station DataStore::addStation(const Station& station) {
     station_index_[s.id] = stations_.size() - 1;
     station_name_set_.insert(s.name);
     station_name_set_.insert(s.city);
+    name_to_id_[s.name] = s.id;
     city_to_ids_[s.city].push_back(s.id);
     saveStations();
     return s;
@@ -272,8 +273,24 @@ bool DataStore::updateStation(uint32_t id, const Station& updated) {
     std::lock_guard<std::shared_mutex> lock(mutex_);
     auto it = station_index_.find(id);
     if (it == station_index_.end()) return false;
-    stations_[it->second] = updated;
-    stations_[it->second].id = id;  // 保持 ID 不变
+    // 旧数据清理：站名/城市变更时更新索引
+    auto& old = stations_[it->second];
+    if (old.name != updated.name) {
+        name_to_id_.erase(old.name);
+        station_name_set_.erase(old.name);
+        name_to_id_[updated.name] = id;
+        station_name_set_.insert(updated.name);
+    }
+    if (old.city != updated.city) {
+        station_name_set_.erase(old.city);
+        station_name_set_.insert(updated.city);
+        // 从旧城市的 ID 列表中移除
+        auto& old_ids = city_to_ids_[old.city];
+        old_ids.erase(std::remove(old_ids.begin(), old_ids.end(), id), old_ids.end());
+        city_to_ids_[updated.city].push_back(id);
+    }
+    old = updated;
+    old.id = id;  // 保持 ID 不变
     saveStations();
     return true;
 }
@@ -283,6 +300,14 @@ bool DataStore::removeStation(uint32_t id) {
     auto it = station_index_.find(id);
     if (it == station_index_.end()) return false;
     size_t idx = it->second;
+    // 清理索引
+    auto& removed = stations_[idx];
+    name_to_id_.erase(removed.name);
+    station_name_set_.erase(removed.name);
+    station_name_set_.erase(removed.city);
+    auto& city_ids = city_to_ids_[removed.city];
+    city_ids.erase(std::remove(city_ids.begin(), city_ids.end(), id), city_ids.end());
+    // swap-remove
     size_t last = stations_.size() - 1;
     if (idx != last) {
         std::swap(stations_[idx], stations_[last]);
@@ -315,29 +340,33 @@ Line DataStore::addLine(const Line& line) {
     if (l.id == 0)
         l.id = nextId(lines_);
     lines_.push_back(l);
+    line_index_[l.id] = lines_.size() - 1;
     saveLines();
     return l;
 }
 
 bool DataStore::updateLine(uint32_t id, const Line& updated) {
     std::lock_guard<std::shared_mutex> lock(mutex_);
-    for (auto& ln : lines_) {
-        if (ln.id == id) {
-            ln = updated;
-            ln.id = id;
-            saveLines();
-            return true;
-        }
-    }
-    return false;
+    auto it = line_index_.find(id);
+    if (it == line_index_.end()) return false;
+    lines_[it->second] = updated;
+    lines_[it->second].id = id;
+    saveLines();
+    return true;
 }
 
 bool DataStore::removeLine(uint32_t id) {
     std::lock_guard<std::shared_mutex> lock(mutex_);
-    auto it = std::find_if(lines_.begin(), lines_.end(),
-        [id](const Line& l) { return l.id == id; });
-    if (it == lines_.end()) return false;
-    lines_.erase(it);
+    auto it = line_index_.find(id);
+    if (it == line_index_.end()) return false;
+    size_t idx = it->second;
+    size_t last = lines_.size() - 1;
+    if (idx != last) {
+        std::swap(lines_[idx], lines_[last]);
+        line_index_[lines_[idx].id] = idx;
+    }
+    lines_.pop_back();
+    line_index_.erase(id);
     saveLines();
     return true;
 }
