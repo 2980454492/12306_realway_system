@@ -331,6 +331,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
                 payload["line_id"] = id;
                 payload["station"] = new_st;
                 payload["action"] = "insert";
+                payload["line_name"] = ds.getLine(id) ? ds.getLine(id)->name : "";
                 payload["insert_index"] = insert_idx2;
                 payload["prev_station"] = prev_name;
                 payload["prev_departure"] = prev_dep;

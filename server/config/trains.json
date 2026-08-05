@@ -129,13 +129,13 @@
         "stop_type": "STOP"
       },
       {
-        "arrival": 904,
-        "departure": 904,
+        "arrival": 908,
+        "departure": 908,
         "line_id": 5,
         "line_name": "京广高铁",
         "platform": 0,
-        "station_id": 179,
-        "station_name": "株洲",
+        "station_id": 339,
+        "station_name": "株洲西",
         "stop_type": "PASS"
       },
       {
@@ -266,13 +266,13 @@
         "stop_type": "STOP"
       },
       {
-        "arrival": 920,
-        "departure": 920,
+        "arrival": 925,
+        "departure": 925,
         "line_id": 5,
         "line_name": "京广高铁",
         "platform": 0,
-        "station_id": 179,
-        "station_name": "株洲",
+        "station_id": 339,
+        "station_name": "株洲西",
         "stop_type": "PASS"
       },
       {

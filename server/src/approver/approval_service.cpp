@@ -115,8 +115,6 @@ int getTrainMaxSpeed(const std::string& train_id) {
     }
 }
 
-
-
 }  // namespace
 
 ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
@@ -174,6 +172,27 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
 
     Train modified = *train;
     modified.stops.insert(modified.stops.begin() + insert_idx, new_stop);
+
+    // 改站场景：同一线路可能存在待审批的 STOP_REMOVE（旧站尚未删除），
+    // 模拟 STOP_REMOVE 通过后的状态，避免新旧两站时间冲突
+    // 直接遍历 approvals_（已持有 mutex_，不能用 getApprovals 重入）
+    for (const auto& ar : approvals_) {
+        if (ar.status != ApprovalState::SUBMITTED) continue;
+        if (ar.type != ApprovalType::STOP_REMOVE) continue;
+            try {
+                json rp = json::parse(ar.payload);
+                if (rp.value("train_id", "") != tid) continue;
+                if (rp.value("line_id", 0U) != line_id) continue;
+                uint32_t rm_sid = ds.stationToId(rp.value("station", ""));
+                if (rm_sid == 0) continue;
+                modified.stops.erase(
+                    std::remove_if(modified.stops.begin(), modified.stops.end(),
+                        [rm_sid, line_id](const Stop& s) {
+                            return s.station_id == rm_sid && s.line_id == line_id;
+                        }),
+                    modified.stops.end());
+            } catch (...) {}
+    }
 
     auto cr = TrainManager::instance().checkTrain(modified, false);
     if (!cr.valid) {
@@ -370,6 +389,25 @@ ApprovalService::ApproveResult ApprovalService::approve(
             // 二次冲突校验：模拟插入后的运行图
             Train modified = *train;
             modified.stops.insert(modified.stops.begin() + insert_idx, new_stop);
+            // 改站场景：过滤同列车同线路的待删站，避免新旧两站时间重叠
+            // 直接遍历 approvals_（已持有 mutex_，不能用 getApprovals 重入）
+            for (const auto& ar : approvals_) {
+                if (ar.status != ApprovalState::SUBMITTED) continue;
+                if (ar.type != ApprovalType::STOP_REMOVE) continue;
+                try {
+                    json rp = json::parse(ar.payload);
+                    if (rp.value("train_id", "") != tid) continue;
+                    if (rp.value("line_id", 0U) != line_id) continue;
+                    uint32_t rm_sid = ds.stationToId(rp.value("station", ""));
+                    if (rm_sid == 0) continue;
+                    modified.stops.erase(
+                        std::remove_if(modified.stops.begin(), modified.stops.end(),
+                            [rm_sid, line_id](const Stop& s) {
+                                return s.station_id == rm_sid && s.line_id == line_id;
+                            }),
+                        modified.stops.end());
+                } catch (...) {}
+            }
             auto conflicts = TrainManager::instance().detectConflicts(modified);
             if (!conflicts.empty()) {
                 cas_lock_.clear();

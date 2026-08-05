@@ -2702,5 +2702,13 @@
     "longitude": 114.25,
     "name": "汉口",
     "type": "HIGH_SPEED"
+  },
+  {
+    "city": "株洲",
+    "id": 339,
+    "latitude": 27.79,
+    "longitude": 113.07,
+    "name": "株洲西",
+    "type": "HIGH_SPEED"
   }
 ]
