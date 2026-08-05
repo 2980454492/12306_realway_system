@@ -267,20 +267,77 @@ void registerInfraAdminRoutes(RailwayServer& server) {
                 // 检查此列车是否已包含该站
                 bool has_station = false;
                 for (const auto& stop : train.stops)
-                    if (stop.station_id == new_st_id) { 
-                        has_station = true; 
-                        break; 
+                    if (stop.station_id == new_st_id) {
+                        has_station = true;
+                        break;
                     }
                 if (has_station) continue;
 
                 Logger::instance().info("Creating STOP_INSERT for train " + train.id + " station " + new_st);
 
+                // 计算前后站 + 插入位置（一次性算好，下游直接读取）
+                std::string prev_name, next_name;
+                int prev_dep = 0, next_arr = 0, insert_idx2 = -1;
+                uint32_t prev_sid = 0, next_sid = 0;
+                {
+                    auto* line_ptr = ds.getLine(id);
+                    if (line_ptr) {
+                        int st_pos = -1;
+                        for (size_t li = 0; li < line_ptr->stations.size(); li++)
+                            if (line_ptr->stations[li] == new_st) { 
+                                st_pos = static_cast<int>(li); 
+                                break; 
+                            }
+                        if (st_pos > 0) prev_name = line_ptr->stations[st_pos - 1];
+                        if (st_pos >= 0 && st_pos + 1 < static_cast<int>(line_ptr->stations.size()))
+                            next_name = line_ptr->stations[st_pos + 1];
+                    }
+                    // 分别在列车 stops 中查找（不要求连续，改线时中间可能隔着待删站）
+                    int prev_idx = -1, next_idx = -1;
+                    for (size_t si = 0; si < train.stops.size(); si++) {
+                        auto* s = ds.getStation(train.stops[si].station_id);
+                        if (!s) continue;
+                        if (!prev_name.empty() && s->name == prev_name) {
+                            prev_idx = static_cast<int>(si);
+                            prev_dep = train.stops[si].departure;
+                            prev_sid = train.stops[si].station_id;
+                        }
+                        if (!next_name.empty() && s->name == next_name && prev_idx >= 0) {
+                            next_idx = static_cast<int>(si);
+                            next_arr = train.stops[si].arrival;
+                            next_sid = train.stops[si].station_id;
+                            break;
+                        }
+                    }
+                    if (prev_idx < 0 && !next_name.empty()) {
+                        for (size_t si = 0; si < train.stops.size(); si++) {
+                            auto* s = ds.getStation(train.stops[si].station_id);
+                            if (s && s->name == next_name) {
+                                next_idx = static_cast<int>(si);
+                                next_arr = train.stops[si].arrival;
+                                next_sid = train.stops[si].station_id;
+                                break;
+                            }
+                        }
+                    }
+                    // 插入位置：前站之后（新站在线路开头时插入到后站之前）
+                    insert_idx2 = (prev_idx >= 0) ? prev_idx + 1
+                        : (next_idx >= 0) ? next_idx : -1;
+                }
+
                 // 提交补站审批
                 json payload;
                 payload["train_id"] = train.id;
                 payload["line_id"] = id;
-                payload["station_city"] = new_st;
+                payload["station"] = new_st;
                 payload["action"] = "insert";
+                payload["insert_index"] = insert_idx2;
+                payload["prev_station"] = prev_name;
+                payload["prev_departure"] = prev_dep;
+                payload["prev_station_id"] = prev_sid;
+                payload["next_station"] = next_name;
+                payload["next_arrival"] = next_arr;
+                payload["next_station_id"] = next_sid;
                 std::string aid = ApprovalService::instance().submit(
                     ApprovalType::STOP_INSERT, ctx->user_id, payload.dump());
                 affected_trains.push_back({{"train_id", train.id}, {"approval_id", aid}});
@@ -315,7 +372,7 @@ void registerInfraAdminRoutes(RailwayServer& server) {
                 json payload;
                 payload["train_id"] = train.id;
                 payload["line_id"] = id;
-                payload["station_city"] = old_st;
+                payload["station"] = old_st;
                 payload["action"] = "remove";
                 std::string aid = ApprovalService::instance().submit(
                     ApprovalType::STOP_REMOVE, ctx->user_id, payload.dump());

@@ -3,33 +3,6 @@
 
 void registerStaffRoutes(RailwayServer& server) {
     auto& app = server.getApp();
-    /** GET /api/admin/stop-inserts — STAFF 查看待处理的线路加站（含未填时间的） */
-    app.Get("/api/admin/stop-inserts", [](const httplib::Request& req, httplib::Response& res) {
-    try {
-        auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
-        if (!ctx) return;
-
-        auto approvals = ApprovalService::instance().getApprovals(ApprovalState::SUBMITTED);
-        json arr = json::array();
-        for (const auto& a : approvals) {
-            if (a.type != ApprovalType::STOP_INSERT) continue;
-            json ja;
-            ja["id"] = a.id;
-            ja["type"] = static_cast<int>(a.type);
-            ja["submitter_id"] = a.submitter_id;
-            ja["status"] = static_cast<int>(a.status);
-            ja["submitted_at"] = a.submitted_at;
-            try { ja["payload"] = json::parse(a.payload); } catch (...) { ja["payload"] = json(); }
-            arr.push_back(ja);
-        }
-        json j;
-        j["ok"] = true;
-        j["data"] = arr;
-        res.set_content(j.dump(), "application/json");
-    } catch (const std::exception& e) {
-        internalError(res, e.what());
-    }
-    });
 
     /** GET /api/admin/trains — 获取列车列表（STAFF + APPROVER 均可访问） */
     app.Get("/api/admin/trains", [](const httplib::Request& req, httplib::Response& res) {
@@ -203,6 +176,38 @@ void registerStaffRoutes(RailwayServer& server) {
         j["error"] = e.what();
         res.set_content(j.dump(), "application/json");
         res.status = 500;
+    }
+    });
+
+    /** GET /api/admin/stop-inserts — STAFF 查看待处理的线路加站（含未填时间的） */
+    app.Get("/api/admin/stop-inserts", [](const httplib::Request& req, httplib::Response& res) {
+    try {
+        auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+        if (!ctx) return;
+
+        auto approvals = ApprovalService::instance().getApprovals(ApprovalState::SUBMITTED);
+        json arr = json::array();
+        for (const auto& a : approvals) {
+            if (a.type != ApprovalType::STOP_INSERT) continue;
+            json ja;
+            ja["id"] = a.id;
+            ja["type"] = static_cast<int>(a.type);
+            ja["submitter_id"] = a.submitter_id;
+            ja["status"] = static_cast<int>(a.status);
+            ja["submitted_at"] = a.submitted_at;
+            try { 
+                ja["payload"] = json::parse(a.payload); 
+            } catch (...) { 
+                ja["payload"] = json(); 
+            }
+            arr.push_back(ja);
+        }
+        json j;
+        j["ok"] = true;
+        j["data"] = arr;
+        res.set_content(j.dump(), "application/json");
+    } catch (const std::exception& e) {
+        internalError(res, e.what());
     }
     });
 

@@ -115,37 +115,7 @@ int getTrainMaxSpeed(const std::string& train_id) {
     }
 }
 
-/** 用线路站点顺序精确定位新站的插入位置。line->stations 存的是站名。 */
-int findStopInsertIndex(const Train& train, uint32_t line_id,
-                        const std::string& st_name, const DataStore& ds) {
-    std::string prev_name, next_name;
-    auto* line = ds.getLine(line_id);
-    if (line) {
-        for (size_t i = 0; i < line->stations.size(); i++) {
-            if (line->stations[i] == st_name) {
-                if (i > 0) prev_name = line->stations[i - 1];
-                if (i + 1 < line->stations.size()) next_name = line->stations[i + 1];
-                break;
-            }
-        }
-    }
-    // 在列车停站中匹配相邻站名
-    if (!prev_name.empty() && !next_name.empty()) {
-        for (size_t i = 0; i + 1 < train.stops.size(); i++) {
-            auto* s1 = ds.getStation(train.stops[i].station_id);
-            auto* s2 = ds.getStation(train.stops[i + 1].station_id);
-            if (s1 && s2 && s1->name == prev_name && s2->name == next_name)
-                return static_cast<int>(i + 1);
-        }
-    }
-    // 回退：线路上第一对连续站
-    for (size_t i = 0; i + 1 < train.stops.size(); i++) {
-        if (train.stops[i].line_id == line_id
-            && train.stops[i + 1].line_id == line_id)
-            return static_cast<int>(i + 1);
-    }
-    return -1;
-}
+
 
 }  // namespace
 
@@ -165,11 +135,12 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         return result;
     }
 
-    // 2. 解析载荷
+    // 2. 解析载荷（插入位置 + 前后站信息已在创建审批时算好）
     json payload = json::parse(it->payload);
     std::string tid = payload.value("train_id", "");
     uint32_t line_id = payload.value("line_id", 0U);
-    std::string st_city = payload.value("station_city", "");
+    std::string station = payload.value("station", "");
+    int insert_idx = payload.value("insert_index", -1);
 
     auto& ds = DataStore::instance();
     auto* train = ds.getTrain(tid);
@@ -178,9 +149,9 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         return result;
     }
 
-    uint32_t st_id = ds.stationToId(st_city);
+    uint32_t st_id = ds.stationToId(station);
     if (st_id == 0) {
-        result.error = "站点 " + st_city + " 不存在";
+        result.error = "站点 " + station + " 不存在";
         return result;
     }
     auto* new_station = ds.getStation(st_id);
@@ -188,15 +159,12 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         result.error = "站点数据缺失";
         return result;
     }
-
-    // 3. 用线路站点顺序精确定位插入位置
-    int insert_idx = findStopInsertIndex(*train, line_id, st_city, ds);
     if (insert_idx < 0) {
         result.error = "未找到该线路在列车停站中的区间";
         return result;
     }
 
-    // 4. 构建插入后的临时列车，复用 checkTrain() 做时间校验 + 冲突检测
+    // 3. 构建插入后的临时列车，复用 checkTrain() 做时间校验 + 冲突检测
     Stop new_stop;
     new_stop.station_id = st_id;
     new_stop.line_id = line_id;
@@ -213,7 +181,7 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         return result;
     }
 
-    // 5. 速度校验：用 timeDiff() + haversineDist()，限速 = min(列车设计时速, 线路设计时速)
+    // 4. 速度校验：用 timeDiff() + haversineDist()，限速 = min(列车设计时速, 线路设计时速)
     const auto& prev_stop = modified.stops[insert_idx - 1];
     const auto& next_stop = modified.stops[insert_idx + 1];
     auto* prev_station = ds.getStation(prev_stop.station_id);
@@ -248,14 +216,14 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         return result;
     }
 
-    // 6. 全部通过，写入 payload
+    // 5. 全部通过，写入 payload
     payload["arrival"] = arrival;
     payload["departure"] = departure;
     it->payload = payload.dump();
     saveApprovals();
     result.success = true;
     Logger::instance().info("Stop time validated for " + tid
-        + " at " + st_city + ": arr=" + std::to_string(arrival)
+        + " at " + station + ": arr=" + std::to_string(arrival)
         + " dep=" + std::to_string(departure)
         + " speed_limit=" + std::to_string(speed_limit));
     return result;
@@ -366,16 +334,15 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 result.error = "列车 " + tid + " 不存在";
                 return result;
             }
-            // O(1) 城市名→站ID
-            std::string st_city = payload.value("station_city", "");
+            std::string st_city = payload.value("station", "");
             uint32_t st_id = ds.stationToId(st_city);
             if (st_id == 0) {
                 cas_lock_.clear();
                 result.error = "站点 " + st_city + " 不存在";
                 return result;
             }
-            // 用线路站点顺序精确定位插入位置（而非总是第一个区间）
-            int insert_idx = findStopInsertIndex(*train, line_id, st_city, ds);
+            // 从 payload 读取插入位置（创建审批时已算好）
+            int insert_idx = payload.value("insert_index", -1);
             if (insert_idx < 0) {
                 cas_lock_.clear();
                 result.error = "未找到该线路在列车停站中的区间";
@@ -425,7 +392,7 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 result.error = "列车 " + tid + " 不存在";
                 return result;
             }
-            std::string st_city = payload.value("station_city", "");
+            std::string st_city = payload.value("station", "");
             uint32_t st_id = ds.stationToId(st_city);
             if (st_id == 0) {
                 cas_lock_.clear();

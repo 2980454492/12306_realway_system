@@ -862,11 +862,9 @@
   UI.loadStopInserts = async function() {
     await UI._ensureTrainsLoaded();
     if (!State.stations.length) await U.loadStations();
-    // 线路数据用于城市匹配查插入位置
-    if (!UI._allLines || !UI._allLines.length) {
-      var lr = await API.get('/api/admin/lines');
-      if (lr.ok) UI._allLines = lr.data.data || [];
-    }
+    // 每次重新加载线路数据（线路可能已变更，如加站/改线）
+    var lr = await API.get('/api/admin/lines');
+    if (lr.ok) UI._allLines = lr.data.data || [];
     var res = await API.get('/api/admin/stop-inserts');
     if (!res.ok) return U.toast('加载失败', 'error');
     State._stopInserts = res.data.data || [];
@@ -890,64 +888,84 @@
       try { pl = (typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload); } catch (e) {}
       if (!pl) continue;
       var tid = pl.train_id || '?';
-      var stCity = pl.station_city || '?';
+      var stCity = pl.station || '?';
       var lineId = pl.line_id || 0;
 
       var train = State._trainMap[tid];
       var stops = train ? (train.stops || []) : [];
       if (!stops.length) continue;
 
-      // 找到列车在该线路上的途经站数量 + 首站位置
-      var firstLineIdx = -1, lineStopCount = 0;
+      // 途经站数
+      var lineStopCount = 0;
+      for (let si = 0; si < stops.length; si++)
+        if (stops[si].line_id == lineId) lineStopCount++;
       var lineName = pl.line_name || '';
-      for (let si = 0; si < stops.length; si++) {
-        if (stops[si].line_id == lineId) {
-          if (firstLineIdx < 0) firstLineIdx = si;
-          lineStopCount++;
-          if (!lineName && stops[si].line_name)
-            lineName = stops[si].line_name;
-        }
-      }
-      var lastIdx = stops.length - 1;
-      if (lastIdx > 0 && stops[lastIdx - 1] && stops[lastIdx - 1].line_id == lineId) {
-        if (firstLineIdx < 0) firstLineIdx = lastIdx;
-        lineStopCount++;
+      if (!lineName) {
+        for (let si = 0; si < stops.length; si++)
+          if (stops[si].line_id == lineId && stops[si].line_name) { lineName = stops[si].line_name; break; }
       }
 
-      // 用线路站点顺序精确定位新站的插入位置（前后城市的 stops）
-      var prevStop = null, nextStop = null;
-      var line = UI._allLines ? UI._allLines.filter(function(l) { return l.id == lineId; })[0] : null;
-      if (line && line.stations) {
-        var stIdx = -1;
-        for (let si = 0; si < line.stations.length; si++)
-          if (line.stations[si] === stCity) { stIdx = si; break; }
-        var prevStation = stIdx > 0 ? line.stations[stIdx - 1] : '';
-        var nextStation = (stIdx >= 0 && stIdx + 1 < line.stations.length) ? line.stations[stIdx + 1] : '';
-        for (let si = 0; si + 1 < stops.length; si++) {
-          if (stops[si].line_id != lineId || stops[si + 1].line_id != lineId) continue;
-          var n1 = stops[si].station_name || UI._stationName(stops[si].station_id, '');
-          var n2 = stops[si + 1].station_name || UI._stationName(stops[si + 1].station_id, '');
-          if (n1 === prevStation && n2 === nextStation) {
-            prevStop = stops[si]; nextStop = stops[si + 1]; break;
+      // 前后站：优先从 payload 直接读取（创建时后端已算好）
+      var prevName, prevDep, prevStationId, nextName, nextArr, nextStationId;
+      if (pl.prev_station !== undefined && pl.next_station !== undefined) {
+        prevName = pl.prev_station;
+        prevDep = pl.prev_departure || 0;
+        prevStationId = pl.prev_station_id || 0;
+        nextName = pl.next_station;
+        nextArr = pl.next_arrival || 0;
+        nextStationId = pl.next_station_id || 0;
+      } else {
+        // 兼容旧 payload（无前后站信息）：前端推导
+        var firstLineIdx = -1;
+        for (let si = 0; si < stops.length; si++)
+          if (stops[si].line_id == lineId) { firstLineIdx = si; break; }
+        var prevStop = null, nextStop = null;
+        var line = UI._allLines ? UI._allLines.filter(function(l) { return l.id == lineId; })[0] : null;
+        if (line && line.stations) {
+          var stIdx = -1;
+          for (let si = 0; si < line.stations.length; si++)
+            if (line.stations[si] === stCity) { stIdx = si; break; }
+          if (stIdx >= 0) {
+            var prevStation = stIdx > 0 ? line.stations[stIdx - 1] : '';
+            var nextStation = (stIdx + 1 < line.stations.length) ? line.stations[stIdx + 1] : '';
+            var prevIdx = -1, nextIdx = -1;
+            for (let si = 0; si < stops.length; si++) {
+              if (stops[si].line_id != lineId) continue;
+              var sn = stops[si].station_name || UI._stationName(stops[si].station_id, '');
+              if (prevStation && sn === prevStation) prevIdx = si;
+              if (nextStation && sn === nextStation && prevIdx >= 0) { nextIdx = si; break; }
+            }
+            if (prevIdx < 0 && nextStation) {
+              for (let si = 0; si < stops.length; si++) {
+                if (stops[si].line_id != lineId) continue;
+                var sn = stops[si].station_name || UI._stationName(stops[si].station_id, '');
+                if (sn === nextStation) { nextIdx = si; break; }
+              }
+            }
+            if (prevIdx >= 0 && nextIdx >= 0) {
+              prevStop = stops[prevIdx]; nextStop = stops[nextIdx];
+            } else if (prevIdx >= 0) {
+              prevStop = stops[prevIdx];
+              nextStop = (prevIdx + 1 < stops.length) ? stops[prevIdx + 1] : stops[prevIdx];
+            } else if (nextIdx >= 0) {
+              nextStop = stops[nextIdx];
+              prevStop = (nextIdx > 0) ? stops[nextIdx - 1] : stops[nextIdx];
+            }
           }
         }
-      }
-      // 回退：线路数据不可用或匹配失败时，取首个在线路上的站
-      if (!prevStop && firstLineIdx >= 0) {
-        if (firstLineIdx + 1 < stops.length) {
+        if (!prevStop && firstLineIdx >= 0) {
           prevStop = stops[firstLineIdx];
-          nextStop = stops[firstLineIdx + 1];
-        } else if (firstLineIdx > 0) {
-          prevStop = stops[firstLineIdx - 1];
-          nextStop = stops[firstLineIdx];
+          nextStop = (firstLineIdx + 1 < stops.length) ? stops[firstLineIdx + 1] : stops[firstLineIdx];
         }
+        if (!prevStop || !nextStop) continue;
+        prevName = prevStop.station_name || UI._stationName(prevStop.station_id, '');
+        prevDep = prevStop.departure;
+        prevStationId = prevStop.station_id;
+        nextName = nextStop.station_name || UI._stationName(nextStop.station_id, '');
+        nextArr = nextStop.arrival || nextStop.departure || 0;
+        nextStationId = nextStop.station_id;
       }
-      if (!prevStop || !nextStop) continue;
-
-      var prevName = prevStop.station_name || UI._stationName(prevStop.station_id, '');
-      var nextName = nextStop.station_name || UI._stationName(nextStop.station_id, '');
-      var prevDep = prevStop.departure;
-      var nextArr = nextStop.arrival || nextStop.departure || 0;
+      if (!prevName || !nextName) continue;
 
       // 从模板克隆，填数据
       var card = tpl.content.cloneNode(true);
@@ -969,7 +987,7 @@
       // 存每卡片数据供事件处理用
       var root = card.querySelector('.si-card');
       root._siData = { approvalId: a.id, prevDep: prevDep, nextArr: nextArr, lineId: lineId, tid: tid,
-        prevStationId: prevStop.station_id, nextStationId: nextStop.station_id, stCity: stCity };
+        prevStationId: prevStationId, nextStationId: nextStationId, stCity: stCity };
 
       listEl.appendChild(card);
     }
@@ -1138,7 +1156,7 @@
       title = item.train_id + ' — 线路加站，请填写停站时间';
       U.$('detail-train-id').textContent = title;
       var pl = item.payload || {};
-      var stationName = pl.station_city || '新站';
+      var stationName = pl.station || '新站';
       var html = '<p style="color:#9090b0;margin:0 0 12px">新增站点：<b style="color:#e0e0e0">' + U.esc(stationName) + '</b></p>';
       html += '<div class="form-group"><label>到站时间（HHMM）</label><input id="stop-insert-arr" class="input" placeholder="如 1430"></div>';
       html += '<div class="form-group"><label>发车时间（HHMM，通过站与到站相同）</label><input id="stop-insert-dep" class="input" placeholder="如 1435"></div>';
