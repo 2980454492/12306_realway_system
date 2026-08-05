@@ -171,8 +171,12 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
 // ── 冲突检测 ──
 
 std::vector<TrainManager::ConflictDetail> TrainManager::detectConflicts(const Train& train) const {
-    std::vector<ConflictDetail> conflicts;
     std::lock_guard<std::mutex> lock(mutex_);
+    return detectConflictsUnsafe(train);
+}
+
+std::vector<TrainManager::ConflictDetail> TrainManager::detectConflictsUnsafe(const Train& train) const {
+    std::vector<ConflictDetail> conflicts;
 
     auto& ds = DataStore::instance();
     auto segs = buildSegments(train, ds);
@@ -246,7 +250,7 @@ TrainManager::CheckResult TrainManager::checkTrain(const Train& train, bool is_n
         result.error = vr.error;
         return result;
     }
-    result.conflicts = detectConflicts(train);
+    result.conflicts = detectConflictsUnsafe(train);
     if (!result.conflicts.empty()) {
         result.error = "运行图冲突：与 " + result.conflicts[0].train_id + " 在区间重叠";
         return result;
@@ -319,7 +323,7 @@ TrainManager::UpdateResult TrainManager::updateTrain(const std::string& train_id
 
     // 2. 临时应用新 stops 检测冲突
     train->stops = updated.stops;
-    auto new_conflicts = detectConflicts(*train);
+    auto new_conflicts = detectConflictsUnsafe(*train);
     if (!new_conflicts.empty()) {
         // 回滚：恢复旧 stops + 旧占用
         train->stops = old_stops;

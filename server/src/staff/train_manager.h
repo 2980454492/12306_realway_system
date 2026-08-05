@@ -47,6 +47,8 @@ public:
         int conflicting_leave;     // 已有离开时间
     };
     std::vector<ConflictDetail> detectConflicts(const Train& train) const;
+    /** detectConflicts 不加锁版，供已持有 mutex_ 的内部方法（checkTrain/updateTrain）调用 */
+    std::vector<ConflictDetail> detectConflictsUnsafe(const Train& train) const;
 
     // ── 提交/审批共用校验 ──
 
