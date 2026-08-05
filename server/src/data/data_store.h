@@ -118,28 +118,30 @@ private:
     bool loadStations();
     bool loadLines();
     bool loadTrains();
+
+    // —— 构建索引 ——
     void buildIndexes();
-    void buildStationLineIndex();
 
     // ── 数据 ──
     std::vector<Station> stations_;
     std::vector<Line> lines_;
     std::vector<Train> trains_;
 
-    // 索引：ID → vector 下标（O(1) 查 station / train）
+    // 车站 ID → vector
     std::unordered_map<uint32_t, size_t> station_index_;
+    // 列车 ID → vector
     std::unordered_map<std::string, size_t> train_index_;
+    // 线路 ID → vector
     std::unordered_map<uint32_t, size_t> line_index_;
+    // 城市名 → 站 ID 
+    std::unordered_map<std::string, std::vector<uint32_t>> city_to_ids_;
+    // 站名 → 站 ID
+    std::unordered_map<std::string, uint32_t> name_to_id_;
 
     // 车站-线路-邻居索引：map<station_id, vector<LineNeighbor>>
     std::map<uint32_t, std::vector<LineNeighbor>> station_line_index_;
-
     // 站名/城市名 → 存在性（预建，O(1) 校验站名合法）
     std::unordered_set<std::string> station_name_set_;
-    // 城市名 → 站 ID 列表（预建，O(1) 按城市查站，一个城市可能有多个站）
-    std::unordered_map<std::string, std::vector<uint32_t>> city_to_ids_;
-    // 站名 → 站 ID（预建，O(1) 按站名查站，站名全局唯一）
-    std::unordered_map<std::string, uint32_t> name_to_id_;
 
     bool ready_ = false;
 

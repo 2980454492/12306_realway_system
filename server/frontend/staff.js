@@ -619,6 +619,11 @@
       var origin = stops.length ? (stops[0].station_name || '?') : '?';
       var terminal = stops.length ? (stops[stops.length - 1].station_name || '?') : '?';
       card.querySelector('.train-mgmt-route').textContent = origin + ' → ' + terminal;
+      // 有效日期
+      var dateStr = '';
+      if (t.valid_from || t.valid_until)
+        dateStr = (t.valid_from || '即日') + ' – ' + (t.valid_until || '长期');
+      card.querySelector('.train-mgmt-dates').textContent = dateStr;
       if (t.status !== 2) {  // 已归档的不显示编辑/删除
         var editBtn = document.createElement('button');
         editBtn.className = 'btn btn-sm btn-primary';

@@ -319,8 +319,20 @@ ApprovalService::ApproveResult ApprovalService::approve(
                 json(*train).dump());
             result.train_id = tid;
         } else if (it->type == ApprovalType::DELETE_TRAIN) {
-            TrainManager::instance().deleteTrain(tid);
-            ds.saveTrains();
+            std::string delete_date = payload.value("delete_date", "");
+            if (!delete_date.empty() && delete_date > todayStr()) {
+                // 未来删除：设置 valid_until，列车保留 ACTIVE 直到该日期
+                auto* train = ds.getTrainMutable(tid);
+                if (train) {
+                    train->valid_until = delete_date;
+                    ds.saveTrains();
+                    Logger::instance().info("Train " + tid + " scheduled for deletion on " + delete_date);
+                }
+            } else {
+                // 立即删除（无日期或日期已到）
+                TrainManager::instance().deleteTrain(tid);
+                ds.saveTrains();
+            }
             WalWriter::instance().append("TRAIN_DELETE",
                 json({{"id", tid}}).dump());
             result.train_id = tid;

@@ -349,5 +349,142 @@
     "type": "REGULAR",
     "valid_from": "2026-08-20",
     "valid_until": ""
+  },
+  {
+    "id": "G1002",
+    "seat_config": {
+      "business_seats": 0,
+      "first_seats": 50,
+      "hard_seat": 0,
+      "hard_sleeper": 0,
+      "no_seat": 50,
+      "second_seats": 100
+    },
+    "status": "ACTIVE",
+    "stops": [
+      {
+        "arrival": -1,
+        "departure": 633,
+        "line_id": 0,
+        "line_name": "",
+        "platform": 0,
+        "station_id": 193,
+        "station_name": "深圳",
+        "stop_type": "ORIGIN"
+      },
+      {
+        "arrival": 702,
+        "departure": 707,
+        "line_id": 13,
+        "line_name": "广深港高铁",
+        "platform": 0,
+        "station_id": 192,
+        "station_name": "广州",
+        "stop_type": "STOP"
+      },
+      {
+        "arrival": 723,
+        "departure": 723,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 208,
+        "station_name": "清远",
+        "stop_type": "PASS"
+      },
+      {
+        "arrival": 756,
+        "departure": 758,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 200,
+        "station_name": "韶关",
+        "stop_type": "STOP"
+      },
+      {
+        "arrival": 829,
+        "departure": 832,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 184,
+        "station_name": "郴州",
+        "stop_type": "STOP"
+      },
+      {
+        "arrival": 914,
+        "departure": 916,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 181,
+        "station_name": "衡阳",
+        "stop_type": "STOP"
+      },
+      {
+        "arrival": 931,
+        "departure": 931,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 337,
+        "station_name": "衡山西",
+        "stop_type": "PASS"
+      },
+      {
+        "arrival": 941,
+        "departure": 943,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 339,
+        "station_name": "株洲西",
+        "stop_type": "STOP"
+      },
+      {
+        "arrival": 959,
+        "departure": 1002,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 178,
+        "station_name": "长沙",
+        "stop_type": "STOP"
+      },
+      {
+        "arrival": 1035,
+        "departure": 1037,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 182,
+        "station_name": "岳阳",
+        "stop_type": "STOP"
+      },
+      {
+        "arrival": 1107,
+        "departure": 1109,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 175,
+        "station_name": "咸宁",
+        "stop_type": "STOP"
+      },
+      {
+        "arrival": 1134,
+        "departure": -1,
+        "line_id": 5,
+        "line_name": "京广高铁",
+        "platform": 0,
+        "station_id": 165,
+        "station_name": "武汉",
+        "stop_type": "TERMINAL"
+      }
+    ],
+    "type": "REGULAR",
+    "valid_from": "2026-08-09",
+    "valid_until": ""
   }
 ]

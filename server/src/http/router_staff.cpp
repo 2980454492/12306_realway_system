@@ -26,6 +26,8 @@ void registerStaffRoutes(RailwayServer& server) {
             jt["id"] = train.id;
             jt["type"] = static_cast<int>(train.type);
             jt["status"] = static_cast<int>(train.status);
+            jt["valid_from"] = train.valid_from;
+            jt["valid_until"] = train.valid_until;
             jt["stops_count"] = train.stops.size();
             jt["stops"] = stopsToJson(train.stops, DataStore::instance());
             jt["segments"] = buildSegments(train, DataStore::instance());

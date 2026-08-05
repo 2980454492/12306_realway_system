@@ -45,11 +45,17 @@ SeatConfig getAvailableSeats(const std::string& train_id, const std::string& dat
 
 // ── 车站-列车索引 ──
 
-// ── 车站-列车索引（文件级静态，initialize() 构建，查询方法复用）──
-StationTrainIndex g_stationIndex;
-
-const StationTrainIndex& getStationIndex() {
-    return g_stationIndex;
+/** 每次查询时从 DataStore 重建索引（~100 列车，微秒级），
+ *  确保运行时列车状态变更（新增/删除/修改）立即生效。 */
+StationTrainIndex buildStationIndex() {
+    StationTrainIndex idx;
+    auto& ds = DataStore::instance();
+    for (const auto& train : ds.getAllTrains()) {
+        if (train.status != TrainStatus::ACTIVE) continue;
+        for (size_t i = 0; i < train.stops.size(); ++i)
+            idx[train.stops[i].station_id].push_back({train.id, static_cast<int>(i)});
+    }
+    return idx;
 }
 
 /**
@@ -73,17 +79,8 @@ bool isTransferBetween(uint32_t from, uint32_t transfer, uint32_t to, DataStore&
 
 }  // namespace
 
-/** 启动时构建车站-列车索引（全量扫描所有 ACTIVE 列车） */
-void TrainQuery::initialize() {
-    auto& ds = DataStore::instance();
-    for (const auto& train : ds.getAllTrains()) {
-        if (train.status != TrainStatus::ACTIVE) continue;
-        for (size_t i = 0; i < train.stops.size(); ++i)
-            g_stationIndex[train.stops[i].station_id].push_back({train.id, static_cast<int>(i)});
-    }
-    Logger::instance().info("Station-train index built: "
-        + std::to_string(g_stationIndex.size()) + " stations");
-}
+/** 启动时无操作（索引改为每次查询按需重建） */
+void TrainQuery::initialize() {}
 
 // ── 公开接口 ──
 
@@ -91,7 +88,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                                const std::string& date) {
     QueryResult result;
     auto& ds = DataStore::instance();
-    auto& stationIndex = getStationIndex();
+    auto stationIndex = buildStationIndex();
 
     // ── 直达查询 ──
     auto from_it = stationIndex.find(from_station);
@@ -99,6 +96,9 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
         for (const auto& [train_id, from_idx] : from_it->second) {
             auto* train = ds.getTrain(train_id);
             if (!train || train->status != TrainStatus::ACTIVE) continue;
+            // 日期过滤：valid_from 未到或 valid_until 已过则跳过
+            if (!train->valid_from.empty() && train->valid_from > date) continue;
+            if (!train->valid_until.empty() && train->valid_until < date) continue;
 
             // 找 to 在停站序列中的位置（必须在 from 之后）
             int to_idx = -1;
@@ -149,6 +149,8 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
         for (const auto& [train1_id, from_idx] : from_it->second) {
             auto* train1 = ds.getTrain(train1_id);
             if (!train1 || train1->status != TrainStatus::ACTIVE) continue;
+            if (!train1->valid_from.empty() && train1->valid_from > date) continue;
+            if (!train1->valid_until.empty() && train1->valid_until < date) continue;
 
             // 第一程已发车则跳过；通过站不可上车
             if (train1->stops[from_idx].stop_type == StopType::PASS) continue;
@@ -172,6 +174,8 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                 for (const auto& [train2_id, trans_idx] : trans_it->second) {
                     auto* train2 = ds.getTrain(train2_id);
                     if (!train2 || train2->status != TrainStatus::ACTIVE) continue;
+                    if (!train2->valid_from.empty() && train2->valid_from > date) continue;
+                    if (!train2->valid_until.empty() && train2->valid_until < date) continue;
                     if (train1->id == train2->id) continue;  // 同车次不算换乘
 
                     // 通过站不可上车或下车
@@ -240,7 +244,7 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
 std::vector<StationQueryItem> TrainQuery::queryByStation(uint32_t station_id) {
     std::vector<StationQueryItem> result;
     auto& ds = DataStore::instance();
-    auto& idx = getStationIndex();
+    auto idx = buildStationIndex();
     auto it = idx.find(station_id);
     if (it == idx.end()) return result;
 
@@ -284,7 +288,7 @@ std::vector<StationQueryItem> TrainQuery::queryByStation(uint32_t station_id) {
 std::vector<StationQueryItem> TrainQuery::queryByStations(
     const std::vector<uint32_t>& station_ids, const std::string& sort) {
     auto& ds = DataStore::instance();
-    const auto& idx = getStationIndex();
+    auto idx = buildStationIndex();
 
     // 1. 一次遍历：收集同车次最优停站，同时缓存 train 指针 + 站点名
     std::unordered_map<std::string, BestEntry> best;

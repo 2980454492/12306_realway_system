@@ -31,10 +31,22 @@ bool DataStore::initialize() {
     if (!loadLines()) return false;
     if (!loadTrains()) return false;
 
-    buildIndexes();
+    buildIndexes();  // 所有索引（含 station_line_index_）统一在此构建
 
-    // 车站-线路邻居索引：每次启动从 lines_ 重建（数据量小，毫秒级）
-    buildStationLineIndex();
+    // 清理已过期的列车（valid_until 已过 → ARCHIVED）
+    std::string today = todayStr();
+    int archived = 0;
+    for (auto& train : trains_) {
+        if (!train.valid_until.empty() && train.valid_until < today
+            && train.status == TrainStatus::ACTIVE) {
+            train.status = TrainStatus::ARCHIVED;
+            archived++;
+        }
+    }
+    if (archived > 0) {
+        saveTrains();
+        Logger::instance().info("Archived " + std::to_string(archived) + " expired trains");
+    }
 
     ready_ = true;
 
@@ -49,7 +61,7 @@ bool DataStore::initialize() {
 // ── 查询接口 ──
 
 const Station* DataStore::getStation(uint32_t id) const {
-    // 不加锁：被 saveTrains/buildStationLineIndex 等内部方法在已持锁上下文中调用，
+    // 不加锁：被 saveTrains 等内部方法在已持锁上下文中调用，
     // 加 shared_lock 会同线程重复加锁触发死锁。HTTP 单线程事件循环提供外部同步。
     auto it = station_index_.find(id);
     if (it == station_index_.end()) return nullptr;
@@ -63,9 +75,7 @@ const Train* DataStore::getTrain(const std::string& id) const {
 }
 
 Train* DataStore::getTrainMutable(const std::string& id) {
-    auto it = train_index_.find(id);
-    if (it == train_index_.end()) return nullptr;
-    return &trains_[it->second];
+    return const_cast<Train*>(getTrain(id));
 }
 
 const Line* DataStore::getLine(uint32_t id) const {
@@ -93,7 +103,12 @@ std::vector<const Train*> DataStore::getTrainsByStation(uint32_t station_id) con
 void DataStore::buildIndexes() {
     station_index_.clear();
     train_index_.clear();
+    line_index_.clear();
     station_name_set_.clear();
+    city_to_ids_.clear();
+    name_to_id_.clear();
+    station_line_index_.clear();
+    station_line_index_.clear();
 
     for (size_t i = 0; i < stations_.size(); ++i) {
         station_index_[stations_[i].id] = i;
@@ -108,6 +123,56 @@ void DataStore::buildIndexes() {
     for (size_t i = 0; i < lines_.size(); ++i) {
         line_index_[lines_[i].id] = i;
     }
+    for (const auto& line : lines_) {
+        // 站名 → 站点 ID（O(1) 查索引）
+        std::vector<uint32_t> ids;
+        for (const auto& name : line.stations) {
+            uint32_t sid = stationToId(name);
+            if (sid) ids.push_back(sid);
+            else Logger::instance().warn("Line '" + line.name
+                + "': station '" + name + "' not found");
+        }
+        if (ids.size() != line.stations.size() || ids.size() < 2) continue;
+
+        for (size_t i = 0; i < ids.size(); ++i) {
+            uint32_t cur = ids[i];
+            std::vector<LineNeighbor> neighbors;
+
+            if (i > 0) {
+                auto* prev_st = getStation(ids[i - 1]);
+                auto* cur_st = getStation(cur);
+                if (prev_st && cur_st) {
+                    neighbors.push_back({
+                        line.id, line.name,
+                        ids[i - 1], prev_st->name,
+                        haversineDist(*cur_st, *prev_st),
+                        line.max_speed_kmh
+                    });
+                }
+            }
+
+            // 后一站（若存在）
+            if (i + 1 < ids.size()) {
+                auto* next_st = getStation(ids[i + 1]);
+                auto* cur_st = getStation(cur);
+                if (next_st && cur_st) {
+                    neighbors.push_back({
+                        line.id, line.name,
+                        ids[i + 1], next_st->name,
+                        haversineDist(*cur_st, *next_st),
+                        line.max_speed_kmh
+                    });
+                }
+            }
+
+            // 合并到已有条目（一个站可能属于多条线路）
+            auto& existing = station_line_index_[cur];
+            existing.insert(existing.end(), neighbors.begin(), neighbors.end());
+        }
+    }
+
+    Logger::instance().info("Station-line index built: "
+        + std::to_string(station_line_index_.size()) + " stations");
 }
 
 // ── 加载实现 ──
@@ -382,62 +447,4 @@ bool DataStore::saveLines() const {
         Logger::instance().error(std::string("Failed to save lines: ") + e.what());
         return false;
     }
-}
-
-// ── 车站-线路-邻居索引 ──
-
-// 从 lines_ 构建索引：遍历每条线路的站点序列，取相邻站对，Haversine 算距离，合并到 map
-void DataStore::buildStationLineIndex() {
-    station_line_index_.clear();
-
-    for (const auto& line : lines_) {
-        // 站名 → 站点 ID（O(1) 查索引）
-        std::vector<uint32_t> ids;
-        for (const auto& name : line.stations) {
-            uint32_t sid = stationToId(name);
-            if (sid) ids.push_back(sid);
-            else Logger::instance().warn("Line '" + line.name
-                + "': station '" + name + "' not found");
-        }
-        if (ids.size() != line.stations.size() || ids.size() < 2) continue;
-
-        for (size_t i = 0; i < ids.size(); ++i) {
-            uint32_t cur = ids[i];
-            std::vector<LineNeighbor> neighbors;
-
-            if (i > 0) {
-                auto* prev_st = getStation(ids[i - 1]);
-                auto* cur_st = getStation(cur);
-                if (prev_st && cur_st) {
-                    neighbors.push_back({
-                        line.id, line.name,
-                        ids[i - 1], prev_st->name,
-                        haversineDist(*cur_st, *prev_st),
-                        line.max_speed_kmh
-                    });
-                }
-            }
-
-            // 后一站（若存在）
-            if (i + 1 < ids.size()) {
-                auto* next_st = getStation(ids[i + 1]);
-                auto* cur_st = getStation(cur);
-                if (next_st && cur_st) {
-                    neighbors.push_back({
-                        line.id, line.name,
-                        ids[i + 1], next_st->name,
-                        haversineDist(*cur_st, *next_st),
-                        line.max_speed_kmh
-                    });
-                }
-            }
-
-            // 合并到已有条目（一个站可能属于多条线路）
-            auto& existing = station_line_index_[cur];
-            existing.insert(existing.end(), neighbors.begin(), neighbors.end());
-        }
-    }
-
-    Logger::instance().info("Station-line index built: "
-        + std::to_string(station_line_index_.size()) + " stations");
 }
