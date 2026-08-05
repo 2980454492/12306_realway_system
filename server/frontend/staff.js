@@ -435,11 +435,19 @@
     for (let i = 0; i < path.length; i++) {
       var s = path[i];
       var isFirst = (i === 0), isLast = (i === path.length - 1);
+      // 计算 stop_type：始发/终到/通过/停靠
+      var stype = "STOP";
+      if (isFirst) stype = "ORIGIN";
+      else if (isLast || s.is_terminal) stype = "TERMINAL";
+      else if (s.is_stop === false) stype = "PASS";
       stops.push({
         station_id: s.station_id, line_id: s.line_id || 0,
         arrival: isFirst ? -1 : s.arrival,
         departure: isLast ? -1 : s.departure,
-        platform: 0
+        platform: 0, 
+        stop_type: stype,
+        station_name: s.station_name || '', 
+        line_name: s.line_name || ''
       });
     }
 
