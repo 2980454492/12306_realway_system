@@ -292,33 +292,28 @@ void registerInfraAdminRoutes(RailwayServer& server) {
                         if (st_pos >= 0 && st_pos + 1 < static_cast<int>(line_ptr->stations.size()))
                             next_name = line_ptr->stations[st_pos + 1];
                     }
-                    // 分别在列车 stops 中查找（不要求连续，改线时中间可能隔着待删站）
+                    // 分别在列车 stops 中独立查找（不依赖顺序，列车可能与线路反向）
                     int prev_idx = -1, next_idx = -1;
                     for (size_t si = 0; si < train.stops.size(); si++) {
                         auto* s = ds.getStation(train.stops[si].station_id);
                         if (!s) continue;
-                        if (!prev_name.empty() && s->name == prev_name) {
+                        if (!prev_name.empty() && s->name == prev_name && prev_idx < 0)
                             prev_idx = static_cast<int>(si);
-                            prev_dep = train.stops[si].departure;
-                            prev_sid = train.stops[si].station_id;
-                        }
-                        if (!next_name.empty() && s->name == next_name && prev_idx >= 0) {
+                        if (!next_name.empty() && s->name == next_name && next_idx < 0)
                             next_idx = static_cast<int>(si);
-                            next_arr = train.stops[si].arrival;
-                            next_sid = train.stops[si].station_id;
-                            break;
-                        }
                     }
-                    if (prev_idx < 0 && !next_name.empty()) {
-                        for (size_t si = 0; si < train.stops.size(); si++) {
-                            auto* s = ds.getStation(train.stops[si].station_id);
-                            if (s && s->name == next_name) {
-                                next_idx = static_cast<int>(si);
-                                next_arr = train.stops[si].arrival;
-                                next_sid = train.stops[si].station_id;
-                                break;
-                            }
-                        }
+                    // 方向检测：若 next 在 prev 前面，列车与线路反向，交换前后站
+                    if (prev_idx >= 0 && next_idx >= 0 && next_idx < prev_idx) {
+                        std::swap(prev_name, next_name);
+                        std::swap(prev_idx, next_idx);
+                    }
+                    if (prev_idx >= 0) {
+                        prev_dep = train.stops[prev_idx].departure;
+                        prev_sid = train.stops[prev_idx].station_id;
+                    }
+                    if (next_idx >= 0) {
+                        next_arr = train.stops[next_idx].arrival;
+                        next_sid = train.stops[next_idx].station_id;
                     }
                     // 插入位置：前站之后（新站在线路开头时插入到后站之前）
                     insert_idx2 = (prev_idx >= 0) ? prev_idx + 1
