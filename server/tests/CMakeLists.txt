@@ -3,13 +3,16 @@ cmake_minimum_required(VERSION 3.16)
 
 # 优先用系统包（apt install libgtest-dev），下载失败时回退到 FetchContent
 find_package(GTest QUIET)
-if(NOT GTest_FOUND)
+if(GTest_FOUND)
+    set(GTEST_TARGET GTest::gtest_main)
+else()
     include(FetchContent)
     FetchContent_Declare(
         googletest
         URL https://github.com/google/googletest/archive/release-1.12.1.zip
     )
     FetchContent_MakeAvailable(googletest)
+    set(GTEST_TARGET gtest_main)
 endif()
 
 set(TEST_SOURCES
@@ -33,17 +36,16 @@ if(SODIUM_INCLUDE_PATH)
     target_include_directories(railway_tests PRIVATE ${SODIUM_INCLUDE_PATH})
 endif()
 
-# Link against all project source files (not a library, so compile them in)
 if(SODIUM_LIB_PATH)
     target_link_libraries(railway_tests PRIVATE
-        gtest_main
+        ${GTEST_TARGET}
         nlohmann_json::nlohmann_json
         sodium
         ws2_32
     )
 else()
     target_link_libraries(railway_tests PRIVATE
-        gtest_main
+        ${GTEST_TARGET}
         nlohmann_json::nlohmann_json
         ${SODIUM_LIB}
         pthread
