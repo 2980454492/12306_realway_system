@@ -74,13 +74,13 @@ public:
     static QueryResult query(uint32_t from_station, uint32_t to_station,
                              const std::string& date);
 
-    /** 查询经停某站的所有列车（内部调用） */
-    static std::vector<StationQueryItem> queryByStation(uint32_t station_id);
-
     /**
      * 查询经停多个车站的所有列车，自动合并同车次（按优先级选最佳停站），
      * 并按指定方式排序（"departure" 或 "train_id"）。
      */
     static std::vector<StationQueryItem> queryByStations(
         const std::vector<uint32_t>& station_ids, const std::string& sort);
+
+    /** 构建席位价格 JSON：按列车 ID 前缀查费率，逐席位类型计算票价（费率为 0 的席位不输出） */
+    static nlohmann::json buildSeatPrices(const std::string& train_id, double distance_km);
 };

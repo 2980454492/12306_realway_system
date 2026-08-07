@@ -24,9 +24,7 @@
       html += '<option value="' + U.esc(State.stations[i].name) + '">';
     }
     U.$('train-station-datalist').innerHTML = html;
-    var minDate = new Date();
-    minDate.setDate(minDate.getDate() + 3);  // 新增列车须 ≥3 天
-    var minStr = minDate.toISOString().slice(0,10);
+    var minStr = U.minDateStr(U.MIN_NEW_TRAIN_DAYS);
     U.$('new-train-valid-from').setAttribute('min', minStr);
     U.$('new-train-range-from').setAttribute('min', minStr);
 
@@ -150,11 +148,9 @@
     } else {
       U.$('new-train-valid-from').value = train.valid_from || '';
     }
-    var min15 = new Date();
-    min15.setDate(min15.getDate() + 15);
-    var min15Str = min15.toISOString().slice(0,10);
-    U.$('new-train-valid-from').setAttribute('min', min15Str);
-    U.$('new-train-range-from').setAttribute('min', min15Str);
+    var minStr = U.minDateStr(U.MIN_CHANGE_DAYS);
+    U.$('new-train-valid-from').setAttribute('min', minStr);
+    U.$('new-train-range-from').setAttribute('min', minStr);
 
     // 席位
     var sc = train.seat_config || {};
@@ -747,9 +743,7 @@
 
   UI.deleteTrain = function(trainId) {
     State._pendingDeleteTrain = trainId;
-    var minDate = new Date();
-    minDate.setDate(minDate.getDate() + 15);  // 第14天已放票，须 ≥15 天
-    var minStr = minDate.toISOString().slice(0,10);
+    var minStr = U.minDateStr(U.MIN_CHANGE_DAYS);
     var inp = U.$('delete-date-input');
     inp.setAttribute('min', minStr);
     inp.value = minStr;
@@ -899,14 +893,14 @@
       } catch (e) {}
       if (!pl) continue;
       var tid = pl.train_id || '?';
-      var stCity = pl.station || '?';
+      var stCity = pl.station_name || '?';
       var lineId = pl.line_id || 0;
 
       // 直接从 payload 读取前后站信息（创建审批时后端已算好）
-      var prevName = pl.prev_station || '';
+      var prevName = pl.prev_station_name || '';
       var prevDep = pl.prev_departure || 0;
       var prevStationId = pl.prev_station_id || 0;
-      var nextName = pl.next_station || '';
+      var nextName = pl.next_station_name || '';
       var nextArr = pl.next_arrival || 0;
       var nextStationId = pl.next_station_id || 0;
       var lineName = pl.line_name || '';
@@ -920,6 +914,10 @@
       card.querySelector('.si-prev-time').textContent = U.fmtTime(prevDep);
       card.querySelector('.si-next-name').textContent = nextName;
       card.querySelector('.si-next-time').textContent = U.fmtTime(nextArr);
+      // 生效日期最小值为 15 天后
+      var effDateEl = card.querySelector('.si-eff-date');
+      effDateEl.setAttribute('min', U.minDateStr(U.MIN_CHANGE_DAYS));
+      effDateEl.onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
       card.querySelector('.si-arr-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
       card.querySelector('.si-dep-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
       card.querySelector('.si-is-stop').onchange = function() { UI._siToggle(this.closest('.si-card')); };
@@ -1051,6 +1049,16 @@
     var isStop = card.querySelector('.si-is-stop').checked;
     var arr = UI._parseTimeStr(card.querySelector('.si-arr-time').value);
     var dep = UI._parseTimeStr(card.querySelector('.si-dep-time').value);
+    var effDate = card.querySelector('.si-eff-date').value;
+    if (!effDate) {
+      U.toast('请选择生效日期', 'error');
+      return;
+    }
+    // 前端验证 ≥ MIN_CHANGE_DAYS 天
+    if (effDate < U.minDateStr(U.MIN_CHANGE_DAYS)) {
+      U.toast('生效日期须至少 ' + U.MIN_CHANGE_DAYS + ' 天后', 'error');
+      return;
+    }
     if (!dep) {
       U.toast('请填写时间', 'error');
       return;
@@ -1074,7 +1082,7 @@
     }
 
     var res = await API.put('/api/admin/approvals/' + d.approvalId + '/stop-time',
-      { arrival: effectiveArr, departure: dep });
+      { arrival: effectiveArr, departure: dep, effective_date: effDate });
     if (res.ok) {
       U.toast('已提交，等待审批', 'success');
       UI.loadStopInserts();
@@ -1168,8 +1176,8 @@
     var key = (idx < 0 ? 'apr_' : 'sub_') + Math.abs(idx);
     var train = null;
     try { train = (typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload); } catch (e) {}
-    // STOP_INSERT 类型：payload 用 train_id 而非 id
-    var tid = train ? (train.id || train.train_id || '?') : '?';
+    // 所有审批类型统一用 train_id
+    var tid = train ? (train.train_id || train.id || '?') : '?';
     var tstops = train ? (train.stops || []) : [];
     var tsegs = train ? (train.segments || []) : [];
     // 新增/删除列车/补站：payload 只有车次号或 train_id，从列车索引查找完整停站数据

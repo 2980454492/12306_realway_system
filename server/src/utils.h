@@ -163,8 +163,26 @@ inline std::string roleToString(UserRole r) {
 
 /** 字符串 → UserRole（利用 NLOHMANN 宏注册的反序列化） */
 inline UserRole roleFromString(const std::string& s) {
-    try { return nlohmann::json(s).get<UserRole>(); }
-    catch (...) { return UserRole::PASSENGER; }
+    try { 
+        return nlohmann::json(s).get<UserRole>(); 
+    } catch (...) { 
+        return UserRole::PASSENGER; 
+    }
+}
+
+/** 返回今天 + days 天的日期字符串（yyyy-MM-dd） */
+inline std::string dateDaysFromNow(int days) {
+    std::tm tm = nowTm();
+    tm.tm_mday += days;
+    std::mktime(&tm);
+    char buf[11];
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+    return std::string(buf);
+}
+
+/** date 是否 ≥ today + days 天（≥，不含等号当 today+days 严格）。用于校验提前天数 */
+inline bool isAtLeastDaysAhead(const std::string& date, int days) {
+    return date >= dateDaysFromNow(days);
 }
 
 /** 每公里费率参考默认值（元）— 已由 SystemConfig 管理，此常量仅作参考 */
@@ -179,7 +197,7 @@ inline constexpr int MIN_NEW_TRAIN_DAYS = 3;
 // ── 路线计算 ──
 
 /** 从 stops 推导 segments（不存于 JSON，每次按需构建） */
-inline std::vector<RouteSegment> buildSegments(const Train& train, const DataStore& ds) {
+inline std::vector<RouteSegment> buildSegments(const Train& train, DataStore& ds) {
     std::vector<RouteSegment> segs;
     for (size_t i = 0; i + 1 < train.stops.size(); ++i) {
         RouteSegment seg;
@@ -206,7 +224,7 @@ inline std::vector<RouteSegment> buildSegments(const Train& train, const DataSto
 
 /** 计算列车从 from 到 to 的实际走行里程，沿 stops 逐段累加 Haversine */
 inline double calcRouteDistance(const Train& train, uint32_t from_station, uint32_t to_station,
-                                const DataStore& ds) {
+                                DataStore& ds) {
     int from_idx = -1, to_idx = -1;
     std::vector<uint32_t> ids;
     for (const auto& s : train.stops)

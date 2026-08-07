@@ -48,10 +48,6 @@ void TrainManager::loadOccupancy() {
         std::to_string(ds.getAllTrains().size()) + " trains");
 }
 
-void TrainManager::saveOccupancy() const {
-    // 占用表由列车数据派生，无需单独持久化
-}
-
 // ── 占用表操作 ──
 
 void TrainManager::addToOccupancy(const Train& train) {
@@ -106,12 +102,7 @@ TrainManager::ValidationResult TrainManager::validate(const Train& train, bool i
             return result;
         }
         int min_days = is_new ? MIN_NEW_TRAIN_DAYS : (MAX_ADVANCE_DAYS + 1);
-        auto tm = nowTm();
-        tm.tm_mday += min_days;
-        std::mktime(&tm);
-        char buf[11];
-        std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
-        if (train.valid_from < std::string(buf)) {
+        if (!isAtLeastDaysAhead(train.valid_from, min_days)) {
             result.error = std::string(is_new ? "新增" : "修改")
                 + "列车须至少 " + std::to_string(min_days) + " 天后生效";
             return result;
@@ -285,8 +276,6 @@ TrainManager::DeleteResult TrainManager::deleteTrain(const std::string& train_id
         return result;
     }
 
-    // 未出发已售车票检查待后续版本实现（需 OrderService 暴露跨用户查询接口）
-
     removeFromOccupancy(*train);
     ds.removeTrain(train_id);
     result.success = true;
@@ -297,7 +286,7 @@ TrainManager::DeleteResult TrainManager::deleteTrain(const std::string& train_id
 bool TrainManager::adjustSchedule(const std::string& train_id, const std::vector<Stop>& new_stops) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto& ds = DataStore::instance();
-    auto* train = ds.getTrainMutable(train_id);
+    auto* train = ds.getTrain(train_id);
     if (!train) return false;
 
     removeFromOccupancy(*train);
@@ -311,7 +300,7 @@ TrainManager::UpdateResult TrainManager::updateTrain(const std::string& train_id
     UpdateResult result;
     std::lock_guard<std::mutex> lock(mutex_);
     auto& ds = DataStore::instance();
-    auto* train = ds.getTrainMutable(train_id);
+    auto* train = ds.getTrain(train_id);
     if (!train) {
         result.error = "列车 " + train_id + " 不存在";
         return result;

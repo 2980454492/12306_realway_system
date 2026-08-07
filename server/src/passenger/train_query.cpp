@@ -2,6 +2,7 @@
 #include "passenger/train_query.h"
 #include "data/data_store.h"
 #include "passenger/seat_inventory.h"
+#include "sys_admin/system_config.h"
 #include "utils.h"
 #include "system/logger.h"
 
@@ -11,52 +12,13 @@
 
 namespace {
 
-// ── 索引类型定义 ──
-
-/** 索引中的一条记录：某列车在停站序列中的位置。存 train_id 而非裸指针，避免 push_back 后悬空 */
-struct TrainStopEntry {
-    std::string train_id;
+struct BestEntry {
     int stop_idx;
+    uint32_t station_id;
+    const Train* train;
 };
-
-struct BestEntry { 
-    int stop_idx; 
-    uint32_t station_id; 
-    const Train* train; 
-};
-
-/**
- * 车站-列车索引：站ID → 经过该站的所有列车条目。
- * 换乘查询的核心数据结构，每次启动重建（数据量小，毫秒级），无需磁盘缓存。
- */
-using StationTrainIndex = std::unordered_map<uint32_t, std::vector<TrainStopEntry>>;
 
 // ── 工具函数 ──
-
-/** 计算票价：里程 × 费率(列车类型, 席位) */
-double calcPrice(double distance_km, const std::string& train_id, SeatType seat_type) {
-    return distance_km * pricePerKm(train_id, seat_type);
-}
-
-/** 查某车次从 from 站到 to 站的可用座位（仅查数量，不锁定） */
-SeatConfig getAvailableSeats(const std::string& train_id, const std::string& date) {
-    return SeatInventory::instance().getAvailable(train_id, date);
-}
-
-// ── 车站-列车索引 ──
-
-/** 每次查询时从 DataStore 重建索引（~100 列车，微秒级），
- *  确保运行时列车状态变更（新增/删除/修改）立即生效。 */
-StationTrainIndex buildStationIndex() {
-    StationTrainIndex idx;
-    auto& ds = DataStore::instance();
-    for (const auto& train : ds.getAllTrains()) {
-        if (train.status != TrainStatus::ACTIVE) continue;
-        for (size_t i = 0; i < train.stops.size(); ++i)
-            idx[train.stops[i].station_id].push_back({train.id, static_cast<int>(i)});
-    }
-    return idx;
-}
 
 /**
  * 检查中转站是否在地理上处于 from 和 to 之间。
@@ -64,9 +26,9 @@ StationTrainIndex buildStationIndex() {
  * 防止绕路太远的中转方案。
  */
 bool isTransferBetween(uint32_t from, uint32_t transfer, uint32_t to, DataStore& ds) {
-    auto* s_from = ds.getStation(from);
-    auto* s_trans = ds.getStation(transfer);
-    auto* s_to = ds.getStation(to);
+    const Station* s_from = ds.getStation(from);
+    const Station* s_trans = ds.getStation(transfer);
+    const Station* s_to = ds.getStation(to);
     if (!s_from || !s_trans || !s_to) return false;
 
     double direct = haversineDist(*s_from, *s_to);
@@ -87,14 +49,17 @@ void TrainQuery::initialize() {}
 QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                                const std::string& date) {
     QueryResult result;
-    auto& ds = DataStore::instance();
-    auto stationIndex = buildStationIndex();
+    DataStore& ds = DataStore::instance();
+    SeatInventory& si = SeatInventory::instance();
+    const StationTrainIndex& stationIndex = ds.getStationTrainIndex();
 
     // ── 直达查询 ──
-    auto from_it = stationIndex.find(from_station);
+    StationTrainIndex::const_iterator from_it = stationIndex.find(from_station);
     if (from_it != stationIndex.end()) {
-        for (const auto& [train_id, from_idx] : from_it->second) {
-            auto* train = ds.getTrain(train_id);
+        for (const TrainStopEntry& entry : from_it->second) {
+            const std::string& train_id = entry.train_id;
+            int from_idx = entry.stop_idx;
+            Train* train = ds.getTrain(train_id);
             if (!train || train->status != TrainStatus::ACTIVE) continue;
             // 日期过滤：valid_from 未到或 valid_until 已过则跳过
             if (!train->valid_from.empty() && train->valid_from > date) continue;
@@ -131,9 +96,9 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
 
             double trip_km = calcRouteDistance(*train, from_station, to_station, ds);
             item.distance_km = trip_km;
-            item.price = calcPrice(trip_km, train->id, SeatType::SECOND);
+            item.price = trip_km * pricePerKm(train->id, SeatType::SECOND);
 
-            item.available_seats = getAvailableSeats(train->id, date);
+            item.available_seats = si.getAvailable(train->id, date);
 
             result.direct.push_back(item);
         }
@@ -142,12 +107,14 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
     // ── 换乘查询 ──
     // 思路：遍历 from 站出发的列车，将其后续停站作为候选中转站，
     //       通过索引 O(1) 查找从中转站到 to 的列车。
-    auto to_it = stationIndex.find(to_station);
+    StationTrainIndex::const_iterator to_it = stationIndex.find(to_station);
     if (from_it != stationIndex.end() && to_it != stationIndex.end()) {
         std::set<std::string> seen_pairs;  // 防止同一对 (T1, T2) 重复
 
-        for (const auto& [train1_id, from_idx] : from_it->second) {
-            auto* train1 = ds.getTrain(train1_id);
+        for (const TrainStopEntry& entry1 : from_it->second) {
+            const std::string& train1_id = entry1.train_id;
+            int from_idx = entry1.stop_idx;
+            Train* train1 = ds.getTrain(train1_id);
             if (!train1 || train1->status != TrainStatus::ACTIVE) continue;
             if (!train1->valid_from.empty() && train1->valid_from > date) continue;
             if (!train1->valid_until.empty() && train1->valid_until < date) continue;
@@ -168,11 +135,13 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                 if (!isTransferBetween(from_station, transfer_id, to_station, ds)) continue;
 
                 // 查经过该中转站、能到 to 的列车
-                auto trans_it = stationIndex.find(transfer_id);
+                StationTrainIndex::const_iterator trans_it = stationIndex.find(transfer_id);
                 if (trans_it == stationIndex.end()) continue;
 
-                for (const auto& [train2_id, trans_idx] : trans_it->second) {
-                    auto* train2 = ds.getTrain(train2_id);
+                for (const TrainStopEntry& entry2 : trans_it->second) {
+                    const std::string& train2_id = entry2.train_id;
+                    int trans_idx = entry2.stop_idx;
+                    Train* train2 = ds.getTrain(train2_id);
                     if (!train2 || train2->status != TrainStatus::ACTIVE) continue;
                     if (!train2->valid_from.empty() && train2->valid_from > date) continue;
                     if (!train2->valid_until.empty() && train2->valid_until < date) continue;
@@ -213,8 +182,8 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                     item.duration_minutes = timeDiff(item.departure_time, item.arrival_time);
                     item.stops = train1->stops;
                     item.is_transfer = true;
-                    auto* st = ds.getStation(transfer_id);
-                    item.transfer_station = st ? st->name : "unknown";
+                    const Station* transfer_st = ds.getStation(transfer_id);
+                    item.transfer_station = transfer_st ? transfer_st->name : "unknown";
                     item.second_train_id = train2->id;
                     item.second_stops = train2->stops;
                     item.transfer_arrival_time = arrival_at_transfer;
@@ -224,11 +193,11 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
                     double km1 = calcRouteDistance(*train1, from_station, transfer_id, ds);
                     double km2 = calcRouteDistance(*train2, transfer_id, to_station, ds);
                     item.distance_km = km1 + km2;
-                    item.first_leg_price = calcPrice(km1, train1->id, SeatType::SECOND);
-                    item.second_leg_price = calcPrice(km2, train2->id, SeatType::SECOND);
+                    item.first_leg_price = km1 * pricePerKm(train1->id, SeatType::SECOND);
+                    item.second_leg_price = km2 * pricePerKm(train2->id, SeatType::SECOND);
                     item.price = item.first_leg_price + item.second_leg_price;
-                    item.first_leg_seats = getAvailableSeats(train1->id, date);
-                    item.second_leg_seats = getAvailableSeats(train2->id, date);
+                    item.first_leg_seats = si.getAvailable(train1->id, date);
+                    item.second_leg_seats = si.getAvailable(train2->id, date);
 
                     result.transfers.push_back(item);
                 }
@@ -241,64 +210,24 @@ QueryResult TrainQuery::query(uint32_t from_station, uint32_t to_station,
 
 // ── 车站查询 ──
 
-std::vector<StationQueryItem> TrainQuery::queryByStation(uint32_t station_id) {
-    std::vector<StationQueryItem> result;
-    auto& ds = DataStore::instance();
-    auto idx = buildStationIndex();
-    auto it = idx.find(station_id);
-    if (it == idx.end()) return result;
-
-    for (const auto& [train_id, stop_idx] : it->second) {
-        auto* train = ds.getTrain(train_id);
-        if (!train || train->status != TrainStatus::ACTIVE) continue;
-
-        StationQueryItem item;
-        item.train_id = train->id;
-        item.train_type = train->type;
-        item.stops = train->stops;
-
-        // 始发站名 / 终到站名
-        if (!train->stops.empty()) {
-            auto* orig = ds.getStation(train->stops.front().station_id);
-            auto* term = ds.getStation(train->stops.back().station_id);
-            item.from_station_name = orig ? orig->name : "";
-            item.to_station_name = term ? term->name : "";
-        }
-
-        // 到达/发车时刻
-        const auto& stop = train->stops[stop_idx];
-        item.arrival_time = stop.arrival;     // -1 表示始发站
-        item.departure_time = stop.departure; // -1 表示终到站
-        result.push_back(item);
-    }
-
-    // 默认按发车时间升序，终到站按到达时间
-    std::sort(result.begin(), result.end(),
-        [](const StationQueryItem& a, const StationQueryItem& b) {
-            int ta = (a.departure_time > 0) ? a.departure_time : a.arrival_time;
-            int tb = (b.departure_time > 0) ? b.departure_time : b.arrival_time;
-            return ta < tb;
-        });
-
-    return result;
-}
-
 // ── 多站查询（合并 + 排序）──
 
 std::vector<StationQueryItem> TrainQuery::queryByStations(
     const std::vector<uint32_t>& station_ids, const std::string& sort) {
-    auto& ds = DataStore::instance();
-    auto idx = buildStationIndex();
+    DataStore& ds = DataStore::instance();
+    const StationTrainIndex& idx = ds.getStationTrainIndex();
 
     // 1. 一次遍历：收集同车次最优停站，同时缓存 train 指针 + 站点名
     std::unordered_map<std::string, BestEntry> best;
-    for (auto sid : station_ids) {
-        auto it = idx.find(sid);
+    for (uint32_t sid : station_ids) {
+        StationTrainIndex::const_iterator it = idx.find(sid);
         if (it == idx.end()) continue;
-        for (const auto& [train_id, stop_idx] : it->second) {
-            auto* t = ds.getTrain(train_id);
+        for (const TrainStopEntry& entry : it->second) {
+            const std::string& train_id = entry.train_id;
+            int stop_idx = entry.stop_idx;
+            const Train* t = ds.getTrain(train_id);
             if (!t || t->status != TrainStatus::ACTIVE) continue;
-            auto bi = best.find(train_id);
+            std::unordered_map<std::string, BestEntry>::const_iterator bi = best.find(train_id);
             if (bi == best.end() || stop_idx < bi->second.stop_idx)
                 best[train_id] = {stop_idx, sid, t};
         }
@@ -306,21 +235,24 @@ std::vector<StationQueryItem> TrainQuery::queryByStations(
 
     // 2. 构建结果（复用第一步缓存的 train 指针 + 内联查站名）
     std::vector<StationQueryItem> result;
-    for (const auto& [tid, re] : best) {
-        auto* train = re.train;
+    for (std::unordered_map<std::string, BestEntry>::const_iterator itb = best.begin();
+         itb != best.end(); ++itb) {
+        const std::string& tid = itb->first;
+        const BestEntry& re = itb->second;
+        const Train* train = re.train;
         StationQueryItem item;
         item.train_id = tid;
         item.train_type = train->type;
         item.stops = train->stops;
         item.station_id = re.station_id;
-        auto* st = ds.getStation(re.station_id);
+        const Station* st = ds.getStation(re.station_id);
         item.station_name = st ? st->name : "";
-        const auto& stop = train->stops[re.stop_idx];
+        const Stop& stop = train->stops[re.stop_idx];
         item.arrival_time = stop.arrival;
         item.departure_time = stop.departure;
         if (!train->stops.empty()) {
-            auto* orig = ds.getStation(train->stops.front().station_id);
-            auto* term = ds.getStation(train->stops.back().station_id);
+            const Station* orig = ds.getStation(train->stops.front().station_id);
+            const Station* term = ds.getStation(train->stops.back().station_id);
             item.from_station_name = orig ? orig->name : "";
             item.to_station_name = term ? term->name : "";
         }
@@ -343,4 +275,23 @@ std::vector<StationQueryItem> TrainQuery::queryByStations(
     }
 
     return result;
+}
+
+/** 构建席位价格 JSON：按列车 ID 前缀查费率矩阵，逐席位类型计算票价。
+ *  费率为 0 的席位（如硬卧列车不设商务座）不输出。 */
+nlohmann::json TrainQuery::buildSeatPrices(const std::string& train_id, double distance_km) {
+    nlohmann::json sp;
+    SystemConfig& cfg = SystemConfig::instance();
+
+    const char* names[] = {"BUSINESS", "FIRST", "SECOND",
+                           "HARD_SLEEPER", "HARD_SEAT", "NO_SEAT"};
+    SeatType types[] = {SeatType::BUSINESS, SeatType::FIRST, SeatType::SECOND,
+                        SeatType::HARD_SLEEPER, SeatType::HARD_SEAT, SeatType::NO_SEAT};
+
+    for (int i = 0; i < 6; i++) {
+        double rate = cfg.ratePerKm(train_id, types[i]);
+        if (rate > 0)
+            sp[names[i]] = std::round(distance_km * rate * 100) / 100;
+    }
+    return sp;
 }

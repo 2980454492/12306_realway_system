@@ -48,23 +48,6 @@ bool SystemConfig::initialize(const std::string& path) {
     std::lock_guard<std::mutex> lock(mutex_);
     file_path_ = path;
 
-    // 默认费率矩阵（元/km）——直观，无单位倍率
-    //             商务   一等   二等   硬卧   硬座   无座
-    // G 高铁
-    rates_[0][0]=1.20; rates_[0][1]=0.80; rates_[0][2]=0.46; rates_[0][3]=0; rates_[0][4]=0;    rates_[0][5]=0.20;
-    // D 动车
-    rates_[1][0]=0.80; rates_[1][1]=0.50; rates_[1][2]=0.31; rates_[1][3]=0; rates_[1][4]=0;    rates_[1][5]=0.15;
-    // C 城际
-    rates_[2][0]=0.90; rates_[2][1]=0.55; rates_[2][2]=0.35; rates_[2][3]=0; rates_[2][4]=0;    rates_[2][5]=0.15;
-    // Z 直达（普速，无商务/一等/二等）
-    rates_[3][0]=0;    rates_[3][1]=0;    rates_[3][2]=0;    rates_[3][3]=0.30; rates_[3][4]=0.12; rates_[3][5]=0.08;
-    // T 特快（普速，无商务/一等/二等）
-    rates_[4][0]=0;    rates_[4][1]=0;    rates_[4][2]=0;    rates_[4][3]=0.25; rates_[4][4]=0.08; rates_[4][5]=0.06;
-    // K 快速（普速，无商务/一等/二等）
-    rates_[5][0]=0;    rates_[5][1]=0;    rates_[5][2]=0;    rates_[5][3]=0.22; rates_[5][4]=0.06; rates_[5][5]=0.05;
-    // 其他（普速默认）
-    rates_[6][0]=0;    rates_[6][1]=0;    rates_[6][2]=0;    rates_[6][3]=0.25; rates_[6][4]=0.08; rates_[6][5]=0.06;
-
     if (!fs::exists(path)) {
         save();
         Logger::instance().info("Created default system config: " + path);
@@ -111,13 +94,16 @@ double SystemConfig::ratePerKm(const std::string& train_id, SeatType seat) const
 }
 
 double SystemConfig::refundRate24h() const {
-    std::lock_guard<std::mutex> l(mutex_); return refund_rate_24h_;
+    std::lock_guard<std::mutex> l(mutex_); 
+    return refund_rate_24h_;
 }
 double SystemConfig::refundRate2_24h() const {
-    std::lock_guard<std::mutex> l(mutex_); return refund_rate_2_24h_;
+    std::lock_guard<std::mutex> l(mutex_); 
+    return refund_rate_2_24h_;
 }
 double SystemConfig::refundRate2h() const {
-    std::lock_guard<std::mutex> l(mutex_); return refund_rate_2h_;
+    std::lock_guard<std::mutex> l(mutex_); 
+    return refund_rate_2h_;
 }
 
 // ── 序列化（调用者须持有 mutex_）──

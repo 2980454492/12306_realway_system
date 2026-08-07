@@ -2,12 +2,12 @@
 #include "router_helpers.h"
 
 void registerStaffRoutes(RailwayServer& server) {
-    auto& app = server.getApp();
+    httplib::Server& app = server.getApp();
 
     /** GET /api/admin/trains — 获取列车列表（STAFF + APPROVER 均可访问） */
     app.Get("/api/admin/trains", [](const httplib::Request& req, httplib::Response& res) {
     try {
-        auto ctx = RbacMiddleware::authenticate(
+        std::optional<AuthContext> ctx = RbacMiddleware::authenticate(
             req.has_header("Authorization") ? req.get_header_value("Authorization") : "");
         if (!ctx || (!RbacMiddleware::authorize(*ctx, Permission::MANAGE_TRAINS)
                   && !RbacMiddleware::authorize(*ctx, Permission::APPROVE))) {
@@ -19,9 +19,9 @@ void registerStaffRoutes(RailwayServer& server) {
             return;
         }
 
-        auto& trains = TrainManager::instance().getAllTrains();
+        const std::vector<Train>& trains = TrainManager::instance().getAllTrains();
         json arr = json::array();
-        for (const auto& train : trains) {
+        for (const Train& train : trains) {
             json jt;
             jt["id"] = train.id;
             jt["type"] = static_cast<int>(train.type);
@@ -52,21 +52,21 @@ void registerStaffRoutes(RailwayServer& server) {
     // ── PUT  /api/admin/trains/{id} — 修改列车（与新增共用逻辑，is_new 由 URL 是否有 id 决定）──
     auto handleTrainSubmit = [](const httplib::Request& req, httplib::Response& res, bool is_new) {
     try {
-        auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+        std::optional<AuthContext> ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
         if (!ctx) return;
 
         json body = json::parse(req.body);
         Train train = body.get<Train>();
 
         // 校验 + 冲突检测（提交/审批共用 checkTrain）
-        auto cr = TrainManager::instance().checkTrain(train, is_new);
+        TrainManager::CheckResult cr = TrainManager::instance().checkTrain(train, is_new);
         if (!cr.valid) {
             json j;
             j["ok"] = false;
             j["error"] = cr.error;
             if (!cr.conflicts.empty()) {
                 json details = json::array();
-                for (const auto& c : cr.conflicts) {
+                for (const TrainManager::ConflictDetail& c : cr.conflicts) {
                     json cd;
                     cd["train_id"] = c.train_id;
                     cd["station_a"] = c.station_a;
@@ -84,18 +84,18 @@ void registerStaffRoutes(RailwayServer& server) {
         }
 
         // 提交审批
-        auto type = is_new ? ApprovalType::CREATE_TRAIN : ApprovalType::ADJUST_SCHEDULE;
+        ApprovalType type = is_new ? ApprovalType::CREATE_TRAIN : ApprovalType::ADJUST_SCHEDULE;
         std::string payload;
         if (is_new) {
             // CREATE_TRAIN：立即写入 trains.json（PENDING），审批只存车次号
             train.status = TrainStatus::PENDING;
-            auto& ds = DataStore::instance();
+            DataStore& ds = DataStore::instance();
             // 已归档同名车次 → 先删除再新增
             ds.removeTrain(train.id);
             ds.addTrain(train);
             ds.saveTrains();
             WalWriter::instance().append("TRAIN_CREATE", json(train).dump());
-            payload = json{{"id", train.id}}.dump();
+            payload = json{{"train_id", train.id}}.dump();
         } else {
             // ADJUST_SCHEDULE：payload 存完整 stops（审批时需应用新数据）
             payload = body.dump();
@@ -151,7 +151,7 @@ void registerStaffRoutes(RailwayServer& server) {
     /** POST /api/admin/approvals/{id}/reject — 驳回审批申请 */
     app.Post(R"(/api/admin/approvals/([^/]+)/reject)", [](const httplib::Request& req, httplib::Response& res) {
     try {
-        auto ctx = checkAuth(req, res, Permission::APPROVE);
+        std::optional<AuthContext> ctx = checkAuth(req, res, Permission::APPROVE);
         if (!ctx) return;
 
         std::string approval_id = req.matches[1];
@@ -166,7 +166,7 @@ void registerStaffRoutes(RailwayServer& server) {
             return;
         }
 
-        auto result = ApprovalService::instance().reject(approval_id, ctx->user_id, comment);
+        ApprovalService::RejectResult result = ApprovalService::instance().reject(approval_id, ctx->user_id, comment);
         json j;
         j["ok"] = result.success;
         if (!result.success) j["error"] = result.error;
@@ -181,15 +181,15 @@ void registerStaffRoutes(RailwayServer& server) {
     }
     });
 
-    /** GET /api/admin/stop-inserts — STAFF 查看待处理的线路加站（含未填时间的） */
+    /** GET /api/admin/stop-inserts — STAFF 查看待处理的线路变更 */
     app.Get("/api/admin/stop-inserts", [](const httplib::Request& req, httplib::Response& res) {
     try {
-        auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+        std::optional<AuthContext> ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
         if (!ctx) return;
 
-        auto approvals = ApprovalService::instance().getApprovals(ApprovalState::SUBMITTED);
+        std::vector<ApprovalRequest> approvals = ApprovalService::instance().getApprovals(ApprovalState::SUBMITTED);
         json arr = json::array();
-        for (const auto& a : approvals) {
+        for (const ApprovalRequest& a : approvals) {
             if (a.type != ApprovalType::STOP_INSERT) continue;
             json ja;
             ja["id"] = a.id;
@@ -216,13 +216,14 @@ void registerStaffRoutes(RailwayServer& server) {
     /** PUT /api/admin/approvals/{id}/stop-time — STAFF 为线路加站审批填写停站时间 */
     app.Put(R"(/api/admin/approvals/([^/]+)/stop-time)", [](const httplib::Request& req, httplib::Response& res) {
     try {
-        auto ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
+        std::optional<AuthContext> ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
         if (!ctx) return;
 
         std::string approval_id = req.matches[1];
         json body = json::parse(req.body);
         int arr = body.value("arrival", 0);
         int dep = body.value("departure", 0);
+        std::string effective_date = body.value("effective_date", "");
         if (arr <= 0 || dep <= 0) {
             badRequest(res, "请填写到达和发车时间");
             return;
@@ -233,7 +234,8 @@ void registerStaffRoutes(RailwayServer& server) {
             return;
         }
 
-        auto result = ApprovalService::instance().updateStopTime(approval_id, arr, dep);
+        ApprovalService::UpdateStopTimeResult result = ApprovalService::instance().updateStopTime(
+            approval_id, arr, dep, effective_date);
         json j;
         j["ok"] = result.success;
         if (!result.success) j["error"] = result.error;

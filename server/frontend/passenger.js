@@ -535,11 +535,8 @@
         tomorrow.setDate(tomorrow.getDate() + 1);
         d.value = tomorrow.toISOString().slice(0, 10);
       }
-      var today = new Date();
-      var maxDay = new Date(today);
-      maxDay.setDate(today.getDate() + 14);
-      d.min = today.toISOString().slice(0, 10);
-      d.max = maxDay.toISOString().slice(0, 10);
+      d.min = U.minDateStr(0);
+      d.max = U.minDateStr(U.MAX_ADVANCE_DAYS);
     }
     UI.initHourSelects();
   };

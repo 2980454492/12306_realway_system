@@ -49,15 +49,15 @@ TEST_F(DataTest, StationCRUD) {
     s.latitude = 35.0;
     s.longitude = 110.0;
 
-    auto added = DataStore::instance().addStation(s);
-    EXPECT_GT(added.id, 0);
+    EXPECT_TRUE(DataStore::instance().addStation(s));
+    EXPECT_GT(s.id, 0);
 
     // Update
-    added.name = "测试站(已改名)";
-    EXPECT_TRUE(DataStore::instance().updateStation(added.id, added));
+    s.name = "测试站(已改名)";
+    EXPECT_TRUE(DataStore::instance().updateStation(s.id, s));
 
     // Delete
-    EXPECT_TRUE(DataStore::instance().removeStation(added.id));
+    EXPECT_TRUE(DataStore::instance().removeStation(s.id));
 }
 
 TEST_F(DataTest, LineCRUD) {
@@ -67,13 +67,13 @@ TEST_F(DataTest, LineCRUD) {
     l.stations = {"北京", "上海"};
     l.max_speed_kmh = 350;
 
-    auto added = DataStore::instance().addLine(l);
-    EXPECT_GT(added.id, 0);
+    EXPECT_TRUE(DataStore::instance().addLine(l));
+    EXPECT_GT(l.id, 0);
 
     // Update
-    added.max_speed_kmh = 300;
-    EXPECT_TRUE(DataStore::instance().updateLine(added.id, added));
+    l.max_speed_kmh = 300;
+    EXPECT_TRUE(DataStore::instance().updateLine(l.id, l));
 
     // Delete
-    EXPECT_TRUE(DataStore::instance().removeLine(added.id));
+    EXPECT_TRUE(DataStore::instance().removeLine(l.id));
 }

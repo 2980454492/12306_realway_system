@@ -66,8 +66,6 @@ set(SOURCES
     src/sys_admin/audit_service.cpp
     src/sys_admin/system_config.cpp
     src/sys_admin/user_service.cpp
-    src/infra_admin/station_service.cpp
-    src/infra_admin/line_service.cpp
     src/security/rate_limiter.cpp
     src/security/crypto.cpp
     src/data/data_store.cpp
@@ -93,8 +91,6 @@ set(HEADERS
     src/sys_admin/audit_service.h
     src/sys_admin/system_config.h
     src/sys_admin/user_service.h
-    src/infra_admin/station_service.h
-    src/infra_admin/line_service.h
     src/security/rate_limiter.h
     src/security/crypto.h
     src/data/data_store.h

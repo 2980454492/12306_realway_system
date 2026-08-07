@@ -47,7 +47,8 @@ public:
         bool success = false;
         std::string error;
     };
-    UpdateStopTimeResult updateStopTime(const std::string& approval_id, int arrival, int departure);
+    UpdateStopTimeResult updateStopTime(const std::string& approval_id, int arrival, int departure,
+                                         const std::string& effective_date);
 
     /** 审批驳回 */
     struct RejectResult {
@@ -71,7 +72,7 @@ public:
         std::optional<ApprovalState> status = std::nullopt) const;
 
     /** 按 ID 查审批 */
-    const ApprovalRequest* getApproval(const std::string& id) const;
+    ApprovalRequest* getApproval(const std::string& id);
 
 private:
     ApprovalService() = default;
@@ -80,6 +81,9 @@ private:
 
     /** 将 CREATE_TRAIN 审批关联的 PENDING 列车归档，reject/withdraw 共用 */
     void archivePendingTrain(const ApprovalRequest& req);
+
+    /** 从 stops 中移除同列车同线路上待审批 STOP_REMOVE 的站点（改站场景） */
+    void removePendingStopRemoves(std::vector<Stop>& stops, const std::string& tid, uint32_t line_id);
 
     // ── 数据 ──
     std::vector<ApprovalRequest> approvals_;

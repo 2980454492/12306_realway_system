@@ -93,7 +93,6 @@ private:
     TrainManager() = default;
 
     void loadOccupancy();
-    void saveOccupancy() const;
 
     // 区间 key = 出发站|到达站|线路ID（方向敏感 + 线路隔离，A→B 与 B→A 不同 key）
     std::string occKey(uint32_t from, uint32_t to, uint32_t line_id) const;

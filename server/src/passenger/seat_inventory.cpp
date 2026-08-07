@@ -36,12 +36,24 @@ SeatConfig SeatInventory::getAvailable(const std::string& train_id, const std::s
             if (!sold) ++available;
         }
         switch (type) {
-            case SeatType::BUSINESS:     config.business_seats = available; break;
-            case SeatType::FIRST:        config.first_seats = available; break;
-            case SeatType::SECOND:       config.second_seats = available; break;
-            case SeatType::HARD_SLEEPER: config.hard_sleeper = available; break;
-            case SeatType::HARD_SEAT:    config.hard_seat = available; break;
-            case SeatType::NO_SEAT:      config.no_seat = available; break;
+            case SeatType::BUSINESS:     
+                config.business_seats = available; 
+                break;
+            case SeatType::FIRST:        
+                config.first_seats = available; 
+                break;
+            case SeatType::SECOND:       
+                config.second_seats = available; 
+                break;
+            case SeatType::HARD_SLEEPER: 
+                config.hard_sleeper = available; 
+                break;
+            case SeatType::HARD_SEAT:    
+                config.hard_seat = available; 
+                break;
+            case SeatType::NO_SEAT:      
+                config.no_seat = available; 
+                break;
         }
     }
     return config;

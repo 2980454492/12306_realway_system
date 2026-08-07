@@ -17,7 +17,6 @@ set(TEST_SOURCES
     test_staff.cpp
     test_approver.cpp
     test_admin.cpp
-    test_infra.cpp
 )
 
 add_executable(railway_tests ${TEST_SOURCES})
@@ -54,8 +53,6 @@ set(PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/sys_admin/audit_service.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/sys_admin/system_config.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/sys_admin/user_service.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/infra_admin/station_service.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/infra_admin/line_service.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/security/rate_limiter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/security/crypto.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/data/data_store.cpp

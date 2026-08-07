@@ -276,6 +276,20 @@ const U = {
     el.innerHTML = html;
   },
 
+  /** 购票/查票最大提前天数（today+14），与后端 MAX_ADVANCE_DAYS 保持一致 */
+  MAX_ADVANCE_DAYS: 14,
+  /** 新增列车最少提前天数 */
+  MIN_NEW_TRAIN_DAYS: 3,
+  /** 线路变更 / 列车修改最少提前天数（= MAX_ADVANCE_DAYS + 1，第14天已放票） */
+  MIN_CHANGE_DAYS: 15,
+
+  /** 返回今天 + N 天的日期字符串 yyyy-MM-dd，用于设置 date input 的 min 属性 */
+  minDateStr: function(days) {
+    var d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  },
+
 };
 
 // ═══════════════════════════════════════════

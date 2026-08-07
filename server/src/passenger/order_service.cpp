@@ -21,26 +21,23 @@
 #include <ctime>
 
 using json = nlohmann::json;
+namespace fs = std::filesystem;
 
 namespace {
 
 // ── 退票费率 ──
 
-// 根据距发车时间计算退票费率：>24h→95%, 2-24h→90%, <2h→80%
+// 根据距发车时间计算退票费率
 double calcRefund(const std::string& date, int departure_hhmm) {
     auto& cfg = SystemConfig::instance();
-    // 非今天的票（未来），距发车 >24 小时，最高费率
     if (!isToday(date)) return cfg.refundRate24h();
 
     int minutes_before = timeDiff(nowHHMM(), departure_hhmm);
-
     if (minutes_before < 120) return cfg.refundRate2h();
     if (minutes_before < 1440) return cfg.refundRate2_24h();
     return cfg.refundRate24h();
 }
 }
-
-namespace fs = std::filesystem;
 
 // ── 单例 ──
 
@@ -120,7 +117,7 @@ OrderService::OrderResult OrderService::createOrder(
     }
 
     // 1. 校验列车存在且运行中
-    auto* train = DataStore::instance().getTrain(train_id);
+    Train* train = DataStore::instance().getTrain(train_id);
     if (!train || train->status != TrainStatus::ACTIVE) {
         result.error = "列车不存在或未在运行中";
         return result;
@@ -147,18 +144,18 @@ OrderService::OrderResult OrderService::createOrder(
         return result;
     }
 
-    // 3.5 乘车人冲突检测：同一天同一乘车人不能购买时间重叠的两张票
+    // 4. 乘车人冲突检测：同一天同一乘车人不能购买时间重叠的两张票
     int new_arrival = train->stops[to_idx].arrival;
-    for (const auto& existing : orders_) {
+    for (const Order& existing : orders_) {
         if (existing.status != OrderStatus::PAID) continue;
         if (existing.passenger_id != passenger_id) continue;
         if (existing.date != date) continue;
 
-        auto* ext = DataStore::instance().getTrain(existing.train_id);
+        Train* ext = DataStore::instance().getTrain(existing.train_id);
         if (!ext) continue;
 
         int ext_dep = 0, ext_arr = 0;
-        for (const auto& s : ext->stops) {
+        for (const Stop& s : ext->stops) {
             if (s.station_id == existing.from_station) ext_dep = s.departure;
             if (s.station_id == existing.to_station) {
                 ext_arr = s.arrival;
@@ -173,17 +170,17 @@ OrderService::OrderResult OrderService::createOrder(
         }
     }
 
-    // 4. 预留座位（原子操作，由 SeatInventory 内部锁保证）
+    // 5. 预留座位（原子操作，由 SeatInventory 内部锁保证）
     auto reservation = SeatInventory::instance().reserve(train_id, date, seat_type, count);
     if (!reservation.success) {
         result.error = "余票不足";
         return result;
     }
 
-    // 5. 计算票价里程（复用共享函数）
+    // 6. 计算票价里程（复用共享函数）
     double trip_km = calcRouteDistance(*train, from_station, to_station, DataStore::instance());
 
-    // 6. 创建订单
+    // 7. 创建订单
     Order order;
     order.id = generateUuid();
     order.user_id = user_id;
@@ -290,8 +287,9 @@ std::vector<Order> OrderService::getOrders(const std::string& user_id,
         result.push_back(order);
     }
     // 按创建时间倒序
-    std::sort(result.begin(), result.end(),
-        [](const Order& a, const Order& b) { return a.created_at > b.created_at; });
+    std::sort(result.begin(), result.end(), [](const Order& a, const Order& b) { 
+        return a.created_at > b.created_at;
+    });
     return result;
 }
 

@@ -1,5 +1,6 @@
 // This file is part of routes.cpp — auto-split by module
 #include "router_helpers.h"
+#include "passenger/train_query.h"
 
 void registerPassengerRoutes(RailwayServer& server) {
     auto& app = server.getApp();
@@ -61,7 +62,7 @@ void registerPassengerRoutes(RailwayServer& server) {
         try {
             if (req.has_param("from")) from_ids = parseIds(req.get_param_value("from"));
             if (req.has_param("to")) to_ids = parseIds(req.get_param_value("to"));
-            date = req.has_param("date") ? req.get_param_value("date") : "2026-07-07";
+            date = req.get_param_value("date");
         } catch (const std::exception&) {
             json j;
             j["ok"] = false;
@@ -116,25 +117,6 @@ void registerPassengerRoutes(RailwayServer& server) {
         j["direct_count"] = qr.direct.size();
         j["transfer_count"] = qr.transfers.size();
 
-        // 席位价格（从费率矩阵按元/km计算，费率为0的席位不输出）
-        auto addSeatPrices = [](json& target, const std::string& key,
-                                 const std::string& train_id, double distance_km) {
-            json sp;
-            auto& cfg = SystemConfig::instance();
-            auto add = [&](const char* name, SeatType st) {
-                double rate = cfg.ratePerKm(train_id, st);
-                if (rate > 0)
-                    sp[name] = std::round(distance_km * rate * 100) / 100;
-            };
-            add("BUSINESS",     SeatType::BUSINESS);
-            add("FIRST",        SeatType::FIRST);
-            add("SECOND",       SeatType::SECOND);
-            add("HARD_SLEEPER", SeatType::HARD_SLEEPER);
-            add("HARD_SEAT",    SeatType::HARD_SEAT);
-            add("NO_SEAT",      SeatType::NO_SEAT);
-            target[key] = sp;
-        };
-
         json direct_arr = json::array();
         for (const auto& item : qr.direct) {
             json d;
@@ -154,7 +136,7 @@ void registerPassengerRoutes(RailwayServer& server) {
                 d["origin_station"] = orig ? orig->name : "?";
                 d["terminal_station"] = term ? term->name : "?";
             }
-            addSeatPrices(d, "seat_prices", item.train_id, item.distance_km);
+            d["seat_prices"] = TrainQuery::buildSeatPrices(item.train_id, item.distance_km);
             // 停站详情（含站名和时间，前端展示用）
             d["stops"] = stopsToJson(item.stops, ds);
             direct_arr.push_back(d);
@@ -189,10 +171,10 @@ void registerPassengerRoutes(RailwayServer& server) {
             j["second_leg_seats"] = item.second_leg_seats;
             j["first_leg_price"] = item.first_leg_price;
             j["second_leg_price"] = item.second_leg_price;
-            addSeatPrices(j, "seat_prices", item.train_id, item.distance_km);
+            j["seat_prices"] = TrainQuery::buildSeatPrices(item.train_id, item.distance_km);
             // 每程独立票价
-            addSeatPrices(j, "first_leg_seat_prices", item.train_id, item.distance_km);
-            addSeatPrices(j, "second_leg_seat_prices", item.second_train_id, item.distance_km);
+            j["first_leg_seat_prices"] = TrainQuery::buildSeatPrices(item.train_id, item.distance_km);
+            j["second_leg_seat_prices"] = TrainQuery::buildSeatPrices(item.second_train_id, item.distance_km);
             // 停站详情（第一段 + 第二段）
             
             j["stops"] = stopsToJson(item.stops, ds);
@@ -374,7 +356,7 @@ void registerPassengerRoutes(RailwayServer& server) {
         // 为每个订单附加列车时刻信息
         auto& ds = DataStore::instance();
         json arr = json::array();
-        for (const auto& order : orders) {
+        for (auto& order : orders) {
             json o = order;  // NLOHMANN_DEFINE_TYPE 自动序列化
             // 解密并脱敏身份证号（如 37****199001010011）
             std::string raw_id = crypto::decrypt(order.passenger_id).value_or(order.passenger_id);
@@ -452,9 +434,4 @@ void registerPassengerRoutes(RailwayServer& server) {
         res.status = 500;
     }
     });
-
-    // ═══════════════════════════════════════════
-    // 职工端 — 列车管理 + 审批
-    // ═══════════════════════════════════════════
-
 }

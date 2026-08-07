@@ -44,7 +44,7 @@ void registerApprovalRoutes(RailwayServer& server) {
         }
 
         json payload;
-        payload["id"] = train_id;
+        payload["train_id"] = train_id;
         if (!del_date.empty()) payload["delete_date"] = del_date;
         std::string aid = ApprovalService::instance().submit(
             ApprovalType::DELETE_TRAIN, ctx->user_id, payload.dump());

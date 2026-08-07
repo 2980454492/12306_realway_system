@@ -11,6 +11,15 @@
 #include <optional>
 #include <shared_mutex>
 
+/** 车站-列车索引条目：某列车在停站序列中的位置 */
+struct TrainStopEntry {
+    std::string train_id;
+    int stop_idx;
+};
+
+/** 车站-列车索引：站ID → 经过该站的所有列车条目 */
+using StationTrainIndex = std::unordered_map<uint32_t, std::vector<TrainStopEntry>>;
+
 /**
  * DataStore 单例 — 启动时从 JSON 文件加载种子数据到内存。
  * 提供按 ID / 名称查询的接口，后续 WAL 写操作也通过本类。
@@ -35,10 +44,9 @@ public:
     const std::vector<Line>& getAllLines() const { return lines_; }
     const std::vector<Train>& getAllTrains() const { return trains_; }
 
-    const Station* getStation(uint32_t id) const;
-    const Train* getTrain(const std::string& id) const;
-    Train* getTrainMutable(const std::string& id);
-    const Line* getLine(uint32_t id) const;
+    Station* getStation(uint32_t id);
+    Train* getTrain(const std::string& id);
+    Line* getLine(uint32_t id);
 
     /** 按站点 ID 查找所有经过的列车（通过检查列车的停站序列） */
     std::vector<const Train*> getTrainsByStation(uint32_t station_id) const;
@@ -48,27 +56,26 @@ public:
         return station_line_index_;
     }
 
+    /** 车站-列车索引：站ID → 经过该站的所有列车（启动时构建，O(1) 查票） */
+    const StationTrainIndex& getStationTrainIndex() const {
+        return station_train_index_;
+    }
+
     /** 站名/城市名集合（预建，O(1) 校验合法性） */
     const std::unordered_set<std::string>& getStationNameSet() const {
         return station_name_set_;
     }
 
-    /** 城市名 → 站 ID（取第一个，无站返回 0）。一个城市多个站时用 getStationIdsByCity() */
-    uint32_t cityToStationId(const std::string& city) const {
-        auto it = city_to_ids_.find(city);
-        return (it != city_to_ids_.end() && !it->second.empty()) ? it->second[0] : 0;
-    }
-
     /** 城市名 → 全部站 ID（一个城市可能有多个站） */
     const std::vector<uint32_t>& getStationIdsByCity(const std::string& city) const {
         static const std::vector<uint32_t> empty;
-        auto it = city_to_ids_.find(city);
+        std::unordered_map<std::string, std::vector<uint32_t>>::const_iterator it = city_to_ids_.find(city);
         return (it != city_to_ids_.end()) ? it->second : empty;
     }
 
     /** 站名 → 站 ID（预建，O(1) 按站名查站） */
-    uint32_t stationToId(const std::string& name) const {
-        auto it = name_to_id_.find(name);
+    uint32_t stationNameToId(const std::string& name) const {
+        std::unordered_map<std::string, uint32_t>::const_iterator it = name_to_id_.find(name);
         return (it != name_to_id_.end()) ? it->second : 0;
     }
 
@@ -81,12 +88,12 @@ public:
     bool removeTrain(const std::string& train_id);
 
     /** 回写 trains 到 config/trains.json */
-    bool saveTrains() const;
+    bool saveTrains();
 
     // ── 站点管理（INFRA_ADMIN）──
 
-    /** 添加站点（自动递增 ID） */
-    Station addStation(const Station& station);
+    /** 添加站点，自动分配 ID 并写入 station 的 id 字段，返回是否成功 */
+    bool addStation(Station& station);
 
     /** 更新站点 */
     bool updateStation(uint32_t id, const Station& updated);
@@ -99,8 +106,8 @@ public:
 
     // ── 线路管理（INFRA_ADMIN）──
 
-    /** 添加线路（自动递增 ID） */
-    Line addLine(const Line& line);
+    /** 添加线路，自动分配 ID 并写入 line 的 id 字段，返回是否成功 */
+    bool addLine(Line& line);
 
     /** 更新线路 */
     bool updateLine(uint32_t id, const Line& updated);
@@ -133,14 +140,17 @@ private:
     std::unordered_map<std::string, size_t> train_index_;
     // 线路 ID → vector
     std::unordered_map<uint32_t, size_t> line_index_;
-    // 城市名 → 站 ID 
+    
+    // 城市名 → 车站 IDs 
     std::unordered_map<std::string, std::vector<uint32_t>> city_to_ids_;
-    // 站名 → 站 ID
+    // 站名 → 车站 ID
     std::unordered_map<std::string, uint32_t> name_to_id_;
-
     // 车站-线路-邻居索引：map<station_id, vector<LineNeighbor>>
     std::map<uint32_t, std::vector<LineNeighbor>> station_line_index_;
-    // 站名/城市名 → 存在性（预建，O(1) 校验站名合法）
+    // 车站-列车索引：站ID → 经过该站的列车条目
+    StationTrainIndex station_train_index_;
+
+    // 站名/城市名 → 存在性
     std::unordered_set<std::string> station_name_set_;
 
     bool ready_ = false;
