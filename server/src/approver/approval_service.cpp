@@ -86,7 +86,8 @@ void ApprovalService::archivePendingTrain(const ApprovalRequest& req) {
         return;
     try {
         json payload = json::parse(req.payload);
-        std::string tid = payload.value("train_id", "");
+        // 兼容旧格式（CREATE_TRAIN 历史 payload 用 "id"）
+        std::string tid = payload.value("train_id", payload.value("id", ""));
         Train* train = DataStore::instance().getTrain(tid);
         if (train && train->status == TrainStatus::PENDING) {
             train->status = TrainStatus::ARCHIVED;
@@ -312,7 +313,8 @@ ApprovalService::ApproveResult ApprovalService::approve(
     // 4. 执行变更（CREATE/DELETE 含冲突校验，ADJUST 由 updateTrain 内部原子完成）+ 持久化
     try {
         json payload = json::parse(req->payload);
-        std::string train_id = payload.value("train_id", "");
+        // 兼容旧格式（CREATE_TRAIN 历史 payload 用 "id"）
+        std::string train_id = payload.value("train_id", payload.value("id", ""));
         DataStore& ds = DataStore::instance();
         Train* train = ds.getTrain(train_id);
         if (!train) {
