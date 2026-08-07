@@ -44,7 +44,7 @@
       return;
     }
     for (let i = 0; i < approvals.length; i++) {
-      var a = approvals[i];
+      let a = approvals[i];
       var card = tpl.content.cloneNode(true);
 
       // 解析 payload，提取列车信息供详情展示（与我的提交共用 showSubmissionDetail）
