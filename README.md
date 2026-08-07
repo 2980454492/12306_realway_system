@@ -23,7 +23,7 @@ cd 12306_realway_system
 
 # 2. 安装编译依赖
 sudo apt update
-sudo apt install -y build-essential cmake libsodium-dev nlohmann-json3-dev
+sudo apt install -y build-essential cmake libsodium-dev nlohmann-json3-dev libgtest-dev
 
 # 3. 编译
 bash scripts/build.sh

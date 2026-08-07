@@ -1,12 +1,16 @@
 # tests/CMakeLists.txt — 测试构建配置
 cmake_minimum_required(VERSION 3.16)
 
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/release-1.12.1.zip
-)
-FetchContent_MakeAvailable(googletest)
+# 优先用系统包（apt install libgtest-dev），下载失败时回退到 FetchContent
+find_package(GTest QUIET)
+if(NOT GTest_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/release-1.12.1.zip
+    )
+    FetchContent_MakeAvailable(googletest)
+endif()
 
 set(TEST_SOURCES
     test_utils.cpp
