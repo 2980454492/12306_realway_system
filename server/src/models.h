@@ -107,8 +107,9 @@ enum class ApprovalType : uint8_t {
     ADD_LINE       = 2,  // 新增线路
     ADD_STATION    = 3,  // 新增站点
     DELETE_TRAIN   = 4,  // 删除列车
-    STOP_INSERT    = 5,  // 线路新增车站 → 相关列车补停站
-    STOP_REMOVE    = 6   // 线路删除车站 → 相关列车删停站
+    STOP_INSERT    = 5,  // 线路加站 → 相关列车补停站
+    STOP_REMOVE    = 6,  // 线路删站 → 相关列车删停站
+    STOP_REPLACE   = 7   // 线路改站 → 相关列车替换停站
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalType, {
     {ApprovalType::CREATE_TRAIN,   "CREATE_TRAIN"},
@@ -118,20 +119,23 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalType, {
     {ApprovalType::DELETE_TRAIN,   "DELETE_TRAIN"},
     {ApprovalType::STOP_INSERT,    "STOP_INSERT"},
     {ApprovalType::STOP_REMOVE,    "STOP_REMOVE"},
+    {ApprovalType::STOP_REPLACE,   "STOP_REPLACE"},
 })
 
 /** 审批状态 */
 enum class ApprovalState : uint8_t {
-    SUBMITTED = 0,  // 待审批
+    SUBMITTED = 0,  // 待审批（STAFF 已填写提交）
     APPROVED  = 1,  // 已通过
     REJECTED  = 2,  // 已驳回
-    WITHDRAWN = 3   // 已取消（提交人撤回）
+    WITHDRAWN = 3,  // 已取消（提交人撤回）
+    DRAFT     = 4   // 草稿（INFRA_ADMIN 已创建，等待 STAFF 填写）
 };
 NLOHMANN_JSON_SERIALIZE_ENUM(ApprovalState, {
     {ApprovalState::SUBMITTED, "SUBMITTED"},
     {ApprovalState::APPROVED,  "APPROVED"},
     {ApprovalState::REJECTED,  "REJECTED"},
     {ApprovalState::WITHDRAWN, "WITHDRAWN"},
+    {ApprovalState::DRAFT,     "DRAFT"},
 })
 
 /** 停站类型 */

@@ -27,9 +27,10 @@ public:
 
     // ── 提交 ──
 
-    /** 职工提交审批申请，返回审批 ID */
+    /** 提交审批申请，返回审批 ID。initial_status 默认 SUBMITTED，线路变更用 DRAFT */
     std::string submit(ApprovalType type, const std::string& submitter_id,
-                      const std::string& payload);
+                      const std::string& payload,
+                      ApprovalState initial_status = ApprovalState::SUBMITTED);
 
     // ── 审批 ──
 
@@ -48,7 +49,7 @@ public:
         std::string error;
     };
     UpdateStopTimeResult updateStopTime(const std::string& approval_id, int arrival, int departure,
-                                         const std::string& effective_date);
+                                        const std::string& effective_date, const std::string& staff_id = "");
 
     /** 审批驳回 */
     struct RejectResult {
@@ -82,8 +83,6 @@ private:
     /** 将 CREATE_TRAIN 审批关联的 PENDING 列车归档，reject/withdraw 共用 */
     void archivePendingTrain(const ApprovalRequest& req);
 
-    /** 从 stops 中移除同列车同线路上待审批 STOP_REMOVE 的站点（改站场景） */
-    void removePendingStopRemoves(std::vector<Stop>& stops, const std::string& tid, uint32_t line_id);
 
     // ── 数据 ──
     std::vector<ApprovalRequest> approvals_;

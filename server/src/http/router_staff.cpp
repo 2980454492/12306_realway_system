@@ -187,20 +187,23 @@ void registerStaffRoutes(RailwayServer& server) {
         std::optional<AuthContext> ctx = checkAuth(req, res, Permission::MANAGE_TRAINS);
         if (!ctx) return;
 
-        std::vector<ApprovalRequest> approvals = ApprovalService::instance().getApprovals(ApprovalState::SUBMITTED);
+        // 线路变更：只返回 DRAFT（STAFF 提交后变为 SUBMITTED，不再显示，防止重复提交）
+        std::vector<ApprovalRequest> drafts = ApprovalService::instance().getApprovals(ApprovalState::DRAFT);
         json arr = json::array();
-        for (const ApprovalRequest& a : approvals) {
-            if (a.type != ApprovalType::STOP_INSERT) continue;
+        for (const ApprovalRequest& a : drafts) {
+            if (a.type != ApprovalType::STOP_INSERT
+                && a.type != ApprovalType::STOP_REPLACE
+                && a.type != ApprovalType::STOP_REMOVE) continue;
             json ja;
             ja["id"] = a.id;
             ja["type"] = static_cast<int>(a.type);
             ja["submitter_id"] = a.submitter_id;
             ja["status"] = static_cast<int>(a.status);
             ja["submitted_at"] = a.submitted_at;
-            try { 
-                ja["payload"] = json::parse(a.payload); 
-            } catch (...) { 
-                ja["payload"] = json(); 
+            try {
+                ja["payload"] = json::parse(a.payload);
+            } catch (...) {
+                ja["payload"] = json();
             }
             arr.push_back(ja);
         }
@@ -235,7 +238,7 @@ void registerStaffRoutes(RailwayServer& server) {
         }
 
         ApprovalService::UpdateStopTimeResult result = ApprovalService::instance().updateStopTime(
-            approval_id, arr, dep, effective_date);
+            approval_id, arr, dep, effective_date, ctx->user_id);
         json j;
         j["ok"] = result.success;
         if (!result.success) j["error"] = result.error;

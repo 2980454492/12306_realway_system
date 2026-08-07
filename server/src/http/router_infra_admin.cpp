@@ -237,13 +237,31 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         }
 
         // 检测新增站点，为经过该线路的列车创建补站审批
+        // 先算出被删的站点集合，供改站检测用
+        std::set<std::string> removed_set;
+        for (const std::string& old_st : old_stations)
+            if (std::find(line.stations.begin(), line.stations.end(), old_st) == line.stations.end())
+                removed_set.insert(old_st);
+
         json affected_trains = json::array();
         DataStore& ds = DataStore::instance();
+        std::set<std::string> paired_removed;  // 已配对为改站的被删站点
         for (const std::string& new_station : line.stations) {
             std::vector<std::string>::const_iterator it = std::find(old_stations.begin(), old_stations.end(), new_station);
             if (it != old_stations.end()) continue;  // 已有站点跳过
 
-            Logger::instance().info("Line " + std::to_string(id) + " new station: " + new_station);
+            // 检测是否为改站：被删集合中是否有站位于线路同一位置
+            std::string replace_station;
+            size_t pos = &new_station - &line.stations[0];
+            if (pos < old_stations.size() && removed_set.count(old_stations[pos]))
+                replace_station = old_stations[pos];
+
+            bool is_replace = !replace_station.empty();
+            if (is_replace) paired_removed.insert(replace_station);
+
+            Logger::instance().info("Line " + std::to_string(id)
+                + (is_replace ? " replace: " + replace_station + " → " : " new station: ")
+                + new_station);
 
             // O(1) 站名 → 站 ID
             uint32_t new_station_id = ds.stationNameToId(new_station);
@@ -271,7 +289,8 @@ void registerInfraAdminRoutes(RailwayServer& server) {
                     }
                 if (has_station) continue;
 
-                Logger::instance().info("Creating STOP_INSERT for train " + train.id + " station " + new_station);
+                Logger::instance().info("Creating " + std::string(is_replace ? "STOP_REPLACE" : "STOP_INSERT")
+                    + " for train " + train.id + " station " + new_station);
 
                 // 计算前后站 + 插入位置（一次性算好，下游直接读取）
                 std::string prev_name, next_name;
@@ -318,12 +337,12 @@ void registerInfraAdminRoutes(RailwayServer& server) {
                         : (next_idx >= 0) ? next_idx : -1;
                 }
 
-                // 提交补站审批
+                // 提交补站审批（线路变更全部以 DRAFT 状态创建）
                 json payload;
                 payload["train_id"] = train.id;
                 payload["line_id"] = id;
                 payload["station_name"] = new_station;
-                payload["action"] = "insert";
+                payload["action"] = is_replace ? "replace" : "insert";
                 payload["line_name"] = ds.getLine(id) ? ds.getLine(id)->name : "";
                 payload["insert_index"] = insert_idx2;
                 payload["prev_station_name"] = prev_name;
@@ -332,17 +351,24 @@ void registerInfraAdminRoutes(RailwayServer& server) {
                 payload["next_station_name"] = next_name;
                 payload["next_arrival"] = next_arr;
                 payload["next_station_id"] = next_sid;
+                if (is_replace)
+                    payload["replace_station_name"] = replace_station;
+                ApprovalType a_type = is_replace ? ApprovalType::STOP_REPLACE : ApprovalType::STOP_INSERT;
                 std::string aid = ApprovalService::instance().submit(
-                    ApprovalType::STOP_INSERT, ctx->user_id, payload.dump());
+                    a_type, ctx->user_id, payload.dump(), ApprovalState::DRAFT);
                 affected_trains.push_back({{"train_id", train.id}, {"approval_id", aid}});
             }
         }
 
-        // 检测被删除站点，为经过该线路且包含该站的列车创建删站审批
+        // 检测被删站点，为经过该线路且包含该站的列车创建删站审批
+        // 有新增站 = 改站/加站 → 跳过 STOP_REMOVE（旧站是被替换的）
+        // 无新增站 = 纯删站 → 生成 STOP_REMOVE
         json removed_trains = json::array();
+        if (affected_trains.empty()) {
         for (const std::string& old_st : old_stations) {
             std::vector<std::string>::const_iterator it = std::find(line.stations.begin(), line.stations.end(), old_st);
             if (it != line.stations.end()) continue;  // 仍在线路中，跳过
+            if (paired_removed.count(old_st)) continue;  // 已配对为改站，跳过
 
             Logger::instance().info("Line " + std::to_string(id) + " removed station: " + old_st);
 
@@ -363,16 +389,41 @@ void registerInfraAdminRoutes(RailwayServer& server) {
 
                 Logger::instance().info("Creating STOP_REMOVE for train " + train.id + " station " + old_st);
 
+                // 计算前后站信息（用旧线路站点顺序），供前端渲染
+                std::string prev_name, next_name;
+                uint32_t prev_sid = 0, next_sid = 0;
+                {
+                    int st_pos = -1;
+                    for (size_t li = 0; li < old_stations.size(); li++)
+                        if (old_stations[li] == old_st) { st_pos = static_cast<int>(li); break; }
+                    if (st_pos > 0) prev_name = old_stations[st_pos - 1];
+                    if (st_pos >= 0 && st_pos + 1 < static_cast<int>(old_stations.size()))
+                        next_name = old_stations[st_pos + 1];
+                    // 在线路当前站中查前后站 city 对应的 station_id（旧站自身已不在新列表中）
+                    for (const Stop& stop : train.stops) {
+                        Station* s = ds.getStation(stop.station_id);
+                        if (!s) continue;
+                        if (s->city == prev_name || s->name == prev_name) prev_sid = stop.station_id;
+                        if (s->city == next_name || s->name == next_name) next_sid = stop.station_id;
+                    }
+                }
+
                 json payload;
                 payload["train_id"] = train.id;
                 payload["line_id"] = id;
                 payload["station_name"] = old_st;
                 payload["action"] = "remove";
+                payload["line_name"] = ds.getLine(id) ? ds.getLine(id)->name : "";
+                payload["prev_station_name"] = prev_name;
+                payload["prev_station_id"] = prev_sid;
+                payload["next_station_name"] = next_name;
+                payload["next_station_id"] = next_sid;
                 std::string aid = ApprovalService::instance().submit(
-                    ApprovalType::STOP_REMOVE, ctx->user_id, payload.dump());
+                    ApprovalType::STOP_REMOVE, ctx->user_id, payload.dump(), ApprovalState::DRAFT);
                 removed_trains.push_back({{"train_id", train.id}, {"approval_id", aid}});
             }
         }
+        }  // if (affected_trains.empty())
 
         json j;
         j["ok"] = true;

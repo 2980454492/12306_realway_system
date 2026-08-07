@@ -105,11 +105,18 @@ void registerApprovalRoutes(RailwayServer& server) {
         for (const auto& a : approvals) {
             if (!submitter_id.empty() && a.submitter_id != submitter_id) continue;
             if (!approver_id.empty() && a.approver_id != approver_id) continue;
-            // STOP_INSERT 须 STAFF 先填写停站时间后才对 APPROVER 可见
-            if (a.type == ApprovalType::STOP_INSERT) {
+            // 线路加站/改站须 STAFF 先填写停站时间后才对 APPROVER 可见
+            if (a.type == ApprovalType::STOP_INSERT || a.type == ApprovalType::STOP_REPLACE) {
                 try {
                     json pl = json::parse(a.payload);
                     if (!pl.contains("arrival") || !pl.contains("departure")) continue;
+                } catch (...) { continue; }
+            }
+            // 删站须 STAFF 填写生效日期后才可见
+            if (a.type == ApprovalType::STOP_REMOVE) {
+                try {
+                    json pl = json::parse(a.payload);
+                    if (!pl.contains("effective_date")) continue;
                 } catch (...) { continue; }
             }
 
@@ -117,6 +124,9 @@ void registerApprovalRoutes(RailwayServer& server) {
             ja["id"] = a.id;
             ja["type"] = static_cast<int>(a.type);
             ja["submitter_id"] = a.submitter_id;
+            // 提交人 username
+            const User* sub_user = AuthService::instance().findUserById(a.submitter_id);
+            ja["submitter_name"] = sub_user ? sub_user->username : a.submitter_id;
             ja["approver_id"] = a.approver_id;
             ja["status"] = static_cast<int>(a.status);
             ja["submitted_at"] = a.submitted_at;

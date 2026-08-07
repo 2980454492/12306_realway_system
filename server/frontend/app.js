@@ -310,9 +310,9 @@ const UI = {
   ],
 
   /** 审批类型/状态/样式映射（renderMySubmissions 和 renderApprovals 共用） */
-  TYPE_LABEL: {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车',5:'线路加站-补停站',6:'线路删站-移除停站'},
-  STATUS_LABEL: {0:'待审批',1:'已通过',2:'已驳回',3:'已取消'},
-  STATUS_CLS: {0:'submitted',1:'approved',2:'rejected',3:'withdrawn'},
+  TYPE_LABEL: {0:'新增列车',1:'调整时刻',2:'新增线路',3:'新增站点',4:'删除列车',5:'线路加站',6:'线路删站',7:'线路改站'},
+  STATUS_LABEL: {0:'待审批',1:'已通过',2:'已驳回',3:'已取消',4:'待填写'},
+  STATUS_CLS: {0:'submitted',1:'approved',2:'rejected',3:'withdrawn',4:'draft'},
 
   showPage: function(name) {
     // 隐藏所有页面

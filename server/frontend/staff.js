@@ -908,8 +908,11 @@
 
       // 从模板克隆，填数据
       var card = tpl.content.cloneNode(true);
+      var isRemove = (a.type === 6);
+      var replaceName = pl.replace_station_name || '';
+      var typeTag = replaceName ? '改站: ' + replaceName + ' → ' + stCity : (isRemove ? '删站: ' + stCity : '加站: ' + stCity);
       card.querySelector('.si-train-id').textContent = tid;
-      card.querySelector('.si-line-station').textContent = lineName + ' ＋ ' + stCity;
+      card.querySelector('.si-line-station').textContent = lineName + '     ' + typeTag;
       card.querySelector('.si-prev-name').textContent = prevName;
       card.querySelector('.si-prev-time').textContent = U.fmtTime(prevDep);
       card.querySelector('.si-next-name').textContent = nextName;
@@ -918,9 +921,17 @@
       var effDateEl = card.querySelector('.si-eff-date');
       effDateEl.setAttribute('min', U.minDateStr(U.MIN_CHANGE_DAYS));
       effDateEl.onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
-      card.querySelector('.si-arr-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
-      card.querySelector('.si-dep-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
-      card.querySelector('.si-is-stop').onchange = function() { UI._siToggle(this.closest('.si-card')); };
+      // 删站不需要时间输入
+      if (isRemove) {
+        card.querySelector('.si-check-label').style.display = 'none';
+        card.querySelector('.si-arr-time').style.display = 'none';
+        card.querySelector('.si-time-sep').style.display = 'none';
+        card.querySelector('.si-dep-time').style.display = 'none';
+      } else {
+        card.querySelector('.si-arr-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
+        card.querySelector('.si-dep-time').onchange = function() { UI._siCalcSpeed(this.closest('.si-card')); };
+        card.querySelector('.si-is-stop').onchange = function() { UI._siToggle(this.closest('.si-card')); };
+      }
       var btns = card.querySelectorAll('.si-actions .btn');
       btns[0].onclick = function() { UI.submitStopInsert(this.closest('.si-card')); };
       btns[1].onclick = function(e) { e.stopPropagation(); UI.editTrain(tid); };
@@ -928,15 +939,16 @@
 
       // 存每卡片数据供事件处理用
       var root = card.querySelector('.si-card');
-      root._siData = { 
-        approvalId: a.id, 
-        prevDep: prevDep, 
-        nextArr: nextArr, 
-        lineId: lineId, 
+      root._siData = {
+        approvalId: a.id,
+        approvalType: a.type,
+        prevDep: prevDep,
+        nextArr: nextArr,
+        lineId: lineId,
         tid: tid,
-        prevStationId: prevStationId, 
-        nextStationId: nextStationId, 
-        stCity: stCity 
+        prevStationId: prevStationId,
+        nextStationId: nextStationId,
+        stCity: stCity
       };
 
       listEl.appendChild(card);
@@ -1046,43 +1058,37 @@
     if (!card) return;
     var d = card._siData;
     if (!d) return;
-    var isStop = card.querySelector('.si-is-stop').checked;
-    var arr = UI._parseTimeStr(card.querySelector('.si-arr-time').value);
-    var dep = UI._parseTimeStr(card.querySelector('.si-dep-time').value);
+    var isRemove = (d.approvalType === 6);
     var effDate = card.querySelector('.si-eff-date').value;
     if (!effDate) {
       U.toast('请选择生效日期', 'error');
       return;
     }
-    // 前端验证 ≥ MIN_CHANGE_DAYS 天
     if (effDate < U.minDateStr(U.MIN_CHANGE_DAYS)) {
       U.toast('生效日期须至少 ' + U.MIN_CHANGE_DAYS + ' 天后', 'error');
       return;
     }
-    if (!dep) {
-      U.toast('请填写时间', 'error');
-      return;
-    }
-    if (isStop && !arr) {
-      U.toast('停靠时请填写到站时间', 'error');
-      return;
-    }
-    if (isStop && arr >= dep) {
-      U.toast('发车须晚于到站', 'error');
-      return;
-    }
-    var effectiveArr = isStop ? arr : dep;
-    if (effectiveArr <= d.prevDep) {
-      U.toast('时间须晚于前站发车 ' + U.fmtTime(d.prevDep), 'error');
-      return;
-    }
-    if (d.nextArr > 0 && dep >= d.nextArr) {
-      U.toast('时间须早于后站到达 ' + U.fmtTime(d.nextArr), 'error');
-      return;
+
+    var body = { effective_date: effDate };
+    if (!isRemove) {
+      var isStop = card.querySelector('.si-is-stop').checked;
+      var arr = UI._parseTimeStr(card.querySelector('.si-arr-time').value);
+      var dep = UI._parseTimeStr(card.querySelector('.si-dep-time').value);
+      if (!dep) { U.toast('请填写时间', 'error'); return; }
+      if (isStop && !arr) { U.toast('停靠时请填写到站时间', 'error'); return; }
+      if (isStop && arr >= dep) { U.toast('发车须晚于到站', 'error'); return; }
+      var effectiveArr = isStop ? arr : dep;
+      if (effectiveArr <= d.prevDep) {
+        U.toast('时间须晚于前站发车 ' + U.fmtTime(d.prevDep), 'error'); return;
+      }
+      if (d.nextArr > 0 && dep >= d.nextArr) {
+        U.toast('时间须早于后站到达 ' + U.fmtTime(d.nextArr), 'error'); return;
+      }
+      body.arrival = effectiveArr;
+      body.departure = dep;
     }
 
-    var res = await API.put('/api/admin/approvals/' + d.approvalId + '/stop-time',
-      { arrival: effectiveArr, departure: dep, effective_date: effDate });
+    var res = await API.put('/api/admin/approvals/' + d.approvalId + '/stop-time', body);
     if (res.ok) {
       U.toast('已提交，等待审批', 'success');
       UI.loadStopInserts();
@@ -1180,8 +1186,8 @@
     var tid = train ? (train.train_id || train.id || '?') : '?';
     var tstops = train ? (train.stops || []) : [];
     var tsegs = train ? (train.segments || []) : [];
-    // 新增/删除列车/补站：payload 只有车次号或 train_id，从列车索引查找完整停站数据
-    if ((a.type === 0 || a.type === 4 || a.type === 5) && !tstops.length) {
+    // 新增/删除列车/补站/删站：payload 只有车次号或 train_id，从列车索引查找完整停站数据
+    if ((a.type === 0 || a.type === 4 || a.type === 5 || a.type === 6 || a.type === 7) && !tstops.length) {
       var cached = State._trainMap && State._trainMap[tid];
       if (cached) {
         tstops = cached.stops || [];

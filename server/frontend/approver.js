@@ -57,11 +57,21 @@
       var stEl = card.querySelector('.approval-status');
       stEl.textContent = UI.STATUS_LABEL[a.status] || '未知';
       stEl.className = 'approval-status ' + (UI.STATUS_CLS[a.status] || 'submitted');
-      // 提交人
-      var submitter = (a.type === 5) ? 'INFRA管理员' : (a.submitter_id || '?');
+      // 提交人（优先 username，fallback submitter_id）
+      var submitter = a.submitter_name || a.submitter_id || '?';
+      if (a.type === 5 || a.type === 6 || a.type === 7) submitter = 'INFRA管理员';
       card.querySelector('.approval-meta-submitter').textContent = '提交人: ' + submitter + ' | ' + (a.submitted_at || '');
-      // 车次
-      card.querySelector('.approval-payload').textContent = '车次: ' + (info.tid || '?');
+      // 车次 + 站点信息
+      var pl = info.train || {};
+      var payloadText = '车次: ' + (info.tid || '?');
+      if (a.type === 7 && pl.replace_station_name) {
+        payloadText += ' | ' + pl.replace_station_name + ' → ' + (pl.station_name || '?');
+      } else if (a.type === 5) {
+        payloadText += ' | +' + (pl.station_name || '?');
+      } else if (a.type === 6) {
+        payloadText += ' | -' + (pl.station_name || '?');
+      }
+      card.querySelector('.approval-payload').textContent = payloadText;
       // 审批操作按钮（仅待审批状态）
       var actionsEl = card.querySelector('.approval-actions');
       if (a.status === 0) {
