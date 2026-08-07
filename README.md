@@ -6,7 +6,7 @@
 - **并发**：`shared_mutex` 细粒度锁，100 线程并发抢票不超卖
 - **安全**：argon2id 密码哈希、AES-256-GCM 加密、WAL 崩溃恢复、审计链式 SHA256
 - **前端**：纯 HTML/CSS/JS SPA，零 npm 依赖，六套角色化界面
-- **部署**：Docker 一键启动，支持 MinGW 交叉编译 Windows .exe
+- **部署**：CMake 编译，支持 MinGW 交叉编译 Windows .exe
 
 详细功能说明见 [MANUAL.md](MANUAL.md)。
 
@@ -112,7 +112,6 @@ bash scripts/run.sh
 | 加密 | libsodium (argon2id + HMAC-SHA256) |
 | 前端 | 纯 HTML/CSS/JS SPA，零 npm 依赖 |
 | 构建 | CMake (`cmake -S server -B build`) |
-| 部署 | Docker Compose |
 
 ---
 
@@ -121,32 +120,105 @@ bash scripts/run.sh
 ```
 12306_realway_system/
 ├── server/
+│   ├── CMakeLists.txt                       # CMake 构建配置
+│   ├── vendor/
+│   │   └── httplib.h                        #   cpp-httplib（header-only HTTP 库）
+│   ├── config/
+│   │   ├── stations.json                    #   340 个站点种子数据
+│   │   ├── lines.json                       #   126 条线路种子数据
+│   │   ├── trains.json                      #   100 辆列车种子数据
+│   │   ├── users.json                       #   种子用户（5 个角色）
+│   │   ├── system.json                      #   系统配置（费率、限流参数）
+│   │   └── key.bin                          #   AES-256 密钥文件
 │   ├── src/
-│   │   ├── main.cpp                         # 入口
-│   │   ├── models.h                         # 全局数据模型
-│   │   ├── config.h                         # 全局配置常量
-│   │   ├── utils.h                          # 全局工具函数
+│   │   ├── main.cpp                         #   入口：初始化 + 信号处理 + 启动服务
+│   │   ├── models.h                         #   全局数据模型（实体、枚举、序列化宏）
+│   │   ├── config.h                         #   全局路径/端口/文件名常量
+│   │   ├── utils.h                          #   工具函数（UUID、时间、Haversine、路线计算）
 │   │   ├── data/
-│   │   │   └── data_store.h/.cpp            #   数据加载 + 索引构建
+│   │   │   ├── data_store.h                 #     单例数据加载器（索引构建、CRUD）
+│   │   │   └── data_store.cpp
 │   │   ├── system/
-│   │   │   ├── logger.h/.cpp                #   日志
-│   │   │   └── wal.h/.cpp                   #   WAL 预写日志
+│   │   │   ├── logger.h                     #     日志（控制台 + 文件，按日期切分）
+│   │   │   ├── logger.cpp
+│   │   │   ├── wal.h                        #     WAL 预写日志（append+fsync，崩溃恢复）
+│   │   │   └── wal.cpp
 │   │   ├── auth/
-│   │   │   ├── auth_service.h/.cpp          #   argon2id 密码哈希
-│   │   │   ├── jwt_service.h/.cpp           #   JWT 生成与校验
-│   │   │   └── rbac_middleware.h/.cpp       #   权限中间件
+│   │   │   ├── auth_service.h               #     用户管理 + argon2id 密码哈希
+│   │   │   ├── auth_service.cpp
+│   │   │   ├── jwt_service.h                #     JWT 生成与校验
+│   │   │   ├── jwt_service.cpp
+│   │   │   ├── rbac_middleware.h            #     std::bitset<64> 权限位图 + 中间件
+│   │   │   └── rbac_middleware.cpp
 │   │   ├── security/
-│   │   │   ├── crypto.h/.cpp                #   AES-256-GCM
-│   │   │   └── rate_limiter.h/.cpp          #   Token Bucket 限流
-│   │   ├── passenger/                       # 旅客：查票/购票/退票
-│   │   ├── staff/                           # 职工：列车管理
-│   │   ├── approver/                        # 审批：状态机
-│   │   ├── sys_admin/                       # 系统管理：用户/审计/配置
-│   │   └── http/                            # HTTP 服务 + 路由
-│   ├── config/                              # 种子数据（JSON）
-│   ├── data/                                # 运行时数据
-│   └── frontend/                            # 前端（6 个 JS 模块）
+│   │   │   ├── crypto.h                     #     AES-256-GCM 加解密
+│   │   │   ├── crypto.cpp
+│   │   │   ├── rate_limiter.h               #     Token Bucket 限流
+│   │   │   └── rate_limiter.cpp
+│   │   ├── passenger/
+│   │   │   ├── train_query.h                #     直达+换乘查询（车站-列车索引）
+│   │   │   ├── train_query.cpp
+│   │   │   ├── order_service.h              #     购票+退票（阶梯费率、原子库存扣减）
+│   │   │   ├── order_service.cpp
+│   │   │   ├── seat_inventory.h             #     座位库存（shared_mutex 细粒度锁）
+│   │   │   └── seat_inventory.cpp
+│   │   ├── staff/
+│   │   │   ├── train_manager.h              #     列车增删改 + 运行图冲突检测
+│   │   │   └── train_manager.cpp
+│   │   ├── approver/
+│   │   │   ├── approval_service.h           #     审批状态机 + 四眼原则 + CAS 锁
+│   │   │   └── approval_service.cpp
+│   │   ├── sys_admin/
+│   │   │   ├── user_service.h               #     用户 CRUD
+│   │   │   ├── user_service.cpp
+│   │   │   ├── audit_service.h              #     审计日志（链式 SHA256）
+│   │   │   ├── audit_service.cpp
+│   │   │   ├── system_config.h              #     票价费率矩阵 + 退票费率
+│   │   │   └── system_config.cpp
+│   │   └── http/
+│   │       ├── server.h                     #     cpp-httplib 包装（SSL、静态文件、多线程）
+│   │       ├── server.cpp
+│   │       ├── router.h                     #     路由注册入口
+│   │       ├── router.cpp
+│   │       ├── router_helpers.h             #     鉴权工具（checkAuth、badRequest、parseUint32）
+│   │       ├── router_auth.cpp              #     登录/注册路由
+│   │       ├── router_passenger.cpp         #     旅客路由（查票/订单/退票）
+│   │       ├── router_staff.cpp             #     职工路由（列车/线路变更/提交）
+│   │       ├── router_approver.cpp          #     审批路由（列表/通过/驳回）
+│   │       ├── router_infra_admin.cpp       #     基础设施路由（站点/线路 CRUD）
+│   │       └── router_sys_admin.cpp         #     系统管理路由（用户/审计/配置）
+│   ├── data/                                # 运行时数据（WAL 日志、快照、审计日志，gitignore）
+│   ├── frontend/
+│   │   ├── index.html                       #   SPA 骨架 + 全部 <template>
+│   │   ├── style.css                        #   深色主题样式（CSS 变量统一定义色值）
+│   │   ├── app.js                           #   状态管理 + API 封装 + 工具函数 + UI 基类
+│   │   ├── passenger.js                     #   旅客端（查票/购票/订单/车站查询）
+│   │   ├── staff.js                         #   职工端（列车管理/线路变更/我的提交）
+│   │   ├── approver.js                      #   审批端（审批列表/通过/驳回）
+│   │   ├── infra.js                         #   基础设施管理端（站点/线路/路网图）
+│   │   └── admin.js                         #   系统管理端（用户/审计/配置）
+│   └── tests/
+│       ├── CMakeLists.txt                   #   测试构建配置（Google Test）
+│       ├── test_utils.cpp                   #   工具函数测试
+│       ├── test_auth.cpp                    #   认证测试
+│       ├── test_rbac.cpp                    #   权限测试
+│       ├── test_data.cpp                    #   数据层测试
+│       ├── test_passenger.cpp               #   旅客端测试
+│       ├── test_staff.cpp                   #   职工端测试
+│       ├── test_approver.cpp                #   审批端测试
+│       └── test_admin.cpp                   #   管理员端测试
 ├── scripts/
-├── MANUAL.md                                # 用户手册
+│   ├── build.sh                             #   CMake 构建脚本（Linux）
+│   ├── build_win.sh                         #   交叉编译 Windows .exe（MinGW）
+│   ├── run.sh                               #   启动服务
+│   ├── test.sh                              #   运行测试
+│   ├── common.sh                            #   公共函数（info/warn/error 颜色输出）
+│   ├── fetch_stations.py                    #   站点数据抓取脚本
+│   └── station_data.py                      #   站点数据生成脚本
+├── .claude/
+│   ├── CLAUDE.md                            #   项目编码规范
+│   ├── settings.json                        #   Claude Code 项目配置
+│   └── skills/                              #   AI 辅助 skills（7 个）
+├── MANUAL.md                                # 用户手册（功能说明 + API 表）
 └── README.md                                # 本文件
 ```
