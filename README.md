@@ -34,8 +34,6 @@ bash scripts/run.sh
 
 启动后浏览器打开 **http://localhost:8080**，用下方测试账号登录。
 
-> 也可用 Docker 一键启动：先安装 `sudo apt install -y docker.io docker-compose-v2`，再执行 `docker compose up -d`。
-
 ### 测试账号
 
 | 角色 | 用户名 | 密码 |
