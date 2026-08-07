@@ -62,7 +62,7 @@ if [ ${#MISSING[@]} -gt 0 ]; then
     echo "──────────────────────────────"
     echo "  Ubuntu/Debian 安装命令："
     echo "    sudo apt update"
-    echo "    sudo apt install build-essential cmake libpthread-stubs0-dev"
+    echo "    sudo apt install -y build-essential cmake libsodium-dev nlohmann-json3-dev"
     echo ""
     echo "  Fedora 安装命令："
     echo "    sudo dnf install gcc-c++ cmake"
@@ -95,9 +95,9 @@ if ! cmake "$SERVER_DIR" \
     error "CMake 配置失败！"
 
     # 常见错误诊断
-    if grep -qi "FetchContent.*json" "$CMAKE_ERR_FILE" 2>/dev/null; then
-        warn "nlohmann/json 下载失败——检查网络连接"
-        warn "可尝试手动下载：https://github.com/nlohmann/json/releases"
+    if grep -qi "FetchContent.*json\|download.*json" "$CMAKE_ERR_FILE" 2>/dev/null; then
+        warn "nlohmann/json 下载失败——GitHub 可能不可达"
+        warn "安装系统包即可绕过：sudo apt install -y nlohmann-json3-dev"
     elif grep -qi "No CMAKE_CXX_COMPILER" "$CMAKE_ERR_FILE" 2>/dev/null; then
         warn "未找到 C++ 编译器——安装 build-essential"
     else

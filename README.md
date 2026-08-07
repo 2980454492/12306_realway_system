@@ -1,107 +1,40 @@
 # 12306 铁路票务系统
 
-> C++17 铁路票务系统，模拟 12306 核心功能：查票、购票、退票、列车管理、审批流、RBAC 权限管控。
+一个 **C++17** 编写的铁路票务系统，模拟 12306 核心功能：列车余票查询、购票退票、列车管理、冲突检测、审批流、RBAC 五角色权限管控。系统划分为五个角色——**普通旅客**查票购票退票、**铁路职工**管理列车时刻与线路变更、**审核员**审批变更申请、**基础设施管理员**管理站点与线路、**系统管理员**管理用户与审计日志。每个角色职责单一、互不重叠，所有变更均通过审批流保证数据安全。
 
-**340 站点 · 126 线路 · 100 列车 · 5 角色 RBAC · 纯 C++ 后端 + 零依赖前端**
+- **规模**：340 个站点 + 126 条线路 + 100 辆列车，覆盖全国地级市
+- **并发**：`shared_mutex` 细粒度锁，100 线程并发抢票不超卖
+- **安全**：argon2id 密码哈希、AES-256-GCM 加密、WAL 崩溃恢复、审计链式 SHA256
+- **前端**：纯 HTML/CSS/JS SPA，零 npm 依赖，六套角色化界面
+- **部署**：Docker 一键启动，支持 MinGW 交叉编译 Windows .exe
 
----
-
-## 目录结构
-
-```
-12306_realway_system/
-├── server/
-│   ├── src/
-│   │   ├── main.cpp                    # 入口
-│   │   ├── models.h                    # 全局数据模型（20个结构体+枚举）
-│   │   ├── core/                       # HTTP 服务 + 路由 + 日志 + 配置
-│   │   │   ├── config.h                 #   全局配置常量（路径、端口、文件名）
-│   │   │   ├── utils.h                 #   全局工具函数（UUID、时间、地理、序列查找、路线计算）
-│   │   │   ├── server.h/.cpp           #   cpp-httplib 包装
-│   │   │   ├── routes.h/.cpp           #   路由注册（10个端点）
-│   │   │   └── logger.h/.cpp           #   日志基础设施
-│   │   ├── data/                       # 数据加载 + 种子生成
-│   │   │   └── data_store.h/.cpp       #   单例数据加载器（索引构建、站点/线路/列车管理）
-│   │   ├── auth/                       # 认证 + JWT + RBAC
-│   │   │   ├── auth_service.h/.cpp     #   argon2id 密码哈希 + 用户管理
-│   │   │   ├── jwt_service.h/.cpp      #   HS256 JWT 生成与校验
-│   │   │   └── rbac_middleware.h/.cpp  #   std::bitset<64> 权限位图 + 中间件
-│   │   ├── passenger/                  # 旅客端：查票 + 购票 + 退票
-│   │   │   ├── train_query.h/.cpp      #   直达+换乘查询（车站-列车索引）
-│   │   │   ├── order_service.h/.cpp    #   购票+退票（阶梯费率）
-│   │   │   └── seat_inventory.h/.cpp   #   座位库存（细粒度 shared_mutex 锁）
-│   │   ├── staff/                      # 铁路职工端：列车管理 + 审批流
-│   │   │   ├── train_manager.h/.cpp    #   列车增删改 + 冲突检测
-│   │   │   └── approval_service.h/.cpp #   审批状态机 + 四眼原则
-│   │   └── admin/                      # 管理员端（功能实现于 core/ routes 中）
-│   ├── config/
-│   │   ├── stations.json               # 340个站点（全国地级市）
-│   │   ├── lines.json                  # 126条线路
-│   │   ├── trains.json                 # 100辆列车（自动生成）
-│   │   └── users.json                  # 用户数据
-│   ├── frontend/
-│   │   ├── index.html                  # SPA 入口
-│   │   ├── style.css                   # 深色主题样式
-│   │   └── app.js                      # 纯 JS 前端逻辑（零 npm 依赖）
-│   └── CMakeLists.txt
-├── scripts/
-│   ├── build.sh                        # CMake 构建
-│   └── run.sh                          # 启动服务
-├── .claude/
-│   ├── CLAUDE.md                       # 项目编码规范
-│   └── skills/                         # AI 辅助 skill（code-review / doc-sync / line-change / …）
-└── requirtment.md                      # 详细需求文档
-```
-
----
-
-## 技术栈
-
-| 层 | 技术 | 说明 |
-|----|------|------|
-| 语言 | C++17 | `-Wall -Wextra -Wpedantic` |
-| HTTP | cpp-httplib | header-only，零依赖 HTTP 服务 |
-| JSON | nlohmann/json | 序列化/反序列化 |
-| 加密 | libsodium | argon2id 密码哈希、HMAC-SHA256 JWT |
-| 前端 | HTML/CSS/JS | 纯手写 SPA，零 npm 依赖 |
-| 构建 | CMake | `cmake -S server -B build` |
-| 部署 | Docker | 多阶段构建，一键启动 |
-| 分发 | MinGW 交叉编译 | Linux → Windows .exe |
+详细功能说明见 [MANUAL.md](MANUAL.md)。
 
 ---
 
 ## 快速开始
 
-### Docker（推荐，零依赖）
+复制以下全部命令到终端执行：
 
 ```bash
-git clone <repo-url> && cd 12306_realway_system
-docker-compose up -d
-# 浏览器打开 http://localhost:8080
-```
-
-### Windows 分发（交叉编译）
-
-在 Linux 上一键产出 `railway_server.exe`，压缩发给 Windows 用户双击即可运行：
-
-```bash
-sudo apt install g++-mingw-w64-x86-64   # 一次性安装交叉编译器
-bash scripts/build_win.sh               # 产出 dist/railway-windows/
-```
-
-分发目录 `dist/railway-windows/` 包含 `.exe` + 配置文件 + 前端 + 启动脚本，可直接压缩为 `.zip`。
-
-### 手动构建
-
-```bash
-# Ubuntu/Debian
-sudo apt install build-essential cmake libsodium-dev
-
+# 1. 克隆项目
+git clone https://github.com/2980454492/12306_realway_system.git
 cd 12306_realway_system
+
+# 2. 安装编译依赖
+sudo apt update
+sudo apt install -y build-essential cmake libsodium-dev nlohmann-json3-dev
+
+# 3. 编译
 bash scripts/build.sh
+
+# 4. 启动（前台运行，Ctrl+C 停止）
 bash scripts/run.sh
-# 服务监听 http://0.0.0.0:8080
 ```
+
+启动后浏览器打开 **http://localhost:8080**，用下方测试账号登录。
+
+> 也可用 Docker 一键启动：先安装 `sudo apt install -y docker.io docker-compose-v2`，再执行 `docker compose up -d`。
 
 ### 测试账号
 
@@ -117,149 +50,105 @@ bash scripts/run.sh
 
 ## 功能概览
 
-### 旅客端 ✅ 已实现
+### 旅客端
 
-| 功能 | 说明 |
-|------|------|
-| 🔍 列车查询 | 直达 + 一次换乘（车站-列车索引 + 地理约束 + 换乘窗口 [10min, 3h]），14 天日期窗口 |
-| 🎫 购票 | 原子下单，细粒度锁防超卖，逐段 Haversine 累加计价 |
-| 🔄 退票 | 阶梯费率（>24h 退 95%、2-24h 退 90%、<2h 退 80%、发车后不可退） |
-| 📋 订单查询 | 按状态筛选，时间倒序 |
-| 🎨 前端 | 车型/时间/有票筛选 + 五种排序（发车/到达/用时/里程/票价） |
+- 列车查询：直达 + 一次换乘，5 种排序 + 4 维筛选，换乘窗口 [10min, 3h]
+- 购票：`shared_mutex` 细粒度锁防超卖，沿 stops 逐段 Haversine 累加计价
+- 退票：阶梯费率（>24h 95%、2-24h 90%、<2h 80%、发车后不可退）
+- 订单查询 + 车站查询（同城多站自动合并）
 
-### 铁路职工端 ✅ 已实现
+### 铁路职工端
 
-| 功能 | 说明 |
-|------|------|
-| 🚂 列车管理 | 新增/删除/时刻调整（均走审批），车站-线路邻居索引辅助选线 |
-| ⚠️ 冲突检测 | 区间占用表 + 5 分钟安全裕量 |
-| ✅ 审批流 | 四眼原则（Staff 提交 → Approver 审批）+ CAS 锁 + 二次冲突校验 |
-| 📤 我的提交 | Staff 查看自己提交的审批记录（按状态筛选） |
-| 🔐 角色拆分 | Staff（增删改列车）+ Approver（审批）互斥；INFRA_ADMIN（站点/线路）+ SYS_ADMIN（用户/审计/配置）各司其职 |
+- 列车管理：新增/修改/删除（均走审批），线路感知逐步选线 + 实时时速校验
+- 冲突检测：区间占用表 key=`站A|站B|线路ID`，方向+线路隔离，5 分钟安全裕量
+- 线路变更：处理 INFRA_ADMIN 生成的 DRAFT 审批，填写生效日期和停站时间后提交
 
-### 管理员端 ✅ 已实现（Phase 8-9）
+### 审批端
 
-#### INFRA_ADMIN — 基础设施管理
+- 六种审批类型：新增/修改/删除列车 + 线路加站/改站/删站
+- 状态机：DRAFT → SUBMITTED → APPROVED / REJECTED
+- 四眼原则 + `atomic_flag` CAS 锁 + 审批通过前二次冲突校验
 
-| 功能 | 说明 |
-|------|------|
-| 🚉 站点管理 | 新增/修改/删除站点（走审批），搜索 + 类型筛选 |
-| 🛤️ 线路管理 | 新增/修改/删除线路（走审批），搜索 + 类型筛选 |
-| 🗺️ 查看路网 | SVG 内联交互地图，缩放 0.1x-30x、拖动平移、站点聚类 |
+### 管理员端
 
-#### SYS_ADMIN — 系统管理
-
-| 功能 | 说明 |
-|------|------|
-| 👥 用户管理 | CRUD + 角色/禁用 | ✅
-| 📊 审计日志 | 链式 SHA256 防篡改 | ✅
-| ⚙️ 系统配置 | 票价费率矩阵 + 退票费率，即时生效 | ✅
-| 🔐 数据加密 | AES-256-GCM 加密身份证号存储 | ✅
-| 🚦 限流 | Token Bucket：登录 10/min、注册 5/hr、查票 120/min、购票 10/min | ✅
+- INFRA_ADMIN：站点/线路 CRUD，修改线路自动检测站点变化并生成审批
+- SYS_ADMIN：用户管理、审计日志（链式 SHA256）、系统配置（票价费率+退票费率）
 
 ---
 
 ## API 参考
 
-### 认证
-
-| 方法 | 路径 | 说明 | 鉴权 |
-|------|------|------|:--:|
-| POST | `/api/auth/login` | 登录，返回 JWT | — |
-
-### 旅客
-
-| 方法 | 路径 | 说明 | 鉴权 |
-|------|------|------|:--:|
-| GET | `/api/trains/query?from=&to=&date=` | 查票（直达+换乘） | JWT |
-| GET | `/api/trains/station?station=X&sort=departure\|train_id` | 车站查询 | JWT |
-| GET | `/api/trains/{id}/stops` | 列车经停站详情 | JWT |
-| GET | `/api/stations/neighbors` | 车站-线路邻居索引 | JWT |
-| POST | `/api/orders` | 购票 | JWT |
-| GET | `/api/orders?status=` | 订单查询 | JWT |
-| POST | `/api/orders/{id}/refund` | 退票 | JWT |
-
-### 调试
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/health` | 健康检查 |
-| GET | `/api/whoami` | 验证 JWT + 查看权限 |
-| GET | `/api/debug/stations` | 站点列表 |
-| GET | `/api/debug/graph?from=&to=` | 路网最短路径 |
+| 方法 | 路径 | 说明 | 权限 |
+|------|------|------|:---:|
+| POST | `/api/auth/login` | 登录 | — |
+| POST | `/api/auth/register` | 注册 | — |
+| GET | `/api/stations` | 站点列表 | 登录 |
+| GET | `/health` | 健康检查 | — |
+| GET | `/api/trains/query?from=&to=&date=` | 查票（直达+换乘） | Passenger |
+| GET | `/api/trains/station?station=X` | 车站查询 | Passenger |
+| POST | `/api/orders` | 购票 | Passenger |
+| POST | `/api/orders/{id}/refund` | 退票 | Passenger |
+| GET | `/api/orders` | 订单查询 | Passenger |
+| GET/POST/PUT/DELETE | `/api/admin/trains` | 列车管理 | Staff |
+| GET | `/api/stations/neighbors` | 线路邻居索引 | Staff |
+| GET | `/api/admin/stop-inserts` | 线路变更待办 | Staff |
+| PUT | `/api/admin/approvals/{id}/stop-time` | 提交线路变更 | Staff |
+| GET | `/api/admin/approvals` | 审批列表 | Staff / Approver |
+| POST | `/api/admin/approvals/{id}/approve` | 审批通过 | Approver |
+| POST | `/api/admin/approvals/{id}/reject` | 审批驳回 | Approver |
+| GET/POST/PUT/DELETE | `/api/admin/stations` | 站点管理 | INFRA_ADMIN |
+| GET/POST/PUT/DELETE | `/api/admin/lines` | 线路管理 | INFRA_ADMIN |
+| GET/POST/PUT/DELETE | `/api/admin/users` | 用户管理 | SYS_ADMIN |
+| GET | `/api/admin/audit` | 审计日志 | SYS_ADMIN |
+| GET/PUT | `/api/admin/config` | 系统配置 | SYS_ADMIN |
 
 ---
 
-## 技术亮点
+## 技术栈
 
-### 线程安全 — 细粒度锁
-
-```
-每 (车次, 日期) 一个 std::shared_mutex
-  查票 → shared_lock（读，允许并发）
-  购票 → unique_lock（写，互斥）
-  死锁预防 → 多锁按车次 ID 字典序
-```
-
-### 票价计算 — 沿轨道逐段累加
-
-```
-不是：Haversine(出发站, 到达站)  ← 直线距离，严重低估
-而是：Σ Haversine(站ᵢ, 站ᵢ₊₁)   ← 沿 stops 逐段累加
-```
-
-使用 `stops`（全量序列，含通过站）+ `buildSegments()` 按需推导区段距离。
-
-### RBAC 权限
-
-```
-std::bitset<64> 位图存储权限
-每个 HTTP 请求 → 中间件提取 JWT → 校验权限位 → 放行/拒绝
-五角色：PASSENGER / STAFF / APPROVER / INFRA_ADMIN / SYS_ADMIN
-```
-
-### 路网算法
-
-```
-RailwayGraph: 邻接表，启动时从 JSON 加载
-TrainQuery:   直达（停站匹配）+ 换乘（车站-列车索引 + 地理约束）
-```
-
-### 数据安全
-
-```
-密码: argon2id (libsodium)，每个用户独立 salt
-JWT:  HS256，30min 有效期
-登录: 5 次失败锁定 30 分钟
-```
+| 层 | 技术 |
+|----|------|
+| 语言 | C++17 (`-Wall -Wextra -Wpedantic`) |
+| HTTP | cpp-httplib (header-only) |
+| JSON | nlohmann/json |
+| 加密 | libsodium (argon2id + HMAC-SHA256) |
+| 前端 | 纯 HTML/CSS/JS SPA，零 npm 依赖 |
+| 构建 | CMake (`cmake -S server -B build`) |
+| 部署 | Docker Compose |
 
 ---
 
-## 种子数据
-
-340 个站点 + 126 条线路，存储在 `server/config/stations.json` 和 `server/config/lines.json`。
-
----
-
-## 实现进度
+## 目录结构
 
 ```
-✅ Phase 1  项目骨架         ✅ Phase 5  旅客前端
-✅ Phase 2  数据模型          ✅ Phase 6  职工后端
-✅ Phase 3  认证+RBAC         ✅ Phase 7  职工前端
-✅ Phase 4  旅客后端          ✅ Phase 8  管理员后端
-                              ✅ Phase 9  管理员前端
-                              ⏳ Phase 10  测试+Docker+文档
+12306_realway_system/
+├── server/
+│   ├── src/
+│   │   ├── main.cpp                         # 入口
+│   │   ├── models.h                         # 全局数据模型
+│   │   ├── config.h                         # 全局配置常量
+│   │   ├── utils.h                          # 全局工具函数
+│   │   ├── data/
+│   │   │   └── data_store.h/.cpp            #   数据加载 + 索引构建
+│   │   ├── system/
+│   │   │   ├── logger.h/.cpp                #   日志
+│   │   │   └── wal.h/.cpp                   #   WAL 预写日志
+│   │   ├── auth/
+│   │   │   ├── auth_service.h/.cpp          #   argon2id 密码哈希
+│   │   │   ├── jwt_service.h/.cpp           #   JWT 生成与校验
+│   │   │   └── rbac_middleware.h/.cpp       #   权限中间件
+│   │   ├── security/
+│   │   │   ├── crypto.h/.cpp                #   AES-256-GCM
+│   │   │   └── rate_limiter.h/.cpp          #   Token Bucket 限流
+│   │   ├── passenger/                       # 旅客：查票/购票/退票
+│   │   ├── staff/                           # 职工：列车管理
+│   │   ├── approver/                        # 审批：状态机
+│   │   ├── sys_admin/                       # 系统管理：用户/审计/配置
+│   │   └── http/                            # HTTP 服务 + 路由
+│   ├── config/                              # 种子数据（JSON）
+│   ├── data/                                # 运行时数据
+│   └── frontend/                            # 前端（6 个 JS 模块）
+├── scripts/
+├── MANUAL.md                                # 用户手册
+└── README.md                                # 本文件
 ```
-
-详见 [requirtment.md](requirtment.md) 第八章实现优先级。
-
----
-
-## 编码规范
-
-- 一个 `.h` 配一个 `.cpp`，`snake_case` 命名
-- `PascalCase` 类名，`camelCase` 函数，`snake_case_` 成员变量
-- 内部工具函数放 `.cpp` 匿名 namespace，不放 `.h` private
-- 禁止 `using namespace std`、裸 `new`/`delete`、硬编码路径
-- 详见 [.claude/CLAUDE.md](.claude/CLAUDE.md)
