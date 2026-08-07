@@ -2,7 +2,7 @@
 
 > C++17 铁路票务系统，模拟 12306 核心功能：查票、购票、退票、列车管理、审批流、RBAC 权限管控。
 
-**319 站点 · 30 线路 · 100 列车 · 5 角色 RBAC · 纯 C++ 后端 + 零依赖前端**
+**340 站点 · 126 线路 · 100 列车 · 5 角色 RBAC · 纯 C++ 后端 + 零依赖前端**
 
 ---
 
@@ -20,9 +20,8 @@
 │   │   │   ├── server.h/.cpp           #   cpp-httplib 包装
 │   │   │   ├── routes.h/.cpp           #   路由注册（10个端点）
 │   │   │   └── logger.h/.cpp           #   日志基础设施
-│   │   ├── data/                       # 数据加载 + 铁路网图 + 种子生成
-│   │   │   ├── data_store.h/.cpp       #   单例数据加载器
-│   │   │   └── railway_graph.h/.cpp    #   邻接表 + JSON 持久化
+│   │   ├── data/                       # 数据加载 + 种子生成
+│   │   │   └── data_store.h/.cpp       #   单例数据加载器（索引构建、站点/线路/列车管理）
 │   │   ├── auth/                       # 认证 + JWT + RBAC
 │   │   │   ├── auth_service.h/.cpp     #   argon2id 密码哈希 + 用户管理
 │   │   │   ├── jwt_service.h/.cpp      #   HS256 JWT 生成与校验
@@ -36,8 +35,8 @@
 │   │   │   └── approval_service.h/.cpp #   审批状态机 + 四眼原则
 │   │   └── admin/                      # 管理员端（功能实现于 core/ routes 中）
 │   ├── config/
-│   │   ├── stations.json               # 319个站点（全国地级市）
-│   │   ├── lines.json                  # 30条线路
+│   │   ├── stations.json               # 340个站点（全国地级市）
+│   │   ├── lines.json                  # 126条线路
 │   │   ├── trains.json                 # 100辆列车（自动生成）
 │   │   └── users.json                  # 用户数据
 │   ├── frontend/
@@ -50,7 +49,7 @@
 │   └── run.sh                          # 启动服务
 ├── .claude/
 │   ├── CLAUDE.md                       # 项目编码规范
-│   └── skills/                         # AI 辅助 skill（code-review / doc-sync / …）
+│   └── skills/                         # AI 辅助 skill（code-review / doc-sync / line-change / …）
 └── requirtment.md                      # 详细需求文档
 ```
 
@@ -238,13 +237,7 @@ JWT:  HS256，30min 有效期
 
 ## 种子数据
 
-### 319 个站点（全国地级市，每市一站）
-
-呼和浩特东、呼和浩特、包头、包头东、鄂尔多斯、东胜西、集宁南、乌兰察布、临河、乌海、准格尔、达拉特西、萨拉齐、察素齐、托克托东、土默特右旗、白云鄂博、乌审旗、卓资东、旗下营南
-
-### 30 条线路
-
-京包高铁、呼鄂城际、包西铁路、集包铁路、呼准鄂铁路、包兰铁路(内蒙段)、集呼高铁、呼临铁路、包白铁路、沿黄铁路
+340 个站点 + 126 条线路，存储在 `server/config/stations.json` 和 `server/config/lines.json`。
 
 ---
 
