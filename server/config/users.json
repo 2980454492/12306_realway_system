@@ -43,14 +43,5 @@
     "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$FZsD+zAWN+YUOuBzcRBvQw$6e3SM0tOjhZXc8IevgreDIfnmeOyr8CqrORRj6UunIM",
     "role": "PASSENGER",
     "username": "passenger"
-  },
-  {
-    "active": true,
-    "failed_attempts": 0,
-    "id": "7a754d77-e2b2-4c0f-8a36-5e84c5c99e3a",
-    "locked_until": "",
-    "password_hash": "$argon2id$v=19$m=65536,t=2,p=1$cBrhMPUyAaR4ti2gS1pR3g$KQpopCO2WJUbQcCOZmWyHiKm/5oPMt+x80Pltzv5pUE",
-    "role": "PASSENGER",
-    "username": "jnz"
   }
 ]

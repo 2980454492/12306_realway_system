@@ -244,10 +244,16 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         }
         int speed_limit = ds.getLine(line_id)->max_speed_kmh;
         std::string err = checkSpeedLimit(*prev_station, *new_station, prev_stop.departure, arrival, speed_limit);
-        if (!err.empty()) { result.error = err; return result; }
+        if (!err.empty()) {
+            result.error = err;
+            return result;
+        }
         if (next_stop.arrival > 0) {
             err = checkSpeedLimit(*new_station, *next_station, departure, next_stop.arrival, speed_limit);
-            if (!err.empty()) { result.error = err; return result; }
+            if (!err.empty()) {
+                result.error = err;
+                return result;
+            }
         }
     }
 
