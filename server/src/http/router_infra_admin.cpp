@@ -246,13 +246,13 @@ void registerInfraAdminRoutes(RailwayServer& server) {
         json affected_trains = json::array();
         DataStore& ds = DataStore::instance();
         std::set<std::string> paired_removed;  // 已配对为改站的被删站点
-        for (const std::string& new_station : line.stations) {
+        for (size_t pos = 0; pos < line.stations.size(); pos++) {
+            const std::string& new_station = line.stations[pos];
             std::vector<std::string>::const_iterator it = std::find(old_stations.begin(), old_stations.end(), new_station);
             if (it != old_stations.end()) continue;  // 已有站点跳过
 
             // 检测是否为改站：被删集合中是否有站位于线路同一位置
             std::string replace_station;
-            size_t pos = &new_station - &line.stations[0];
             if (pos < old_stations.size() && removed_set.count(old_stations[pos]))
                 replace_station = old_stations[pos];
 

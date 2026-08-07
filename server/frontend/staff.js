@@ -910,7 +910,14 @@
       var card = tpl.content.cloneNode(true);
       var isRemove = (a.type === 6);
       var replaceName = pl.replace_station_name || '';
-      var typeTag = replaceName ? '改站: ' + replaceName + ' → ' + stCity : (isRemove ? '删站: ' + stCity : '加站: ' + stCity);
+      var typeTag;
+      if (replaceName) {
+        typeTag = '改站: ' + replaceName + ' → ' + stCity;
+      } else if (isRemove) {
+        typeTag = '删站: ' + stCity;
+      } else {
+        typeTag = '加站: ' + stCity;
+      }
       card.querySelector('.si-train-id').textContent = tid;
       card.querySelector('.si-line-station').textContent = lineName + '     ' + typeTag;
       card.querySelector('.si-prev-name').textContent = prevName;

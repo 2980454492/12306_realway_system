@@ -59,7 +59,7 @@
       stEl.className = 'approval-status ' + (UI.STATUS_CLS[a.status] || 'submitted');
       // 提交人（优先 username，fallback submitter_id）
       var submitter = a.submitter_name || a.submitter_id || '?';
-      if (a.type === 5 || a.type === 6 || a.type === 7) submitter = 'INFRA管理员';
+      if (UI.isLineChangeType(a.type)) submitter = 'INFRA管理员';
       card.querySelector('.approval-meta-submitter').textContent = '提交人: ' + submitter + ' | ' + (a.submitted_at || '');
       // 车次 + 站点信息
       var pl = info.train || {};

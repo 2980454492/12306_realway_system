@@ -99,6 +99,24 @@ void ApprovalService::archivePendingTrain(const ApprovalRequest& req) {
 
 namespace {
 
+/** 线路变更类型判断：加站、改站、删站 */
+inline bool isLineChangeType(ApprovalType t) {
+    return t == ApprovalType::STOP_INSERT
+        || t == ApprovalType::STOP_REPLACE
+        || t == ApprovalType::STOP_REMOVE;
+}
+
+/** 从 stops 中移除指定站点（按 station_id + line_id 精确匹配），返回移除位置，-1 表示未找到 */
+int removeStopByStation(std::vector<Stop>& stops, uint32_t station_id, uint32_t line_id) {
+    for (size_t i = 0; i < stops.size(); i++) {
+        if (stops[i].station_id == station_id && stops[i].line_id == line_id) {
+            stops.erase(stops.begin() + i);
+            return static_cast<int>(i);
+        }
+    }
+    return -1;
+}
+
 /** 检查两站间的实际时速是否超过限速。返回空 = 通过，非空 = 错误信息 */
 std::string checkSpeedLimit(const Station& from, const Station& to,
                              int time_from, int time_to, int speed_limit) {
@@ -136,10 +154,7 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
     // 1. 找到审批（支持三种线路变更类型 + DRAFT→SUBMITTED 过渡）
     std::vector<ApprovalRequest>::iterator it = std::find_if(approvals_.begin(), approvals_.end(),
         [&](const ApprovalRequest& a) {
-            return a.id == approval_id
-                && (a.type == ApprovalType::STOP_INSERT
-                    || a.type == ApprovalType::STOP_REPLACE
-                    || a.type == ApprovalType::STOP_REMOVE);
+            return a.id == approval_id && isLineChangeType(a.type);
         });
     if (it == approvals_.end()) {
         result.error = "审批不存在或类型不匹配";
@@ -196,13 +211,9 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
         std::string replace_name = payload.value("replace_station_name", "");
         if (!replace_name.empty()) {
             uint32_t old_id = ds.stationNameToId(replace_name);
-            for (size_t si = 0; si < new_train.stops.size(); si++) {
-                if (new_train.stops[si].station_id == old_id && new_train.stops[si].line_id == line_id) {
-                    new_train.stops.erase(new_train.stops.begin() + si);
-                    if (static_cast<int>(si) < insert_idx) insert_idx--;
-                    break;
-                }
-            }
+            int removed_at = removeStopByStation(new_train.stops, old_id, line_id);
+            if (removed_at >= 0 && removed_at < insert_idx)
+                insert_idx--;
         }
 
         // 加站/改站：插入新站点
@@ -223,12 +234,8 @@ ApprovalService::UpdateStopTimeResult ApprovalService::updateStopTime(
 
     // 4. 非删站时做速度校验
     if (!is_remove) {
-        int insert_idx_after = insert_idx;
-        // 改站后 insert_idx 可能因移除旧站而偏移，重新定位
-        for (size_t i = 0; i < new_train.stops.size(); i++)
-            if (new_train.stops[i].station_id == station_id) { insert_idx_after = static_cast<int>(i); break; }
-        const Stop& prev_stop = new_train.stops[insert_idx_after - 1];
-        const Stop& next_stop = new_train.stops[insert_idx_after + 1];
+        const Stop& prev_stop = new_train.stops[insert_idx - 1];
+        const Stop& next_stop = new_train.stops[insert_idx + 1];
         Station* prev_station = ds.getStation(prev_stop.station_id);
         Station* next_station = ds.getStation(next_stop.station_id);
         if (!prev_station || !next_station) {
@@ -423,13 +430,9 @@ ApprovalService::ApproveResult ApprovalService::approve(
 
             // 先移除旧站
             uint32_t old_id = ds.stationNameToId(replace_name);
-            for (size_t si = 0; si < train->stops.size(); si++) {
-                if (train->stops[si].station_id == old_id && train->stops[si].line_id == line_id) {
-                    train->stops.erase(train->stops.begin() + si);
-                    if (static_cast<int>(si) < insert_idx) insert_idx--;
-                    break;
-                }
-            }
+            int removed_at = removeStopByStation(train->stops, old_id, line_id);
+            if (removed_at >= 0 && removed_at < insert_idx)
+                insert_idx--;
 
             // 插入新站
             Stop new_stop;
