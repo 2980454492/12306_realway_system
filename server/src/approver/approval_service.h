@@ -17,6 +17,7 @@
  */
 class ApprovalService {
 public:
+    /** 单例入口 */
     static ApprovalService& instance();
 
     ApprovalService(const ApprovalService&) = delete;
@@ -48,6 +49,8 @@ public:
         bool success = false;
         std::string error;
     };
+    /** STAFF 填写线路变更信息并提交。支持加站/改站/删站三种类型，DRAFT→SUBMITTED。
+     *  effective_date 为生效日期（≥15 天后），staff_id 为提交人 UUID */
     UpdateStopTimeResult updateStopTime(const std::string& approval_id, int arrival, int departure,
                                         const std::string& effective_date, const std::string& staff_id = "");
 
@@ -78,6 +81,7 @@ public:
 private:
     ApprovalService() = default;
 
+    /** 序列化审批列表到配置目录下的 JSON 文件 */
     void saveApprovals() const;
 
     /** 将 CREATE_TRAIN 审批关联的 PENDING 列车归档，reject/withdraw 共用 */

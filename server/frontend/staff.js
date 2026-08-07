@@ -866,6 +866,7 @@
 
   // ── 线路变更 ──
 
+  /** 加载线路变更审批列表（仅 DRAFT 状态） */
   UI.loadStopInserts = async function() {
     if (!State.stations.length) await U.loadStations();
     var res = await API.get('/api/admin/stop-inserts');
@@ -874,6 +875,7 @@
     UI.renderStopInserts();
   };
 
+  /** 渲染线路变更卡片。加站/改站须填写时间，删站只需日期 */
   UI.renderStopInserts = function() {
     var listEl = U.$('stop-inserts-list');
     listEl.innerHTML = '';
