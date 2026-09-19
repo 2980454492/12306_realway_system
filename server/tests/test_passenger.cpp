@@ -2,7 +2,10 @@
 #include <gtest/gtest.h>
 #include "passenger/train_query.h"
 #include "passenger/order_service.h"
+#include "passenger/seat_inventory.h"
 #include "data/data_store.h"
+#include <thread>
+#include <atomic>
 #include "sys_admin/system_config.h"
 
 class PassengerTest : public ::testing::Test {
@@ -90,4 +93,61 @@ TEST_F(PassengerTest, RefundNonExistentOrder) {
 TEST_F(PassengerTest, RefundOtherUserOrder) {
     auto refund = OrderService::instance().refundOrder("nonexistent_id", "wrong_user");
     EXPECT_FALSE(refund.refund_amount.has_value());
+}
+
+// ── 并发抢票压力测试：100 线程抢 50 张票 ──
+
+TEST_F(PassengerTest, ConcurrentBuy100Threads50Seats) {
+    // 找到一辆 ACTIVE 列车
+    auto& trains = DataStore::instance().getAllTrains();
+    Train* target = nullptr;
+    for (const auto& tr : trains) {
+        if (tr.status == TrainStatus::ACTIVE && tr.stops.size() >= 2) {
+            target = const_cast<Train*>(&tr);
+            break;
+        }
+    }
+    ASSERT_NE(target, nullptr) << "Need at least one ACTIVE train";
+
+    // 使用独立日期，确保该 (车次, 日期) 的库存未被其他测试初始化过
+    std::string date = "2026-12-25";
+    std::string train_id = target->id;
+
+    // 将二等座设置为恰好 50 张，用于可复现验证
+    uint16_t original_second = target->seat_config.second_seats;
+    target->seat_config.second_seats = 50;
+
+    constexpr int kThreads = 100;
+    constexpr int kSeats = 50;
+    std::atomic<int> success{0};
+    std::atomic<int> fail{0};
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < kThreads; ++i) {
+        threads.emplace_back([&]() {
+            auto res = SeatInventory::instance().reserve(
+                train_id, date, SeatType::SECOND, 1);
+            if (res.success)
+                ++success;
+            else
+                ++fail;
+        });
+    }
+
+    for (auto& t : threads)
+        t.join();
+
+    // 恢复原始配置
+    target->seat_config.second_seats = original_second;
+
+    // ── 断言 ──
+    EXPECT_EQ(success.load(), kSeats)
+        << "Expected exactly 50 successes (tickets sold), got " << success.load();
+    EXPECT_EQ(fail.load(), kThreads - kSeats)
+        << "Expected exactly 50 failures (oversold), got " << fail.load();
+
+    // 验证库存清零
+    auto final = SeatInventory::instance().getAvailable(train_id, date);
+    EXPECT_EQ(final.second_seats, 0)
+        << "Should have 0 available seats remaining";
 }

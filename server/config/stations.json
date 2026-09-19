@@ -2718,5 +2718,13 @@
     "longitude": 113.06,
     "name": "长沙南",
     "type": "HIGH_SPEED"
+  },
+  {
+    "city": "耒阳",
+    "id": 341,
+    "latitude": 26.41,
+    "longitude": 112.79,
+    "name": "耒阳西",
+    "type": "HIGH_SPEED"
   }
 ]

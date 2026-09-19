@@ -1,0 +1,29 @@
+{
+  "skills": [
+    {
+      "name": "code-review",
+      "path": ".claude/skills/code-review/SKILL.md"
+    },
+    {
+      "name": "build-check",
+      "path": ".claude/skills/build-check/SKILL.md"
+    },
+    {
+      "name": "new-api",
+      "path": ".claude/skills/new-api/SKILL.md"
+    },
+    {
+      "name": "db-safe",
+      "path": ".claude/skills/db-safe/SKILL.md"
+    },
+    {
+      "name": "comment-review",
+      "path": ".claude/skills/comment-review/SKILL.md"
+    }
+  ],
+  "permissions": {
+    "allow": [
+      "Bash(./scripts/*)"
+    ]
+  }
+}
